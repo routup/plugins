@@ -47,15 +47,15 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/routup.git",
+        "url": "git+https://github.com/routup/plugins.git",
         "directory": "packages/swagger"
     },
     "bugs": {
-        "url": "https://github.com/Tada5hi/routup/issues"
+        "url": "https://github.com/routup/plugins/issues"
     },
-    "homepage": "https://github.com/Tada5hi/routup#readme",
+    "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": ">=0.14.2 <1.0.0",
+        "routup": "^1.0.0-alpha.2",
         "@routup/static": ">=0.7.2 <1.0.0"
     },
     "dependencies": {
@@ -70,7 +70,7 @@
         "@routup/static": "^0.7.4",
         "@types/supertest": "^2.0.12",
         "jsonata": "^2.0.3",
-        "routup": "^0.14.2",
+        "routup": "^1.0.0-alpha.2",
         "supertest": "^6.3.3"
     },
     "publishConfig": {

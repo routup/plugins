@@ -4,9 +4,8 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-
-import supertest from 'supertest';
 import { Router, send } from 'routup';
+import supertest from 'supertest';
 import {
     createHandler,
     createJsonHandler,

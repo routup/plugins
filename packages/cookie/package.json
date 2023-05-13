@@ -46,22 +46,22 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/routup.git",
+        "url": "git+https://github.com/routup/plugins.git",
         "directory": "packages/cookie"
     },
     "bugs": {
-        "url": "https://github.com/Tada5hi/routup/issues"
+        "url": "https://github.com/routup/plugins/issues"
     },
-    "homepage": "https://github.com/Tada5hi/routup#readme",
+    "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": ">=0.14.2 <1.0.0"
+        "routup": "^1.0.0-alpha.2"
     },
     "dependencies": {
         "cookie-es": "^1.0.0"
     },
     "devDependencies": {
         "@types/supertest": "^2.0.12",
-        "routup": "^0.14.2",
+        "routup": "^1.0.0-alpha.2",
         "supertest": "^6.3.3"
     },
     "gitHead": "11dd52c006ffe5041bba0f57dfc33527ee57d6c1",

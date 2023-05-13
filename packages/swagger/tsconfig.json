@@ -2,8 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "paths": {
-            "@routup/static": ["./packages/static/src"],
-            "routup": ["./packages/routup/src"]
+            "@routup/static": ["./packages/static/src"]
         }
     }
 }

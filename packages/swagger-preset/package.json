@@ -45,13 +45,13 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/routup.git",
+        "url": "git+https://github.com/routup/plugins.git",
         "directory": "packages/swagger-preset"
     },
     "bugs": {
-        "url": "https://github.com/Tada5hi/routup/issues"
+        "url": "https://github.com/routup/plugins/issues"
     },
-    "homepage": "https://github.com/Tada5hi/routup#readme",
+    "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "@trapi/swagger": ">=1.0.0-alpha.0 || 1.x"
     },
