@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/routup/plugins/compare/@routup/swagger@1.0.0-alpha.0...@routup/swagger@1.0.0) (2023-05-15)
+
+
+### Bug Fixes
+
+* **deps:** bump routup to v1.0.0 ([5be242d](https://github.com/routup/plugins/commit/5be242d357918ca994b29236e285ea584a7a6ec8))
+
+
+
+
+
 # [1.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/swagger@0.13.5...@routup/swagger@1.0.0-alpha.0) (2023-05-15)
 
 
