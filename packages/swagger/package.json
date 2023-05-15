@@ -55,7 +55,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^1.0.0-alpha.5",
+        "routup": "^1.0.0-alpha.6",
         "@routup/static": "^1.0.0-alpha.0"
     },
     "dependencies": {
@@ -70,7 +70,7 @@
         "@routup/static": "^0.7.4",
         "@types/supertest": "^2.0.12",
         "jsonata": "^2.0.3",
-        "routup": "^1.0.0-alpha.5",
+        "routup": "^1.0.0-alpha.6",
         "supertest": "^6.3.3"
     },
     "publishConfig": {
