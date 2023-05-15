@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/prometheus@0.7.2...@routup/prometheus@1.0.0-alpha.0) (2023-05-15)
+
+
+### Bug Fixes
+
+* change dependency from core to routup package ([b3f203a](https://github.com/routup/plugins/commit/b3f203ac1a07190db6913620e620d8b930681e74))
+* **deps,peer-deps:** bump routup dependencies ([f94914d](https://github.com/routup/plugins/commit/f94914d6926de73bed00c670e9447091e4144f35))
+
+
+
+
+
 ## [0.7.2](https://github.com/Tada5hi/routup/compare/@routup/prometheus@0.7.1...@routup/prometheus@0.7.2) (2023-05-11)
 
 **Note:** Version bump only for package @routup/prometheus

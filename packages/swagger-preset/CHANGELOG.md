@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/swagger-preset@0.1.2...@routup/swagger-preset@1.0.0-alpha.0) (2023-05-15)
+
+**Note:** Version bump only for package @routup/swagger-preset
+
+
+
+
+
 ## [0.1.2](https://github.com/Tada5hi/routup/compare/@routup/swagger-preset@0.1.1...@routup/swagger-preset@0.1.2) (2023-03-20)
 
 
