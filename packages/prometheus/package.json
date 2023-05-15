@@ -47,13 +47,13 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^1.0.0-alpha.2",
+        "routup": ">=1.0.0-alpha.6",
         "prom-client": ">=13.0.0"
     },
     "devDependencies": {
         "@types/supertest": "^2.0.12",
         "prom-client": "^14.2.0",
-        "routup": "^1.0.0-alpha.2",
+        "routup": "^1.0.0-alpha.6",
         "supertest": "^6.3.3"
     },
     "publishConfig": {
