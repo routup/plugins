@@ -19,6 +19,8 @@ describe('src/module', () => {
     it('should parse cookie', async () => {
         const router = new Router();
 
+        router.use(createHandler());
+
         router.get('/', (req, res) => {
             useRequestCookies(req);
 

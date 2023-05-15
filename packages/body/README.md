@@ -65,10 +65,10 @@ To parse `application/json` input data, mount the json handler to the router ins
 
 ```typescript
 import { Router, send } from 'routup';
-import { createRequestJsonHandler, useRequestBody } from '@routup/body';
+import { createJsonHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
-router.use(createRequestJsonHandler());
+router.use(createJsonHandler());
 
 router.get('/', (req, res) => {
     const body = useRequestBody(req);
@@ -87,10 +87,10 @@ To parse `application/x-www-form-urlencoded` input data, mount the url-encoded h
 
 ```typescript
 import { Router, send } from 'routup';
-import { createRequestUrlEncodedHandler, useRequestBody } from '@routup/body';
+import { createUrlEncodedHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
-router.use(createRequestUrlEncodedHandler({ extended: false }));
+router.use(createUrlEncodedHandler({ extended: false }));
 
 router.get('/', (req, res) => {
     const body = useRequestBody(req);
@@ -131,10 +131,10 @@ To parse `any` input data as string, mount the text handler to the router instan
 
 ```typescript
 import { Router, send } from 'routup';
-import { createRequestTextHandler, useRequestBody } from '@routup/body';
+import { createTextHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
-router.use(createRequestTextHandler({ type: 'text/html' }));
+router.use(createTextHandler({ type: 'text/html' }));
 
 router.get('/', (req, res) => {
     const body = useRequestBody(req);

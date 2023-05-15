@@ -31,17 +31,22 @@ It is important to invoke the request middleware,
 to parse the query-string of the request url.
 
 ```typescript
-import {Router, send} from 'routup';
-import { useRequestQuery } from '@routup/query';
+import { Router, send } from 'routup';
+import {
+    createHandler,
+    useRequestQuery
+} from '@routup/query';
 
 const router = new Router();
+
+router.use(createHandler());
 
 router.get('/', (req, res) => {
     const query = useRequestQuery(req);
     console.log(query);
-    // { key: value, ... }
+    // { key: ..., ... }
 
-    send(res, 'Hello World');
+    send(res, query);
 });
 
 router.listen(3000);

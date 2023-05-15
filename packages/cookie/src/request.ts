@@ -6,15 +6,11 @@
  */
 
 import {
-    setRequestCookieFn,
     useRequestCookie,
     useRequestCookies,
 } from 'routup';
-import { parseRequestCookies } from './utils';
 
 export {
     useRequestCookie,
     useRequestCookies,
 };
-
-setRequestCookieFn(parseRequestCookies);

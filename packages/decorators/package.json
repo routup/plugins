@@ -54,14 +54,14 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^1.0.0-alpha.2"
+        "routup": "^1.0.0-alpha.5"
     },
     "devDependencies": {
         "@routup/body": "^0.7.4",
         "@routup/cookie": "^0.8.2",
         "@routup/query": "^0.7.4",
         "@types/supertest": "^2.0.12",
-        "routup": "^1.0.0-alpha.2",
+        "routup": "^1.0.0-alpha.5",
         "supertest": "^6.3.3"
     },
     "publishConfig": {

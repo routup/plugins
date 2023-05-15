@@ -14,6 +14,8 @@ describe('src/module', () => {
     it('should parse request query', async () => {
         const router = new Router();
 
+        router.use(createHandler());
+
         router.get('/', (req, res) => {
             send(res, useRequestQuery(req));
         });
