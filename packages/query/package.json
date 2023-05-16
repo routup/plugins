@@ -59,7 +59,7 @@
     },
     "dependencies": {
         "@types/qs": "^6.9.7",
-        "qs": "^6.11.1"
+        "qs": "^6.11.2"
     },
     "devDependencies": {
         "@types/supertest": "^2.0.12",
