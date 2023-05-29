@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/routup/plugins/compare/@routup/prometheus@1.0.0...@routup/prometheus@1.0.1) (2023-05-29)
+
+**Note:** Version bump only for package @routup/prometheus
+
+
+
+
+
 # [1.0.0](https://github.com/routup/plugins/compare/@routup/prometheus@1.0.0-alpha.0...@routup/prometheus@1.0.0) (2023-05-15)
 
 

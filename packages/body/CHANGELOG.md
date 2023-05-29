@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/routup/plugins/compare/@routup/body@1.0.0...@routup/body@1.0.1) (2023-05-29)
+
+
+### Bug Fixes
+
+* **deps:** bump smob from 1.0.0 to 1.4.0 ([#22](https://github.com/routup/plugins/issues/22)) ([81800ef](https://github.com/routup/plugins/commit/81800ef603037c43eab98be1bc469d03f4609e9b))
+
+
+
+
+
 # [1.0.0](https://github.com/routup/plugins/compare/@routup/body@1.0.0-alpha.0...@routup/body@1.0.0) (2023-05-15)
 
 

@@ -1,6 +1,6 @@
 {
     "name": "@routup/swagger",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Swagger plugin for routup.",
     "exports": {
         "./package.json": "./package.json",
@@ -66,8 +66,8 @@
         "swagger-ui-dist": "^4.19.0"
     },
     "devDependencies": {
-        "@routup/decorators": "^1.0.0",
-        "@routup/static": "^1.0.0",
+        "@routup/decorators": "^1.0.1",
+        "@routup/static": "^1.0.1",
         "@types/supertest": "^2.0.12",
         "jsonata": "^2.0.3",
         "routup": "^1.0.1",
