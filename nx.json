@@ -1,18 +1,36 @@
 {
-    "targetDefaults": {
-        "build": {
-            "dependsOn": ["^build"]
-        },
-        "test": {
-            "dependsOn": ["^build"]
-        }
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ]
     },
-    "tasksRunnerOptions": {
-        "default": {
-            "runner": "nx/tasks-runners/default",
-            "options": {
-                "cacheableOperations": ["build", "test"]
-            }
-        }
+    "test": {
+      "dependsOn": [
+        "^build"
+      ]
     }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "test"
+        ]
+      }
+    }
+  },
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "sharedGlobals": [],
+    "production": [
+      "default"
+    ]
+  }
 }

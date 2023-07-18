@@ -2,6 +2,7 @@ import type { Next, Request, Response } from 'routup';
 import type { DecoratorMethodOptions } from './method';
 import type { DecoratorParameterOptions } from './parameter';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }
