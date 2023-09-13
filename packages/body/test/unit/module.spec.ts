@@ -1,4 +1,4 @@
-import { Router, send } from 'routup';
+import { Router, createNodeListener, send } from 'routup';
 import supertest from 'supertest';
 import {
     createHandler,
@@ -21,7 +21,7 @@ describe('src/**', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .post('/')
@@ -44,7 +44,7 @@ describe('src/**', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .post('/')
@@ -65,7 +65,7 @@ describe('src/**', () => {
             send(res, Buffer.isBuffer(foo));
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .post('/')
@@ -87,7 +87,7 @@ describe('src/**', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .post('/')
@@ -109,7 +109,7 @@ describe('src/**', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .post('/multiple')

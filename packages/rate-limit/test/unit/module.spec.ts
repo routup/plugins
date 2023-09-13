@@ -1,7 +1,6 @@
 import { HeaderName, send } from 'routup';
 import supertest from 'supertest';
-import { createHandler } from '../../src';
-import { RETRY_AGAIN_MESSAGE } from '../../src/constants';
+import { RETRY_AGAIN_MESSAGE, createHandler } from '../../src';
 import { createMiddleware } from '../middleware';
 
 describe('src/module', () => {

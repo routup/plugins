@@ -1,5 +1,7 @@
 import supertest from 'supertest';
-import { HeaderName, Router, send } from 'routup';
+import {
+    HeaderName, Router, createNodeListener, send,
+} from 'routup';
 import {
     createHandler,
     setResponseCookie,
@@ -21,7 +23,7 @@ describe('src/module', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/')
@@ -43,7 +45,7 @@ describe('src/module', () => {
             send(res, foo);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/')
@@ -69,7 +71,7 @@ describe('src/module', () => {
             send(res);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .get('/')
@@ -97,7 +99,7 @@ describe('src/module', () => {
             send(res);
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/')

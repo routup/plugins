@@ -1,6 +1,6 @@
 import qs from 'qs';
 import supertest from 'supertest';
-import { Router, send } from 'routup';
+import { Router, createNodeListener, send } from 'routup';
 import { createHandler, useRequestQuery } from '../../src';
 
 describe('src/module', () => {
@@ -25,7 +25,7 @@ describe('src/module', () => {
             send(res, useRequestQuery(req));
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const query = { page: { limit: '10', offset: '0' }, sort: '-name' };
 
@@ -63,7 +63,7 @@ describe('src/module', () => {
             send(res, useRequestQuery(req));
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const query = { page: { limit: '10', offset: '0' }, sort: '-name' };
 

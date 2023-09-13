@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import { HeaderName, Router } from 'routup';
+import { HeaderName, Router, createNodeListener } from 'routup';
 import type { UIOptions } from '../../../src';
 import { createUIHandler } from '../../../src';
 
@@ -14,7 +14,7 @@ const createRouter = async (options?: UIOptions) => {
 describe('src/ui', () => {
     it('should serve template file', async () => {
         const router = await createRouter();
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .get('/docs');
@@ -43,7 +43,7 @@ describe('src/ui', () => {
         const child = await createRouter();
         router.use('/sub', child);
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .get('/sub/docs');
@@ -64,7 +64,7 @@ describe('src/ui', () => {
         const router = await createRouter({
             basePath: '/api/',
         });
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/docs');
@@ -78,7 +78,7 @@ describe('src/ui', () => {
         const router = await createRouter({
             baseURL: 'https://example.com/api/',
         });
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/docs');
@@ -90,7 +90,7 @@ describe('src/ui', () => {
 
     it('should serve swagger ui files', async () => {
         const router = await createRouter();
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/docs/swagger-ui-bundle.js');
@@ -101,7 +101,7 @@ describe('src/ui', () => {
 
     it('should not serve package.json', async () => {
         const router = await createRouter();
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/docs/package.json');

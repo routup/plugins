@@ -1,4 +1,4 @@
-import { Router, send } from 'routup';
+import { Router, createNodeListener, send } from 'routup';
 import { Registry } from 'prom-client';
 import supertest from 'supertest';
 import type { OptionsInput } from '../../src';
@@ -31,7 +31,7 @@ describe('src/module', () => {
     it('should serve metrics', async () => {
         const router = createRouterWithHandlers();
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .get('/');
@@ -52,7 +52,7 @@ describe('src/module', () => {
             requestDurationType: 'summary',
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/metrics');
@@ -67,7 +67,7 @@ describe('src/module', () => {
             requestDuration: false,
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/metrics');
@@ -82,7 +82,7 @@ describe('src/module', () => {
             uptime: false,
         });
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/metrics');
