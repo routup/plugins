@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import type { Handler } from 'routup';
 import {
     HeaderName,
@@ -61,7 +62,7 @@ export function createHandler(directory: string, input?: HandlerOptionsInput) : 
                         res.end();
                     }
 
-                    return;
+                    return Promise.resolve();
                 }
 
                 if (cacheControl) {
@@ -73,23 +74,28 @@ export function createHandler(directory: string, input?: HandlerOptionsInput) : 
                 ) {
                     res.writeHead(304);
                     res.end();
-                    return;
+                    return Promise.resolve();
                 }
 
-                sendFile(res, fileInfo, (err: Error | null) => {
+                return sendFile(res, {
+                    content: (options) => fs.createReadStream(fileInfo.filePath, options),
+                    stats: () => fileInfo.stats,
+                    name: fileInfo.filePath,
+                }, (err?: Error) => {
                     if (err) {
                         if (
                             options.fallthrough &&
                             typeof next === 'function'
                         ) {
-                            next();
-                        } else {
-                            res.statusCode = 404;
-                            res.end();
+                            return next(err);
                         }
+
+                        res.statusCode = 404;
                     }
 
-                    // file was sent...
+                    res.end();
+
+                    return Promise.resolve();
                 });
             });
     };
