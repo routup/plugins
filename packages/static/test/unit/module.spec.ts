@@ -1,4 +1,4 @@
-import { HeaderName, Router } from 'routup';
+import { HeaderName, Router, createNodeListener } from 'routup';
 import path from 'node:path';
 import supertest from 'supertest';
 import { createHandler } from '../../src';
@@ -11,7 +11,7 @@ describe('src/module', () => {
 
         router.use(createHandler(directoryPath));
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/file.txt');
@@ -28,7 +28,7 @@ describe('src/module', () => {
             scan: false,
         }));
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/file.txt');
@@ -43,7 +43,7 @@ describe('src/module', () => {
 
         router.use(createHandler(directoryPath));
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/file.js');
@@ -58,7 +58,7 @@ describe('src/module', () => {
 
         router.use(createHandler(directoryPath));
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         const response = await server
             .get('/file.bar');
@@ -74,7 +74,7 @@ describe('src/module', () => {
             fallback: true,
         }));
 
-        const server = supertest(router.createListener());
+        const server = supertest(createNodeListener(router));
 
         let response = await server
             .get('/html');

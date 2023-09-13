@@ -1,5 +1,5 @@
 import type { Handler } from 'routup';
-import { Router, isObject, processHandlerExecutionOutput } from 'routup';
+import { Router, isObject } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType } from './type';
 import { createHandlerForClassType, useDecoratorMeta } from './utils';
@@ -25,13 +25,9 @@ export function mountController(router: Router, input: (ClassType | Record<strin
 
     const propertyKeys = Object.keys(meta.methods);
     for (let i = 0; i < propertyKeys.length; i++) {
-        const handler : Handler = (req, res, next) => {
-            const output = controller[propertyKeys[i]].apply(controller, [
-                ...buildDecoratorMethodArguments(req, res, next, meta.parameters[propertyKeys[i]]),
-            ]);
-
-            processHandlerExecutionOutput(res, next, output);
-        };
+        const handler : Handler = (req, res, next) => controller[propertyKeys[i]].apply(controller, [
+            ...buildDecoratorMethodArguments(req, res, next, meta.parameters[propertyKeys[i]]),
+        ]);
 
         const method = meta.methods[propertyKeys[i]];
         const handlers : Handler[] = [];
