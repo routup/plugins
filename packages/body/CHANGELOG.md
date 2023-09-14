@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3](https://github.com/routup/plugins/compare/@routup/body@1.0.2...@routup/body@1.0.3) (2023-09-14)
+
+
+### Bug Fixes
+
+* peer-dependency reference ([a73612e](https://github.com/routup/plugins/commit/a73612efb9de1aade5b2f126a8951a5e96dca17e))
+
+
+
+
+
 ## [1.0.2](https://github.com/routup/plugins/compare/@routup/body@1.0.1...@routup/body@1.0.2) (2023-09-14)
 
 

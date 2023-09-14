@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/routup/plugins/compare/@routup/decorators@2.0.0...@routup/decorators@2.0.1) (2023-09-14)
+
+**Note:** Version bump only for package @routup/decorators
+
+
+
+
+
 # [2.0.0](https://github.com/routup/plugins/compare/@routup/decorators@1.0.1...@routup/decorators@2.0.0) (2023-09-14)
 
 
