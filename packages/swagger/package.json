@@ -55,7 +55,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@routup/static": "^1.0.0",
+        "@routup/static": "^2.0.0",
         "routup": "^2.0.0"
     },
     "dependencies": {
