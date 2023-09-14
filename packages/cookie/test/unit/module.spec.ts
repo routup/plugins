@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import {
-    HeaderName, Router, createNodeListener, send,
+    HeaderName, Router, createNodeDispatcher, send,
 } from 'routup';
 import {
     createHandler,
@@ -23,7 +23,7 @@ describe('src/module', () => {
             send(res, foo);
         });
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .get('/')
@@ -45,7 +45,7 @@ describe('src/module', () => {
             send(res, foo);
         });
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .get('/')
@@ -71,7 +71,7 @@ describe('src/module', () => {
             send(res);
         });
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/')
@@ -99,7 +99,7 @@ describe('src/module', () => {
             send(res);
         });
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .get('/')

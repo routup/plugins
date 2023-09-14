@@ -4,7 +4,7 @@ import {
     HeaderName,
     sendFile,
     useRequestMountPath,
-    useRequestPath, withLeadingSlash,
+    useRequestPath,
 } from 'routup';
 import type { FileInfo, HandlerOptionsInput } from './type';
 import { buildHandlerOptions, scanFiles } from './utils';
@@ -39,7 +39,9 @@ export function createHandler(directory: string, input?: HandlerOptionsInput) : 
             requestPath = requestPath.substring(mountPath.length);
         }
 
-        requestPath = withLeadingSlash(requestPath);
+        if (!requestPath.startsWith('/')) {
+            requestPath = `/${requestPath}`;
+        }
 
         if (requestPath.indexOf('%') !== -1) {
             try {

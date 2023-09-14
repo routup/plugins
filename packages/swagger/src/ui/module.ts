@@ -1,11 +1,6 @@
 import {
-    cleanDoubleSlashes,
-    isObject,
     send,
     useRequestMountPath,
-    withLeadingSlash,
-    withTrailingSlash,
-    withoutLeadingSlash,
 } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,9 +13,16 @@ import type {
 import { createHandler } from '@routup/static';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
-import { getAssetsPath } from '../utils';
+import { ASSETS_PATH } from '../constants';
 import type { UIOptions } from './type';
 import { isFileURL } from './utils';
+import {
+    cleanDoubleSlashes,
+    isObject,
+    withLeadingSlash,
+    withTrailingSlash,
+    withoutLeadingSlash,
+} from '../utils';
 
 /* istanbul ignore next */
 const stringify = (obj: Record<string, any>) => {
@@ -65,7 +67,7 @@ export function createUIHandler(
     }
 
     let template : string | undefined;
-    const templateRaw = fs.readFileSync(path.join(getAssetsPath(), 'template.tpl'), {
+    const templateRaw = fs.readFileSync(path.join(ASSETS_PATH, 'template.tpl'), {
         encoding: 'utf-8',
     });
 

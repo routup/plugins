@@ -1,5 +1,5 @@
 import { createHandler } from '@routup/cookie';
-import { Router, createNodeListener } from 'routup';
+import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
 import { CookieController } from '../data/cookie';
@@ -12,7 +12,7 @@ describe('data/cookie', () => {
 
         mountController(router, CookieController);
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/cookie/many')

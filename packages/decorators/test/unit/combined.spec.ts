@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import { Router, createNodeListener } from 'routup';
+import { Router, createNodeDispatcher } from 'routup';
 import { mountController, mountControllers } from '../../src';
 import { HeaderController } from '../data/header';
 import { CombinedController } from '../data/combined';
@@ -10,7 +10,7 @@ describe('data/combined', () => {
 
         mountControllers(router, [CombinedController]);
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/combined');
@@ -54,7 +54,7 @@ describe('data/combined', () => {
 
         mountControllers(router, [CombinedController]);
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .delete('/combined/a');

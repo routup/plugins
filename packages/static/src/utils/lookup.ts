@@ -1,4 +1,3 @@
-import { hasTrailingSlash } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { FileInfo, HandlerOptions } from '../type';
@@ -27,12 +26,12 @@ const lookupPath = async (
 ) : Promise<FileInfo | undefined> => {
     const relativeFilePaths : string[] = [];
 
-    if (!hasTrailingSlash(requestPath)) {
+    if (!requestPath.endsWith('/')) {
         relativeFilePaths.push(requestPath);
     }
 
     if (options.extensions.length > 0) {
-        if (hasTrailingSlash(requestPath)) {
+        if (requestPath.endsWith('/')) {
             relativeFilePaths.push(...generatePaths(`${requestPath}index`, options.extensions));
         } else {
             const baseName = path.basename(requestPath);

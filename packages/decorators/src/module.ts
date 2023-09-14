@@ -1,8 +1,8 @@
 import type { Handler } from 'routup';
-import { Router, isObject } from 'routup';
+import { Router } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType } from './type';
-import { createHandlerForClassType, useDecoratorMeta } from './utils';
+import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
 export function mountController(router: Router, input: (ClassType | Record<string, any>)) {
     let controller : Record<string, any>;

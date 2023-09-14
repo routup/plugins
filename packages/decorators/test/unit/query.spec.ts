@@ -1,5 +1,5 @@
 import { createHandler, stringify } from '@routup/query';
-import { Router, createNodeListener } from 'routup';
+import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
 import { QueryController } from '../data/query';
@@ -12,7 +12,7 @@ describe('src/decorator', () => {
 
         mountController(router, QueryController);
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         const query = {
             foo: 'bar',

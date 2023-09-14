@@ -1,9 +1,7 @@
 import type { Handler } from 'routup';
 import {
-    onResponseFinished,
     setResponseHeaderContentType,
     useRequestPath,
-    withLeadingSlash,
 } from 'routup';
 import type {
     LabelValues,
@@ -12,7 +10,7 @@ import type {
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
 import type { Metrics, OptionsInput } from './type';
-import { buildHandlerOptions } from './utils';
+import { buildHandlerOptions, onResponseFinished } from './utils';
 
 export function createHandler(input?: Registry) : Handler {
     const registry : Registry = input || promClient.register;
@@ -58,7 +56,10 @@ export function registerMetrics(
         }
 
         if (metrics.requestDuration) {
-            const path = withLeadingSlash(useRequestPath(req));
+            let path = useRequestPath(req);
+            if (!path.startsWith('/')) {
+                path = `/${path}`;
+            }
 
             const labels: LabelValues<string> = {};
             const timer = metrics.requestDuration.startTimer(labels);

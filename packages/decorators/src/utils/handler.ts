@@ -1,7 +1,7 @@
 import type { Handler } from 'routup';
 import {
     isObject,
-} from 'routup';
+} from './object';
 import type { ClassType, HandlerInterface } from '../type';
 
 export function isHandlerClassInstance(input: unknown) : input is HandlerInterface {

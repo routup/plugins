@@ -1,4 +1,4 @@
-import { Router, createNodeListener } from 'routup';
+import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
 import { HeaderController } from '../data/header';
@@ -11,7 +11,7 @@ describe('header.ts', () => {
 
         mountController(router, controller);
 
-        const server = supertest(createNodeListener(router));
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/header/many');
