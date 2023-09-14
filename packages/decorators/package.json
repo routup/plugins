@@ -1,6 +1,6 @@
 {
     "name": "@routup/decorators",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "Decorators plugin for routup.",
     "exports": {
         "./package.json": "./package.json",
@@ -57,9 +57,9 @@
         "routup": "^1.x || 2.x"
     },
     "devDependencies": {
-        "@routup/body": "^1.0.1",
-        "@routup/cookie": "^1.0.1",
-        "@routup/query": "^1.0.1",
+        "@routup/body": "^1.0.2",
+        "@routup/cookie": "^1.0.2",
+        "@routup/query": "^1.0.2",
         "@types/supertest": "^2.0.12",
         "routup": "^2.0.0",
         "supertest": "^6.3.3"

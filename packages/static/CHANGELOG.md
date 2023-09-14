@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/routup/plugins/compare/@routup/static@1.0.1...@routup/static@2.0.0) (2023-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump routup to v2.x ([b3be227](https://github.com/routup/plugins/commit/b3be227595d589153162d5f6dd7efb7a548675d0))
+
+
+### Features
+
+* adjusted handler generation ([b2b5d20](https://github.com/routup/plugins/commit/b2b5d205b13737129e3fde9a329b8b8ba494d2f5))
+* adjusted middleware ([41c0615](https://github.com/routup/plugins/commit/41c06154810f26d4b1416beca5b247f01d4e6197))
+
+
+### BREAKING CHANGES
+
+* processHandlerExecutionOutput removed
+* send-file api changed
+
+
+
+
+
 ## [1.0.1](https://github.com/routup/plugins/compare/@routup/static@1.0.0...@routup/static@1.0.1) (2023-05-29)
 
 **Note:** Version bump only for package @routup/static

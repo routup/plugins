@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/routup/plugins/compare/@routup/swagger@1.0.1...@routup/swagger@1.0.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump routup to v2.x ([b3be227](https://github.com/routup/plugins/commit/b3be227595d589153162d5f6dd7efb7a548675d0))
+* **deps:** bump swagger-ui-dist from 4.19.1 to 5.1.3 ([#61](https://github.com/routup/plugins/issues/61)) ([f406d0c](https://github.com/routup/plugins/commit/f406d0c9d4cd432cace1da32c6e4a85b012e6edb))
+* **deps:** bump swagger-ui-dist from 5.1.3 to 5.2.0 ([#65](https://github.com/routup/plugins/issues/65)) ([950b3a1](https://github.com/routup/plugins/commit/950b3a1974f4243b3921c413b77314b277e27260))
+* **deps:** bump swagger-ui-dist from 5.2.0 to 5.7.0 ([#107](https://github.com/routup/plugins/issues/107)) ([865fe84](https://github.com/routup/plugins/commit/865fe84c4075756dc36ea6b441ac735c927e110e))
+
+
+
+
+
 ## [1.0.1](https://github.com/routup/plugins/compare/@routup/swagger@1.0.0...@routup/swagger@1.0.1) (2023-05-29)
 
 

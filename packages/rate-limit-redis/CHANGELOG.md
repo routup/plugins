@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/routup/plugins/compare/@routup/rate-limit-redis@1.0.1...@routup/rate-limit-redis@1.0.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump routup to v2.x ([b3be227](https://github.com/routup/plugins/commit/b3be227595d589153162d5f6dd7efb7a548675d0))
+
+
+
+
+
 ## [1.0.1](https://github.com/routup/plugins/compare/@routup/rate-limit-redis@1.0.0...@routup/rate-limit-redis@1.0.1) (2023-05-29)
 
 **Note:** Version bump only for package @routup/rate-limit-redis

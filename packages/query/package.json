@@ -1,6 +1,6 @@
 {
     "name": "@routup/query",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Query plugin for routup.",
     "exports": {
         "./package.json": "./package.json",

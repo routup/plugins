@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/routup/plugins/compare/@routup/query@1.0.1...@routup/query@1.0.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/qs from 6.9.7 to 6.9.8 ([#108](https://github.com/routup/plugins/issues/108)) ([f34a40e](https://github.com/routup/plugins/commit/f34a40ed6d2e00cc20f962e7d617cd471bc0b5c3))
+* **deps:** bump routup to v2.x ([b3be227](https://github.com/routup/plugins/commit/b3be227595d589153162d5f6dd7efb7a548675d0))
+
+
+
+
+
 ## [1.0.1](https://github.com/routup/plugins/compare/@routup/query@1.0.0...@routup/query@1.0.1) (2023-05-29)
 
 
