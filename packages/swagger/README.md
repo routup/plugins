@@ -88,14 +88,19 @@ The function call will save the file under the location: `./writable/swagger.jso
 Serve generated docs from (file- / web-) URL or based on a JSON file with [swagger-ui](https://www.npmjs.com/package/swagger-ui-dist).
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createUIHandler } from '@routup/swagger';
 
 const router = new Router();
 
 router.use('/docs', createUIHandler('test/data/swagger.json'));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 Now open the browser and visit:

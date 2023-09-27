@@ -75,7 +75,7 @@ export class UserController {
         @DResponse() res: Response,
         @DNext() next: Next
     ) {
-        send(res, 'many');
+        return send(res, 'Hello World');
     }
 
     @DGet('/:id')
@@ -84,7 +84,7 @@ export class UserController {
         @DResponse() res: Response,
         @DParam('id') id: string,
     ) {
-        send(res, id);
+        return send(res, 'Hello World');
     }
 
     @DPost('')
@@ -93,7 +93,7 @@ export class UserController {
         @DResponse() res: Response,
         @DBody() body: any,
     ) {
-        send(res, 'create');
+        return send(res, 'Hello World');
     }
 
     @DDelete('/:id', [])
@@ -102,7 +102,7 @@ export class UserController {
         @DResponse() res: Response,
         @DParam('id') id: string,
     ) {
-        send(res, id);
+        return send(res, 'Hello World');
     }
 }
 ```
@@ -115,7 +115,8 @@ or the `mountControllers` function to mount a collection of controllers.
 `app.ts`
 ```typescript
 import { mountControllers } from "@routup/decorators";
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import { createNodeDispatcher, Router } from 'routup';
 
 const router = new Router();
 
@@ -123,7 +124,8 @@ mountControllers(router, [
     UserController
 ]);
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 
 ```
 

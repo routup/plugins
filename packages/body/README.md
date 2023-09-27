@@ -34,7 +34,13 @@ To read the docs, visit [https://routup.net](https://routup.net)
 ## Usage
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import { 
+    createNodeDispatcher, 
+    defineHandler,
+    Router, 
+    send
+} from 'routup';
 import { createHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
@@ -43,15 +49,18 @@ const router = new Router();
 // application/x-www-form-urlencoded
 router.use(createHandler());
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
 
-    send(res, 'Hello World');
-});
+    // send body as response
+    return send(res, body);
+}));
 
-router.listen(3000);
+
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000)
 ```
 
 ## Handler
@@ -64,21 +73,29 @@ as middleware.
 To parse `application/json` input data, mount the json handler to the router instance.
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import { createJsonHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
 router.use(createJsonHandler());
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
 
-    send(res, 'Hello World');
-});
+    // send body as response
+    return send(res, body);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ### UrlEncoded
@@ -86,21 +103,29 @@ router.listen(3000);
 To parse `application/x-www-form-urlencoded` input data, mount the url-encoded handler to the router instance.
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import { createUrlEncodedHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
 router.use(createUrlEncodedHandler({ extended: false }));
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
 
-    send(res, 'Hello World');
-});
+    // send body as response
+    return send(res, body);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ### Raw
@@ -108,21 +133,29 @@ router.listen(3000);
 To parse `any` input data as Buffer, mount the raw handler to the router instance.
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import { createRawHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
 router.use(createRawHandler());
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
 
-    send(res, 'Hello World');
-});
+    // send body as response
+    return send(res, body);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ### Text
@@ -130,21 +163,29 @@ router.listen(3000);
 To parse `any` input data as string, mount the text handler to the router instance.
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import { createTextHandler, useRequestBody } from '@routup/body';
 
 const router = new Router();
 router.use(createTextHandler({ type: 'text/html' }));
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
 
-    send(res, 'Hello World');
-});
+    // send body as response
+    return send(res, body);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ## Credits

@@ -39,7 +39,8 @@ http://localhost:3000/metrics
 The `registerMetrics` method, should be called before registering any routes!
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import { createNodeDispatcher, Router } from 'routup';
 import {
     registerMetrics,
     createHandler
@@ -53,7 +54,8 @@ registerMetrics(router);
 // serve metrics
 router.use('/metrics', createHandler());
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ## License

@@ -31,7 +31,13 @@ It is important to invoke the request middleware,
 to parse the query-string of the request url.
 
 ```typescript
-import { Router, send } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import {
     createHandler,
     useRequestQuery
@@ -41,15 +47,16 @@ const router = new Router();
 
 router.use(createHandler());
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const query = useRequestQuery(req);
     console.log(query);
     // { key: ..., ... }
 
-    send(res, query);
-});
+    return send(res, query);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ## License

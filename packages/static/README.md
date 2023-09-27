@@ -36,7 +36,11 @@ When a file is not found, instead of sending a 404 response, this module will in
 to move on to the next middleware, allowing for stacking and fall-backs.
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createHandler } from '@routup/static';
 
 const router = new Router();
@@ -44,7 +48,8 @@ const router = new Router();
 // serve static files of folder: public
 router.use(createHandler('public'));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ### Multiple Directories
@@ -54,7 +59,11 @@ To accomplish this, this plugin can be used multiple times.
 An example of this is shown below:
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createHandler } from '@routup/static';
 
 const router = new Router();
@@ -62,7 +71,8 @@ const router = new Router();
 router.use(createHandler('public'));
 router.use(createHandler('files'));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 This will allow to serve files from the `public` and the `files` directories. 
@@ -75,14 +85,19 @@ It is also possible to define a mount path for a root directory.
 This is done as follows:
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createHandler } from '@routup/static';
 
 const router = new Router();
 
 router.use('/public', createHandler('public'));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 With this setup, requests for files in the `public` directory must start with `/public`.

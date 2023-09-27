@@ -28,7 +28,11 @@ To read the docs, visit [https://routup.net](https://routup.net)
 ## Usage
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createHandler } from '@routup/rate-limit';
 import { RedisStore } from '@routup/rate-limit-redis';
 
@@ -50,7 +54,8 @@ const handler = createHandler({
 // Apply the rate limiting middleware to API calls only
 router.use('/api', handler);
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ## License

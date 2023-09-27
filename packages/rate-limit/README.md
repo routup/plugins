@@ -41,7 +41,11 @@ To read the docs, visit [https://routup.net](https://routup.net)
 ## Usage
 
 ```typescript
-import { Router } from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    Router
+} from 'routup';
 import { createHandler } from '@routup/rate-limit';
 
 const router = new Router();
@@ -55,7 +59,8 @@ router.use(createHandler({
     max: 100,
 }));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ### Store

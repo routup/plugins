@@ -32,7 +32,13 @@ It is important to invoke the request middleware,
 to parse the cookies of the request header.
 
 ```typescript
-import {Router, send} from 'routup';
+import { createServer } from 'node:http';
+import {
+    createNodeDispatcher,
+    defineHandler,
+    Router,
+    send
+} from 'routup';
 import {
     createHandler,
     useRequestCookie,
@@ -43,15 +49,17 @@ const router = new Router();
 
 router.use(createHandler());
 
-router.get('/', (req, res) => {
+router.get('/', defineHandler((req, res) => {
     const cookies = useRequestCookies(req);
     console.log(cookies);
     // { key: value, ... }
 
-    send(res, cookies);
-});
+    // send cookies as response
+    return send(res, cookies);
+}));
 
-router.listen(3000);
+const server = createServer(createNodeDispatcher(router));
+server.listen(3000);
 ```
 
 ## License
