@@ -34,25 +34,22 @@ to parse the query-string of the request url.
 import { createServer } from 'node:http';
 import {
     createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
+    coreHandler,
+    Router
 } from 'routup';
 import {
-    createHandler,
+    query,
     useRequestQuery
 } from '@routup/query';
 
 const router = new Router();
 
-router.use(createHandler());
+router.use(query());
 
-router.get('/', defineHandler((req, res) => {
+router.get('/', coreHandler((req, res) => {
     const query = useRequestQuery(req);
     console.log(query);
     // { key: ..., ... }
-
-    return send(res, query);
 }));
 
 const server = createServer(createNodeDispatcher(router));

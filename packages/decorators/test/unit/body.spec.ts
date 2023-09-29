@@ -1,4 +1,4 @@
-import { createHandler } from '@routup/body';
+import { body } from '@routup/body';
 import {
     Router, coreHandler, createNodeDispatcher, setRequestBody,
 } from 'routup';
@@ -10,7 +10,7 @@ describe('data/body', () => {
     it('should handle decorator endpoints', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(body());
 
         router.use(coreHandler((req, res, next) => {
             setRequestBody(req, 'foo', 'bar');

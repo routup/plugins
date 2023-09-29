@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileInfo, HandlerOptions } from '../type';
+import type { FileInfo, Options } from '../type';
 import { isRegexMatch } from './regex';
 
 function generatePathForExtensions(
@@ -32,7 +32,7 @@ function withLeadingSlash(input: string) {
 
 const lookupPath = async (
     requestPath: string,
-    options: HandlerOptions,
+    options: Options,
     stack?: Record<string, FileInfo>,
 ) : Promise<FileInfo | undefined> => {
     const relativeFilePaths : string[] = [];
@@ -100,7 +100,7 @@ const lookupPath = async (
 
 export async function lookup(
     requestPath: string,
-    options: HandlerOptions,
+    options: Options,
     stack?: Record<string, FileInfo>,
 ) : Promise<FileInfo | undefined> {
     let fileInfo : FileInfo | undefined;

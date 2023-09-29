@@ -46,11 +46,11 @@ import {
     createNodeDispatcher,
     Router
 } from 'routup';
-import { createHandler } from '@routup/rate-limit';
+import { rateLimit } from '@routup/rate-limit';
 
 const router = new Router();
 
-router.use(createHandler({
+router.use(rateLimit({
     // 15 minutes
     windowMs: 15 * 60 * 1000,
 

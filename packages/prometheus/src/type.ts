@@ -19,6 +19,8 @@ export type Metrics = {
 export type LabelTransformer = (labels: LabelValues<string>, req: Request, res: Response) => void;
 
 export type Options = {
+    metricsPath: string,
+
     requestDuration: boolean,
     requestDurationName: string,
     requestDurationLabelTransformer?: LabelTransformer,

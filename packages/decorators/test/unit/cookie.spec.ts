@@ -1,4 +1,4 @@
-import { createHandler } from '@routup/cookie';
+import { cookie } from '@routup/cookie';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
@@ -8,7 +8,7 @@ describe('data/cookie', () => {
     it('should handle decorator endpoints', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(cookie());
 
         mountController(router, CookieController);
 

@@ -1,13 +1,12 @@
 import {
-    Router, coreHandler, createNodeDispatcher, send,
+    Router, coreHandler, createNodeDispatcher,
 } from 'routup';
 import { Registry } from 'prom-client';
 import supertest from 'supertest';
 import type { OptionsInput } from '../../src';
 import {
     MetricName,
-    createHandler,
-    registerMetrics,
+    prometheus,
 } from '../../src';
 
 function createRouterWithHandlers(options?: OptionsInput) : Router {
@@ -18,13 +17,9 @@ function createRouterWithHandlers(options?: OptionsInput) : Router {
     }
 
     const router = new Router();
-    registerMetrics(router, options);
+    router.use(prometheus(options));
 
-    router.get('/metrics', createHandler(options.registry));
-
-    router.get('/', coreHandler((req, res) => {
-        send(res);
-    }));
+    router.get('/', coreHandler(() => 'Hello, World!'));
 
     return router;
 }

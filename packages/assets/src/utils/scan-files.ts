@@ -1,10 +1,10 @@
-import type { FileInfo, HandlerOptions } from '../type';
+import type { FileInfo, Options } from '../type';
 import { readDirectory } from './directory';
 import { isRegexMatch } from './regex';
 
 export function scanFiles(
     stack: Record<string, FileInfo>,
-    options: HandlerOptions,
+    options: Options,
 ) {
     if (!options.scan) {
         return;

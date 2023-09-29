@@ -1,4 +1,4 @@
-import { createHandler, stringify } from '@routup/query';
+import { query, stringify } from '@routup/query';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
@@ -8,24 +8,24 @@ describe('src/decorator', () => {
     it('should handle query decorator', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(query());
 
         mountController(router, QueryController);
 
         const server = supertest(createNodeDispatcher(router));
 
-        const query = {
+        const qs = {
             foo: 'bar',
         };
 
         let response = await server
-            .get(`/query/many?${stringify(query)}`);
+            .get(`/query/many?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({ foo: 'bar' });
 
         response = await server
-            .get(`/query/single?${stringify(query)}`);
+            .get(`/query/single?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('bar');

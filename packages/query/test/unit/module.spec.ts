@@ -1,15 +1,14 @@
-import qs from 'qs';
 import supertest from 'supertest';
 import {
     Router, coreHandler, createNodeDispatcher, send,
 } from 'routup';
-import { createHandler, useRequestQuery } from '../../src';
+import { query, stringify, useRequestQuery } from '../../src';
 
 describe('src/module', () => {
     it('should parse request query', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(query());
 
         router.get('/', coreHandler((req, res) => {
             send(res, useRequestQuery(req));
@@ -29,13 +28,13 @@ describe('src/module', () => {
 
         const server = supertest(createNodeDispatcher(router));
 
-        const query = { page: { limit: '10', offset: '0' }, sort: '-name' };
+        const qs = { page: { limit: '10', offset: '0' }, sort: '-name' };
 
         let response = await server
-            .get(`/?${qs.stringify(query)}`);
+            .get(`/?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(query);
+        expect(response.body).toEqual(qs);
 
         response = await server
             .get('/');
@@ -44,22 +43,22 @@ describe('src/module', () => {
         expect(response.body).toEqual({});
 
         response = await server
-            .get(`/key?${qs.stringify(query)}`);
+            .get(`/key?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('-name');
 
         response = await server
-            .get(`/reuse?${qs.stringify(query)}`);
+            .get(`/reuse?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(query);
+        expect(response.body).toEqual(qs);
     });
 
     it('should parse request query with middleware', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(query());
 
         router.get('/', coreHandler((req, res) => {
             send(res, useRequestQuery(req));
@@ -67,12 +66,12 @@ describe('src/module', () => {
 
         const server = supertest(createNodeDispatcher(router));
 
-        const query = { page: { limit: '10', offset: '0' }, sort: '-name' };
+        const qs = { page: { limit: '10', offset: '0' }, sort: '-name' };
 
         const response = await server
-            .get(`/?${qs.stringify(query)}`);
+            .get(`/?${stringify(qs)}`);
 
         expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(query);
+        expect(response.body).toEqual(qs);
     });
 });

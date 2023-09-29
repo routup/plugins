@@ -1,7 +1,7 @@
 import { HeaderName, Router, createNodeDispatcher } from 'routup';
 import path from 'node:path';
 import supertest from 'supertest';
-import { createHandler } from '../../src';
+import { assets } from '../../src';
 
 const directoryPath = path.join(__dirname, '..', 'data');
 
@@ -9,7 +9,7 @@ describe('src/module', () => {
     it('should serve text file', async () => {
         const router = new Router();
 
-        router.use(createHandler(directoryPath));
+        router.use(assets(directoryPath));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -24,7 +24,7 @@ describe('src/module', () => {
     it('should serve node modules file', async () => {
         const router = new Router();
 
-        router.use('/docs', createHandler(path.dirname(require.resolve('swagger-ui-dist')), {
+        router.use('/docs', assets(path.dirname(require.resolve('swagger-ui-dist')), {
             scan: false,
         }));
 
@@ -39,7 +39,7 @@ describe('src/module', () => {
     it('should serve non preloaded text file', async () => {
         const router = new Router();
 
-        router.use(createHandler(directoryPath, {
+        router.use(assets(directoryPath, {
             scan: false,
         }));
 
@@ -56,7 +56,7 @@ describe('src/module', () => {
     it('should serve js file', async () => {
         const router = new Router();
 
-        router.use(createHandler(directoryPath));
+        router.use(assets(directoryPath));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -71,7 +71,7 @@ describe('src/module', () => {
     it('should not serve file', async () => {
         const router = new Router();
 
-        router.use(createHandler(directoryPath));
+        router.use(assets(directoryPath));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -85,7 +85,7 @@ describe('src/module', () => {
     it('should serve directory by index file', async () => {
         const router = new Router();
 
-        router.use(createHandler(directoryPath, {
+        router.use(assets(directoryPath, {
             fallback: true,
         }));
 

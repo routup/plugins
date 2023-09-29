@@ -75,7 +75,7 @@ export class UserController {
         @DResponse() res: Response,
         @DNext() next: Next
     ) {
-        return send(res, 'Hello World');
+        return 'Hello, World!';
     }
 
     @DGet('/:id')
@@ -84,7 +84,7 @@ export class UserController {
         @DResponse() res: Response,
         @DParam('id') id: string,
     ) {
-        return send(res, 'Hello World');
+        return 'Hello, World!';
     }
 
     @DPost('')
@@ -93,7 +93,7 @@ export class UserController {
         @DResponse() res: Response,
         @DBody() body: any,
     ) {
-        return send(res, 'Hello World');
+        return 'Hello, World!';
     }
 
     @DDelete('/:id', [])
@@ -102,27 +102,29 @@ export class UserController {
         @DResponse() res: Response,
         @DParam('id') id: string,
     ) {
-        return send(res, 'Hello World');
+        return 'Hello, World!';
     }
 }
 ```
 
-### Mount
+### Installation
 
-The last step is to mount the controller to a router instance, using the `mountController` function to mount a single controller,
-or the `mountControllers` function to mount a collection of controllers.
+The last step is to install the plugin and mount the controllers to a router instance.
 
 `app.ts`
 ```typescript
-import { mountControllers } from "@routup/decorators";
+import { UserController } from './controller';
+import { decorators } from '@routup/decorators';
 import { createServer } from 'node:http';
 import { createNodeDispatcher, Router } from 'routup';
 
 const router = new Router();
 
-mountControllers(router, [
-    UserController
-]);
+router.use(decorators({
+    controllers: [
+        UserController
+    ]
+}))
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);

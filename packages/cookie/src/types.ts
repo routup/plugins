@@ -5,3 +5,8 @@ import type {
 
 export type ParseOptions = CookieParseOptions;
 export type SerializeOptions = CookieSerializeOptions;
+
+export type Options = {
+    parse?: ParseOptions,
+    serialize?: SerializeOptions
+};

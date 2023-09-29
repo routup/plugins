@@ -35,31 +35,49 @@ to parse the cookies of the request header.
 import { createServer } from 'node:http';
 import {
     createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
+    coreHandler,
+    Router
 } from 'routup';
 import {
-    createHandler,
+    cookie,
     useRequestCookie,
     useRequestCookies
 } from '@routup/cookie';
 
 const router = new Router();
 
-router.use(createHandler());
+router.use(cookie());
 
-router.get('/', defineHandler((req, res) => {
+router.get('/', coreHandler((req, res) => {
     const cookies = useRequestCookies(req);
     console.log(cookies);
     // { key: value, ... }
-
-    // send cookies as response
-    return send(res, cookies);
+    
+    const cookie = useRequestCookie(req, 'key');
+    // value
 }));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
+```
+
+## Options
+
+### `parse`
+
+Customize the parse behaviour.
+
+- Type: [ParseOptions](#parseoptions)
+- Default: `undefined`
+
+## Types
+
+#### `ParseOptions`
+
+```typescript
+export type ParseOptions = {
+    decode?(value: string): string;
+}
 ```
 
 ## License

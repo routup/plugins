@@ -1,8 +1,10 @@
-import { Options } from 'body-parser';
+import {
+    body,
+} from './module';
 
-export {
-    Options,
-};
-
+export * from './module';
 export * from './parser';
 export * from './request';
+export * from './types';
+
+export default body;

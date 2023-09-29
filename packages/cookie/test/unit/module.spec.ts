@@ -3,7 +3,7 @@ import {
     HeaderName, Router, coreHandler, createNodeDispatcher, send,
 } from 'routup';
 import {
-    createHandler,
+    cookie,
     setResponseCookie,
     unsetResponseCookie,
     useRequestCookie,
@@ -14,7 +14,7 @@ describe('src/module', () => {
     it('should parse cookie', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(cookie());
 
         router.get('/', coreHandler((req, res) => {
             useRequestCookies(req);
@@ -36,7 +36,7 @@ describe('src/module', () => {
     it('should parse cookie with middleware', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(cookie());
 
         router.get('/', coreHandler((req, res) => {
             useRequestCookies(req);

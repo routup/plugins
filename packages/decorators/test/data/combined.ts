@@ -3,7 +3,6 @@ import {
     Next,
     Request,
     Response,
-    send,
     useRequestParam,
 } from 'routup';
 import type { HandlerInterface } from '../../src';
@@ -41,7 +40,7 @@ export class CombinedController {
         @DResponse() res: Response,
         @DNext() next: Next,
     ) {
-        send(res, 'many');
+        return 'many';
     }
 
     @DGet('/:id')
@@ -50,7 +49,7 @@ export class CombinedController {
         @DResponse() res: Response,
         @DPath('id') id: string,
     ) {
-        send(res, id);
+        return id;
     }
 
     @DPost('')
@@ -58,7 +57,7 @@ export class CombinedController {
     @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
-        send(res, 'create');
+        return 'create';
     }
 
     @DPut('')
@@ -66,7 +65,7 @@ export class CombinedController {
     @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
-        send(res, 'put');
+        return 'put';
     }
 
     @DPatch('')
@@ -74,7 +73,7 @@ export class CombinedController {
     @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
-        send(res, 'patch');
+        return 'patch';
     }
 
     @DDelete('/:id', [DeleteMiddleware])
@@ -83,6 +82,6 @@ export class CombinedController {
         @DResponse() res: Response,
         @DPaths() data: { id: string },
     ) {
-        send(res, data);
+        return data;
     }
 }

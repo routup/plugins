@@ -56,7 +56,7 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "@routup/static": "^2.0.0",
-        "routup": "^3.0.0-alpha.1"
+        "routup": "^3.0.0-alpha.2"
     },
     "dependencies": {
         "@routup/swagger-preset": "^1.0.0",
@@ -67,10 +67,10 @@
     },
     "devDependencies": {
         "@routup/decorators": "^2.0.1",
-        "@routup/static": "^2.0.0",
+        "@routup/assets": "^2.0.0",
         "@types/supertest": "^2.0.12",
         "jsonata": "^2.0.3",
-        "routup": "^3.0.0-alpha.1",
+        "routup": "^3.0.0-alpha.2",
         "supertest": "^6.3.3"
     },
     "publishConfig": {

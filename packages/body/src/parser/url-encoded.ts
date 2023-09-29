@@ -3,7 +3,11 @@ import { urlencoded } from 'body-parser';
 import { coreHandler } from 'routup';
 
 export function createUrlEncodedHandler(options?: OptionsUrlencoded) {
-    const handler = urlencoded(options);
+    const handler = urlencoded({
+        extended: false,
+        ...(options || {}),
+    });
+
     return coreHandler((req, res, next) => {
         handler(req, res, next);
     });

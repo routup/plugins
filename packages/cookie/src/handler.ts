@@ -5,7 +5,7 @@ import {
     setRequestCookies,
 } from 'routup';
 
-import type { ParseOptions } from './type';
+import type { ParseOptions } from './types';
 import { parseRequestCookies } from './utils';
 
 export function createHandler(options?: ParseOptions) {

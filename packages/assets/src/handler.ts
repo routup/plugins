@@ -7,12 +7,12 @@ import {
     useRequestMountPath,
     useRequestPath,
 } from 'routup';
-import type { FileInfo, HandlerOptionsInput } from './type';
-import { buildHandlerOptions, scanFiles } from './utils';
+import type { FileInfo, OptionsInput } from './type';
+import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input?: HandlerOptionsInput) : CoreHandler {
-    const options = buildHandlerOptions({
+export function createHandler(directory: string, input?: OptionsInput) : CoreHandler {
+    const options = buildOptions({
         ...(input || {}),
         directoryPath: directory,
     });

@@ -2,11 +2,14 @@ import type { Plugin } from 'routup';
 import { createHandler } from './handler';
 import type { OptionsInput } from './type';
 
-export function rateLimit(options?: OptionsInput) : Plugin {
+export function assets(
+    directory: string,
+    options?: OptionsInput,
+) : Plugin {
     return {
-        name: 'rateLimit',
+        name: 'assets',
         install: (router) => {
-            router.use(createHandler(options));
+            router.use(createHandler(directory, options));
         },
     };
 }

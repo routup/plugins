@@ -1,7 +1,7 @@
 import type { Stats } from 'node:fs';
 import type fs from 'node:fs';
 
-export type HandlerOptions = {
+export type Options = {
     /**
      * Path for serving files.
      */
@@ -72,8 +72,8 @@ export type HandlerOptions = {
     ignores: RegExp[],
 };
 
-export type HandlerOptionsInput = Omit<
-Partial<HandlerOptions>,
+export type OptionsInput = Omit<
+Partial<Options>,
 'fallbackIgnores' | 'fallbackPath' | 'ignores'
 > & {
     /**

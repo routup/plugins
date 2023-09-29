@@ -1,13 +1,15 @@
 import supertest from 'supertest';
 import { Router, createNodeDispatcher } from 'routup';
-import { mountControllers } from '../../src';
+import { decorators } from '../../src';
 import { CombinedController } from '../data/combined';
 
 describe('data/combined', () => {
     it('should handle decorator endpoints', async () => {
         const router = new Router();
 
-        mountControllers(router, [CombinedController]);
+        router.use(decorators({
+            controllers: [CombinedController],
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -50,8 +52,9 @@ describe('data/combined', () => {
 
     it('should not handle decorator endpoints', async () => {
         const router = new Router();
-
-        mountControllers(router, [CombinedController]);
+        router.use(decorators({
+            controllers: [CombinedController],
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

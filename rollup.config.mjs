@@ -8,7 +8,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 
-import { builtinModules } from 'module';
+import { builtinModules } from 'node:module';
 import { transform } from "@swc/core";
 
 const extensions = [
@@ -32,7 +32,7 @@ const swcOptions = {
 }
 
 export function createConfig(
-    { pkg, external = [], defaultExport = false }
+    { pkg, external = [], defaultExport = true }
 ) {
     external = Object.keys(pkg.dependencies || {})
         .concat(Object.keys(pkg.peerDependencies || {}))
@@ -59,7 +59,7 @@ export function createConfig(
         ],
         plugins: [
             // Allows node_modules resolution
-            resolve({ extensions}),
+            resolve({ extensions }),
 
             // Allow bundling cjs modules. Rollup doesn't understand cjs
             commonjs(),

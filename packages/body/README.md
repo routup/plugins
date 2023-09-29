@@ -13,11 +13,11 @@ This is a plugin for reading and parsing the request payload.
 - [Installation](#installation)
 - [Documentation](#documentation)
 - [Usage](#usage)
-- [Handler](#handler)
-  - [Json](#json)
-  - [UrlEncoded](#urlencoded)
-  - [Raw](#raw)
-  - [Text](#text)
+- [Options](#options)
+  - [json](#json)
+  - [urlEncoded](#urlencoded)
+  - [raw](#raw)
+  - [text](#text)
 - [Credits](#credits)
 - [License](#license)
 
@@ -33,29 +33,28 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ## Usage
 
+For standard use, the package is installed as a plugin, as shown below.
+
 ```typescript
 import { createServer } from 'node:http';
 import { 
-    createNodeDispatcher, 
-    defineHandler,
+    createNodeDispatcher,
+    coreHandler,
     Router, 
     send
 } from 'routup';
-import { createHandler, useRequestBody } from '@routup/body';
+import { body, useRequestBody } from '@routup/body';
 
 const router = new Router();
 // This will parse requests with Content-Type:
 // application/json
 // application/x-www-form-urlencoded
-router.use(createHandler());
+router.install(body());
 
-router.get('/', defineHandler((req, res) => {
+router.get('/', coreHandler((req, res) => {
     const body = useRequestBody(req);
     console.log(body);
     // ...
-
-    // send body as response
-    return send(res, body);
 }));
 
 
@@ -63,129 +62,68 @@ const server = createServer(createNodeDispatcher(router));
 server.listen(3000)
 ```
 
-## Handler
+## Options
 
-Besides using the `createHandler` method, it is also possible to register a specific handler
-as middleware.
+The plugin accepts an object as input parameter to modify the default behaviour.
 
-### Json
+### `json`
 
-To parse `application/json` input data, mount the json handler to the router instance.
+To parse `application/json` input data, enable the json handler.
+
+- Type: [Options](https://github.com/expressjs/body-parser#bodyparserjsonoptions) | `boolean`
+- Default: `true`
 
 ```typescript
-import { createServer } from 'node:http';
-import {
-    createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
-} from 'routup';
-import { createJsonHandler, useRequestBody } from '@routup/body';
-
-const router = new Router();
-router.use(createJsonHandler());
-
-router.get('/', defineHandler((req, res) => {
-    const body = useRequestBody(req);
-    console.log(body);
-    // ...
-
-    // send body as response
-    return send(res, body);
+router.use(body({
+    json: {
+        limit: '100kb'
+    }
 }));
-
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
 ```
 
-### UrlEncoded
+### `urlEncoded`
 
-To parse `application/x-www-form-urlencoded` input data, mount the url-encoded handler to the router instance.
+To parse `application/x-www-form-urlencoded` input data, enable the url-encoded handler.
+
+- Type: [Options](https://github.com/expressjs/body-parser#bodyparserurlencodedoptions) | `boolean`
+- Default: `true`
 
 ```typescript
-import { createServer } from 'node:http';
-import {
-    createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
-} from 'routup';
-import { createUrlEncodedHandler, useRequestBody } from '@routup/body';
-
-const router = new Router();
-router.use(createUrlEncodedHandler({ extended: false }));
-
-router.get('/', defineHandler((req, res) => {
-    const body = useRequestBody(req);
-    console.log(body);
-    // ...
-
-    // send body as response
-    return send(res, body);
+router.use(body({
+    urlEncoded: {
+        extended: false
+    }
 }));
-
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
 ```
 
-### Raw
+### `raw`
 
-To parse `any` input data as Buffer, mount the raw handler to the router instance.
+To parse `any` input data as Buffer, enable the raw handler.
+
+- Type: [Options](https://github.com/expressjs/body-parser#bodyparserurlencodedoptions) | `boolean`
+- Default: `false`
 
 ```typescript
-import { createServer } from 'node:http';
-import {
-    createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
-} from 'routup';
-import { createRawHandler, useRequestBody } from '@routup/body';
-
-const router = new Router();
-router.use(createRawHandler());
-
-router.get('/', defineHandler((req, res) => {
-    const body = useRequestBody(req);
-    console.log(body);
-    // ...
-
-    // send body as response
-    return send(res, body);
+router.use(body({
+    raw: {
+        inflate: false
+    }
 }));
-
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
 ```
 
-### Text
+### `text`
 
-To parse `any` input data as string, mount the text handler to the router instance.
+To parse `any` input data as string, enable the text handler.
+
+- Type: [Options](https://github.com/expressjs/body-parser#bodyparsertextoptions) | `boolean`
+- Default: `false`
 
 ```typescript
-import { createServer } from 'node:http';
-import {
-    createNodeDispatcher,
-    defineHandler,
-    Router,
-    send
-} from 'routup';
-import { createTextHandler, useRequestBody } from '@routup/body';
-
-const router = new Router();
-router.use(createTextHandler({ type: 'text/html' }));
-
-router.get('/', defineHandler((req, res) => {
-    const body = useRequestBody(req);
-    console.log(body);
-    // ...
-
-    // send body as response
-    return send(res, body);
+router.use(body({
+    raw: {
+        inflate: false
+    }
 }));
-
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
 ```
 
 ## Credits

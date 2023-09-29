@@ -1,7 +1,7 @@
 import path from 'node:path';
-import type { HandlerOptions, HandlerOptionsInput } from '../type';
+import type { Options, OptionsInput } from '../type';
 
-export function buildHandlerOptions(input: HandlerOptionsInput) : HandlerOptions {
+export function buildOptions(input: OptionsInput) : Options {
     let fallbackPath = '/';
     if (typeof input.fallback === 'string') {
         const idx = input.fallback.lastIndexOf('.');

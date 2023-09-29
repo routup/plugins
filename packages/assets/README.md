@@ -1,4 +1,4 @@
-# @routup/static
+# @routup/assets
 
 [![npm version](https://badge.fury.io/js/@routup%2Fstatic.svg)](https://badge.fury.io/js/@routup%2Fstatic)
 [![main](https://github.com/Tada5hi/routup/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/routup/actions/workflows/main.yml)
@@ -15,14 +15,13 @@ This is a plugin for serving static files from a specified directory.
 - [Usage](#usage)
   - [Multiple Directories](#multiple-directories)
   - [Mount Path](#mount-path)
-- [API](#api)
-  - [Options](#options)
+- [Options](#options)
 - [License](#license)
 
 ## Installation
 
 ```bash
-npm install @routup/static --save
+npm install @routup/assets --save
 ```
 
 ## Documentation
@@ -36,17 +35,17 @@ When a file is not found, instead of sending a 404 response, this module will in
 to move on to the next middleware, allowing for stacking and fall-backs.
 
 ```typescript
-import { createServer } from 'node:http';
+import {createServer} from 'node:http';
 import {
     createNodeDispatcher,
     Router
 } from 'routup';
-import { createHandler } from '@routup/static';
+import { assets } from '@routup/assets';
 
 const router = new Router();
 
 // serve static files of folder: public
-router.use(createHandler('public'));
+router.use(assets('public'));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
@@ -59,17 +58,17 @@ To accomplish this, this plugin can be used multiple times.
 An example of this is shown below:
 
 ```typescript
-import { createServer } from 'node:http';
+import {createServer} from 'node:http';
 import {
     createNodeDispatcher,
     Router
 } from 'routup';
-import { createHandler } from '@routup/static';
+import { assets } from '@routup/assets';
 
 const router = new Router();
 
-router.use(createHandler('public'));
-router.use(createHandler('files'));
+router.use(assets('public'));
+router.use(assets('files'));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
@@ -85,16 +84,16 @@ It is also possible to define a mount path for a root directory.
 This is done as follows:
 
 ```typescript
-import { createServer } from 'node:http';
+import {createServer} from 'node:http';
 import {
     createNodeDispatcher,
     Router
 } from 'routup';
-import { createHandler } from '@routup/static';
+import { assets } from '@routup/assets';
 
 const router = new Router();
 
-router.use('/public', createHandler('public'));
+router.use('/public', assets('public'));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
@@ -102,63 +101,61 @@ server.listen(3000);
 
 With this setup, requests for files in the `public` directory must start with `/public`.
 
-## API
+## Options
 
-### Options
+The `assets` function takes an optional options object. The available options are:
 
-The `createHandler` function takes an optional options object. The available options are:
-
-#### scan
+### scan
 - Type: `Boolean`<br />
 - Default: `true`
 - Description:
 Define if the metadata of given files in the directory should be preloaded. The advantage here is,
 that the filesystem must not be traversed on every request.
 
-#### cacheMaxAge
+### cacheMaxAge
 - Type: `Number`<br />
 - Default: `0`
 - Description: 
 Set the `max-age` (in seconds) directive of the cache-control header.
 
-#### cacheImmutable
+### cacheImmutable
 - Type: `Boolean`<br />
 - Default: `false`
 - Description:
 Append the `immutable` directive to the cache-control header.
 
-#### fallback
+### fallback
 - Type: `Boolean|String`<br />
 - Default: `false`
 - Description: 
 Resolve files, which are not found to a specific directory (default: '/')
 
-#### fallbackIgnores
+### fallbackIgnores
 - Type: `RegExp[]`
 - Default: `[]`
 - Description:
 Specify paths/patterns that should not be forwarded to the fallback path.
 
-#### fallthrough
+### fallthrough
 - Type: `Boolean`<br />
 - Default: `true`
 - Description:
 Pass the request to the next handler, if no file was found and the fallback strategy is disabled.
 
-#### extensions
+### extensions
 - Type: `String[]`
 - Default: `['html', 'htm']`
 - Description: 
 Set file extension fallbacks.
 When set, if a file is not found, the middleware will search for files with the specified extensions and serve the first one that exists.
 
-#### dotFiles
+### dotFiles
 - Type: `Boolean`
 - Default: `false`
 - Description:
 Determines how to treat dotfiles (files or directories beginning with a `.`).
 
-#### ignores
+### ignores
 - Type: `RegExp[]`
 - Default: `[]`
 - Description:

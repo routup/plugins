@@ -24,3 +24,7 @@ export type DecoratorMeta = {
 export interface HandlerInterface {
     run(request: Request, response: Response, next: Next): Promise<void> | void;
 }
+
+export type Options = {
+    controllers: (ClassType | Record<string, any>)[]
+};

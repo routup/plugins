@@ -1,17 +1,16 @@
-import { HeaderName, send } from 'routup';
+import {
+    HeaderName, Router, coreHandler, createNodeDispatcher,
+} from 'routup';
 import supertest from 'supertest';
-import { RETRY_AGAIN_MESSAGE, createHandler } from '../../src';
-import { createMiddleware } from '../middleware';
+import { RETRY_AGAIN_MESSAGE, rateLimit } from '../../src';
 
 describe('src/module', () => {
     it('should set rate limit headers', async () => {
-        const handler = createHandler();
+        const router = new Router();
+        router.use(rateLimit());
+        router.use(coreHandler(() => 'Hello, World!'));
 
-        const server = supertest(createMiddleware((req, res) => {
-            handler.fn(req, res, () => {
-                send(res);
-            });
-        }));
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/');
@@ -31,15 +30,13 @@ describe('src/module', () => {
     });
 
     it('should not process any additional request', async () => {
-        const handler = createHandler({
+        const router = new Router();
+        router.use(rateLimit({
             max: 1,
-        });
-
-        const server = supertest(createMiddleware((req, res) => {
-            handler.fn(req, res, () => {
-                send(res);
-            });
         }));
+        router.use(coreHandler(() => 'Hello, World!'));
+
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/');
@@ -57,15 +54,13 @@ describe('src/module', () => {
     });
 
     it('should be possible to skip successfully responses', async () => {
-        const handler = createHandler({
+        const router = new Router();
+        router.use(rateLimit({
             skipSuccessfulRequest: true,
-        });
-
-        const server = supertest(createMiddleware((req, res) => {
-            handler.fn(req, res, () => {
-                send(res);
-            });
         }));
+        router.use(coreHandler(() => 'Hello, World!'));
+
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/');
@@ -79,16 +74,12 @@ describe('src/module', () => {
     });
 
     it('should be possible to skip failed responses', async () => {
-        const handler = createHandler({
+        const router = new Router();
+        router.use(rateLimit({
             skipFailedRequest: true,
-        });
-
-        const server = supertest(createMiddleware((req, res) => {
-            handler.fn(req, res, () => {
-                res.statusCode = 400;
-                send(res);
-            });
         }));
+
+        const server = supertest(createNodeDispatcher(router));
 
         let response = await server
             .get('/');
@@ -102,15 +93,13 @@ describe('src/module', () => {
     });
 
     it('should skip request', async () => {
-        const handler = createHandler({
-            skip: (req, res) => true,
-        });
-
-        const server = supertest(createMiddleware((req, res) => {
-            handler.fn(req, res, () => {
-                send(res);
-            });
+        const router = new Router();
+        router.use(rateLimit({
+            skip: () => true,
         }));
+        router.use(coreHandler(() => 'Hello, World!'));
+
+        const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .get('/');

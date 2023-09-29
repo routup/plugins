@@ -36,23 +36,19 @@ To read the docs, visit [https://routup.net](https://routup.net)
 The metrics collected in the following example, can be inspected on: 
 http://localhost:3000/metrics
 
-The `registerMetrics` method, should be called before registering any routes!
+The plugin should be installed before registering any other plugins or routes!
 
 ```typescript
 import { createServer } from 'node:http';
 import { createNodeDispatcher, Router } from 'routup';
-import {
-    registerMetrics,
-    createHandler
-} from '@routup/prometheus';
+import { prometheus } from '@routup/prometheus';
 
 const router = new Router();
 
-// register 'uptime' & 'requestDuration' metrics
-registerMetrics(router);
-
-// serve metrics
-router.use('/metrics', createHandler());
+router.use(prometheus({
+    // serve metrics on path /metrics
+    metricsPath: '/metrics'
+}));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);

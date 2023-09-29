@@ -3,11 +3,7 @@ import {
 } from 'routup';
 import supertest from 'supertest';
 import {
-    createHandler,
-    createJsonHandler,
-    createRawHandler,
-    createTextHandler,
-    createUrlEncodedHandler,
+    body,
     useRequestBody,
 } from '../../src';
 
@@ -15,7 +11,9 @@ describe('src/**', () => {
     it('should handle application/json', async () => {
         const router = new Router();
 
-        router.use(createJsonHandler());
+        router.use(body({
+            json: true,
+        }));
 
         router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
@@ -38,7 +36,11 @@ describe('src/**', () => {
     it('should handle application/x-www-form-urlencoded', async () => {
         const router = new Router();
 
-        router.use(createUrlEncodedHandler({ extended: false }));
+        router.use(body({
+            urlEncoded: {
+                extended: false,
+            },
+        }));
 
         router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
@@ -59,7 +61,9 @@ describe('src/**', () => {
     it('should handle raw to buffer', async () => {
         const router = new Router();
 
-        router.use(createRawHandler());
+        router.use(body({
+            raw: true,
+        }));
 
         router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
@@ -81,7 +85,11 @@ describe('src/**', () => {
     it('should handle text/html to text', async () => {
         const router = new Router();
 
-        router.use(createTextHandler({ type: 'text/html' }));
+        router.use(body({
+            text: {
+                type: 'text/html',
+            },
+        }));
 
         router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
@@ -103,7 +111,10 @@ describe('src/**', () => {
     it('should parse application/json & application/x-www-form-urlencoded', async () => {
         const router = new Router();
 
-        router.use(createHandler());
+        router.use(body({
+            json: true,
+            urlEncoded: true,
+        }));
 
         router.post('/multiple', coreHandler((req, res) => {
             const foo = useRequestBody(req);

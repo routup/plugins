@@ -1,10 +1,10 @@
 import type { Plugin } from 'routup';
 import { createHandler } from './handler';
-import type { OptionsInput } from './type';
+import type { ParseOptions } from './type';
 
-export function rateLimit(options?: OptionsInput) : Plugin {
+export function query(options?: ParseOptions): Plugin {
     return {
-        name: 'rateLimit',
+        name: 'query',
         install: (router) => {
             router.use(createHandler(options));
         },
