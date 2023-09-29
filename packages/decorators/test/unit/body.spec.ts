@@ -1,9 +1,10 @@
-import { body } from '@routup/body';
+import { body, setRequestBody, useRequestBody } from '@routup/body';
+import { useRequestCookie, useRequestCookies } from '@routup/cookie';
 import {
-    Router, coreHandler, createNodeDispatcher, setRequestBody,
+    Router, coreHandler, createNodeDispatcher,
 } from 'routup';
 import supertest from 'supertest';
-import { mountController } from '../../src';
+import { decorators, mountController } from '../../src';
 import { PostController } from '../data/post';
 
 describe('data/body', () => {
@@ -18,7 +19,18 @@ describe('data/body', () => {
             next();
         }));
 
-        mountController(router, PostController);
+        router.use(decorators({
+            controllers: [PostController],
+            parameter: {
+                body: (context, name) => {
+                    if (name) {
+                        return useRequestBody(context.request, name);
+                    }
+
+                    return useRequestBody(context.request);
+                },
+            },
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

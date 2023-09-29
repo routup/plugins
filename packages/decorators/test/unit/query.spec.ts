@@ -1,7 +1,7 @@
-import { query, stringify } from '@routup/query';
+import { query, stringify, useRequestQuery } from '@routup/query';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
-import { mountController } from '../../src';
+import { decorators } from '../../src';
 import { QueryController } from '../data/query';
 
 describe('src/decorator', () => {
@@ -9,8 +9,18 @@ describe('src/decorator', () => {
         const router = new Router();
 
         router.use(query());
+        router.use(decorators({
+            controllers: [QueryController],
+            parameter: {
+                query: (context, name) => {
+                    if (name) {
+                        return useRequestQuery(context.request, name);
+                    }
 
-        mountController(router, QueryController);
+                    return useRequestQuery(context.request);
+                },
+            },
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

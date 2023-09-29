@@ -1,18 +1,11 @@
-import {
-    useRequestBody,
-    useRequestCookie,
-    useRequestCookies,
-    useRequestParam,
-    useRequestParams,
-    useRequestQuery,
-} from 'routup';
 import { useDecoratorMeta } from '../utils';
-import type { DecoratorParameterBuildFn } from './type';
+import { ParameterType } from './constants';
 
 export function createParameterDecorator(
-    build: DecoratorParameterBuildFn,
-) : ((property?: string) => ParameterDecorator) {
-    return (property?: string) => (
+    type: `${ParameterType}`,
+    property?: string,
+) :ParameterDecorator {
+    return (
         target: any,
         propertyKey: string | symbol | undefined,
         parameterIndex: number,
@@ -30,63 +23,52 @@ export function createParameterDecorator(
         meta.parameters[propertyKey].push({
             index: parameterIndex,
             property,
-            build,
+            type,
         });
     };
 }
 
 export function DRequest() : ParameterDecorator {
-    return createParameterDecorator((req) => req)();
+    return createParameterDecorator(ParameterType.REQUEST);
 }
 
 export function DResponse() : ParameterDecorator {
-    return createParameterDecorator((req, res) => res)();
+    return createParameterDecorator(ParameterType.RESPONSE);
 }
 
 export function DNext() : ParameterDecorator {
-    return createParameterDecorator((req, res, next) => next)();
+    return createParameterDecorator(ParameterType.NEXT);
 }
 
+// useRequestParams
 export function DPaths() : ParameterDecorator {
-    return createParameterDecorator((req, res, next) => useRequestParams(req))();
+    return createParameterDecorator(ParameterType.PARAM);
 }
 
 export function DPath(property: string) : ParameterDecorator {
-    return createParameterDecorator((req, res, next) => useRequestParam(req, property))(property);
+    return createParameterDecorator(ParameterType.PARAM, property);
 }
 
 export function DHeaders() : ParameterDecorator {
-    return createParameterDecorator((req, res, next) => req.headers)();
+    return createParameterDecorator(ParameterType.HEADER);
 }
 
 export function DHeader(property: string) : ParameterDecorator {
-    return createParameterDecorator((req, res, next) => req.headers[property])(property);
+    return createParameterDecorator(ParameterType.HEADER, property);
 }
 
 export function DBody(property?: string) : ParameterDecorator {
-    return createParameterDecorator((req, res, next, key) => {
-        if (typeof key === 'string') {
-            return useRequestBody(req, key);
-        }
-
-        return useRequestBody(req);
-    })(property);
+    return createParameterDecorator(ParameterType.BODY, property);
 }
 
 export function DQuery(property?: string) : ParameterDecorator {
-    return createParameterDecorator((req, res, next, key) => {
-        if (typeof key === 'string') {
-            return useRequestQuery(req, key);
-        }
-
-        return useRequestQuery(req);
-    })(property);
+    return createParameterDecorator(ParameterType.QUERY, property);
 }
 
 export function DCookies() : ParameterDecorator {
-    return createParameterDecorator((req) => useRequestCookies(req))();
+    return createParameterDecorator(ParameterType.COOKIE);
 }
 
-export function DCookie(name: string) : ParameterDecorator {
-    return createParameterDecorator((req) => useRequestCookie(req, name))(name);
+export function DCookie(property: string) : ParameterDecorator {
+    return createParameterDecorator(ParameterType.COOKIE, property);
 }

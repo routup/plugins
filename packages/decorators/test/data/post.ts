@@ -1,3 +1,4 @@
+import * as console from 'console';
 import { Response, send } from 'routup';
 import {
     DBody, DController, DPost, DResponse,

@@ -6,7 +6,11 @@ export function decorators(options: Options) : Plugin {
     return {
         name: 'decorators',
         install: (router) => {
-            mountControllers(router, options.controllers);
+            mountControllers(
+                router,
+                options.controllers,
+                options.parameter,
+            );
         },
     };
 }

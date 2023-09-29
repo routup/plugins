@@ -1,10 +1,14 @@
 import type { MethodName } from 'routup';
 import { Router, coreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
-import type { ClassType } from './type';
+import type { ClassType, ParameterExtractMap } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
-export function mountController(router: Router, input: (ClassType | Record<string, any>)) {
+export function mountController(
+    router: Router,
+    input: (ClassType | Record<string, any>),
+    extractMap?: ParameterExtractMap,
+) {
     let controller : Record<string, any>;
 
     if (isObject(input)) {
@@ -46,7 +50,15 @@ export function mountController(router: Router, input: (ClassType | Record<strin
                 res,
                 next,
             ) => controller[propertyKeys[i]].apply(controller, [
-                ...buildDecoratorMethodArguments(req, res, next, meta.parameters[propertyKeys[i]]),
+                ...buildDecoratorMethodArguments(
+                    {
+                        request: req,
+                        response: res,
+                        next,
+                    },
+                    meta.parameters[propertyKeys[i]],
+                    extractMap,
+                ),
             ]),
         });
 
@@ -56,8 +68,12 @@ export function mountController(router: Router, input: (ClassType | Record<strin
     router.use(meta.url, childRouter);
 }
 
-export function mountControllers(router: Router, input: (ClassType | Record<string, any>)[]) {
+export function mountControllers(
+    router: Router,
+    input: (ClassType | Record<string, any>)[],
+    extractMap?: ParameterExtractMap,
+) {
     for (let i = 0; i < input.length; i++) {
-        mountController(router, input[i]);
+        mountController(router, input[i], extractMap);
     }
 }

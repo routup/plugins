@@ -1,4 +1,5 @@
-import { coreHandler, hasRequestQuery, setRequestQuery } from 'routup';
+import { coreHandler } from 'routup';
+import { hasRequestQuery, setRequestQuery } from './request';
 import type { ParseOptions } from './type';
 import { parseRequestQuery } from './utils';
 

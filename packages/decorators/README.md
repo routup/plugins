@@ -111,24 +111,61 @@ export class UserController {
 
 The last step is to install the plugin and mount the controllers to a router instance.
 
+Parameters like **body**, **cookie** and **query** cannot be automatically injected into the controller methods. 
+Therefore, so-called parameter getters must be defined, with the help of which the parameters are extracted from the request object.
+If you do not use the corresponding decorator, they do not need to be provided.
+
 `app.ts`
+
 ```typescript
-import { UserController } from './controller';
-import { decorators } from '@routup/decorators';
 import { createServer } from 'node:http';
+
+import { decorators } from '@routup/decorators';
+import {
+    basic,
+    useRequestBody,
+    useRequestCookie,
+    useRequestCookies,
+    useRequestQuery,
+} from '@routup/basic';
 import { createNodeDispatcher, Router } from 'routup';
+
+import { UserController } from './controller';
 
 const router = new Router();
 
+router.use(basic());
 router.use(decorators({
     controllers: [
         UserController
-    ]
+    ],
+    parameter: {
+        body: (context, name) => {
+            if (name) {
+                return useRequestBody(context.request, name);
+            }
+
+            return useRequestBody(context.request);
+        },
+        cookie: (context, name) => {
+            if (name) {
+                return useRequestCookie(context.request, name);
+            }
+
+            return useRequestCookies(context.request);
+        },
+        query: (context, name) => {
+            if (name) {
+                return useRequestQuery(context.request, name);
+            }
+
+            return useRequestQuery(context.request);
+        },
+    },
 }))
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
-
 ```
 
 ## License

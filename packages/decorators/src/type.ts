@@ -1,6 +1,6 @@
 import type { Next, Request, Response } from 'routup';
 import type { DecoratorMethodOptions } from './method';
-import type { DecoratorParameterOptions } from './parameter';
+import type { DecoratorParameterOptions, ParameterType } from './parameter';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export interface ClassType extends Function {
@@ -25,6 +25,22 @@ export interface HandlerInterface {
     run(request: Request, response: Response, next: Next): Promise<void> | void;
 }
 
+export type HandlerContext = {
+    request: Request,
+    response: Response,
+    next: Next
+};
+
+export type ParameterExtractFn = (
+    context: HandlerContext,
+    key?: string
+) => any;
+
+export type ParameterExtractMap = {
+    [K in `${ParameterType}`]?: ParameterExtractFn
+};
+
 export type Options = {
     controllers: (ClassType | Record<string, any>)[]
+    parameter?: ParameterExtractMap
 };

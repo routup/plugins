@@ -1,4 +1,5 @@
 import type { Next, Request, Response } from 'routup';
+import type { ParameterType } from './constants';
 
 export type DecoratorParameterBuildFn = (
     req: Request,
@@ -9,6 +10,6 @@ export type DecoratorParameterBuildFn = (
 
 export type DecoratorParameterOptions = {
     index: number,
-    build: DecoratorParameterBuildFn,
+    type: `${ParameterType}`,
     property?: string,
 };

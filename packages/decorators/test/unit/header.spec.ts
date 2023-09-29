@@ -1,6 +1,6 @@
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
-import { mountController } from '../../src';
+import { decorators } from '../../src';
 import { HeaderController } from '../data/header';
 
 describe('header.ts', () => {
@@ -9,7 +9,9 @@ describe('header.ts', () => {
 
         const controller = new HeaderController();
 
-        mountController(router, controller);
+        router.use(decorators({
+            controllers: [controller],
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

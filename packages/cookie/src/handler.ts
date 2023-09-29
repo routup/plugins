@@ -1,9 +1,11 @@
-import type { Handler } from 'routup';
 import {
     coreHandler,
+} from 'routup';
+
+import {
     hasRequestCookies,
     setRequestCookies,
-} from 'routup';
+} from './request';
 
 import type { ParseOptions } from './types';
 import { parseRequestCookies } from './utils';

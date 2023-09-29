@@ -1,3 +1,6 @@
+import { useRequestBody } from '@routup/body';
+import { useRequestCookie, useRequestCookies } from '@routup/cookie';
+import { useRequestQuery } from '@routup/query';
 import supertest from 'supertest';
 import { Router, createNodeDispatcher } from 'routup';
 import { decorators } from '../../src';
@@ -9,6 +12,29 @@ describe('data/combined', () => {
 
         router.use(decorators({
             controllers: [CombinedController],
+            parameter: {
+                body: (context, name) => {
+                    if (name) {
+                        return useRequestBody(context.request, name);
+                    }
+
+                    return useRequestBody(context.request);
+                },
+                cookie: (context, name) => {
+                    if (name) {
+                        return useRequestCookie(context.request, name);
+                    }
+
+                    return useRequestCookies(context.request);
+                },
+                query: (context, name) => {
+                    if (name) {
+                        return useRequestQuery(context.request, name);
+                    }
+
+                    return useRequestQuery(context.request);
+                },
+            },
         }));
 
         const server = supertest(createNodeDispatcher(router));

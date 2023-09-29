@@ -1,7 +1,7 @@
-import { cookie } from '@routup/cookie';
+import { cookie, useRequestCookie, useRequestCookies } from '@routup/cookie';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
-import { mountController } from '../../src';
+import { decorators } from '../../src';
 import { CookieController } from '../data/cookie';
 
 describe('data/cookie', () => {
@@ -9,8 +9,18 @@ describe('data/cookie', () => {
         const router = new Router();
 
         router.use(cookie());
+        router.use(decorators({
+            controllers: [CookieController],
+            parameter: {
+                cookie: (context, name) => {
+                    if (name) {
+                        return useRequestCookie(context.request, name);
+                    }
 
-        mountController(router, CookieController);
+                    return useRequestCookies(context.request);
+                },
+            },
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
