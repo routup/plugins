@@ -68,7 +68,7 @@
     "devDependencies": {
         "@routup/decorators": "^2.0.1",
         "@routup/assets": "^2.0.0",
-        "@types/supertest": "^2.0.12",
+        "@types/supertest": "^2.0.13",
         "jsonata": "^2.0.3",
         "routup": "^3.0.0-alpha.3",
         "supertest": "^6.3.3"

@@ -60,7 +60,7 @@
         "@routup/body": "^1.0.3",
         "@routup/cookie": "^1.0.2",
         "@routup/query": "^1.0.2",
-        "@types/supertest": "^2.0.12",
+        "@types/supertest": "^2.0.13",
         "routup": "^3.0.0-alpha.3",
         "supertest": "^6.3.3"
     },

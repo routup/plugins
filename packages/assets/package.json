@@ -58,7 +58,7 @@
         "routup": "^3.0.0-alpha.3"
     },
     "devDependencies": {
-        "@types/supertest": "^2.0.12",
+        "@types/supertest": "^2.0.13",
         "routup": "^3.0.0-alpha.3",
         "supertest": "^6.3.3"
     },
