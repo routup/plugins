@@ -14,6 +14,11 @@ response.
 - [Installation](#installation)
 - [Documentation](#documentation)
 - [Usage](#usage)
+- [Options](#options)
+- [Helpers](#helpers)
+  - [setRequestCookies](#setrequestcookies)
+  - [useRequestCookies](#userequestcookies)
+  - [useRequestCookie](#userequestcookie)
 - [License](#license)
 
 ## Installation
@@ -78,6 +83,46 @@ Customize the parse behaviour.
 export type ParseOptions = {
     decode?(value: string): string;
 }
+```
+
+## Helpers
+
+### `setRequestCookies`
+
+This function sets the parsed request cookies for the current request.
+
+```typescript
+declare function setRequestCookies(
+    req: Request,
+    key: string,
+    value: unknown
+) : void;
+
+declare function setRequestCookies(
+    req: Request,
+    record: Record<string, any>
+) : void;
+```
+
+### `useRequestCookies`
+
+This function returns the parsed request cookies.
+
+```typescript
+declare function useRequestCookies(
+    req: IncomingMessage,
+) : Record<string, string>;
+```
+
+### `useRequestCookie`
+
+This function returns a **single** parsed request cookies.
+
+```typescript
+declare function useRequestCookie(
+    req: IncomingMessage,
+    name: string
+) : string | undefined;
 ```
 
 ## License

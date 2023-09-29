@@ -13,6 +13,9 @@ This is a plugin for reading and parsing the query string of the request url.
 - [Installation](#installation)
 - [Documentation](#documentation)
 - [Usage](#usage)
+- [Helpers](#helpers)
+  - [setRequestQuery](#setrequestquery)
+  - [useRequestQuery](#userequestquery)
 - [License](#license)
 
 ## Installation
@@ -54,6 +57,41 @@ router.get('/', coreHandler((req, res) => {
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
+```
+
+## Helpers
+
+### `setRequestQuery`
+
+This function sets the parsed request query parameters for the current request.
+
+```typescript
+declare function setRequestQuery(
+    req: Request,
+    key: string,
+    value: unknown
+) : void;
+
+declare function setRequestQuery(
+    req: Request, 
+    record: Record<string, any>,
+    append?: boolean
+) : void;
+```
+
+### `useRequestQuery`
+
+This function returns the query parameters of the request.
+
+```typescript
+declare function useRequestQuery(
+    req: Request
+) : Record<string, any>;
+
+declare function useRequestQuery(
+    req: Request, 
+    key: string
+) : any;
 ```
 
 ## License

@@ -18,6 +18,9 @@ This is a plugin for reading and parsing the request payload.
   - [urlEncoded](#urlencoded)
   - [raw](#raw)
   - [text](#text)
+- [Helpers](#helpers)
+  - [setRequestBody](#setrequestbody)
+  - [useRequestBody](#userequestbody)
 - [Credits](#credits)
 - [License](#license)
 
@@ -124,6 +127,40 @@ router.use(body({
         inflate: false
     }
 }));
+```
+
+## Helpers
+
+### `setRequestBody`
+
+This function sets the parsed request body/payload for the current request.
+This method should be implemented by a router middleware/plugin.
+
+```typescript
+declare function setRequestBody(
+    req: Request,
+    key: string,
+    value: unknown
+) : void;
+
+declare function setRequestBody(
+    req: Request,
+    record: Record<string, any>
+) : void;
+```
+
+## `useRequestBody`
+
+This function returns the parsed request payload.
+
+```typescript
+declare function useRequestBody(
+    req: Request
+) : Record<string, any>;
+
+declare function useRequestBody(
+    req: Request, key: string
+) : any | undefined;
 ```
 
 ## Credits
