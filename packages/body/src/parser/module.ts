@@ -1,20 +1,20 @@
 import type { Options } from 'body-parser';
-import type { Handler } from 'routup';
+import { coreHandler } from 'routup';
 import { createJsonHandler } from './json';
 import { createUrlEncodedHandler } from './url-encoded';
 
-export function createHandler(options?: Options) : Handler {
+export function createHandler(options?: Options) {
     const jsonParser = createJsonHandler(options);
     const urlEncodedParser = createUrlEncodedHandler(options);
 
-    return (req, res, next) => {
-        jsonParser(req, res, (err) => {
+    return coreHandler((req, res, next) => {
+        jsonParser.fn(req, res, (err) => {
             /* istanbul ignore next */
             if (err) {
                 next(err);
             } else {
-                urlEncodedParser(req, res, next);
+                urlEncodedParser.fn(req, res, next);
             }
         });
-    };
+    });
 }

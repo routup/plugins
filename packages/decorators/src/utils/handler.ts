@@ -1,4 +1,5 @@
-import type { Handler } from 'routup';
+import type { CoreHandler } from 'routup';
+import { coreHandler } from 'routup';
 import {
     isObject,
 } from './object';
@@ -9,22 +10,28 @@ export function isHandlerClassInstance(input: unknown) : input is HandlerInterfa
         typeof (input as any).run === 'function';
 }
 
-export function createHandlerForClassType(item: ClassType) : Handler {
-    return (req, res, next) => {
-        try {
-            const middle = new (item as ClassType)();
+export function createHandlerForClassType(
+    item: ClassType,
+    options: Partial<CoreHandler>,
+) {
+    return coreHandler({
+        ...options,
+        fn: (req, res, next) => {
+            try {
+                const middle = new (item as ClassType)();
 
-            if (isHandlerClassInstance(middle)) {
-                middle.run(req, res, next);
-            } else {
+                if (isHandlerClassInstance(middle)) {
+                    middle.run(req, res, next);
+                } else {
+                    /* istanbul ignore next */
+                    middle(req, res, next);
+                }
+            } catch (e) {
                 /* istanbul ignore next */
-                middle(req, res, next);
+                if (e instanceof Error) {
+                    next(e);
+                }
             }
-        } catch (e) {
-            /* istanbul ignore next */
-            if (e instanceof Error) {
-                next(e);
-            }
-        }
-    };
+        },
+    });
 }

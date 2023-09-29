@@ -1,7 +1,11 @@
 import type { OptionsJson } from 'body-parser';
 import { json } from 'body-parser';
-import type { Handler } from 'routup';
+import { coreHandler } from 'routup';
 
-export function createJsonHandler(options?: OptionsJson) : Handler {
-    return json(options);
+export function createJsonHandler(options?: OptionsJson) {
+    const handler = json(options);
+
+    return coreHandler((req, res, next) => {
+        handler(req, res, next);
+    });
 }

@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import {
-    HeaderName, Router, createNodeDispatcher, send,
+    HeaderName, Router, coreHandler, createNodeDispatcher, send,
 } from 'routup';
 import {
     createHandler,
@@ -16,12 +16,12 @@ describe('src/module', () => {
 
         router.use(createHandler());
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             useRequestCookies(req);
 
             const foo = useRequestCookie(req, 'foo');
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -38,12 +38,12 @@ describe('src/module', () => {
 
         router.use(createHandler());
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             useRequestCookies(req);
 
             const foo = useRequestCookie(req, 'bar');
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -58,18 +58,18 @@ describe('src/module', () => {
     it('should set (multiple) cookie', async () => {
         const router = new Router();
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             setResponseCookie(res, 'bar', 'baz');
 
             send(res);
-        });
+        }));
 
-        router.get('/multiple', (req, res) => {
+        router.get('/multiple', coreHandler((req, res) => {
             setResponseCookie(res, 'foo', 'bar');
             setResponseCookie(res, 'bar', 'baz');
 
             send(res);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -93,11 +93,11 @@ describe('src/module', () => {
     it('should unset cookie', async () => {
         const router = new Router();
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             unsetResponseCookie(res, 'foo');
 
             send(res);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

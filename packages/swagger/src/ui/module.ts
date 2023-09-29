@@ -1,14 +1,13 @@
+import * as console from 'console';
 import {
+    coreHandler,
     send,
-    useRequestMountPath,
+    useRequestMountPath, useRequestPath,
 } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
     Handler,
-    Next,
-    Request,
-    Response,
 } from 'routup';
 import { createHandler } from '@routup/static';
 import { URL } from 'node:url';
@@ -71,7 +70,7 @@ export function createUIHandler(
         encoding: 'utf-8',
     });
 
-    const compileTemplate = (context: {url?: string, mountPath: string}) : void => {
+    const compileTemplate = (context: {url?: string, mountPath: string, path: string }) : void => {
         let href = '/';
         if (context.url) {
             let pathName : string;
@@ -81,9 +80,9 @@ export function createUIHandler(
                 pathName = context.url;
             }
 
-            const mountPathIndex = pathName.indexOf(context.mountPath);
+            const mountPathIndex = pathName.indexOf(context.path);
             if (mountPathIndex !== -1) {
-                href = pathName.substring(0, mountPathIndex + context.mountPath.length);
+                href = pathName.substring(0, mountPathIndex + context.path.length);
             } else {
                 href = pathName;
             }
@@ -107,7 +106,7 @@ export function createUIHandler(
             .replace('<% baseHref %>', href);
     };
 
-    return (req: Request, res: Response, next: Next) => {
+    return coreHandler((req, res, next) => {
         /* istanbul ignore next */
         if (typeof req.url === 'undefined') {
             next();
@@ -121,15 +120,16 @@ export function createUIHandler(
             return;
         }
 
-        handler(req, res, async () => {
+        handler.fn(req, res, async (err) => {
             if (typeof template === 'undefined') {
                 compileTemplate({
                     url: req.url,
                     mountPath: useRequestMountPath(req),
+                    path: useRequestPath(req),
                 });
             }
 
-            send(res, template);
+            return send(res, template);
         });
-    };
+    });
 }

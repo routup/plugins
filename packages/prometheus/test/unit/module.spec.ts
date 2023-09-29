@@ -1,4 +1,6 @@
-import { Router, createNodeDispatcher, send } from 'routup';
+import {
+    Router, coreHandler, createNodeDispatcher, send,
+} from 'routup';
 import { Registry } from 'prom-client';
 import supertest from 'supertest';
 import type { OptionsInput } from '../../src';
@@ -20,9 +22,9 @@ function createRouterWithHandlers(options?: OptionsInput) : Router {
 
     router.get('/metrics', createHandler(options.registry));
 
-    router.get('/', (req, res) => {
+    router.get('/', coreHandler((req, res) => {
         send(res);
-    });
+    }));
 
     return router;
 }

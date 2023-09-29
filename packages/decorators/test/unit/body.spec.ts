@@ -1,5 +1,7 @@
 import { createHandler } from '@routup/body';
-import { Router, createNodeDispatcher, setRequestBody } from 'routup';
+import {
+    Router, coreHandler, createNodeDispatcher, setRequestBody,
+} from 'routup';
 import supertest from 'supertest';
 import { mountController } from '../../src';
 import { PostController } from '../data/post';
@@ -10,11 +12,11 @@ describe('data/body', () => {
 
         router.use(createHandler());
 
-        router.use((req, res, next) => {
+        router.use(coreHandler((req, res, next) => {
             setRequestBody(req, 'foo', 'bar');
 
             next();
-        });
+        }));
 
         mountController(router, PostController);
 

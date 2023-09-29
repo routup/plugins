@@ -1,10 +1,9 @@
-import type { Handler } from 'routup';
-import { HeaderName } from 'routup';
+import { HeaderName, coreHandler } from 'routup';
 import { setRequestRateLimitInfo, useRequestRateLimitInfo } from './request';
 import type { OptionsInput } from './type';
 import { buildHandlerOptions } from './utils';
 
-export function createHandler(input?: OptionsInput) : Handler {
+export function createHandler(input?: OptionsInput) {
     const options = buildHandlerOptions({
         ...(input || {}),
     });
@@ -13,7 +12,7 @@ export function createHandler(input?: OptionsInput) : Handler {
         options.store.init(options);
     }
 
-    return async (req, res, next) => {
+    return coreHandler(async (req, res, next) => {
         const skip = await options.skip(req, res);
         if (skip) {
             next();
@@ -109,5 +108,5 @@ export function createHandler(input?: OptionsInput) : Handler {
         }
 
         next();
-    };
+    });
 }

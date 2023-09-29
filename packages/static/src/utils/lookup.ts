@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { FileInfo, HandlerOptions } from '../type';
 import { isRegexMatch } from './regex';
 
-function generatePaths(
+function generatePathForExtensions(
     requestPath: string,
     extensions: string[],
 ) : string[] {
@@ -19,6 +19,17 @@ function generatePaths(
     return items;
 }
 
+function withLeadingSlash(input: string) {
+    if (
+        input.length > 0 &&
+        !input.startsWith('/')
+    ) {
+        return `/${input}`;
+    }
+
+    return input;
+}
+
 const lookupPath = async (
     requestPath: string,
     options: HandlerOptions,
@@ -26,18 +37,32 @@ const lookupPath = async (
 ) : Promise<FileInfo | undefined> => {
     const relativeFilePaths : string[] = [];
 
-    if (!requestPath.endsWith('/')) {
-        relativeFilePaths.push(requestPath);
+    const parts = requestPath
+        .split('/')
+        .filter((el) => el.length > 0);
+
+    const basePaths : string[] = [];
+    // no file
+    while (parts.length > 0) {
+        const next = parts.join('/');
+        if (next.length > 0) {
+            basePaths.push(withLeadingSlash(next));
+        }
+
+        parts.shift();
     }
 
-    if (options.extensions.length > 0) {
-        if (requestPath.endsWith('/')) {
-            relativeFilePaths.push(...generatePaths(`${requestPath}index`, options.extensions));
-        } else {
-            const baseName = path.basename(requestPath);
-            if (baseName.indexOf('.') === -1) {
-                relativeFilePaths.push(...generatePaths(requestPath, options.extensions));
-                relativeFilePaths.push(...generatePaths(`${requestPath}/index`, options.extensions));
+    if (basePaths.length === 0) {
+        relativeFilePaths.push(...generatePathForExtensions('/index', options.extensions));
+    } else {
+        for (let i = 0; i < basePaths.length; i++) {
+            const basePath = basePaths[i];
+            if (basePath.endsWith('/')) {
+                relativeFilePaths.push(...generatePathForExtensions(`${basePath}index`, options.extensions));
+            } else {
+                relativeFilePaths.push(basePath);
+                relativeFilePaths.push(...generatePathForExtensions(basePath, options.extensions));
+                relativeFilePaths.push(...generatePathForExtensions(`${basePath}/index`, options.extensions));
             }
         }
     }

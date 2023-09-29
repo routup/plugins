@@ -8,7 +8,7 @@ describe('src/module', () => {
         const handler = createHandler();
 
         const server = supertest(createMiddleware((req, res) => {
-            handler(req, res, () => {
+            handler.fn(req, res, () => {
                 send(res);
             });
         }));
@@ -36,7 +36,7 @@ describe('src/module', () => {
         });
 
         const server = supertest(createMiddleware((req, res) => {
-            handler(req, res, () => {
+            handler.fn(req, res, () => {
                 send(res);
             });
         }));
@@ -62,7 +62,7 @@ describe('src/module', () => {
         });
 
         const server = supertest(createMiddleware((req, res) => {
-            handler(req, res, () => {
+            handler.fn(req, res, () => {
                 send(res);
             });
         }));
@@ -84,7 +84,7 @@ describe('src/module', () => {
         });
 
         const server = supertest(createMiddleware((req, res) => {
-            handler(req, res, () => {
+            handler.fn(req, res, () => {
                 res.statusCode = 400;
                 send(res);
             });
@@ -107,7 +107,7 @@ describe('src/module', () => {
         });
 
         const server = supertest(createMiddleware((req, res) => {
-            handler(req, res, () => {
+            handler.fn(req, res, () => {
                 send(res);
             });
         }));

@@ -1,4 +1,6 @@
-import { Router, createNodeDispatcher, send } from 'routup';
+import {
+    Router, coreHandler, createNodeDispatcher, send,
+} from 'routup';
 import supertest from 'supertest';
 import {
     createHandler,
@@ -15,11 +17,11 @@ describe('src/**', () => {
 
         router.use(createJsonHandler());
 
-        router.post('/', (req, res) => {
+        router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
 
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -38,11 +40,11 @@ describe('src/**', () => {
 
         router.use(createUrlEncodedHandler({ extended: false }));
 
-        router.post('/', (req, res) => {
+        router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
 
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -59,11 +61,11 @@ describe('src/**', () => {
 
         router.use(createRawHandler());
 
-        router.post('/', (req, res) => {
+        router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
 
             send(res, Buffer.isBuffer(foo));
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -81,11 +83,11 @@ describe('src/**', () => {
 
         router.use(createTextHandler({ type: 'text/html' }));
 
-        router.post('/', (req, res) => {
+        router.post('/', coreHandler((req, res) => {
             const foo = useRequestBody(req);
 
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -103,11 +105,11 @@ describe('src/**', () => {
 
         router.use(createHandler());
 
-        router.post('/multiple', (req, res) => {
+        router.post('/multiple', coreHandler((req, res) => {
             const foo = useRequestBody(req);
 
             send(res, foo);
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

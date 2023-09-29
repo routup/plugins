@@ -21,6 +21,21 @@ describe('src/module', () => {
         expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('4');
     });
 
+    it('should serve node modules file', async () => {
+        const router = new Router();
+
+        router.use('/docs', createHandler(path.dirname(require.resolve('swagger-ui-dist')), {
+            scan: false,
+        }));
+
+        const server = supertest(createNodeDispatcher(router));
+
+        const response = await server
+            .get('/docs/swagger-ui-bundle.js');
+
+        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('application/javascript; charset=utf-8');
+    });
+
     it('should serve non preloaded text file', async () => {
         const router = new Router();
 

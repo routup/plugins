@@ -1,7 +1,6 @@
 import supertest from 'supertest';
 import { Router, createNodeDispatcher } from 'routup';
-import { mountController, mountControllers } from '../../src';
-import { HeaderController } from '../data/header';
+import { mountControllers } from '../../src';
 import { CombinedController } from '../data/combined';
 
 describe('data/combined', () => {

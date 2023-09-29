@@ -88,13 +88,12 @@ describe('src/ui', () => {
         expect(response.text.includes('<base href="https://example.com/api/docs/" />')).toBeTruthy();
     });
 
-    it('should serve swagger ui files', async () => {
+    it('should serve swagger ui asset files', async () => {
         const router = await createRouter();
         const server = supertest(createNodeDispatcher(router));
 
         const response = await server
             .get('/docs/swagger-ui-bundle.js');
-
         expect(response.statusCode).toEqual(200);
         expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('application/javascript; charset=utf-8');
     });

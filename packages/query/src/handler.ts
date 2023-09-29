@@ -1,10 +1,9 @@
-import type { Handler } from 'routup';
-import { hasRequestQuery, setRequestQuery } from 'routup';
+import { coreHandler, hasRequestQuery, setRequestQuery } from 'routup';
 import type { ParseOptions } from './type';
 import { parseRequestQuery } from './utils';
 
-export function createHandler(options?: ParseOptions) : Handler {
-    return (req, res, next) => {
+export function createHandler(options?: ParseOptions) {
+    return coreHandler((req, res, next) => {
         if (hasRequestQuery(req)) {
             next();
 
@@ -13,5 +12,5 @@ export function createHandler(options?: ParseOptions) : Handler {
 
         setRequestQuery(req, parseRequestQuery(req, options));
         next();
-    };
+    });
 }

@@ -1,6 +1,8 @@
 import qs from 'qs';
 import supertest from 'supertest';
-import { Router, createNodeDispatcher, send } from 'routup';
+import {
+    Router, coreHandler, createNodeDispatcher, send,
+} from 'routup';
 import { createHandler, useRequestQuery } from '../../src';
 
 describe('src/module', () => {
@@ -9,21 +11,21 @@ describe('src/module', () => {
 
         router.use(createHandler());
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             send(res, useRequestQuery(req));
-        });
+        }));
 
-        router.get('/key', (req, res) => {
+        router.get('/key', coreHandler((req, res) => {
             useRequestQuery(req, 'sort');
 
             send(res, useRequestQuery(req, 'sort'));
-        });
+        }));
 
-        router.get('/reuse', (req, res) => {
+        router.get('/reuse', coreHandler((req, res) => {
             useRequestQuery(req);
 
             send(res, useRequestQuery(req));
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -59,9 +61,9 @@ describe('src/module', () => {
 
         router.use(createHandler());
 
-        router.get('/', (req, res) => {
+        router.get('/', coreHandler((req, res) => {
             send(res, useRequestQuery(req));
-        });
+        }));
 
         const server = supertest(createNodeDispatcher(router));
 

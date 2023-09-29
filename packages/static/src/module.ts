@@ -1,7 +1,8 @@
 import fs from 'node:fs';
-import type { Handler } from 'routup';
+import type { CoreHandler } from 'routup';
 import {
     HeaderName,
+    coreHandler,
     sendFile,
     useRequestMountPath,
     useRequestPath,
@@ -10,7 +11,7 @@ import type { FileInfo, HandlerOptionsInput } from './type';
 import { buildHandlerOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input?: HandlerOptionsInput) : Handler {
+export function createHandler(directory: string, input?: HandlerOptionsInput) : CoreHandler {
     const options = buildHandlerOptions({
         ...(input || {}),
         directoryPath: directory,
@@ -31,7 +32,7 @@ export function createHandler(directory: string, input?: HandlerOptionsInput) : 
 
     scanFiles(stack, options);
 
-    return (req, res, next) => {
+    return coreHandler((req, res, next) => {
         let requestPath = useRequestPath(req);
 
         const mountPath = useRequestMountPath(req);
@@ -100,5 +101,5 @@ export function createHandler(directory: string, input?: HandlerOptionsInput) : 
                     return Promise.resolve();
                 });
             });
-    };
+    });
 }

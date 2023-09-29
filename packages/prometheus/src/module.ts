@@ -1,5 +1,6 @@
-import type { Handler } from 'routup';
+import type { Router } from 'routup';
 import {
+    coreHandler,
     setResponseHeaderContentType,
     useRequestPath,
 } from 'routup';
@@ -12,21 +13,21 @@ import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
 import type { Metrics, OptionsInput } from './type';
 import { buildHandlerOptions, onResponseFinished } from './utils';
 
-export function createHandler(input?: Registry) : Handler {
+export function createHandler(input?: Registry) {
     const registry : Registry = input || promClient.register;
 
-    return async (req, res, next) => {
+    return coreHandler(async (req, res, next) => {
         registry.metrics()
             .then((output) => {
                 setResponseHeaderContentType(res, registry.contentType);
                 res.end(output);
             })
             .catch((err) => next(err));
-    };
+    });
 }
 
 export function registerMetrics(
-    router: { use: (handler: Handler) => void },
+    router: Router,
     input?: OptionsInput,
 ): Metrics {
     const options = buildHandlerOptions({
@@ -48,7 +49,7 @@ export function registerMetrics(
         metrics.requestDuration = buildRequestDurationMetric(options);
     }
 
-    router.use(async (req, res, next) => {
+    router.use(coreHandler(async (req, res, next) => {
         /* istanbul ignore next */
         if (options.skip(req)) {
             next();
@@ -84,7 +85,7 @@ export function registerMetrics(
         }
 
         next();
-    });
+    }));
 
     return metrics;
 }

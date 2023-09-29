@@ -52,7 +52,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^1.x || ^2.x"
+        "routup": "^3.0.0-alpha.1"
     },
     "dependencies": {
         "@types/body-parser": "^1.19.2",
@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "@types/supertest": "^2.0.12",
-        "routup": "^2.0.0",
+        "routup": "^3.0.0-alpha.1",
         "supertest": "^6.3.3"
     },
     "publishConfig": {

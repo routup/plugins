@@ -1,5 +1,5 @@
-import type { Handler } from 'routup';
-import { Router } from 'routup';
+import type { MethodName } from 'routup';
+import { Router, coreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
@@ -18,30 +18,39 @@ export function mountController(router: Router, input: (ClassType | Record<strin
     const childRouter = new Router();
 
     for (let i = 0; i < meta.middlewares.length; i++) {
-        const handler = createHandlerForClassType(meta.middlewares[i]);
+        const handler = createHandlerForClassType(meta.middlewares[i], {});
 
         childRouter.use(handler);
     }
 
     const propertyKeys = Object.keys(meta.methods);
     for (let i = 0; i < propertyKeys.length; i++) {
-        const handler : Handler = (req, res, next) => controller[propertyKeys[i]].apply(controller, [
-            ...buildDecoratorMethodArguments(req, res, next, meta.parameters[propertyKeys[i]]),
-        ]);
-
         const method = meta.methods[propertyKeys[i]];
-        const handlers : Handler[] = [];
         if (method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
-                handlers.push(createHandlerForClassType(method.middlewares[i]));
+                childRouter.use(createHandlerForClassType(
+                    method.middlewares[i],
+                    {
+                        method: method.method as MethodName,
+                        path: method.url,
+                    },
+                ));
             }
         }
 
-        (childRouter as any)[method.method].apply(childRouter, [
-            method.url,
-            ...handlers,
-            handler,
-        ]);
+        const handler = coreHandler({
+            method: method.method as MethodName,
+            path: method.url,
+            fn: (
+                req,
+                res,
+                next,
+            ) => controller[propertyKeys[i]].apply(controller, [
+                ...buildDecoratorMethodArguments(req, res, next, meta.parameters[propertyKeys[i]]),
+            ]),
+        });
+
+        childRouter.use(handler);
     }
 
     router.use(meta.url, childRouter);
