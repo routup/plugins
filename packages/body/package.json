@@ -55,7 +55,7 @@
         "routup": "^3.0.0-alpha.3"
     },
     "dependencies": {
-        "@types/body-parser": "^1.19.2",
+        "@types/body-parser": "^1.19.3",
         "body-parser": "^1.20.2",
         "smob": "^1.4.0"
     },
