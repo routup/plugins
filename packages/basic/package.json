@@ -1,0 +1,73 @@
+{
+    "name": "@routup/basic",
+    "version": "0.0.0",
+    "description": "A basic plugin, which includes the body, cookie & query plugin.",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "build:types": "tsc --emitDeclarationOnly -p tsconfig.build.json",
+        "build:js": "rollup -c",
+        "build": "rimraf ./dist && cross-env NODE_ENV=production npm run build:js && npm run build:types",
+        "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
+        "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",
+        "lint": "eslint --ext .js,.ts ./src",
+        "lint:fix": "npm run lint -- --fix",
+        "prepublishOnly": "npm run build"
+    },
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "keywords": [
+        "body",
+        "cookie",
+        "query",
+        "api",
+        "rest",
+        "http",
+        "router",
+        "api-router",
+        "route",
+        "routing"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/routup/plugins.git",
+        "directory": "packages/basic"
+    },
+    "bugs": {
+        "url": "https://github.com/routup/plugins/issues"
+    },
+    "homepage": "https://github.com/routup/plugins#readme",
+    "peerDependencies": {
+        "routup": "^3.0.0-alpha.3"
+    },
+    "dependencies": {
+        "@routup/body": "^1.0.3",
+        "@routup/cookie": "^1.0.2",
+        "@routup/query": "^1.0.2"
+    },
+    "devDependencies": {
+        "@types/supertest": "^2.0.12",
+        "routup": "^3.0.0-alpha.3",
+        "supertest": "^6.3.3"
+    },
+    "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
+    "publishConfig": {
+        "access": "public"
+    }
+}
