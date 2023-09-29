@@ -93,11 +93,11 @@ import {
     createNodeDispatcher,
     Router
 } from 'routup';
-import { ui } from '@routup/swagger';
+import { swaggerUI } from '@routup/swagger';
 
 const router = new Router();
 
-router.use('/docs', ui('test/data/swagger.json'));
+router.use('/docs', swaggerUI('test/data/swagger.json'));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
