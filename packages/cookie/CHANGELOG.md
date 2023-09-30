@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/cookie@1.0.2...@routup/cookie@2.0.0-alpha.0) (2023-09-30)
+
+
+### Features
+
+* define & export plugin ([948cb96](https://github.com/routup/plugins/commit/948cb96621f5177aa4ac6db7f45292f5a38bac6d))
+* modified packages for v3 compatibility ([2d1b17a](https://github.com/routup/plugins/commit/2d1b17aed26b5b0951086813716feccf9739a93e))
+* move global helpers to the respective plugin ([2f50438](https://github.com/routup/plugins/commit/2f50438cea7a1e9d6d1573f5d21b9cf53361ee7c))
+
+
+### BREAKING CHANGES
+
+* packages not compatible to v1 and v2 anymore
+
+
+
+
+
 ## [1.0.2](https://github.com/routup/plugins/compare/@routup/cookie@1.0.1...@routup/cookie@1.0.2) (2023-09-14)
 
 

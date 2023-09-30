@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/swagger@1.0.4...@routup/swagger@2.0.0-alpha.0) (2023-09-30)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/swagger-ui-dist from 3.30.1 to 3.30.2 ([#143](https://github.com/routup/plugins/issues/143)) ([7526343](https://github.com/routup/plugins/commit/7526343fe849085c5e599e29a326a88c36acdff1))
+* **deps:** bump swagger-ui-dist from 5.7.0 to 5.9.0 ([#134](https://github.com/routup/plugins/issues/134)) ([241bf53](https://github.com/routup/plugins/commit/241bf53741fca0e0cd926cf2d9fba819fb828db4))
+* rename swagger ui plugin export ([c285cde](https://github.com/routup/plugins/commit/c285cde540167f701db5503c0bce6ce7a6158fe0))
+* set assets plugin as dependency ([9730651](https://github.com/routup/plugins/commit/973065138426ee0bb2c1f6974c141c5115437880))
+
+
+### Features
+
+* define & export plugin ([948cb96](https://github.com/routup/plugins/commit/948cb96621f5177aa4ac6db7f45292f5a38bac6d))
+* modified packages for v3 compatibility ([2d1b17a](https://github.com/routup/plugins/commit/2d1b17aed26b5b0951086813716feccf9739a93e))
+* move global helpers to the respective plugin ([2f50438](https://github.com/routup/plugins/commit/2f50438cea7a1e9d6d1573f5d21b9cf53361ee7c))
+
+
+### BREAKING CHANGES
+
+* packages not compatible to v1 and v2 anymore
+
+
+
+
+
 ## [1.0.4](https://github.com/routup/plugins/compare/@routup/swagger@1.0.3...@routup/swagger@1.0.4) (2023-09-14)
 
 

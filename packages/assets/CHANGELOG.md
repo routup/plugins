@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 3.0.0-alpha.0 (2023-09-30)
+
+
+### Features
+
+* define & export plugin ([948cb96](https://github.com/routup/plugins/commit/948cb96621f5177aa4ac6db7f45292f5a38bac6d))
+* move global helpers to the respective plugin ([2f50438](https://github.com/routup/plugins/commit/2f50438cea7a1e9d6d1573f5d21b9cf53361ee7c))
+
+
+
+
+
 # [2.0.0](https://github.com/routup/plugins/compare/@routup/static@1.0.1...@routup/static@2.0.0) (2023-09-14)
 
 
