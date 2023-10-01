@@ -8,13 +8,31 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.mjs",
             "require": "./dist/index.cjs"
+        },
+        "./body": {
+            "types": "./body/index.d.ts",
+            "import": "./body/index.mjs",
+            "require": "./body/index.cjs"
+        },
+        "./cookie": {
+            "types": "./cookie/index.d.ts",
+            "import": "./cookie/index.mjs",
+            "require": "./cookie/index.cjs"
+        },
+        "./query": {
+            "types": "./query/index.d.ts",
+            "import": "./query/index.mjs",
+            "require": "./query/index.cjs"
         }
     },
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "files": [
-        "dist/"
+        "body",
+        "cookie",
+        "query",
+        "dist"
     ],
     "scripts": {
         "build:types": "tsc --emitDeclarationOnly -p tsconfig.build.json",

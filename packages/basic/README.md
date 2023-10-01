@@ -30,6 +30,9 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ## Usage
 
+The modules **body**, **cookie** and **query** have an individual
+export path as shown in the following code snippet.
+
 ```typescript
 import { createServer } from 'node:http';
 import {
@@ -37,13 +40,10 @@ import {
     coreHandler,
     Router
 } from 'routup';
-import {
-    basic,
-    useRequestBody,
-    useRequestCookie,
-    useRequestCookies,
-    useRequetQuery
-} from '@routup/basic';
+import { basic } from '@routup/basic';
+import { useRequestBody } from '@routup/basic/body';
+import { useRequestCookie, useRequestCookies } from '@routup/basic/cookie';
+import { useRequetQuery } from '@routup/basic/query';
 
 const router = new Router();
 
