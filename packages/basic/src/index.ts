@@ -13,6 +13,8 @@ export {
     parseRequestCookies,
     setRequestCookies,
     setResponseCookie,
+    unsetResponseCookie,
+    hasRequestCookies,
 } from '@routup/cookie';
 
 export {
