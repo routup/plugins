@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.1](https://github.com/routup/plugins/compare/@routup/prometheus@2.0.0-alpha.0...@routup/prometheus@2.0.0-alpha.1) (2023-10-01)
+
+
+### Bug Fixes
+
+* default export & missing function exports ([01be8bf](https://github.com/routup/plugins/commit/01be8bfcec5039e4cd374ffc428b47651d7c9f97))
+
+
+
+
+
 # [2.0.0-alpha.0](https://github.com/routup/plugins/compare/@routup/prometheus@1.0.2...@routup/prometheus@2.0.0-alpha.0) (2023-09-30)
 
 
