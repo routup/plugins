@@ -5,9 +5,10 @@ import {
     useRequestParam,
 } from 'routup';
 import supertest from 'supertest';
-import {
-    basic, useRequestBody, useRequestCookie, useRequestCookies, useRequestQuery,
-} from '../../src';
+import { basic } from '../../src';
+import { useRequestBody } from '../../body';
+import { useRequestCookie, useRequestCookies } from '../../cookie';
+import { useRequestQuery } from '../../query';
 
 describe('src/**', () => {
     it('should use body plugin', async () => {
