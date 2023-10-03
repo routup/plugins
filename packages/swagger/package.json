@@ -67,7 +67,7 @@
     },
     "devDependencies": {
         "@routup/decorators": "^3.0.0-alpha.0",
-        "@types/supertest": "^2.0.13",
+        "@types/supertest": "^2.0.14",
         "jsonata": "^2.0.3",
         "routup": "^3.0.0-alpha.3",
         "supertest": "^6.3.3"

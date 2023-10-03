@@ -51,7 +51,7 @@
         "routup": "^3.0.0-alpha.3"
     },
     "devDependencies": {
-        "@types/supertest": "^2.0.13",
+        "@types/supertest": "^2.0.14",
         "prom-client": "^14.2.0",
         "routup": "^3.0.0-alpha.3",
         "supertest": "^6.3.3"
