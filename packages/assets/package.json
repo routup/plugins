@@ -1,6 +1,6 @@
 {
     "name": "@routup/assets",
-    "version": "3.0.0",
+    "version": "3.0.0-alpha.3",
     "description": "Routup plugin for serving static files.",
     "exports": {
         "./package.json": "./package.json",
