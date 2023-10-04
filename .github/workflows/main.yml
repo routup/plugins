@@ -5,7 +5,7 @@ name: CI
 
 on:
     push:
-        branches: [master, next, beta, alpha]
+        branches: [develop, master, next, beta, alpha]
     pull_request:
         types: [ opened, synchronize ]
 
@@ -16,8 +16,8 @@ permissions:
     pull-requests: write
 
 env:
-    PRIMARY_NODE_VERSION: 18
-    REGISTRY_URL: 'https://registry.npmjs.org'
+    NODE_VERSION: 18
+    NODE_REGISTRY: 'https://registry.npmjs.org'
 
 jobs:
     install:
@@ -29,7 +29,7 @@ jobs:
             - name: Install
               uses: ./.github/actions/install
               with:
-                  node-version: ${{ env.PRIMARY_NODE_VERSION }}
+                  node-version: ${{ env.NODE_VERSION }}
 
     lint:
         name: Lint
@@ -42,7 +42,7 @@ jobs:
             -   name: Install
                 uses: ./.github/actions/install
                 with:
-                    node-version: ${{ env.PRIMARY_NODE_VERSION }}
+                    node-version: ${{ env.NODE_VERSION }}
 
             -   name: Build
                 uses: ./.github/actions/build
@@ -61,7 +61,7 @@ jobs:
             - name: Install
               uses: ./.github/actions/install
               with:
-                  node-version: ${{ env.PRIMARY_NODE_VERSION }}
+                  node-version: ${{ env.NODE_VERSION }}
             - name: Build
               uses: ./.github/actions/build
 
@@ -76,7 +76,7 @@ jobs:
             -   name: Install
                 uses: ./.github/actions/install
                 with:
-                    node-version: ${{ env.PRIMARY_NODE_VERSION }}
+                    node-version: ${{ env.NODE_VERSION }}
 
             -   name: Build
                 uses: ./.github/actions/build
@@ -84,3 +84,38 @@ jobs:
             -   name: Run tests
                 run: |
                     npm run test
+
+    release:
+        name: Release
+        if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'develop') }}
+        needs: [build, tests]
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Install
+                uses: ./.github/actions/install
+                with:
+                    node-version: ${{ env.NODE_VERSION }}
+                    node-registry: ${{ env.NODE_REGISTRY }}
+
+            -   name: Authenticate
+                run: echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > ~/.npmrc
+                env:
+                    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            -   name: Publish
+                env:
+                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    git config user.name "${{ github.actor }}"
+                    git config user.email "${{ github.actor}}@users.noreply.github.com"
+
+                    if [ ${{ github.base_ref }} = develop ]; then
+                      npx lerna version --conventional-commits --conventional-prerelease --yes
+                    else
+                      npx lerna version --conventional-commits --conventional-graduate --yes
+                    fi
+
+                    npx lerna publish from-git --yes
