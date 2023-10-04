@@ -17,6 +17,7 @@ permissions:
 
 env:
     PRIMARY_NODE_VERSION: 18
+    REGISTRY_URL: 'https://registry.npmjs.org'
 
 jobs:
     install:
