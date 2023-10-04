@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.3 (2023-10-04)
+
+**Note:** Version bump only for package @routup/basic
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/routup/plugins/compare/@routup/basic@1.0.0-alpha.1...@routup/basic@1.0.0-alpha.2) (2023-10-01)
 
 
