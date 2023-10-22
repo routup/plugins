@@ -1,4 +1,4 @@
-import { ErrorProxy, useRequestParam, useRequestParams } from 'routup';
+import { useRequestParam, useRequestParams } from 'routup';
 import { ParameterType } from '../parameter';
 import type { DecoratorParameterOptions } from '../parameter';
 import type { HandlerContext, ParameterExtractMap } from '../type';
@@ -67,7 +67,7 @@ export function buildDecoratorMethodArguments(
             continue;
         }
 
-        throw new ErrorProxy(`Parameter ${parameter.type} could not be extracted.`);
+        throw new SyntaxError(`Parameter ${parameter.type} could not be extracted.`);
     }
 
     return items;

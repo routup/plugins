@@ -5,12 +5,9 @@ import {
 } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
-import type {
-    Handler,
-} from 'routup';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
-import { createHandler } from '@routup/assets';
+import { createHandlerFn } from '@routup/assets';
 import { ASSETS_PATH } from '../constants';
 import type { UIOptions } from './type';
 import { isFileURL } from './utils';
@@ -50,8 +47,8 @@ const stringify = (obj: Record<string, any>) => {
 export function createUIHandler(
     document: Spec | string,
     options: UIOptions = {},
-) : Handler {
-    const handler = createHandler(path.dirname(require.resolve('swagger-ui-dist')), {
+) {
+    const handler = createHandlerFn(path.dirname(require.resolve('swagger-ui-dist')), {
         extensions: [],
     });
 
@@ -119,7 +116,7 @@ export function createUIHandler(
             return;
         }
 
-        handler.fn(req, res, async (err) => {
+        handler(req, res, async (err) => {
             if (typeof template === 'undefined') {
                 compileTemplate({
                     url: req.url,

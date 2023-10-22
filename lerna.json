@@ -4,15 +4,13 @@
         "packages/*"
     ],
     "command": {
-        "publish": {
+        "version": {
             "ignoreChanges": [
                 "*.md",
                 "*.spec.js",
                 "*.spec.ts",
                 "LICENSE"
-            ]
-        },
-        "version": {
+            ],
             "message": "build(release): publish",
             "createRelease": "github"
         }

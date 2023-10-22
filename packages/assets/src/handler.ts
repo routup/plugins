@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { CoreHandler } from 'routup';
+import type { CoreHandlerFn, Handler } from 'routup';
 import {
     HeaderName,
     coreHandler,
@@ -11,7 +11,10 @@ import type { FileInfo, OptionsInput } from './type';
 import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input?: OptionsInput) : CoreHandler {
+export function createHandler(directory: string, input?: OptionsInput) : Handler {
+    return coreHandler(createHandlerFn(directory, input));
+}
+export function createHandlerFn(directory: string, input?: OptionsInput) : CoreHandlerFn {
     const options = buildOptions({
         ...(input || {}),
         directoryPath: directory,
@@ -32,7 +35,7 @@ export function createHandler(directory: string, input?: OptionsInput) : CoreHan
 
     scanFiles(stack, options);
 
-    return coreHandler((req, res, next) => {
+    return (req, res, next) => {
         let requestPath = useRequestPath(req);
 
         const mountPath = useRequestMountPath(req);
@@ -101,5 +104,5 @@ export function createHandler(directory: string, input?: OptionsInput) : CoreHan
                     return Promise.resolve();
                 });
             });
-    });
+    };
 }

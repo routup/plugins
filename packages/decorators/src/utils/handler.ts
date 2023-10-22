@@ -1,4 +1,4 @@
-import type { CoreHandler } from 'routup';
+import type { CoreHandlerConfig } from 'routup';
 import { coreHandler } from 'routup';
 import {
     isObject,
@@ -12,7 +12,7 @@ export function isHandlerClassInstance(input: unknown) : input is HandlerInterfa
 
 export function createHandlerForClassType(
     item: ClassType,
-    options: Partial<CoreHandler>,
+    options: Partial<CoreHandlerConfig>,
 ) {
     return coreHandler({
         ...options,
