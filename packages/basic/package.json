@@ -1,6 +1,6 @@
 {
     "name": "@routup/basic",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A basic plugin, which includes the body, cookie & query plugin.",
     "exports": {
         "./package.json": "./package.json",
@@ -75,9 +75,9 @@
         "routup": "^3.1.0"
     },
     "dependencies": {
-        "@routup/body": "^2.0.0",
-        "@routup/cookie": "^2.0.0",
-        "@routup/query": "^2.0.0"
+        "@routup/body": "^2.1.0",
+        "@routup/cookie": "^2.1.0",
+        "@routup/query": "^2.1.0"
     },
     "devDependencies": {
         "@types/supertest": "^2.0.15",

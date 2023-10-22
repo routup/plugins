@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/routup/plugins/compare/@routup/body@2.0.0...@routup/body@2.1.0) (2023-10-22)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/body-parser from 1.19.3 to 1.19.4 ([#163](https://github.com/routup/plugins/issues/163)) ([3788332](https://github.com/routup/plugins/commit/37883329e56ffcc21b724240891dbab7a912fe84))
+
+
+### Features
+
+* bump routup to v3.1.0 ([a9f991b](https://github.com/routup/plugins/commit/a9f991b6a404e3b485d171fca21b7f3cf7e63ff5))
+
+
+
+
+
 # 2.0.0 (2023-10-04)
 
 **Note:** Version bump only for package @routup/body
