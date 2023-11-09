@@ -63,7 +63,7 @@
         "@trapi/swagger": "^1.0.0-alpha.12",
         "@types/swagger-ui-dist": "^3.30.3",
         "smob": "^1.4.0",
-        "swagger-ui-dist": "^5.9.0"
+        "swagger-ui-dist": "^5.9.2"
     },
     "devDependencies": {
         "@routup/decorators": "^3.1.0",
