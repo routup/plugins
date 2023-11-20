@@ -52,7 +52,7 @@
         "rimraf": "^5.0.5",
         "rollup": "^4.3.0",
         "supertest": "^6.3.3",
-        "typescript": "5.2.2"
+        "typescript": "5.3.2"
     },
     "scripts": {
         "commit": "npx git-cz",
