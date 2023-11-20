@@ -52,7 +52,7 @@
     },
     "devDependencies": {
         "@types/supertest": "^2.0.16",
-        "prom-client": "^14.2.0",
+        "prom-client": "^15.0.0",
         "routup": "^3.2.0",
         "supertest": "^6.3.3"
     },
