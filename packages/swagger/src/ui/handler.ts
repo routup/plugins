@@ -105,18 +105,16 @@ export function createUIHandler(
     return coreHandler((req, res, next) => {
         /* istanbul ignore next */
         if (typeof req.url === 'undefined') {
-            next();
-            return;
+            return next();
         }
 
         if (req.url.includes('/package.json')) {
             res.statusCode = 404;
-            send(res);
 
-            return;
+            return send(res);
         }
 
-        handler(req, res, async (err) => {
+        return handler(req, res, async () => {
             if (typeof template === 'undefined') {
                 compileTemplate({
                     url: req.url,
