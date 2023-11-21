@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.3.0
+
+### Minor Changes
+
+- [`7c23c9d`](https://github.com/routup/plugins/commit/7c23c9da8cb0936240ca2f8d73b325c9240e4c4b) Thanks [@tada5hi](https://github.com/tada5hi)! - bump
+
+### Patch Changes
+
+- Updated dependencies [[`7c23c9d`](https://github.com/routup/plugins/commit/7c23c9da8cb0936240ca2f8d73b325c9240e4c4b)]:
+  - @routup/body@2.3.0
+  - @routup/cookie@2.3.0
+  - @routup/query@2.3.0
+
 ## 1.2.0
 
 ### Minor Changes
