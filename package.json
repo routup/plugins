@@ -56,9 +56,9 @@
     },
     "scripts": {
         "commit": "npx git-cz",
-        "build": "nx run-many -t build",
-        "test": "nx run-many -t test",
-        "test:coverage": "nx run-many -t test:coverage",
+        "build": "npx nx run-many -t build",
+        "test": "npx nx run-many -t test",
+        "test:coverage": "npx nx run-many -t test:coverage",
         "lint": "eslint --ext .ts ./packages/",
         "lint:fix": "npm run lint -- --fix",
         "prepare": "husky install",
