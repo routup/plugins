@@ -1,16 +1,5 @@
 # Change Log
 
-## 3.0.0
-
-### Minor Changes
-
-- [`95c72cb`](https://github.com/routup/plugins/commit/95c72cb578da3392c7146b2dc95d869ecbe90148) Thanks [@tada5hi](https://github.com/tada5hi)! - bump
-
-### Patch Changes
-
-- Updated dependencies [[`95c72cb`](https://github.com/routup/plugins/commit/95c72cb578da3392c7146b2dc95d869ecbe90148)]:
-  - @routup/rate-limit@2.3.0
-
 ## 2.2.0
 
 ### Minor Changes
