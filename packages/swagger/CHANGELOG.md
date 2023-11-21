@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.3.0
+
+### Minor Changes
+
+- [`86a9719`](https://github.com/routup/plugins/commit/86a9719618349eee2fdcfbdb9a8ba30f37ad3a6a) Thanks [@tada5hi](https://github.com/tada5hi)! - bump
+
+### Patch Changes
+
+- Updated dependencies [[`86a9719`](https://github.com/routup/plugins/commit/86a9719618349eee2fdcfbdb9a8ba30f37ad3a6a)]:
+  - @routup/assets@3.3.0
+  - @routup/swagger-preset@1.1.0
+
 ## 2.2.0
 
 ### Minor Changes
