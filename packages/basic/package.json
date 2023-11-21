@@ -41,8 +41,7 @@
         "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
         "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",
         "lint": "eslint --ext .js,.ts ./src",
-        "lint:fix": "npm run lint -- --fix",
-        "prepublishOnly": "npm run build"
+        "lint:fix": "npm run lint -- --fix"
     },
     "author": {
         "name": "Peter Placzek",

@@ -62,6 +62,6 @@
         "lint": "eslint --ext .ts ./packages/",
         "lint:fix": "npm run lint -- --fix",
         "prepare": "husky install",
-        "release": "changeset publish"
+        "release": "npx changeset publish"
     }
 }
