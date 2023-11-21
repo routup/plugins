@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.3.0
+
+### Minor Changes
+
+- [`86a9719`](https://github.com/routup/plugins/commit/86a9719618349eee2fdcfbdb9a8ba30f37ad3a6a) Thanks [@tada5hi](https://github.com/tada5hi)! - bump
+
 ## 3.2.0
 
 ### Minor Changes
