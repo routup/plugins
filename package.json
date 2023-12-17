@@ -52,7 +52,8 @@
         "rimraf": "^5.0.5",
         "rollup": "^4.5.0",
         "supertest": "^6.3.3",
-        "typescript": "5.3.2"
+        "typescript": "5.3.2",
+        "workspaces-publish": "^1.0.2"
     },
     "scripts": {
         "commit": "npx git-cz",
@@ -61,7 +62,6 @@
         "test:coverage": "npx nx run-many -t test:coverage",
         "lint": "eslint --ext .ts ./packages/",
         "lint:fix": "npm run lint -- --fix",
-        "prepare": "husky install",
-        "release": "npx changeset publish"
+        "prepare": "husky install"
     }
 }
