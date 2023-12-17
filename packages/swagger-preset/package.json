@@ -55,7 +55,7 @@
         "@trapi/swagger": ">=1.0.0-alpha.0 || 1.x"
     },
     "devDependencies": {
-        "@trapi/swagger": "^1.0.0-alpha.12"
+        "@trapi/swagger": "^1.0.0"
     },
     "publishConfig": {
         "access": "public"
