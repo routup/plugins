@@ -24,7 +24,15 @@
         },
         {
             "type": "linked-versions",
-            "groupName": "main",
+            "groupName": "rate-limit",
+            "components": [
+                "rate-limit",
+                "rate-limit-preset"
+            ]
+        },
+        {
+            "type": "linked-versions",
+            "groupName": "swagger",
             "components": [
                 "swagger",
                 "swagger-preset"
