@@ -52,7 +52,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@trapi/swagger": ">=1.0.0-alpha.0 || 1.x"
+        "@trapi/swagger": "^1.0.0"
     },
     "devDependencies": {
         "@trapi/swagger": "^1.0.0"
