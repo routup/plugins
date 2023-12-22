@@ -50,7 +50,7 @@
         "routup": "^3.2.0"
     },
     "devDependencies": {
-        "@types/supertest": "^2.0.16",
+        "@types/supertest": "^6.0.0",
         "prom-client": "^14.2.0",
         "routup": "^3.2.0",
         "supertest": "^6.3.3"

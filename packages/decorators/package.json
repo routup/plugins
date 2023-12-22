@@ -59,7 +59,7 @@
         "@routup/body": "^2.3.0",
         "@routup/cookie": "^2.3.0",
         "@routup/query": "^2.3.0",
-        "@types/supertest": "^2.0.16",
+        "@types/supertest": "^6.0.0",
         "routup": "^3.2.0",
         "supertest": "^6.3.3"
     },
