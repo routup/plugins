@@ -1,6 +1,6 @@
 {
     "name": "@routup/swagger-preset",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "description": "Swagger preset for routup swagger generation.",
     "exports": {
         "./package.json": "./package.json",

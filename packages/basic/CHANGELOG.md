@@ -1,5 +1,11 @@
 # Change Log
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/query bumped from ^2.3.0 to ^2.3.1
+
 ## 1.3.0
 
 ### Minor Changes
