@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.3.3](https://github.com/routup/plugins/compare/swagger-preset-v2.3.2...swagger-preset-v2.3.3) (2024-01-11)
+
+
+### Bug Fixes
+
+* **deps:** bump @trapi/swagger from 1.0.1 to 1.1.0 ([#266](https://github.com/routup/plugins/issues/266)) ([92bc9f8](https://github.com/routup/plugins/commit/92bc9f82b9d59a93b681d562ef30b49771e11b63))
+
 ## [2.3.2](https://github.com/routup/plugins/compare/swagger-preset-v2.3.1...swagger-preset-v2.3.2) (2024-01-10)
 
 
