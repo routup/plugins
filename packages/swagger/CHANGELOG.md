@@ -1,5 +1,19 @@
 # Change Log
 
+## [2.3.4](https://github.com/routup/plugins/compare/swagger-v2.3.3...swagger-v2.3.4) (2024-01-18)
+
+
+### Bug Fixes
+
+* bump trapi/swagger to v1.2.0 ([95cd118](https://github.com/routup/plugins/commit/95cd1187b10aaaf3b7ebe116ce327f37f57ba8ba))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/swagger-preset bumped from ^2.3.3 to ^2.3.4
+
 ## [2.3.3](https://github.com/routup/plugins/compare/swagger-v2.3.2...swagger-v2.3.3) (2024-01-11)
 
 
