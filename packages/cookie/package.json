@@ -56,7 +56,7 @@
         "routup": "^3.3.0"
     },
     "dependencies": {
-        "cookie-es": "^1.0.0"
+        "cookie-es": "^1.1.0"
     },
     "devDependencies": {
         "@types/supertest": "^6.0.2",
