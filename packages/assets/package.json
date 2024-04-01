@@ -54,11 +54,11 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^3.2.0"
+        "routup": "^3.3.0"
     },
     "devDependencies": {
         "@types/supertest": "^6.0.2",
-        "routup": "^3.2.0",
+        "routup": "^3.3.0",
         "supertest": "^6.3.4"
     },
     "publishConfig": {
