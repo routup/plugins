@@ -10,6 +10,7 @@
         "packages/body": {"component": "body" },
         "packages/cookie": {"component": "cookie" },
         "packages/decorators": {"component": "decorators" },
+        "packages/i18n": {"component": "i18n" },
         "packages/prometheus": {"component": "prometheus" },
         "packages/query": {"component": "query" },
         "packages/rate-limit": {"component": "rate-limit" },

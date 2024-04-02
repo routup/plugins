@@ -1,0 +1,65 @@
+{
+    "name": "@routup/i18n",
+    "version": "0.0.0",
+    "description": "Translation and internationalization plugin for routup.",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "build:types": "tsc --emitDeclarationOnly -p tsconfig.build.json",
+        "build:js": "rollup -c",
+        "build": "rimraf ./dist && cross-env NODE_ENV=production npm run build:js && npm run build:types",
+        "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
+        "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",
+        "lint": "eslint --ext .js,.ts ./src",
+        "lint:fix": "npm run lint -- --fix"
+    },
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "keywords": [
+        "i18n",
+        "translation",
+        "internationalization",
+        "language",
+        "bilingual",
+        "translate"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/routup/plugins.git",
+        "directory": "packages/i18n"
+    },
+    "bugs": {
+        "url": "https://github.com/routup/plugins/issues"
+    },
+    "homepage": "https://github.com/routup/plugins#readme",
+    "peerDependencies": {
+        "ilingo": "^3.2.0",
+        "routup": "^3.2.0"
+    },
+    "devDependencies": {
+        "@types/supertest": "^6.0.2",
+        "ilingo": "^3.2.0",
+        "routup": "^3.2.0",
+        "supertest": "^6.3.4"
+    },
+    "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
+    "publishConfig": {
+        "access": "public"
+    }
+}
