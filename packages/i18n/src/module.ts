@@ -28,6 +28,7 @@ export function i18n(input?: Options | Ilingo) : Plugin {
 
                 locale = input.locale;
             } else {
+                // todo: extract store and apply it to new instance
                 instance = useIlingo();
             }
 
