@@ -6,15 +6,25 @@ import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
 import type { Translator } from './types';
 
 export function useTranslator(req: Request) : Translator {
-    const instance = useRequestEnv(req, REQUEST_INSTANCE_SYMBOL);
-    if (!(instance instanceof Ilingo)) {
-        throw new Error('The plugin is not installed...');
+    const reqInstance = useRequestEnv(req, REQUEST_INSTANCE_SYMBOL);
+    if (!(reqInstance instanceof Ilingo)) {
+        throw new Error('The i18n plugin is not installed...');
     }
 
-    const locale = useRequestEnv(req, REQUEST_LOCALE_SYMBOL);
-    if (typeof locale !== 'undefined' && typeof locale !== 'string') {
-        throw new Error('The locale must either be of type string or undefined.');
+    const reqLocale = useRequestEnv(req, REQUEST_LOCALE_SYMBOL);
+    if (typeof reqLocale !== 'undefined' && typeof reqLocale !== 'string') {
+        throw new Error('The i18n locale must either be of type string or undefined.');
     }
 
-    return (key: DotKey, data?: Record<string, any>) => instance.get(key, data, locale);
+    return (
+        key: DotKey,
+        data?: Record<string, any> | string,
+        locale?: string,
+    ) => {
+        if (typeof data === 'string') {
+            return reqInstance.get(key, data || reqLocale);
+        }
+
+        return reqInstance.get(key, data, reqLocale || locale);
+    };
 }
