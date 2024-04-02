@@ -21,7 +21,7 @@ This is a plugin for translation and internationalization.
 ## Installation
 
 ```bash
-npm install @routup/cookie --save
+npm install @routup/i18n --save
 ```
 
 ## Documentation
