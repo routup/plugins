@@ -4,6 +4,7 @@
     "packages/body": "2.3.0",
     "packages/cookie": "2.3.0",
     "packages/decorators": "3.3.1",
+    "packages/i18n": "0.0.0",
     "packages/prometheus": "2.3.0",
     "packages/query": "2.3.1",
     "packages/rate-limit": "2.3.0",
