@@ -1,4 +1,3 @@
-import * as console from 'console';
 import {
     HeaderName, Router, coreHandler, createNodeDispatcher,
 } from 'routup';
