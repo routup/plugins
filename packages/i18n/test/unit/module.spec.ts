@@ -44,6 +44,7 @@ describe('src/module', () => {
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('Hello world!');
     });
+
     it('should translate text with params', async () => {
         const router = new Router();
 
@@ -82,5 +83,39 @@ describe('src/module', () => {
 
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('Hello, my name is Peter');
+    });
+
+    it('should work with custom locale fn', async () => {
+        const router = new Router();
+
+        router.use(i18n({
+            locale: () => 'en',
+            data: {
+                de: {
+                    app: {
+                        key: 'Hallo Welt!',
+                    },
+                },
+                en: {
+                    app: {
+                        key: 'Hello world!',
+                    },
+                },
+            },
+        }));
+
+        router.get('/', coreHandler(async (req, res) => {
+            const translator = useTranslator(req);
+            return translator('app.key');
+        }));
+
+        const server = supertest(createNodeDispatcher(router));
+
+        const response = await server
+            .get('/')
+            .set(HeaderName.ACCEPT_LANGUAGE, 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6');
+
+        expect(response.statusCode).toEqual(200);
+        expect(response.text).toEqual('Hello world!');
     });
 });
