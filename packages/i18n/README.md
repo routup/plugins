@@ -13,7 +13,7 @@ This is a plugin for translation and internationalization.
 - [Installation](#installation)
 - [Documentation](#documentation)
 - [Usage](#usage)
-- [Options](#options)
+- [Types](#types)
 - [Helpers](#helpers)
   - [useTranslator](#usetranslator)
 - [License](#license)
@@ -30,8 +30,7 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ## Usage
 
-It is important to invoke the request middleware,
-to parse the cookies of the request header.
+It is important to install the plugin, to enable locale detection and translator usage.
 
 ```typescript
 import { createServer } from 'node:http';
@@ -41,46 +40,42 @@ import {
     Router
 } from 'routup';
 import {
-    cookie,
-    useRequestCookie,
-    useRequestCookies
-} from '@routup/cookie';
+    i18n,
+    useTranslator
+} from '@routup/i18n';
 
 const router = new Router();
 
-router.use(cookie());
+router.use(i18n({
+    data: {
+        de: {
+            app: {
+                key: 'Hallo, mein Name ist {{name}}',
+            },
+        },
+        en: {
+            app: {
+                key: 'Hello, my name is {{name}}',
+            },
+        },
+    },
+}));
 
 router.get('/', coreHandler((req, res) => {
-    const cookies = useRequestCookies(req);
-    console.log(cookies);
-    // { key: value, ... }
+    const translator = useTranslator(req);
+    const translation = translator('app.key', { name: 'Peter' }); 
+    console.log(translation);
+    // Hallo, mein Name ist Peter
     
-    const cookie = useRequestCookie(req, 'key');
-    // value
+    return translation;
 }));
 
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
 ```
 
-## Options
-
-### `parse`
-
-Customize the parse behaviour.
-
-- Type: [ParseOptions](#parseoptions)
-- Default: `undefined`
-
 ## Types
 
-#### `ParseOptions`
-
-```typescript
-export type ParseOptions = {
-    decode?(value: string): string;
-}
-```
 
 ## Helpers
 
@@ -92,7 +87,7 @@ This function returns a translator function to receive a translation for a given
 import { Request, Translator } from '@routup/i18n';
 
 declare function useTranslator(
-    req: IncomingMessage
+    req: Request
 ): Translator;
 ```
 
