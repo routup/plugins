@@ -52,10 +52,10 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@trapi/swagger": "^1.2.1"
+        "@trapi/swagger": "^1.2.2"
     },
     "devDependencies": {
-        "@trapi/swagger": "^1.2.1"
+        "@trapi/swagger": "^1.2.2"
     },
     "publishConfig": {
         "access": "public"

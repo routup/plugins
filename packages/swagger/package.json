@@ -59,7 +59,7 @@
     "dependencies": {
         "@routup/assets": "^3.3.0",
         "@routup/swagger-preset": "^2.3.5",
-        "@trapi/swagger": "^1.2.1",
+        "@trapi/swagger": "^1.2.2",
         "@types/swagger-ui-dist": "^3.30.4",
         "smob": "^1.4.0",
         "swagger-ui-dist": "^5.13.0"
