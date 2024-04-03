@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.3.2](https://github.com/routup/plugins/compare/query-v2.3.1...query-v2.3.2) (2024-04-03)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/qs from 6.9.13 to 6.9.14 ([#371](https://github.com/routup/plugins/issues/371)) ([790257b](https://github.com/routup/plugins/commit/790257bc587d547fa6025d33b82dfaedc22a19ab))
+* **deps:** bump qs and @types/qs ([#350](https://github.com/routup/plugins/issues/350)) ([8d7f547](https://github.com/routup/plugins/commit/8d7f547b0bf0b60c9c7cac095a50677c9b29ae1d))
+
 ## [2.3.1](https://github.com/routup/plugins/compare/query-v2.3.0...query-v2.3.1) (2024-01-10)
 
 
