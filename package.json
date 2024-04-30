@@ -48,7 +48,7 @@
         "jest": "^29.7.0",
         "nx": "^18.2.2",
         "rimraf": "^5.0.5",
-        "rollup": "^4.14.0",
+        "rollup": "^4.17.2",
         "supertest": "^6.3.4",
         "typescript": "5.4.3",
         "workspaces-publish": "^1.4.3"
