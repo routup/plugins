@@ -6,7 +6,8 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-This is a plugin for translation and internationalization.
+This is a plugin for translation and internationalization. 
+It is build on top of [ilingo](https://github.com/tada5hi/ilingo).
 
 **Table of Contents**
 
@@ -34,6 +35,7 @@ It is important to install the plugin, to enable locale detection and translator
 
 ```typescript
 import { createServer } from 'node:http';
+import { MemoryStore } from 'ilingo';
 import {
     createNodeDispatcher,
     coreHandler,
@@ -44,9 +46,7 @@ import {
     useTranslator
 } from '@routup/i18n';
 
-const router = new Router();
-
-router.use(i18n({
+const store = new MemoryStore({
     data: {
         de: {
             app: {
@@ -59,20 +59,24 @@ router.use(i18n({
             },
         },
     },
-}));
+})
+
+const router = new Router();
+
+router.use(i18n({ store }));
 
 router.get('/', coreHandler((req, res) => {
     const translator = useTranslator(req);
-    const translation = translator({ 
-        group: 'app', 
-        key: 'key', 
-        data: { 
-            name: 'Peter' 
+    const translation = translator({
+        group: 'app',
+        key: 'key',
+        data: {
+            name: 'Peter'
         }
-    }); 
+    });
     console.log(translation);
     // Hallo, mein Name ist Peter
-    
+
     return translation;
 }));
 
