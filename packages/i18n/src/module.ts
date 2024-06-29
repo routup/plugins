@@ -1,4 +1,4 @@
-import { Ilingo, useIlingo } from 'ilingo';
+import { Ilingo } from 'ilingo';
 import type { Plugin } from 'routup';
 import { coreHandler, getRequestAcceptableLanguage, setRequestEnv } from 'routup';
 import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
@@ -8,6 +8,24 @@ export function i18n() : Plugin;
 export function i18n(ilingo: Ilingo) : Plugin;
 export function i18n(options: Options) : Plugin;
 export function i18n(input?: Options | Ilingo) : Plugin {
+    let locales : string[] | undefined;
+    let resolvePromise : Promise<string[]> | undefined;
+    const resolveLocales = async (instance: Ilingo) => {
+        if (locales) {
+            return locales;
+        }
+
+        if (resolvePromise) {
+            return resolvePromise;
+        }
+
+        resolvePromise = instance.getLocales();
+
+        locales = await resolvePromise;
+
+        return resolvePromise;
+    };
+
     return {
         name: 'i18n',
         install: (router) => {
@@ -18,7 +36,6 @@ export function i18n(input?: Options | Ilingo) : Plugin {
                 instance = input;
             } else if (input) {
                 instance = new Ilingo({
-                    data: input.data,
                     store: input.store,
                 });
 
@@ -28,14 +45,12 @@ export function i18n(input?: Options | Ilingo) : Plugin {
 
                 locale = input.locale;
             } else {
-                // todo: extract store and apply it to new instance
-                instance = useIlingo();
+                instance = new Ilingo();
             }
 
-            // todo: this should be async
-            const locales = instance.getLocalesSync();
-
             router.use(coreHandler(async (req, res, next) => {
+                const locales = await resolveLocales(instance);
+
                 // todo: key should be symbol
                 setRequestEnv(req, REQUEST_INSTANCE_SYMBOL, instance);
 

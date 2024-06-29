@@ -63,7 +63,13 @@ router.use(i18n({
 
 router.get('/', coreHandler((req, res) => {
     const translator = useTranslator(req);
-    const translation = translator('app.key', { name: 'Peter' }); 
+    const translation = translator({ 
+        group: 'app', 
+        key: 'key', 
+        data: { 
+            name: 'Peter' 
+        }
+    }); 
     console.log(translation);
     // Hallo, mein Name ist Peter
     

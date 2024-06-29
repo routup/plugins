@@ -1,4 +1,4 @@
-import type { DotKey } from 'ilingo';
+import type { DotKey, GetContext } from 'ilingo';
 import { Ilingo } from 'ilingo';
 import type { Request } from 'routup';
 import { useRequestEnv } from 'routup';
@@ -16,15 +16,11 @@ export function useTranslator(req: Request) : Translator {
         throw new Error('The i18n locale must either be of type string or undefined.');
     }
 
-    return (
-        key: DotKey,
-        data?: Record<string, any> | string,
-        locale?: string,
-    ) => {
-        if (typeof data === 'string') {
-            return reqInstance.get(key, data || reqLocale);
+    return (ctx: GetContext) => {
+        if (!ctx.locale) {
+            ctx.locale = reqLocale;
         }
 
-        return reqInstance.get(key, data, reqLocale || locale);
+        return reqInstance.get(ctx);
     };
 }
