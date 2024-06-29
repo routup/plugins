@@ -60,7 +60,7 @@
         "@routup/assets": "^3.3.0",
         "@routup/swagger-preset": "^2.3.6",
         "@trapi/swagger": "^1.2.3",
-        "@types/swagger-ui-dist": "^3.30.4",
+        "@types/swagger-ui-dist": "^3.30.5",
         "smob": "^1.4.0",
         "swagger-ui-dist": "^5.17.14"
     },
