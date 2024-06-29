@@ -1,6 +1,6 @@
 {
     "name": "@routup/prometheus",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "description": "Routup rate limiter.",
     "exports": {
         "./package.json": "./package.json",

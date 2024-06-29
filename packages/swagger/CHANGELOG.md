@@ -1,5 +1,29 @@
 # Change Log
 
+## [2.4.0](https://github.com/routup/plugins/compare/swagger-v2.3.6...swagger-v2.4.0) (2024-06-29)
+
+
+### Features
+
+* bump routup from 3.3.0 to 4.0.0 ([#492](https://github.com/routup/plugins/issues/492)) ([80abffb](https://github.com/routup/plugins/commit/80abffb9aeb2a55bcc54e9b8a0598527fc7e6d02))
+
+
+### Bug Fixes
+
+* **deps:** bump @trapi/swagger from 1.2.2 to 1.2.3 ([#486](https://github.com/routup/plugins/issues/486)) ([db5618e](https://github.com/routup/plugins/commit/db5618e3b1b858c313af8570a71e428571e3b024))
+* **deps:** bump @types/swagger-ui-dist from 3.30.4 to 3.30.5 ([#494](https://github.com/routup/plugins/issues/494)) ([120b218](https://github.com/routup/plugins/commit/120b218abf13075b26df2abcc413803c7c02dcd5))
+* **deps:** bump swagger-ui-dist from 5.13.0 to 5.17.14 ([#454](https://github.com/routup/plugins/issues/454)) ([9529c6f](https://github.com/routup/plugins/commit/9529c6f45d4c288c9919fafe820255a4039019a9))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^3.3.0 to ^3.4.0
+    * @routup/swagger-preset bumped from ^2.3.6 to ^2.4.0
+  * devDependencies
+    * @routup/decorators bumped from ^3.3.2 to ^3.4.0
+
 ## [2.3.6](https://github.com/routup/plugins/compare/swagger-v2.3.5...swagger-v2.3.6) (2024-04-03)
 
 
