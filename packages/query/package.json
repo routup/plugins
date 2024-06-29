@@ -57,7 +57,7 @@
         "routup": "^3.3.0"
     },
     "dependencies": {
-        "@types/qs": "^6.9.14",
+        "@types/qs": "^6.9.15",
         "qs": "^6.12.1"
     },
     "devDependencies": {
