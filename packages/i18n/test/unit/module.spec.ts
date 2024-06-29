@@ -1,3 +1,4 @@
+import { MemoryStore } from 'ilingo';
 import {
     HeaderName, Router, coreHandler, createNodeDispatcher,
 } from 'routup';
@@ -8,7 +9,7 @@ describe('src/module', () => {
     it('should translate text', async () => {
         const router = new Router();
 
-        router.use(i18n({
+        const store = new MemoryStore({
             data: {
                 de: {
                     app: {
@@ -21,11 +22,14 @@ describe('src/module', () => {
                     },
                 },
             },
+        });
+        router.use(i18n({
+            store,
         }));
 
-        router.get('/', coreHandler(async (req, res) => {
+        router.get('/', coreHandler(async (req) => {
             const translator = useTranslator(req);
-            return translator('app.key');
+            return translator({ group: 'app', key: 'key' });
         }));
 
         const server = supertest(createNodeDispatcher(router));
@@ -48,7 +52,7 @@ describe('src/module', () => {
     it('should translate text with params', async () => {
         const router = new Router();
 
-        router.use(i18n({
+        const store = new MemoryStore({
             data: {
                 de: {
                     app: {
@@ -61,11 +65,21 @@ describe('src/module', () => {
                     },
                 },
             },
+        });
+        router.use(i18n({
+            store,
         }));
 
-        router.get('/', coreHandler(async (req, res) => {
+        router.get('/', coreHandler(async (req) => {
             const translator = useTranslator(req);
-            return translator('app.key', { name: 'Peter' });
+
+            return translator({
+                group: 'app',
+                key: 'key',
+                data: {
+                    name: 'Peter',
+                },
+            });
         }));
 
         const server = supertest(createNodeDispatcher(router));
@@ -88,8 +102,7 @@ describe('src/module', () => {
     it('should work with custom locale fn', async () => {
         const router = new Router();
 
-        router.use(i18n({
-            locale: () => 'en',
+        const store = new MemoryStore({
             data: {
                 de: {
                     app: {
@@ -102,11 +115,16 @@ describe('src/module', () => {
                     },
                 },
             },
+        });
+
+        router.use(i18n({
+            locale: () => 'en',
+            store,
         }));
 
-        router.get('/', coreHandler(async (req, res) => {
+        router.get('/', coreHandler(async (req) => {
             const translator = useTranslator(req);
-            return translator('app.key');
+            return translator({ group: 'app', key: 'key' });
         }));
 
         const server = supertest(createNodeDispatcher(router));
