@@ -1,5 +1,21 @@
 # Change Log
 
+## [3.1.0](https://github.com/routup/plugins/compare/rate-limit-redis-v3.0.0...rate-limit-redis-v3.1.0) (2024-06-29)
+
+
+### Features
+
+* bump routup from 3.3.0 to 4.0.0 ([#492](https://github.com/routup/plugins/issues/492)) ([80abffb](https://github.com/routup/plugins/commit/80abffb9aeb2a55bcc54e9b8a0598527fc7e6d02))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^2.3.0 to ^2.4.0
+  * peerDependencies
+    * @routup/rate-limit bumped from ^2.3.0 to ^2.4.0
+
 ## 3.0.0
 
 ### Minor Changes

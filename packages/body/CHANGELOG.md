@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.0](https://github.com/routup/plugins/compare/body-v2.3.0...body-v2.4.0) (2024-06-29)
+
+
+### Features
+
+* bump routup from 3.3.0 to 4.0.0 ([#492](https://github.com/routup/plugins/issues/492)) ([80abffb](https://github.com/routup/plugins/commit/80abffb9aeb2a55bcc54e9b8a0598527fc7e6d02))
+
 ## 2.3.0
 
 ### Minor Changes

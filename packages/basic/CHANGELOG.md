@@ -6,6 +6,22 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [1.4.0](https://github.com/routup/plugins/compare/basic-v1.3.2...basic-v1.4.0) (2024-06-29)
+
+
+### Features
+
+* bump routup from 3.3.0 to 4.0.0 ([#492](https://github.com/routup/plugins/issues/492)) ([80abffb](https://github.com/routup/plugins/commit/80abffb9aeb2a55bcc54e9b8a0598527fc7e6d02))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^2.3.0 to ^2.4.0
+    * @routup/cookie bumped from ^2.3.1 to ^2.4.0
+    * @routup/query bumped from ^2.3.2 to ^2.4.0
+
 ## [1.3.2](https://github.com/routup/plugins/compare/basic-v1.3.1...basic-v1.3.2) (2024-04-03)
 
 
