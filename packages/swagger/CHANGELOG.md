@@ -1,5 +1,23 @@
 # Change Log
 
+## [2.3.7](https://github.com/routup/plugins/compare/swagger-v2.3.6...swagger-v2.3.7) (2024-06-29)
+
+
+### Bug Fixes
+
+* **deps:** bump @trapi/swagger from 1.2.2 to 1.2.3 ([#486](https://github.com/routup/plugins/issues/486)) ([db5618e](https://github.com/routup/plugins/commit/db5618e3b1b858c313af8570a71e428571e3b024))
+* **deps:** bump @types/swagger-ui-dist from 3.30.4 to 3.30.5 ([#494](https://github.com/routup/plugins/issues/494)) ([e48dc8b](https://github.com/routup/plugins/commit/e48dc8b84cc5e15032e3c3738339341fdfb93c19))
+* **deps:** bump swagger-ui-dist from 5.13.0 to 5.17.14 ([#454](https://github.com/routup/plugins/issues/454)) ([9529c6f](https://github.com/routup/plugins/commit/9529c6f45d4c288c9919fafe820255a4039019a9))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/swagger-preset bumped from ^2.3.6 to ^2.3.7
+  * devDependencies
+    * @routup/decorators bumped from ^3.3.2 to ^3.3.3
+
 ## [2.3.6](https://github.com/routup/plugins/compare/swagger-v2.3.5...swagger-v2.3.6) (2024-04-03)
 
 

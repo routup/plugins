@@ -6,6 +6,15 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [1.3.3](https://github.com/routup/plugins/compare/basic-v1.3.2...basic-v1.3.3) (2024-06-29)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/query bumped from ^2.3.2 to ^2.3.3
+
 ## [1.3.2](https://github.com/routup/plugins/compare/basic-v1.3.1...basic-v1.3.2) (2024-04-03)
 
 

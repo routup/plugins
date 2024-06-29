@@ -6,6 +6,15 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [3.3.3](https://github.com/routup/plugins/compare/decorators-v3.3.2...decorators-v3.3.3) (2024-06-29)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/query bumped from ^2.3.2 to ^2.3.3
+
 ## [3.3.2](https://github.com/routup/plugins/compare/decorators-v3.3.1...decorators-v3.3.2) (2024-04-03)
 
 
