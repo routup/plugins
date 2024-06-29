@@ -54,7 +54,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^3.3.0"
+        "routup": "^4.0.0"
     },
     "dependencies": {
         "@routup/assets": "^3.3.0",
@@ -68,7 +68,7 @@
         "@routup/decorators": "^3.3.2",
         "@types/supertest": "^6.0.2",
         "jsonata": "^2.0.5",
-        "routup": "^3.3.0",
+        "routup": "^4.0.0",
         "supertest": "^7.0.0"
     },
     "publishConfig": {
