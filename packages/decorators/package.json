@@ -61,7 +61,7 @@
         "@routup/query": "^2.3.2",
         "@types/supertest": "^6.0.2",
         "routup": "^3.3.0",
-        "supertest": "^6.3.4"
+        "supertest": "^7.0.0"
     },
     "publishConfig": {
         "access": "public"
