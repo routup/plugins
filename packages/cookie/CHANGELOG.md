@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.1](https://github.com/routup/plugins/compare/cookie-v2.4.0...cookie-v2.4.1) (2024-09-15)
+
+
+### Bug Fixes
+
+* **deps:** bump cookie-es from 1.1.0 to 1.2.2 ([#528](https://github.com/routup/plugins/issues/528)) ([38e6f73](https://github.com/routup/plugins/commit/38e6f73d92514821033591379e1b569bd3f8eb0d))
+
 ## [2.4.0](https://github.com/routup/plugins/compare/cookie-v2.3.1...cookie-v2.4.0) (2024-06-29)
 
 

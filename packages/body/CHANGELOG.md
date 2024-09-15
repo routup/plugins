@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.1](https://github.com/routup/plugins/compare/body-v2.4.0...body-v2.4.1) (2024-09-15)
+
+
+### Bug Fixes
+
+* **deps:** bump body-parser to v2.x ([9cd06b0](https://github.com/routup/plugins/commit/9cd06b0633aa369ce09646dfcda77ab442dbdf0c))
+
 ## [2.4.0](https://github.com/routup/plugins/compare/body-v2.3.0...body-v2.4.0) (2024-06-29)
 
 
