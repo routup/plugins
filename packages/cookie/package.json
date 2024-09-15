@@ -53,14 +53,14 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^4.0.0"
+        "routup": "^4.0.1"
     },
     "dependencies": {
         "cookie-es": "^1.2.2"
     },
     "devDependencies": {
         "@types/supertest": "^6.0.2",
-        "routup": "^4.0.0",
+        "routup": "^4.0.1",
         "supertest": "^7.0.0"
     },
     "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",

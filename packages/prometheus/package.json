@@ -47,12 +47,12 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "prom-client": ">=13.0.0",
-        "routup": "^4.0.0"
+        "routup": "^4.0.1"
     },
     "devDependencies": {
         "@types/supertest": "^6.0.2",
         "prom-client": "^14.2.0",
-        "routup": "^4.0.0",
+        "routup": "^4.0.1",
         "supertest": "^7.0.0"
     },
     "publishConfig": {

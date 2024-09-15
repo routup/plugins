@@ -48,11 +48,11 @@
     },
     "homepage": "https://github.com/Tada5hi/routup#readme",
     "peerDependencies": {
-        "routup": "^4.0.0"
+        "routup": "^4.0.1"
     },
     "devDependencies": {
         "@types/supertest": "^6.0.2",
-        "routup": "^4.0.0",
+        "routup": "^4.0.1",
         "supertest": "^7.0.0"
     },
     "publishConfig": {
