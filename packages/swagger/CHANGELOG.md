@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.4.1](https://github.com/routup/plugins/compare/swagger-v2.4.0...swagger-v2.4.1) (2024-09-15)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/decorators bumped from ^3.4.0 to ^3.4.1
+
 ## [2.4.0](https://github.com/routup/plugins/compare/swagger-v2.3.6...swagger-v2.4.0) (2024-06-29)
 
 
