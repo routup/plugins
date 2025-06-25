@@ -59,9 +59,9 @@
     "devDependencies": {
         "@routup/rate-limit": "^2.4.0",
         "@types/supertest": "^6.0.2",
-        "redis-extension": "^2.0.0",
+        "redis-extension": "^2.0.2",
         "routup": "^4.0.1",
-        "supertest": "^7.0.0"
+        "supertest": "^7.1.1"
     },
     "publishConfig": {
         "access": "public"
