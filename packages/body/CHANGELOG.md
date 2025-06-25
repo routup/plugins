@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.2](https://github.com/routup/plugins/compare/body-v2.4.1...body-v2.4.2) (2025-06-25)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group with 17 updates ([#699](https://github.com/routup/plugins/issues/699)) ([a2c0464](https://github.com/routup/plugins/commit/a2c046409faa89f3611f10b59369770c8ac6209f))
+
 ## [2.4.1](https://github.com/routup/plugins/compare/body-v2.4.0...body-v2.4.1) (2024-09-15)
 
 
