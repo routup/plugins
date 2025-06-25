@@ -5,16 +5,18 @@ import {
     useRequestPath,
 } from 'routup';
 import type {
-    LabelValues,
-    Registry,
+    LabelValues, PrometheusContentType,
+    Registry, RegistryContentType,
 } from 'prom-client';
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
 import type { Metrics, Options } from './type';
 import { onResponseFinished } from './utils';
 
-export function createHandler(input?: Registry) {
-    const registry : Registry = input || promClient.register;
+export function createHandler<
+    T extends RegistryContentType = PrometheusContentType,
+>(input?: Registry<T>) {
+    const registry : Registry<T> = input || promClient.register as Registry<T>;
 
     return coreHandler(async (req, res, next) => {
         registry.metrics()
@@ -26,9 +28,11 @@ export function createHandler(input?: Registry) {
     });
 }
 
-export function registerMetrics(
+export function registerMetrics<
+    T extends RegistryContentType = PrometheusContentType,
+>(
     router: Router,
-    options: Options,
+    options: Options<T>,
 ): Metrics {
     /* istanbul ignore next */
     if (options.collectDefaultMetrics) {

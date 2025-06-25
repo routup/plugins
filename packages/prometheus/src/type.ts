@@ -4,8 +4,8 @@ import type {
     Gauge,
     Histogram,
     HistogramConfiguration,
-    LabelValues,
-    Registry,
+    LabelValues, PrometheusContentType,
+    Registry, RegistryContentType,
     Summary,
     SummaryConfiguration,
 } from 'prom-client';
@@ -18,7 +18,7 @@ export type Metrics = {
 
 export type LabelTransformer = (labels: LabelValues<string>, req: Request, res: Response) => void;
 
-export type Options = {
+export type Options<T extends RegistryContentType = PrometheusContentType> = {
     metricsPath: string,
 
     requestDuration: boolean,
@@ -36,8 +36,8 @@ export type Options = {
     normalizePath?: ((path: string, req: Request) => string);
     skip: (req: Request) => boolean;
 
-    collectDefaultMetrics?: DefaultMetricsCollectorConfiguration,
-    registry: Registry;
+    collectDefaultMetrics?: DefaultMetricsCollectorConfiguration<T>,
+    registry: Registry<T>;
 };
 
-export type OptionsInput = Partial<Options>;
+export type OptionsInput<T extends RegistryContentType = PrometheusContentType> = Partial<Options<T>>;

@@ -46,7 +46,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "prom-client": ">=13.0.0",
+        "prom-client": ">=15.0.0",
         "routup": "^4.0.1"
     },
     "devDependencies": {

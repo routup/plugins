@@ -1,8 +1,11 @@
+import type { PrometheusContentType, Registry, RegistryContentType } from 'prom-client';
 import promClient from 'prom-client';
 import { MetricName, MetricTypeName } from '../constants';
 import type { Options, OptionsInput } from '../type';
 
-export function buildOptions(input?: OptionsInput) : Options {
+export function buildOptions<
+    T extends RegistryContentType = PrometheusContentType,
+>(input?: OptionsInput<T>) : Options<T> {
     input = input || {};
 
     return {
@@ -14,7 +17,7 @@ export function buildOptions(input?: OptionsInput) : Options {
         requestDurationType: MetricTypeName.HISTOGRAM,
 
         skip: (req) => false,
-        registry: promClient.register,
+        registry: promClient.register as Registry<T>,
 
         metricsPath: '/metrics',
 

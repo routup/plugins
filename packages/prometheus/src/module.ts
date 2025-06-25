@@ -1,9 +1,12 @@
+import type { PrometheusContentType, RegistryContentType } from 'prom-client';
 import type { Plugin } from 'routup';
 import { createHandler, registerMetrics } from './handler';
 import type { Options, OptionsInput } from './type';
 import { buildOptions } from './utils';
 
-export function prometheus(input: OptionsInput = {}) : Plugin {
+export function prometheus<
+    T extends RegistryContentType = PrometheusContentType,
+>(input: OptionsInput<T> = {}) : Plugin {
     const options = buildOptions({
         ...(input || {}),
     });

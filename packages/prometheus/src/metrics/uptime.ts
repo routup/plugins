@@ -1,9 +1,13 @@
 import { performance } from 'node:perf_hooks';
-import type { Gauge } from 'prom-client';
+import type {
+    Gauge, PrometheusContentType, Registry, RegistryContentType,
+} from 'prom-client';
 import promClient from 'prom-client';
 import type { Options } from '../type';
 
-export function buildUptimeMetric(options: Options) : Gauge {
+export function buildUptimeMetric<
+    T extends RegistryContentType = PrometheusContentType,
+>(options: Options<T>) : Gauge {
     const starTime = performance.now();
 
     return new promClient.Gauge({
@@ -13,7 +17,7 @@ export function buildUptimeMetric(options: Options) : Gauge {
             this.set(parseInt(`${((performance.now() - starTime) / 1000)}`, 10));
         },
         registers: [
-            options.registry,
+            options.registry as Registry,
         ],
     });
 }
