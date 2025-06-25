@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.2](https://github.com/routup/plugins/compare/swagger-preset-v2.4.0...swagger-preset-v2.4.2) (2025-06-25)
+
+
+### Miscellaneous Chores
+
+* **swagger-preset:** Synchronize swagger versions
+
 ## [2.4.0](https://github.com/routup/plugins/compare/swagger-preset-v2.3.6...swagger-preset-v2.4.0) (2024-06-29)
 
 

@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.4.1](https://github.com/routup/plugins/compare/prometheus-v2.4.0...prometheus-v2.4.1) (2025-06-25)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group with 17 updates ([#699](https://github.com/routup/plugins/issues/699)) ([a2c0464](https://github.com/routup/plugins/commit/a2c046409faa89f3611f10b59369770c8ac6209f))
+* **prometheus:** add generic argument for registry ([98d9659](https://github.com/routup/plugins/commit/98d9659ac9c73f65a29b53ee342cf0ef48cc0449))
+
 ## [2.4.0](https://github.com/routup/plugins/compare/prometheus-v2.3.0...prometheus-v2.4.0) (2024-06-29)
 
 

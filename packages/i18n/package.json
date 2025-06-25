@@ -1,6 +1,6 @@
 {
     "name": "@routup/i18n",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Translation and internationalization plugin for routup.",
     "exports": {
         "./package.json": "./package.json",
