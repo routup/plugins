@@ -34,7 +34,7 @@
     "devDependencies": {
         "@rollup/plugin-commonjs": "^28.0.6",
         "@rollup/plugin-node-resolve": "^16.0.1",
-        "@swc/core": "^1.12.6",
+        "@swc/core": "^1.12.7",
         "@swc/jest": "^0.2.38",
         "@tada5hi/commitlint-config": "^1.2.5",
         "@tada5hi/eslint-config-typescript": "^1.2.16",
@@ -48,7 +48,7 @@
         "jest": "^30.0.3",
         "nx": "^21.2.1",
         "rimraf": "^6.0.1",
-        "rollup": "^4.44.0",
+        "rollup": "^4.44.1",
         "supertest": "^7.1.1",
         "typescript": "5.8.3",
         "workspaces-publish": "^1.4.5"
