@@ -61,7 +61,7 @@
     "devDependencies": {
         "@types/supertest": "^6.0.2",
         "routup": "^4.0.1",
-        "supertest": "^7.1.1"
+        "supertest": "^7.1.3"
     },
     "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
     "publishConfig": {
