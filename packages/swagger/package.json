@@ -59,17 +59,17 @@
     "dependencies": {
         "@routup/assets": "^3.4.1",
         "@routup/swagger-preset": "^2.4.2",
-        "@trapi/swagger": "^1.2.3",
+        "@trapi/swagger": "^1.3.0",
         "@types/swagger-ui-dist": "^3.30.5",
         "smob": "^1.4.0",
-        "swagger-ui-dist": "^5.25.2"
+        "swagger-ui-dist": "^5.27.0"
     },
     "devDependencies": {
         "@routup/decorators": "^3.4.2",
         "@types/supertest": "^6.0.2",
         "jsonata": "^2.0.6",
         "routup": "^4.0.1",
-        "supertest": "^7.1.1"
+        "supertest": "^7.1.4"
     },
     "publishConfig": {
         "access": "public"
