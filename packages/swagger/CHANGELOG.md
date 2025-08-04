@@ -1,5 +1,22 @@
 # Change Log
 
+## [2.4.3](https://github.com/routup/plugins/compare/swagger-v2.4.2...swagger-v2.4.3) (2025-08-04)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 11 updates ([#709](https://github.com/routup/plugins/issues/709)) ([3611994](https://github.com/routup/plugins/commit/361199428ec05ccea05f5a4da5e0615e5d933bdf))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^3.4.1 to ^3.4.2
+    * @routup/swagger-preset bumped from ^2.4.2 to ^2.4.3
+  * devDependencies
+    * @routup/decorators bumped from ^3.4.2 to ^3.4.3
+
 ## [2.4.2](https://github.com/routup/plugins/compare/swagger-v2.4.1...swagger-v2.4.2) (2025-06-25)
 
 
