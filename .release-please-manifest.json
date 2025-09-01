@@ -1,14 +1,14 @@
 {
-    "packages/assets": "3.4.1",
-    "packages/basic": "1.4.2",
-    "packages/body": "2.4.2",
-    "packages/cookie": "2.4.2",
-    "packages/decorators": "3.4.2",
-    "packages/i18n": "2.0.1",
-    "packages/prometheus": "2.4.1",
-    "packages/query": "2.4.2",
-    "packages/rate-limit": "2.4.1",
-    "packages/rate-limit-redis": "3.1.1",
-    "packages/swagger": "2.4.2",
-    "packages/swagger-preset": "2.4.2"
+    "packages/assets": "3.4.2",
+    "packages/basic": "1.4.3",
+    "packages/body": "2.4.3",
+    "packages/cookie": "2.4.3",
+    "packages/decorators": "3.4.3",
+    "packages/i18n": "2.0.2",
+    "packages/prometheus": "2.4.2",
+    "packages/query": "2.4.3",
+    "packages/rate-limit": "2.4.2",
+    "packages/rate-limit-redis": "3.1.2",
+    "packages/swagger": "2.4.3",
+    "packages/swagger-preset": "2.4.3"
 }
