@@ -1,6 +1,6 @@
 {
     "name": "@routup/rate-limit",
-    "version": "2.4.1",
+    "version": "2.4.2",
     "description": "Routup rate limiter.",
     "exports": {
         "./package.json": "./package.json",
