@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.4.3](https://github.com/routup/plugins/compare/body-v2.4.2...body-v2.4.3) (2025-11-26)
+
+
+### Bug Fixes
+
+* body-parser middlewares import ([c3f26be](https://github.com/routup/plugins/commit/c3f26be88c181e7d46ac4dd5b5b61973515358f8))
+* **deps:** bump the minorandpatch group across 1 directory with 11 updates ([#709](https://github.com/routup/plugins/issues/709)) ([3611994](https://github.com/routup/plugins/commit/361199428ec05ccea05f5a4da5e0615e5d933bdf))
+
 ## [2.4.2](https://github.com/routup/plugins/compare/body-v2.4.1...body-v2.4.2) (2025-06-25)
 
 

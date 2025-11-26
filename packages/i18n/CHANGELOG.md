@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/routup/plugins/compare/i18n-v2.0.1...i18n-v2.0.2) (2025-11-26)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 11 updates ([#709](https://github.com/routup/plugins/issues/709)) ([3611994](https://github.com/routup/plugins/commit/361199428ec05ccea05f5a4da5e0615e5d933bdf))
+
 ## [2.0.1](https://github.com/routup/plugins/compare/i18n-v2.0.0...i18n-v2.0.1) (2025-06-25)
 
 

@@ -1,6 +1,6 @@
 {
     "name": "@routup/cookie",
-    "version": "2.4.2",
+    "version": "2.4.3",
     "description": "Cookie plugin for routup.",
     "exports": {
         "./package.json": "./package.json",
