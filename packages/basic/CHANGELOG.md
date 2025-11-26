@@ -6,6 +6,22 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [1.4.3](https://github.com/routup/plugins/compare/basic-v1.4.2...basic-v1.4.3) (2025-11-26)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 11 updates ([#709](https://github.com/routup/plugins/issues/709)) ([3611994](https://github.com/routup/plugins/commit/361199428ec05ccea05f5a4da5e0615e5d933bdf))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^2.4.2 to ^2.4.3
+    * @routup/cookie bumped from ^2.4.2 to ^2.4.3
+    * @routup/query bumped from ^2.4.2 to ^2.4.3
+
 ## [1.4.2](https://github.com/routup/plugins/compare/basic-v1.4.1...basic-v1.4.2) (2025-06-25)
 
 

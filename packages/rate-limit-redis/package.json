@@ -1,6 +1,6 @@
 {
     "name": "@routup/rate-limit-redis",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "description": "Red adapter for the routup rate-limit plugin.",
     "exports": {
         "./package.json": "./package.json",
@@ -47,7 +47,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@routup/rate-limit": "^2.4.1",
+        "@routup/rate-limit": "^2.4.2",
         "redis-extension": "^1.x",
         "routup": "^4.0.1"
     },
@@ -57,7 +57,7 @@
         }
     },
     "devDependencies": {
-        "@routup/rate-limit": "^2.4.1",
+        "@routup/rate-limit": "^2.4.2",
         "@types/supertest": "^6.0.2",
         "redis-extension": "^2.0.4",
         "routup": "^4.0.1",
