@@ -33,6 +33,7 @@
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^29.0.0",
+        "@rollup/plugin-esm-shim": "^0.1.8",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@swc/core": "^1.13.5",
         "@swc/jest": "^0.2.39",

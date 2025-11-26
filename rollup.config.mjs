@@ -9,7 +9,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 
 import { builtinModules } from 'node:module';
-import { transform } from "@swc/core";
+import { transform } from '@swc/core';
+import esmShim from '@rollup/plugin-esm-shim';
 
 const extensions = [
     '.js', '.mjs', '.cjs', '.ts',
@@ -20,19 +21,19 @@ const swcOptions = {
         target: 'es2020',
         parser: {
             syntax: 'typescript',
-            decorators: true
+            decorators: true,
         },
         transform: {
             decoratorMetadata: true,
-            legacyDecorator: true
+            legacyDecorator: true,
         },
-        loose: true
+        loose: true,
     },
-    sourceMaps: true
-}
+    sourceMaps: true,
+};
 
 export function createConfig(
-    { pkg, external = [], defaultExport = true }
+    { pkg, external = [], defaultExport = true },
 ) {
     external = Object.keys(pkg.dependencies || {})
         .concat(Object.keys(pkg.peerDependencies || {}))
@@ -48,18 +49,20 @@ export function createConfig(
                 file: pkg.main,
                 exports: 'named',
                 ...(defaultExport ? { footer: 'module.exports = Object.assign(exports.default, exports);' } : {}),
-                sourcemap: true
+                sourcemap: true,
             },
             {
                 format: 'es',
                 file: pkg.module,
                 exports: 'named',
-                sourcemap: true
-            }
+                sourcemap: true,
+            },
         ],
         plugins: [
             // Allows node_modules resolution
             resolve({ extensions }),
+
+            esmShim(),
 
             // Allow bundling cjs modules. Rollup doesn't understand cjs
             commonjs(),
@@ -69,8 +72,8 @@ export function createConfig(
                 name: 'swc',
                 transform(code) {
                     return transform(code, swcOptions);
-                }
+                },
             },
-        ]
+        ],
     };
 }
