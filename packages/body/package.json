@@ -55,7 +55,7 @@
     },
     "dependencies": {
         "@types/body-parser": "^1.19.5",
-        "body-parser": "^2.2.0",
+        "body-parser": "^2.2.1",
         "smob": "^1.4.0"
     },
     "devDependencies": {
