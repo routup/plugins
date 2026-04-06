@@ -12,3 +12,4 @@ reports
 .tmp
 .temp
 .nx
+.claude/settings.local.json
