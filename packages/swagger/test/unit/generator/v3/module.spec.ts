@@ -1,3 +1,9 @@
+import { 
+    beforeAll, 
+    describe, 
+    expect, 
+    it, 
+} from 'vitest';
 import { Version } from '@trapi/swagger';
 import type { SpecV3 } from '@trapi/swagger';
 import jsonata from 'jsonata';

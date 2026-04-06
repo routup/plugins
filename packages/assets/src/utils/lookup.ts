@@ -9,10 +9,10 @@ function generatePathForExtensions(
 ) : string[] {
     const items = [];
 
-    for (let i = 0; i < extensions.length; i++) {
+    for (const extension of extensions) {
         items.push(
             requestPath +
-            (extensions[i].startsWith('.') ? extensions[i] : `.${extensions[i]}`),
+            (extension.startsWith('.') ? extension : `.${extension}`),
         );
     }
 
@@ -55,8 +55,7 @@ const lookupPath = async (
     if (basePaths.length === 0) {
         relativeFilePaths.push(...generatePathForExtensions('/index', options.extensions));
     } else {
-        for (let i = 0; i < basePaths.length; i++) {
-            const basePath = basePaths[i];
+        for (const basePath of basePaths) {
             if (basePath.endsWith('/')) {
                 relativeFilePaths.push(...generatePathForExtensions(`${basePath}index`, options.extensions));
             } else {
@@ -71,15 +70,15 @@ const lookupPath = async (
         options.scan &&
         stack
     ) {
-        for (let i = 0; i < relativeFilePaths.length; i++) {
-            if (typeof stack[relativeFilePaths[i]] !== 'undefined') {
-                return stack[relativeFilePaths[i]];
+        for (const relativeFilePath of relativeFilePaths) {
+            if (typeof stack[relativeFilePath] !== 'undefined') {
+                return stack[relativeFilePath];
             }
         }
     } else {
         let filePath : string;
-        for (let i = 0; i < relativeFilePaths.length; i++) {
-            filePath = path.join(options.directoryPath, relativeFilePaths[i]);
+        for (const relativeFilePath of relativeFilePaths) {
+            filePath = path.join(options.directoryPath, relativeFilePath);
 
             try {
                 const stats = await fs.promises.stat(filePath);
@@ -89,7 +88,7 @@ const lookupPath = async (
                         filePath,
                     };
                 }
-            } catch (e) {
+            } catch {
                 // do nothing :)
             }
         }

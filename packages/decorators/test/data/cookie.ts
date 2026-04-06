@@ -1,14 +1,18 @@
-import { Response, send } from 'routup';
+import type { Response } from 'routup';
+import { send } from 'routup';
 import {
-    DController, DCookie, DCookies,
-    DGet, DResponse,
+    DController, 
+    DCookie, 
+    DCookies,
+    DGet, 
+    DResponse,
 } from '../../src';
 
 @DController('/cookie')
 export class CookieController {
     @DGet('many')
     getMany(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
         @DCookies() cookies: Record<string, any>,
     ) {
         send(res, cookies);
@@ -16,7 +20,7 @@ export class CookieController {
 
     @DGet('single')
     get(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
         @DCookie('foo') foo: string,
     ) {
         send(res, foo);

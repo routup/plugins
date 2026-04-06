@@ -11,9 +11,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DAll',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.DELETE,
@@ -23,9 +21,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DDelete',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.GET,
@@ -35,9 +31,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DGet',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEAD,
@@ -47,9 +41,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DHead',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.OPTIONS,
@@ -59,9 +51,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DOptions',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATCH,
@@ -71,9 +61,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DPatch',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.POST,
@@ -83,9 +71,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DPost',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PUT,
@@ -95,9 +81,7 @@ export function buildMethodDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.MOUNT,
             name: 'DPut',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
     ];
 }

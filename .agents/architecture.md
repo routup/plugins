@@ -61,16 +61,16 @@ This pattern stores data on the request object via routup's param system, keepin
 
 ## Package Entry Points
 
-All packages use dual ESM/CJS exports:
+All packages are ESM-only:
 
 ```json
 {
+    "type": "module",
     "exports": {
         "./package.json": "./package.json",
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.cjs"
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
         }
     }
 }
@@ -79,8 +79,7 @@ All packages use dual ESM/CJS exports:
 ## Build Pipeline
 
 ```
-Source (.ts) → Rollup + SWC → dist/index.mjs + dist/index.cjs
-Source (.ts) → tsc --emitDeclarationOnly → dist/index.d.ts
+Source (.ts) → tsdown → dist/index.mjs + dist/index.d.mts
 ```
 
 NX orchestrates build order respecting inter-package dependencies.

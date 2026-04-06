@@ -1,14 +1,18 @@
-import * as console from 'console';
-import { Response, send } from 'routup';
+import * as console from 'node:console';
+import type { Response } from 'routup';
+import { send } from 'routup';
 import {
-    DBody, DController, DPost, DResponse,
+    DBody, 
+    DController, 
+    DPost, 
+    DResponse,
 } from '../../src';
 
 @DController('/post')
 export class PostController {
     @DPost('many')
     postMany(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
         @DBody() body: { foo: string },
     ) {
         send(res, body);
@@ -16,7 +20,7 @@ export class PostController {
 
     @DPost('single')
     post(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
         @DBody('foo') foo: string,
     ) {
         send(res, foo);

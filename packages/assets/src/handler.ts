@@ -47,10 +47,10 @@ export function createHandlerFn(directory: string, input?: OptionsInput) : CoreH
             requestPath = `/${requestPath}`;
         }
 
-        if (requestPath.indexOf('%') !== -1) {
+        if (requestPath.includes('%')) {
             try {
                 requestPath = decodeURI(requestPath);
-            } catch (err) {
+            } catch {
                 // do nothing :)
             }
         }

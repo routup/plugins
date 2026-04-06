@@ -1,7 +1,8 @@
 import {
     coreHandler,
     send,
-    useRequestMountPath, useRequestPath,
+    useRequestMountPath, 
+    useRequestPath,
 } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,9 +49,7 @@ export function createUIHandler(
     document: Spec | string,
     options: UIOptions = {},
 ) {
-    const handler = createHandlerFn(path.dirname(require.resolve('swagger-ui-dist')), {
-        extensions: [],
-    });
+    const handler = createHandlerFn(path.dirname(require.resolve('swagger-ui-dist')), { extensions: [] });
 
     if (isObject(document)) {
         options.spec = document;
@@ -62,11 +61,13 @@ export function createUIHandler(
     }
 
     let template : string | undefined;
-    const templateRaw = fs.readFileSync(path.join(ASSETS_PATH, 'template.tpl'), {
-        encoding: 'utf-8',
-    });
+    const templateRaw = fs.readFileSync(path.join(ASSETS_PATH, 'template.tpl'), { encoding: 'utf-8' });
 
-    const compileTemplate = (context: {url?: string, mountPath: string, path: string }) : void => {
+    const compileTemplate = (context: {
+        url?: string, 
+        mountPath: string, 
+        path: string, 
+    }) : void => {
         let href = '/';
         if (context.url) {
             let pathName : string;

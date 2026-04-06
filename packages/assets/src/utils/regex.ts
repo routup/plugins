@@ -1,8 +1,8 @@
 export function isRegexMatch(input: string, pattern: RegExp | RegExp[]) : boolean {
     const patterns = Array.isArray(pattern) ? pattern : [pattern];
 
-    for (let i = 0; i < patterns.length; i++) {
-        if (patterns[i].test(input)) {
+    for (const pattern_ of patterns) {
+        if (pattern_.test(input)) {
             return true;
         }
     }

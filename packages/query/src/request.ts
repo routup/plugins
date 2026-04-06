@@ -47,7 +47,5 @@ export function setRequestQuery(req: Request, key: Record<string, any> | string,
         return;
     }
 
-    (req as any)[QuerySymbol] = {
-        [key]: value,
-    };
+    (req as any)[QuerySymbol] = { [key]: value };
 }

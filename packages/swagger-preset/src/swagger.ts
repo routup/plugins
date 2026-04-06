@@ -6,11 +6,7 @@ export function buildSwaggerDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.CONSUMES,
             name: 'DConsumes',
-            properties: {
-                value: {
-                    amount: -1, strategy: 'merge',
-                },
-            },
+            properties: { value: { amount: -1, strategy: 'merge' } },
         },
         {
             id: DecoratorID.DEPRECATED,
@@ -49,9 +45,7 @@ export function buildSwaggerDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.TAGS,
             name: 'DTags',
-            properties: {
-                value: { amount: -1, strategy: 'merge' },
-            },
+            properties: { value: { amount: -1, strategy: 'merge' } },
         },
     ];
 }

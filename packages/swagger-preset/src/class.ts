@@ -6,16 +6,12 @@ export function buildClassDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.CONTROLLER,
             name: 'DController',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.MOUNT,
             name: 'DController',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
     ];
 }

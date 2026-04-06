@@ -19,7 +19,7 @@ export function useRequestRateLimitInfo(req: Request, key?: string) {
 export function setRequestRateLimitInfo<K extends keyof RateLimitInfo>(
     req: Request,
     key: K,
-    value: RateLimitInfo[K]
+    value: RateLimitInfo[K],
 ) : void;
 export function setRequestRateLimitInfo(req: Request, record: RateLimitInfo) : void;
 export function setRequestRateLimitInfo(req: Request, key: RateLimitInfo | string, value?: unknown) : void {
@@ -38,7 +38,5 @@ export function setRequestRateLimitInfo(req: Request, key: RateLimitInfo | strin
         return;
     }
 
-    (req as any)[symbol] = {
-        [key]: value,
-    };
+    (req as any)[symbol] = { [key]: value };
 }

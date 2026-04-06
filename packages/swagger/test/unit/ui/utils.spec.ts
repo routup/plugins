@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { isFileURL } from '../../../src';
 
 describe('src/ui/utils', () => {

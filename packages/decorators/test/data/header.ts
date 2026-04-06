@@ -1,11 +1,11 @@
+import type { Request, Response } from 'routup';
 import {
-    Request,
-    Response,
     send,
 } from 'routup';
 import {
     DController,
-    DGet, DHeader,
+    DGet, 
+    DHeader,
     DHeaders,
     DRequest,
     DResponse,
@@ -15,7 +15,7 @@ import {
 export class HeaderController {
     @DGet('/many')
     async headers(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
         @DHeaders() headers: Record<string, any>,
     ) {
@@ -24,7 +24,7 @@ export class HeaderController {
 
     @DGet('/single')
     async header(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
         @DHeader('connection') header: string,
     ) {

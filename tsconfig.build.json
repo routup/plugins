@@ -3,15 +3,13 @@
     "compilerOptions": {
         "declarationMap": true,
 
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-
         "noUnusedLocals": false,
         "noUnusedParameters": false,
 
         "lib": ["ESNext"],
         "module": "ESNext",
-        "target": "ES2020"
+        "moduleResolution": "bundler",
+        "target": "ES2022"
     },
     "exclude": [
         "node_modules",

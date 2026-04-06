@@ -35,9 +35,7 @@ export function i18n(input?: Options | Ilingo) : Plugin {
             if (input instanceof Ilingo) {
                 instance = input;
             } else if (input) {
-                instance = new Ilingo({
-                    store: input.store,
-                });
+                instance = new Ilingo({ store: input.store });
 
                 if (typeof input.locale === 'string') {
                     instance.setLocale(input.locale);

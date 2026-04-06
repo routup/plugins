@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import supertest from 'supertest';
 import { HeaderName, Router, createNodeDispatcher } from 'routup';
 import type { UIOptions } from '../../../src';
@@ -61,9 +62,7 @@ describe('src/ui', () => {
     });
 
     it('should serve swagger ui files on custom base path', async () => {
-        const router = await createRouter({
-            basePath: '/api/',
-        });
+        const router = await createRouter({ basePath: '/api/' });
         const server = supertest(createNodeDispatcher(router));
 
         const response = await server
@@ -75,9 +74,7 @@ describe('src/ui', () => {
     });
 
     it('should serve swagger ui files on custom base url', async () => {
-        const router = await createRouter({
-            baseURL: 'https://example.com/api/',
-        });
+        const router = await createRouter({ baseURL: 'https://example.com/api/' });
         const server = supertest(createNodeDispatcher(router));
 
         const response = await server

@@ -21,58 +21,42 @@ export function buildParameterDecoratorConfig() : DecoratorConfig[] {
         {
             id: DecoratorID.QUERY,
             name: 'DQuery',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.BODY,
             name: 'DBody',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEADER,
             name: 'DHeader',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEADERS,
             name: 'DHeaders',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.COOKIE,
             name: 'DCookie',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.COOKIES,
             name: 'DCookies',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATH,
             name: 'DPath',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATHS,
             name: 'DPaths',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
     ];
 }

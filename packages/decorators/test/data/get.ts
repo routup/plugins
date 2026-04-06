@@ -1,6 +1,11 @@
-import { Response, send } from 'routup';
+import type { Response } from 'routup';
+import { send } from 'routup';
 import {
-    DController, DExample, DGet, DPath, DPaths,
+    DController, 
+    DExample, 
+    DGet, 
+    DPath, 
+    DPaths,
     DResponse,
 } from '../../src';
 
@@ -13,14 +18,14 @@ export class GetController {
     @DGet('many')
     @DExample<GetManyResponse>({ foo: 'bar' })
     getMany(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
     ) {
         send(res);
     }
 
     @DGet(':id')
     get(
-    @DResponse() res: Response,
+        @DResponse() res: Response,
         @DPath('id') foo: string,
     ) {
         send(res, foo);
@@ -28,8 +33,8 @@ export class GetController {
 
     @DGet(':id/:foo')
     getNested(
-    @DResponse() res: Response,
-        @DPaths() foo: {id: string, foo: string},
+        @DResponse() res: Response,
+        @DPaths() foo: { id: string, foo: string },
     ) {
         send(res, foo);
     }

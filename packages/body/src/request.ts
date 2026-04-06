@@ -45,7 +45,5 @@ export function setRequestBody(req: Request, key: Record<string, any> | string, 
         return;
     }
 
-    (req as any)[BodySymbol] = {
-        [key]: value,
-    };
+    (req as any)[BodySymbol] = { [key]: value };
 }

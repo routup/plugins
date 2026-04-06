@@ -5,7 +5,7 @@ export type DecoratorParameterBuildFn = (
     req: Request,
     res: Response,
     next: Next,
-    property?: string
+    property?: string,
 ) => any;
 
 export type DecoratorParameterOptions = {

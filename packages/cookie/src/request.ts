@@ -30,7 +30,5 @@ export function setRequestCookies(req: Request, key: Record<string, any> | strin
         return;
     }
 
-    (req as any)[CookieSymbol] = {
-        [key]: value,
-    };
+    (req as any)[CookieSymbol] = { [key]: value };
 }

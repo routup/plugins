@@ -1,5 +1,5 @@
 import type { CoreHandlerFn, HandlerFn } from 'routup';
-import type { RequestListener } from 'http';
+import type { RequestListener } from 'node:http';
 
 export function createMiddleware(handler: CoreHandlerFn) : RequestListener {
     return (req, res) => {

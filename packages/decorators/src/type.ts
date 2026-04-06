@@ -2,7 +2,7 @@ import type { Next, Request, Response } from 'routup';
 import type { DecoratorMethodOptions } from './method';
 import type { DecoratorParameterOptions, ParameterType } from './parameter';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }
@@ -33,7 +33,7 @@ export type HandlerContext = {
 
 export type ParameterExtractFn = (
     context: HandlerContext,
-    key?: string
+    key?: string,
 ) => any;
 
 export type ParameterExtractMap = {

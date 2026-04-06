@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { useRequestBody } from '@routup/body';
 import { useRequestCookie, useRequestCookies } from '@routup/cookie';
 import { useRequestQuery } from '@routup/query';
@@ -78,9 +79,7 @@ describe('data/combined', () => {
 
     it('should not handle decorator endpoints', async () => {
         const router = new Router();
-        router.use(decorators({
-            controllers: [CombinedController],
-        }));
+        router.use(decorators({ controllers: [CombinedController] }));
 
         const server = supertest(createNodeDispatcher(router));
 

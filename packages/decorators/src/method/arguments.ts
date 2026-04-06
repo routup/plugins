@@ -18,9 +18,7 @@ export function buildDecoratorMethodArguments(
 
     const items: unknown[] = [];
 
-    for (let i = 0; i < parameters.length; i++) {
-        const parameter = parameters[i];
-
+    for (const parameter of parameters) {
         if (extractMap) {
             const extractFn = extractMap[parameter.type];
             if (extractFn) {

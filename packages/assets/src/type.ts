@@ -73,7 +73,7 @@ export type Options = {
 };
 
 export type OptionsInput = Omit<
-Partial<Options>,
+    Partial<Options>,
 'fallbackIgnores' | 'fallbackPath' | 'ignores'
 > & {
     /**

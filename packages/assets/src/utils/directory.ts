@@ -14,14 +14,14 @@ export function readDirectory(
 
     fs.promises.readdir(dir)
         .then((arr) => {
-            for (let i = 0; i < arr.length; i++) {
-                abs = path.join(dir, arr[i]);
+            for (const element of arr) {
+                abs = path.join(dir, element);
                 stats = fs.statSync(abs);
 
                 if (stats.isDirectory()) {
-                    readDirectory(abs, callback, path.join(prefix, arr[i]));
+                    readDirectory(abs, callback, path.join(prefix, element));
                 } else {
-                    callback(path.join(prefix, arr[i]), abs, stats);
+                    callback(path.join(prefix, element), abs, stats);
                 }
             }
         });

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
 import { decorators } from '../../src';
@@ -9,9 +10,7 @@ describe('header.ts', () => {
 
         const controller = new HeaderController();
 
-        router.use(decorators({
-            controllers: [controller],
-        }));
+        router.use(decorators({ controllers: [controller] }));
 
         const server = supertest(createNodeDispatcher(router));
 

@@ -1,5 +1,8 @@
+import { describe, expect, it } from 'vitest';
 import {
-    Router, coreHandler, createNodeDispatcher,
+    Router, 
+    coreHandler, 
+    createNodeDispatcher,
 } from 'routup';
 import { Registry } from 'prom-client';
 import supertest from 'supertest';
@@ -45,9 +48,7 @@ describe('src/module', () => {
     });
 
     it('should server request summary duration metric', async () => {
-        const router = createRouterWithHandlers({
-            requestDurationType: 'summary',
-        });
+        const router = createRouterWithHandlers({ requestDurationType: 'summary' });
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -60,9 +61,7 @@ describe('src/module', () => {
     });
 
     it('should not serve request duration metric', async () => {
-        const router = createRouterWithHandlers({
-            requestDuration: false,
-        });
+        const router = createRouterWithHandlers({ requestDuration: false });
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -75,9 +74,7 @@ describe('src/module', () => {
     });
 
     it('should not serve uptime metric', async () => {
-        const router = createRouterWithHandlers({
-            uptime: false,
-        });
+        const router = createRouterWithHandlers({ uptime: false });
 
         const server = supertest(createNodeDispatcher(router));
 

@@ -7,9 +7,7 @@ import { buildOptions } from './utils';
 export function prometheus<
     T extends RegistryContentType = PrometheusContentType,
 >(input: OptionsInput<T> = {}) : Plugin {
-    const options = buildOptions({
-        ...(input || {}),
-    });
+    const options = buildOptions({ ...(input || {}) });
 
     return {
         name: 'prometheus',

@@ -1,5 +1,9 @@
+import { describe, expect, it } from 'vitest';
 import {
-    HeaderName, Router, coreHandler, createNodeDispatcher,
+    HeaderName, 
+    Router, 
+    coreHandler, 
+    createNodeDispatcher,
 } from 'routup';
 import supertest from 'supertest';
 import { RETRY_AGAIN_MESSAGE, rateLimit } from '../../src';
@@ -31,9 +35,7 @@ describe('src/module', () => {
 
     it('should not process any additional request', async () => {
         const router = new Router();
-        router.use(rateLimit({
-            max: 1,
-        }));
+        router.use(rateLimit({ max: 1 }));
         router.use(coreHandler(() => 'Hello, World!'));
 
         const server = supertest(createNodeDispatcher(router));
@@ -55,9 +57,7 @@ describe('src/module', () => {
 
     it('should be possible to skip successfully responses', async () => {
         const router = new Router();
-        router.use(rateLimit({
-            skipSuccessfulRequest: true,
-        }));
+        router.use(rateLimit({ skipSuccessfulRequest: true }));
         router.use(coreHandler(() => 'Hello, World!'));
 
         const server = supertest(createNodeDispatcher(router));
@@ -75,9 +75,7 @@ describe('src/module', () => {
 
     it('should be possible to skip failed responses', async () => {
         const router = new Router();
-        router.use(rateLimit({
-            skipFailedRequest: true,
-        }));
+        router.use(rateLimit({ skipFailedRequest: true }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -94,9 +92,7 @@ describe('src/module', () => {
 
     it('should skip request', async () => {
         const router = new Router();
-        router.use(rateLimit({
-            skip: () => true,
-        }));
+        router.use(rateLimit({ skip: () => true }));
         router.use(coreHandler(() => 'Hello, World!'));
 
         const server = supertest(createNodeDispatcher(router));

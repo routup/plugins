@@ -4,8 +4,10 @@ import type {
     Gauge,
     Histogram,
     HistogramConfiguration,
-    LabelValues, PrometheusContentType,
-    Registry, RegistryContentType,
+    LabelValues, 
+    PrometheusContentType,
+    Registry, 
+    RegistryContentType,
     Summary,
     SummaryConfiguration,
 } from 'prom-client';

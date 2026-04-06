@@ -1,6 +1,10 @@
+import { describe, expect, it } from 'vitest';
 import { MemoryStore } from 'ilingo';
 import {
-    HeaderName, Router, coreHandler, createNodeDispatcher,
+    HeaderName, 
+    Router, 
+    coreHandler, 
+    createNodeDispatcher,
 } from 'routup';
 import supertest from 'supertest';
 import { i18n, useTranslator } from '../../src';
@@ -11,21 +15,11 @@ describe('src/module', () => {
 
         const store = new MemoryStore({
             data: {
-                de: {
-                    app: {
-                        key: 'Hallo Welt!',
-                    },
-                },
-                en: {
-                    app: {
-                        key: 'Hello world!',
-                    },
-                },
+                de: { app: { key: 'Hallo Welt!' } },
+                en: { app: { key: 'Hello world!' } },
             },
         });
-        router.use(i18n({
-            store,
-        }));
+        router.use(i18n({ store }));
 
         router.get('/', coreHandler(async (req) => {
             const translator = useTranslator(req);
@@ -54,21 +48,11 @@ describe('src/module', () => {
 
         const store = new MemoryStore({
             data: {
-                de: {
-                    app: {
-                        key: 'Hallo, mein Name ist {{name}}',
-                    },
-                },
-                en: {
-                    app: {
-                        key: 'Hello, my name is {{name}}',
-                    },
-                },
+                de: { app: { key: 'Hallo, mein Name ist {{name}}' } },
+                en: { app: { key: 'Hello, my name is {{name}}' } },
             },
         });
-        router.use(i18n({
-            store,
-        }));
+        router.use(i18n({ store }));
 
         router.get('/', coreHandler(async (req) => {
             const translator = useTranslator(req);
@@ -76,9 +60,7 @@ describe('src/module', () => {
             return translator({
                 group: 'app',
                 key: 'key',
-                data: {
-                    name: 'Peter',
-                },
+                data: { name: 'Peter' },
             });
         }));
 
@@ -104,16 +86,8 @@ describe('src/module', () => {
 
         const store = new MemoryStore({
             data: {
-                de: {
-                    app: {
-                        key: 'Hallo Welt!',
-                    },
-                },
-                en: {
-                    app: {
-                        key: 'Hello world!',
-                    },
-                },
+                de: { app: { key: 'Hallo Welt!' } },
+                en: { app: { key: 'Hello world!' } },
             },
         });
 

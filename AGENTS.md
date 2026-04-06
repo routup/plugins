@@ -16,7 +16,7 @@ npm run test           # Run all tests with coverage
 npm run lint           # ESLint across all packages
 ```
 
-- **Node.js**: >=16 (CI uses v22)
+- **Node.js**: >=22
 - **Package manager**: npm (workspaces)
 - **Monorepo orchestration**: NX
 
@@ -24,5 +24,5 @@ npm run lint           # ESLint across all packages
 
 - **[Project Structure](.agents/structure.md)** — Package layout, modules, and dependency layers
 - **[Architecture](.agents/architecture.md)** — Plugin pattern, data flow, and key abstractions
-- **[Testing](.agents/testing.md)** — Jest setup, conventions, and coverage
+- **[Testing](.agents/testing.md)** — Vitest setup, conventions, and coverage
 - **[Conventions](.agents/conventions.md)** — Code style, commits, CI/CD, and release

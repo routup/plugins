@@ -1,8 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
+import type { Next, Request, Response } from 'routup';
 import {
-    Next,
-    Request,
-    Response,
     useRequestParam,
 } from 'routup';
 import type { HandlerInterface } from '../../src';
@@ -36,7 +34,7 @@ export class DeleteMiddleware implements HandlerInterface {
 export class CombinedController {
     @DGet('')
     async getMany(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
         @DNext() next: Next,
     ) {
@@ -45,7 +43,7 @@ export class CombinedController {
 
     @DGet('/:id')
     async getOne(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
         @DPath('id') id: string,
     ) {
@@ -54,7 +52,7 @@ export class CombinedController {
 
     @DPost('')
     async create(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
         return 'create';
@@ -62,7 +60,7 @@ export class CombinedController {
 
     @DPut('')
     async put(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
         return 'put';
@@ -70,7 +68,7 @@ export class CombinedController {
 
     @DPatch('')
     async patch(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
     ) {
         return 'patch';
@@ -78,7 +76,7 @@ export class CombinedController {
 
     @DDelete('/:id', [DeleteMiddleware])
     async delete(
-    @DRequest() req: Request,
+        @DRequest() req: Request,
         @DResponse() res: Response,
         @DPaths() data: { id: string },
     ) {

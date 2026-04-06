@@ -18,9 +18,7 @@ export class RedisStore implements Store {
         if (typeof connectionString === 'undefined') {
             this.client = useClient();
         } else {
-            this.client = createClient({
-                connectionString,
-            });
+            this.client = createClient({ connectionString });
         }
     }
 
@@ -48,7 +46,7 @@ export class RedisStore implements Store {
 
         let totalHits : number;
         if (entry) {
-            totalHits = parseInt(entry, 10) + 1;
+            totalHits = Number.parseInt(entry, 10) + 1;
         } else {
             totalHits = 1;
         }
@@ -79,7 +77,7 @@ export class RedisStore implements Store {
         key = this.buildKey(key);
         const entry = await this.client.get(key);
         if (entry) {
-            const totalHits = parseInt(entry, 10) - 1;
+            const totalHits = Number.parseInt(entry, 10) - 1;
 
             this.client.set(
                 key,

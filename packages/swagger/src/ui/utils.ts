@@ -5,7 +5,7 @@ export function isFileURL(input: string) : boolean {
 
     try {
         url = new URL(input);
-    } catch (e) {
+    } catch {
         url = pathToFileURL(input);
     }
 

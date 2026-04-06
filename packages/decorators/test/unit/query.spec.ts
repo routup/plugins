@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { query, stringify, useRequestQuery } from '@routup/query';
 import { Router, createNodeDispatcher } from 'routup';
 import supertest from 'supertest';
@@ -24,9 +25,7 @@ describe('src/decorator', () => {
 
         const server = supertest(createNodeDispatcher(router));
 
-        const qs = {
-            foo: 'bar',
-        };
+        const qs = { foo: 'bar' };
 
         let response = await server
             .get(`/query/many?${stringify(qs)}`);

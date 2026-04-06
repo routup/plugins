@@ -4,9 +4,7 @@ import type { OptionsInput } from './type';
 import { buildHandlerOptions } from './utils';
 
 export function createHandler(input?: OptionsInput) {
-    const options = buildHandlerOptions({
-        ...(input || {}),
-    });
+    const options = buildHandlerOptions({ ...(input || {}) });
 
     if (typeof options.store.init === 'function') {
         options.store.init(options);

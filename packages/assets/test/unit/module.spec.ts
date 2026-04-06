@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { HeaderName, Router, createNodeDispatcher } from 'routup';
 import path from 'node:path';
 import supertest from 'supertest';
@@ -24,9 +25,7 @@ describe('src/module', () => {
     it('should serve node modules file', async () => {
         const router = new Router();
 
-        router.use('/docs', assets(path.dirname(require.resolve('swagger-ui-dist')), {
-            scan: false,
-        }));
+        router.use('/docs', assets(path.dirname(require.resolve('swagger-ui-dist')), { scan: false }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -39,9 +38,7 @@ describe('src/module', () => {
     it('should serve non preloaded text file', async () => {
         const router = new Router();
 
-        router.use(assets(directoryPath, {
-            scan: false,
-        }));
+        router.use(assets(directoryPath, { scan: false }));
 
         const server = supertest(createNodeDispatcher(router));
 
@@ -85,9 +82,7 @@ describe('src/module', () => {
     it('should serve directory by index file', async () => {
         const router = new Router();
 
-        router.use(assets(directoryPath, {
-            fallback: true,
-        }));
+        router.use(assets(directoryPath, { fallback: true }));
 
         const server = supertest(createNodeDispatcher(router));
 

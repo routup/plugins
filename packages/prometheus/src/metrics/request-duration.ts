@@ -1,5 +1,9 @@
 import type {
-    Histogram, PrometheusContentType, Registry, RegistryContentType, Summary,
+    Histogram, 
+    PrometheusContentType, 
+    Registry, 
+    RegistryContentType, 
+    Summary,
 } from 'prom-client';
 import promClient from 'prom-client';
 import { MetricTypeName } from '../constants';

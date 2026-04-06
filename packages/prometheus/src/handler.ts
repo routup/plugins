@@ -5,8 +5,10 @@ import {
     useRequestPath,
 } from 'routup';
 import type {
-    LabelValues, PrometheusContentType,
-    Registry, RegistryContentType,
+    LabelValues, 
+    PrometheusContentType,
+    Registry, 
+    RegistryContentType,
 } from 'prom-client';
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
     Router,
     coreHandler,
@@ -6,17 +7,15 @@ import {
 } from 'routup';
 import supertest from 'supertest';
 import { basic } from '../../src';
-import { useRequestBody } from '../../body';
-import { useRequestCookie, useRequestCookies } from '../../cookie';
-import { useRequestQuery } from '../../query';
+import { useRequestBody } from '@routup/body';
+import { useRequestCookie, useRequestCookies } from '@routup/cookie';
+import { useRequestQuery } from '@routup/query';
 
 describe('src/**', () => {
     it('should use body plugin', async () => {
         const router = new Router();
 
-        router.use(basic({
-            body: true,
-        }));
+        router.use(basic({ body: true }));
 
         router.post('/:id', coreHandler((req, res) => useRequestBody(req, useRequestParam(req, 'id'))));
         router.post('/', coreHandler((req, res) => useRequestBody(req)));
@@ -25,18 +24,14 @@ describe('src/**', () => {
 
         let response = await server
             .post('/foo')
-            .send({
-                foo: 'bar',
-            });
+            .send({ foo: 'bar' });
 
         expect(response.statusCode).toEqual(200);
         expect(response.text).toEqual('bar');
 
         response = await server
             .post('/')
-            .send({
-                foo: 'bar',
-            });
+            .send({ foo: 'bar' });
 
         expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({ foo: 'bar' });
@@ -45,9 +40,7 @@ describe('src/**', () => {
     it('should use cookie plugin', async () => {
         const router = new Router();
 
-        router.use(basic({
-            cookie: true,
-        }));
+        router.use(basic({ cookie: true }));
 
         router.get('/:id', coreHandler((req, res) => useRequestCookie(req, useRequestParam(req, 'id'))));
         router.get('/', coreHandler((req, res) => useRequestCookies(req)));
@@ -72,9 +65,7 @@ describe('src/**', () => {
     it('should use query plugin', async () => {
         const router = new Router();
 
-        router.use(basic({
-            query: true,
-        }));
+        router.use(basic({ query: true }));
 
         router.get('/:id', coreHandler((req) => useRequestQuery(req, useRequestParam(req, 'id'))));
         router.get('/', coreHandler((req, res) => useRequestQuery(req)));
@@ -91,9 +82,7 @@ describe('src/**', () => {
 
         expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({
-            page: {
-                limit: '10',
-            },
+            page: { limit: '10' },
             sort: '-name',
         });
     });

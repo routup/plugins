@@ -28,8 +28,8 @@ export function mountController(
     }
 
     const propertyKeys = Object.keys(meta.methods);
-    for (let i = 0; i < propertyKeys.length; i++) {
-        const method = meta.methods[propertyKeys[i]];
+    for (const propertyKey of propertyKeys) {
+        const method = meta.methods[propertyKey];
         if (method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
                 childRouter.use(createHandlerForClassType(
@@ -49,14 +49,14 @@ export function mountController(
                 req,
                 res,
                 next,
-            ) => controller[propertyKeys[i]].apply(controller, [
+            ) => controller[propertyKey].apply(controller, [
                 ...buildDecoratorMethodArguments(
                     {
                         request: req,
                         response: res,
                         next,
                     },
-                    meta.parameters[propertyKeys[i]],
+                    meta.parameters[propertyKey],
                     extractMap,
                 ),
             ]),
@@ -73,7 +73,7 @@ export function mountControllers(
     input: (ClassType | Record<string, any>)[],
     extractMap?: ParameterExtractMap,
 ) {
-    for (let i = 0; i < input.length; i++) {
-        mountController(router, input[i], extractMap);
+    for (const element of input) {
+        mountController(router, element, extractMap);
     }
 }

@@ -1,5 +1,6 @@
 import type {
-    ConfigInput, GetContext,
+    ConfigInput, 
+    GetContext,
 } from 'ilingo';
 import type { Request } from 'routup';
 
