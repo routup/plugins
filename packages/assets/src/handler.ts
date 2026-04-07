@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
-import type { Handler } from 'routup';
+import type { CoreHandler, Handler, IRoutupEvent } from 'routup';
 import {
     HeaderName,
     defineCoreHandler,
@@ -10,7 +10,7 @@ import type { FileInfo, OptionsInput } from './type';
 import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
+export function createCoreHandler(directory: string, input: OptionsInput = {}) : CoreHandler {
     const options = buildOptions({
         ...input,
         directoryPath: directory,
@@ -31,7 +31,7 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
 
     scanFiles(stack, options);
 
-    return defineCoreHandler(async (event) => {
+    return async (event: IRoutupEvent) => {
         let requestPath = event.path;
 
         const { mountPath } = event;
@@ -87,5 +87,11 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
             event.response.status = 404;
             return null;
         }
-    });
+    };
+}
+
+export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
+    const fn = createCoreHandler(directory, input);
+
+    return defineCoreHandler((event) => fn(event));
 }
