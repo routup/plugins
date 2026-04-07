@@ -1,22 +1,18 @@
 import fs from 'node:fs';
-import type { CoreHandlerFn, Handler } from 'routup';
+import { Readable } from 'node:stream';
+import type { Handler } from 'routup';
 import {
     HeaderName,
-    coreHandler,
+    defineCoreHandler,
     sendFile,
-    useRequestMountPath,
-    useRequestPath,
 } from 'routup';
 import type { FileInfo, OptionsInput } from './type';
 import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input?: OptionsInput) : Handler {
-    return coreHandler(createHandlerFn(directory, input));
-}
-export function createHandlerFn(directory: string, input?: OptionsInput) : CoreHandlerFn {
+export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
     const options = buildOptions({
-        ...(input || {}),
+        ...input,
         directoryPath: directory,
     });
 
@@ -35,10 +31,10 @@ export function createHandlerFn(directory: string, input?: OptionsInput) : CoreH
 
     scanFiles(stack, options);
 
-    return (req, res, next) => {
-        let requestPath = useRequestPath(req);
+    return defineCoreHandler(async (event) => {
+        let requestPath = event.path;
 
-        const mountPath = useRequestMountPath(req);
+        const { mountPath } = event;
         if (requestPath.startsWith(mountPath)) {
             requestPath = requestPath.substring(mountPath.length);
         }
@@ -55,54 +51,41 @@ export function createHandlerFn(directory: string, input?: OptionsInput) : CoreH
             }
         }
 
-        lookup(requestPath, options, stack)
-            .then((fileInfo) => {
-                if (typeof fileInfo === 'undefined') {
-                    if (
-                        options.fallthrough &&
-                        typeof next !== 'undefined'
-                    ) {
-                        next();
-                    } else {
-                        res.statusCode = 404;
-                        res.end();
-                    }
+        const fileInfo = await lookup(requestPath, options, stack);
 
-                    return Promise.resolve();
-                }
+        if (typeof fileInfo === 'undefined') {
+            if (options.fallthrough) {
+                return event.next();
+            }
 
-                if (cacheControl) {
-                    res.setHeader(HeaderName.CACHE_CONTROL, cacheControl);
-                }
+            event.response.status = 404;
+            return null;
+        }
 
-                if (
-                    req.headers[HeaderName.IF_NONE_MATCH] === `W/"${fileInfo.stats.size}-${fileInfo.stats.mtime.getTime()}"`
-                ) {
-                    res.writeHead(304);
-                    res.end();
-                    return Promise.resolve();
-                }
+        if (cacheControl) {
+            event.response.headers.set(HeaderName.CACHE_CONTROL, cacheControl);
+        }
 
-                return sendFile(res, {
-                    content: (options) => fs.createReadStream(fileInfo.filePath, options),
-                    stats: () => fileInfo.stats,
-                    name: fileInfo.filePath,
-                }, (err?: Error) => {
-                    if (err) {
-                        if (
-                            options.fallthrough &&
-                            typeof next === 'function'
-                        ) {
-                            return next(err);
-                        }
+        if (
+            event.headers.get(HeaderName.IF_NONE_MATCH) === `W/"${fileInfo.stats.size}-${fileInfo.stats.mtime.getTime()}"`
+        ) {
+            event.response.status = 304;
+            return null;
+        }
 
-                        res.statusCode = 404;
-                    }
-
-                    res.end();
-
-                    return Promise.resolve();
-                });
+        try {
+            return await sendFile(event, {
+                content: (opts) => Readable.toWeb(fs.createReadStream(fileInfo.filePath, opts)) as ReadableStream,
+                stats: () => fileInfo.stats,
+                name: fileInfo.filePath,
             });
-    };
+        } catch {
+            if (options.fallthrough) {
+                return event.next();
+            }
+
+            event.response.status = 404;
+            return null;
+        }
+    });
 }
