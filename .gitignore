@@ -13,3 +13,4 @@ reports
 .temp
 .nx
 .claude/settings.local.json
+.agents/plans
