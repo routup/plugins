@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { HeaderName, Router, createNodeDispatcher } from 'routup';
+import { Router } from 'routup';
 import path from 'node:path';
-import supertest from 'supertest';
 import { assets } from '../../src';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
+
+const tick = () => new Promise<void>((resolve) => { setTimeout(resolve, 0); });
 
 const directoryPath = path.join(__dirname, '..', 'data');
 
@@ -12,14 +18,13 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        const server = supertest(createNodeDispatcher(router));
+        await tick();
 
-        const response = await server
-            .get('/file.txt');
+        const response = await router.fetch(createTestRequest('/file.txt'));
 
-        expect(response.text).toEqual('foo\n');
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('text/plain; charset=utf-8');
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('4');
+        expect(await response.text()).toEqual('foo\n');
+        expect(response.headers.get('content-type')).toEqual('text/plain; charset=utf-8');
+        expect(response.headers.get('content-length')).toEqual('4');
     });
 
     it('should serve node modules file', async () => {
@@ -27,12 +32,9 @@ describe('src/module', () => {
 
         router.use('/docs', assets(path.dirname(require.resolve('swagger-ui-dist')), { scan: false }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/docs/swagger-ui-bundle.js'));
 
-        const response = await server
-            .get('/docs/swagger-ui-bundle.js');
-
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('application/javascript; charset=utf-8');
+        expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
     });
 
     it('should serve non preloaded text file', async () => {
@@ -40,14 +42,11 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath, { scan: false }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/file.txt'));
 
-        const response = await server
-            .get('/file.txt');
-
-        expect(response.text).toEqual('foo\n');
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('text/plain; charset=utf-8');
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('4');
+        expect(await response.text()).toEqual('foo\n');
+        expect(response.headers.get('content-type')).toEqual('text/plain; charset=utf-8');
+        expect(response.headers.get('content-length')).toEqual('4');
     });
 
     it('should serve js file', async () => {
@@ -55,14 +54,13 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        const server = supertest(createNodeDispatcher(router));
+        await tick();
 
-        const response = await server
-            .get('/file.js');
+        const response = await router.fetch(createTestRequest('/file.js'));
 
-        expect(response.text).toEqual('console.log(\'foo\');\n');
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('application/javascript; charset=utf-8');
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('20');
+        expect(await response.text()).toEqual('console.log(\'foo\');\n');
+        expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
+        expect(response.headers.get('content-length')).toEqual('20');
     });
 
     it('should not serve file', async () => {
@@ -70,13 +68,11 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        const server = supertest(createNodeDispatcher(router));
+        await tick();
 
-        const response = await server
-            .get('/file.bar');
+        const response = await router.fetch(createTestRequest('/file.bar'));
 
-        expect(response.statusCode).toEqual(404);
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('0');
+        expect(response.status).toEqual(404);
     });
 
     it('should serve directory by index file', async () => {
@@ -84,20 +80,18 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath, { fallback: true }));
 
-        const server = supertest(createNodeDispatcher(router));
+        await tick();
 
-        let response = await server
-            .get('/html');
+        let response = await router.fetch(createTestRequest('/html'));
 
-        expect(response.text).toEqual('foo\n');
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('text/html; charset=utf-8');
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('4');
+        expect(await response.text()).toEqual('foo\n');
+        expect(response.headers.get('content-type')).toEqual('text/html; charset=utf-8');
+        expect(response.headers.get('content-length')).toEqual('4');
 
-        response = await server
-            .get('/html/');
+        response = await router.fetch(createTestRequest('/html/'));
 
-        expect(response.text).toEqual('foo\n');
-        expect(response.headers[HeaderName.CONTENT_TYPE]).toEqual('text/html; charset=utf-8');
-        expect(response.headers[HeaderName.CONTENT_LENGTH]).toEqual('4');
+        expect(await response.text()).toEqual('foo\n');
+        expect(response.headers.get('content-type')).toEqual('text/html; charset=utf-8');
+        expect(response.headers.get('content-length')).toEqual('4');
     });
 });
