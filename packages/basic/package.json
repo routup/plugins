@@ -69,7 +69,7 @@
         "@routup/query": "^2.4.3"
     },
     "devDependencies": {
-        "@types/supertest": "^6.0.2",
+        "@types/supertest": "^7.2.0",
         "routup": "^4.0.1",
         "supertest": "^7.1.4"
     },
