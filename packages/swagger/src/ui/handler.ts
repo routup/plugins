@@ -80,7 +80,7 @@ export function createUIHandler(
             extensions: [],
             scan: false,
             ignores: [/package\.json/],
-            resolve: (event) => {
+            resolve: async (event) => {
                 if (event.path.includes('/package.json')) {
                     event.response.status = 404;
                     return null;

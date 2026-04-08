@@ -15,7 +15,9 @@
         "dist/"
     ],
     "scripts": {
-        "build": "rimraf ./dist && tsdown",
+        "build": "npm run build:js && npm run build:types",
+        "build:js": "rimraf ./dist && tsdown",
+        "build:types": "tsc --noEmit -p tsconfig.build.json",
         "lint": "eslint ./src",
         "lint:fix": "npm run lint -- --fix"
     },

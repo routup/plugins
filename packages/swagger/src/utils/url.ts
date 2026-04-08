@@ -19,7 +19,7 @@ export function withoutTrailingSlash(input = '', queryParams = false): string {
 
     const [s0, ...s] = input.split('?');
 
-    return (s0.slice(0, -1) || '/') + (s.length ? `?${s.join('?')}` : '');
+    return (s0!.slice(0, -1) || '/') + (s.length ? `?${s.join('?')}` : '');
 }
 
 export function withTrailingSlash(input = '', queryParams = false): string {

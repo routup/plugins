@@ -22,7 +22,7 @@ type GeneratorOptionsInput = OptionsInput;
 type GeneratorMetadataOptions = MetadataOptions;
 type GeneratorMetadata = Metadata;
 
-export {
+export type {
     GeneratorOptions,
     GeneratorOptionsInput,
     GeneratorMetadataOptions,

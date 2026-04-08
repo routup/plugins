@@ -22,7 +22,7 @@ export function mountController(
     const childRouter = new Router();
 
     for (let i = 0; i < meta.middlewares.length; i++) {
-        const handler = createHandlerForClassType(meta.middlewares[i], {});
+        const handler = createHandlerForClassType(meta.middlewares[i]!, {});
 
         childRouter.use(handler);
     }
@@ -30,10 +30,14 @@ export function mountController(
     const propertyKeys = Object.keys(meta.methods);
     for (const propertyKey of propertyKeys) {
         const method = meta.methods[propertyKey];
+        if (!method) {
+            continue;
+        }
+
         if (method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
                 childRouter.use(createHandlerForClassType(
-                    method.middlewares[i],
+                    method.middlewares[i]!,
                     {
                         method: method.method as MethodName,
                         path: method.url,
@@ -56,7 +60,7 @@ export function mountController(
                         response: res,
                         next,
                     },
-                    meta.parameters[propertyKey],
+                    meta.parameters[propertyKey] ?? [],
                     extractMap,
                 ),
             ]),

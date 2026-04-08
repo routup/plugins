@@ -21,7 +21,7 @@ export function buildOptions(input: OptionsInput) : Options {
 
         if (Array.isArray(input.fallbackIgnores)) {
             for (let i = 0; i < input.fallbackIgnores.length; i++) {
-                fallbackIgnores.push(new RegExp(input.fallbackIgnores[i], 'i'));
+                fallbackIgnores.push(new RegExp(input.fallbackIgnores[i]!, 'i'));
             }
         } else {
             fallbackIgnores.push(new RegExp(input.fallbackIgnores, 'i'));
@@ -36,7 +36,7 @@ export function buildOptions(input: OptionsInput) : Options {
 
         if (Array.isArray(input.ignores)) {
             for (let i = 0; i < input.ignores.length; i++) {
-                ignores.push(new RegExp(input.ignores[i], 'i'));
+                ignores.push(new RegExp(input.ignores[i]!, 'i'));
             }
         }
     }
