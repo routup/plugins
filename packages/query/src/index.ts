@@ -11,7 +11,6 @@ export * from './handler';
 export * from './module';
 export * from './request';
 export * from './type';
-export * from './utils';
 
 export {
     stringify,
