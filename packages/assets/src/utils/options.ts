@@ -65,6 +65,7 @@ export function buildOptions(input: OptionsInput) : Options {
     }
 
     return {
+        ...input,
         directoryPath,
         fallbackPath,
         scan: input.scan ?? true,

@@ -1,14 +1,12 @@
+import { createCoreHandler } from '@routup/assets';
 import {
-    coreHandler,
-    send,
-    useRequestMountPath, 
-    useRequestPath,
+    defineCoreHandler,
 } from 'routup';
+import type { Handler } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
-import { createHandlerFn } from '@routup/assets';
 import { ASSETS_PATH } from '../constants';
 import type { UIOptions } from './type';
 import { isFileURL } from './utils';
@@ -40,7 +38,7 @@ const stringify = (obj: Record<string, any>) => {
 };
 
 /**
- * Create a swagger handler by swagger document or web url.
+ * Create a swagger UI handler by swagger document or web url.
  *
  * @param document
  * @param options
@@ -48,9 +46,7 @@ const stringify = (obj: Record<string, any>) => {
 export function createUIHandler(
     document: Spec | string,
     options: UIOptions = {},
-) {
-    const handler = createHandlerFn(path.dirname(require.resolve('swagger-ui-dist')), { extensions: [] });
-
+) : Handler {
     if (isObject(document)) {
         options.spec = document;
     } else if (isFileURL(document)) {
@@ -63,38 +59,13 @@ export function createUIHandler(
     let template : string | undefined;
     const templateRaw = fs.readFileSync(path.join(ASSETS_PATH, 'template.tpl'), { encoding: 'utf-8' });
 
-    const compileTemplate = (context: {
-        url?: string, 
-        mountPath: string, 
-        path: string, 
-    }) : void => {
-        let href = '/';
-        if (context.url) {
-            let pathName : string;
-            if (context.url.startsWith('http')) {
-                pathName = new URL(context.url).pathname;
-            } else {
-                pathName = context.url;
-            }
+    const compileTemplate = (mountPath: string) : void => {
+        let href = withTrailingSlash(mountPath || '/');
 
-            const mountPathIndex = pathName.indexOf(context.path);
-            if (mountPathIndex !== -1) {
-                href = pathName.substring(0, mountPathIndex + context.path.length);
-            } else {
-                href = pathName;
-            }
-
-            if (options.baseURL) {
-                href = new URL(withoutLeadingSlash(href), options.baseURL).href;
-            } else if (options.basePath) {
-                href = withLeadingSlash(cleanDoubleSlashes(`${options.basePath}/${href}`));
-            }
-
-            href = withTrailingSlash(href);
-        } else if (options.baseURL) {
-            href = withTrailingSlash(options.baseURL);
+        if (options.baseURL) {
+            href = withTrailingSlash(new URL(withoutLeadingSlash(href), options.baseURL).href);
         } else if (options.basePath) {
-            href = withTrailingSlash(withLeadingSlash(options.basePath));
+            href = withTrailingSlash(withLeadingSlash(cleanDoubleSlashes(`${options.basePath}/${href}`)));
         }
 
         template = templateRaw
@@ -103,28 +74,27 @@ export function createUIHandler(
             .replace('<% baseHref %>', href);
     };
 
-    return coreHandler((req, res, next) => {
-        /* istanbul ignore next */
-        if (typeof req.url === 'undefined') {
-            return next();
-        }
+    const handler = createCoreHandler(
+        path.dirname(require.resolve('swagger-ui-dist')),
+        {
+            extensions: [],
+            scan: false,
+            ignores: [/package\.json/],
+            resolve: (event) => {
+                if (event.path.includes('/package.json')) {
+                    event.response.status = 404;
+                    return null;
+                }
 
-        if (req.url.includes('/package.json')) {
-            res.statusCode = 404;
+                if (typeof template === 'undefined') {
+                    compileTemplate(event.mountPath);
+                }
 
-            return send(res);
-        }
+                event.response.headers.set('content-type', 'text/html; charset=utf-8');
+                return template;
+            },
+        },
+    );
 
-        return handler(req, res, async () => {
-            if (typeof template === 'undefined') {
-                compileTemplate({
-                    url: req.url,
-                    mountPath: useRequestMountPath(req),
-                    path: useRequestPath(req),
-                });
-            }
-
-            return send(res, template);
-        });
-    });
+    return defineCoreHandler((event) => handler(event));
 }

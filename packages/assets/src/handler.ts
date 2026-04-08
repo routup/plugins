@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
-import type { Handler } from 'routup';
+import {
+    type CoreHandler,
+    type Handler,
+    type IRoutupEvent,
+    toResponse,
+} from 'routup';
 import {
     HeaderName,
     defineCoreHandler,
@@ -10,7 +15,7 @@ import type { FileInfo, OptionsInput } from './type';
 import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
-export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
+export function createCoreHandler(directory: string, input: OptionsInput = {}) : CoreHandler {
     const options = buildOptions({
         ...input,
         directoryPath: directory,
@@ -31,7 +36,7 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
 
     scanFiles(stack, options);
 
-    return defineCoreHandler(async (event) => {
+    return async (event: IRoutupEvent) => {
         let requestPath = event.path;
 
         const { mountPath } = event;
@@ -54,6 +59,14 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
         const fileInfo = await lookup(requestPath, options, stack);
 
         if (typeof fileInfo === 'undefined') {
+            if (options.resolve) {
+                const output = await options.resolve(event);
+                const response = await toResponse(output, event);
+                if (response) {
+                    return response;
+                }
+            }
+
             if (options.fallthrough) {
                 return event.next();
             }
@@ -80,6 +93,14 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
                 name: fileInfo.filePath,
             });
         } catch {
+            if (options.resolve) {
+                const output = await options.resolve(event);
+                const response = await toResponse(output, event);
+                if (response) {
+                    return response;
+                }
+            }
+
             if (options.fallthrough) {
                 return event.next();
             }
@@ -87,5 +108,11 @@ export function createHandler(directory: string, input: OptionsInput = {}) : Han
             event.response.status = 404;
             return null;
         }
-    });
+    };
+}
+
+export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
+    const fn = createCoreHandler(directory, input);
+
+    return defineCoreHandler((event) => fn(event));
 }
