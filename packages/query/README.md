@@ -34,11 +34,10 @@ It is important to invoke the request middleware,
 to parse the query-string of the request url.
 
 ```typescript
-import { createServer } from 'node:http';
 import {
-    createNodeDispatcher,
-    coreHandler,
-    Router
+    Router,
+    defineCoreHandler,
+    serve,
 } from 'routup';
 import {
     query,
@@ -49,14 +48,15 @@ const router = new Router();
 
 router.use(query());
 
-router.get('/', coreHandler((req, res) => {
-    const query = useRequestQuery(req);
-    console.log(query);
+router.get('/', defineCoreHandler((event) => {
+    const q = useRequestQuery(event);
+    console.log(q);
     // { key: ..., ... }
+
+    return q;
 }));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## Helpers
@@ -67,15 +67,14 @@ This function sets the parsed request query parameters for the current request.
 
 ```typescript
 declare function setRequestQuery(
-    req: Request,
+    event: IRoutupEvent,
     key: string,
     value: unknown
 ) : void;
 
 declare function setRequestQuery(
-    req: Request, 
-    record: Record<string, any>,
-    append?: boolean
+    event: IRoutupEvent, 
+    record: Record<string, any>
 ) : void;
 ```
 
@@ -85,11 +84,11 @@ This function returns the query parameters of the request.
 
 ```typescript
 declare function useRequestQuery(
-    req: Request
+    event: IRoutupEvent
 ) : Record<string, any>;
 
 declare function useRequestQuery(
-    req: Request, 
+    event: IRoutupEvent, 
     key: string
 ) : any;
 ```

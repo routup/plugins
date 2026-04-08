@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import supertest from 'supertest';
 import {
-    Router, 
-    coreHandler, 
-    createNodeDispatcher, 
-    send,
+    Router,
+    defineCoreHandler,
 } from 'routup';
 import { query, stringify, useRequestQuery } from '../../src';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('src/module', () => {
     it('should parse request query', async () => {
@@ -14,49 +16,41 @@ describe('src/module', () => {
 
         router.use(query());
 
-        router.get('/', coreHandler((req, res) => {
-            send(res, useRequestQuery(req));
+        router.get('/', defineCoreHandler((event) => useRequestQuery(event)));
+
+        router.get('/key', defineCoreHandler((event) => {
+            useRequestQuery(event, 'sort');
+
+            return useRequestQuery(event, 'sort');
         }));
 
-        router.get('/key', coreHandler((req, res) => {
-            useRequestQuery(req, 'sort');
+        router.get('/reuse', defineCoreHandler((event) => {
+            useRequestQuery(event);
 
-            send(res, useRequestQuery(req, 'sort'));
+            return useRequestQuery(event);
         }));
-
-        router.get('/reuse', coreHandler((req, res) => {
-            useRequestQuery(req);
-
-            send(res, useRequestQuery(req));
-        }));
-
-        const server = supertest(createNodeDispatcher(router));
 
         const qs = { page: { limit: '10', offset: '0' }, sort: '-name' };
 
-        let response = await server
-            .get(`/?${stringify(qs)}`);
+        let response = await router.fetch(createTestRequest(`/?${stringify(qs)}`));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(qs);
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual(qs);
 
-        response = await server
-            .get('/');
+        response = await router.fetch(createTestRequest('/'));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({});
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({});
 
-        response = await server
-            .get(`/key?${stringify(qs)}`);
+        response = await router.fetch(createTestRequest(`/key?${stringify(qs)}`));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('-name');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('-name');
 
-        response = await server
-            .get(`/reuse?${stringify(qs)}`);
+        response = await router.fetch(createTestRequest(`/reuse?${stringify(qs)}`));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(qs);
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual(qs);
     });
 
     it('should parse request query with middleware', async () => {
@@ -64,18 +58,13 @@ describe('src/module', () => {
 
         router.use(query());
 
-        router.get('/', coreHandler((req, res) => {
-            send(res, useRequestQuery(req));
-        }));
-
-        const server = supertest(createNodeDispatcher(router));
+        router.get('/', defineCoreHandler((event) => useRequestQuery(event)));
 
         const qs = { page: { limit: '10', offset: '0' }, sort: '-name' };
 
-        const response = await server
-            .get(`/?${stringify(qs)}`);
+        const response = await router.fetch(createTestRequest(`/?${stringify(qs)}`));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(qs);
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual(qs);
     });
 });
