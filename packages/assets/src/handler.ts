@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
-import type { CoreHandler, Handler, IRoutupEvent } from 'routup';
+import {
+    type CoreHandler,
+    type Handler,
+    type IRoutupEvent,
+    toResponse,
+} from 'routup';
 import {
     HeaderName,
     defineCoreHandler,
@@ -54,6 +59,14 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
         const fileInfo = await lookup(requestPath, options, stack);
 
         if (typeof fileInfo === 'undefined') {
+            if (options.resolve) {
+                const output = await options.resolve(event);
+                const response = await toResponse(output, event);
+                if (response) {
+                    return response;
+                }
+            }
+
             if (options.fallthrough) {
                 return event.next();
             }
@@ -80,6 +93,14 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
                 name: fileInfo.filePath,
             });
         } catch {
+            if (options.resolve) {
+                const output = await options.resolve(event);
+                const response = await toResponse(output, event);
+                if (response) {
+                    return response;
+                }
+            }
+
             if (options.fallthrough) {
                 return event.next();
             }

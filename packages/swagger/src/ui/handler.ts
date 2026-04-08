@@ -1,3 +1,4 @@
+import { createCoreHandler } from '@routup/assets';
 import {
     defineCoreHandler,
 } from 'routup';
@@ -73,17 +74,27 @@ export function createUIHandler(
             .replace('<% baseHref %>', href);
     };
 
-    return defineCoreHandler((event) => {
-        if (event.path.includes('/package.json')) {
-            event.response.status = 404;
-            return null;
-        }
+    const handler = createCoreHandler(
+        path.dirname(require.resolve('swagger-ui-dist')),
+        {
+            extensions: [],
+            scan: false,
+            ignores: [/package\.json/],
+            resolve: (event) => {
+                if (event.path.includes('/package.json')) {
+                    event.response.status = 404;
+                    return null;
+                }
 
-        if (typeof template === 'undefined') {
-            compileTemplate(event.mountPath);
-        }
+                if (typeof template === 'undefined') {
+                    compileTemplate(event.mountPath);
+                }
 
-        event.response.headers.set('content-type', 'text/html; charset=utf-8');
-        return template;
-    });
+                event.response.headers.set('content-type', 'text/html; charset=utf-8');
+                return template;
+            },
+        },
+    );
+
+    return defineCoreHandler((event) => handler(event));
 }

@@ -1,7 +1,15 @@
 import type { Stats } from 'node:fs';
 import type fs from 'node:fs';
+import type { IRoutupEvent } from 'routup';
+
+export type ResolveFn = (event: IRoutupEvent) => Promise<unknown>;
 
 export type Options = {
+    /**
+     * Fallback resolve fn.
+     */
+    resolve?: ResolveFn,
+
     /**
      * Path for serving files.
      */
