@@ -34,37 +34,35 @@ The modules **body**, **cookie** and **query** have an individual
 export path as shown in the following code snippet.
 
 ```typescript
-import { createServer } from 'node:http';
 import {
-    createNodeDispatcher,
-    coreHandler,
-    Router
+    defineCoreHandler,
+    Router,
+    serve,
 } from 'routup';
 import { basic } from '@routup/basic';
-import { useRequestBody } from '@routup/basic/body';
+import { readRequestBody } from '@routup/basic/body';
 import { useRequestCookie, useRequestCookies } from '@routup/basic/cookie';
-import { useRequetQuery } from '@routup/basic/query';
+import { useRequestQuery } from '@routup/basic/query';
 
 const router = new Router();
 
 router.use(basic());
 
-router.get('/', coreHandler((req, res) => {
-    const body = useRequestBody(req);
+router.post('/', defineCoreHandler(async (event) => {
+    const body = await readRequestBody(event);
     // { key: value, ... }
     
-    const cookies = useRequestCookies(req);
+    const cookies = useRequestCookies(event);
     // { key: value, ... }
     
-    const cookie = useRequestCookie(req, 'key');
+    const cookie = useRequestCookie(event, 'key');
     // value
     
-    const query = useRequetQuery(req);
+    const query = useRequestQuery(event);
     // query
 }));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## Options
