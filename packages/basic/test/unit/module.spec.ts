@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
     Router,
-    coreHandler,
-    createNodeDispatcher,
-    useRequestParam,
+    defineCoreHandler,
 } from 'routup';
-import supertest from 'supertest';
 import { basic } from '../../src';
-import { useRequestBody } from '@routup/body';
+import { readRequestBody } from '@routup/body';
 import { useRequestCookie, useRequestCookies } from '@routup/cookie';
 import { useRequestQuery } from '@routup/query';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('src/**', () => {
     it('should use body plugin', async () => {
@@ -17,24 +19,29 @@ describe('src/**', () => {
 
         router.use(basic({ body: true }));
 
-        router.post('/:id', coreHandler((req, res) => useRequestBody(req, useRequestParam(req, 'id'))));
-        router.post('/', coreHandler((req, res) => useRequestBody(req)));
+        router.post('/:id', defineCoreHandler(async (event) => {
+            const body = await readRequestBody(event, event.params.id);
+            return body;
+        }));
+        router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/foo', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
 
-        let response = await server
-            .post('/foo')
-            .send({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('bar');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('bar');
+        response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
 
-        response = await server
-            .post('/')
-            .send({ foo: 'bar' });
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
     });
 
     it('should use cookie plugin', async () => {
@@ -42,24 +49,18 @@ describe('src/**', () => {
 
         router.use(basic({ cookie: true }));
 
-        router.get('/:id', coreHandler((req, res) => useRequestCookie(req, useRequestParam(req, 'id'))));
-        router.get('/', coreHandler((req, res) => useRequestCookies(req)));
+        router.get('/:id', defineCoreHandler((event) => useRequestCookie(event, event.params.id)));
+        router.get('/', defineCoreHandler((event) => useRequestCookies(event)));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/foo', { headers: { 'cookie': 'foo=bar' } }));
 
-        let response = await server
-            .get('/foo')
-            .set('Cookie', ['foo=bar']);
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('bar');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('bar');
+        response = await router.fetch(createTestRequest('/', { headers: { 'cookie': 'foo=bar' } }));
 
-        response = await server
-            .get('/')
-            .set('Cookie', ['foo=bar']);
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
     });
 
     it('should use query plugin', async () => {
@@ -67,21 +68,18 @@ describe('src/**', () => {
 
         router.use(basic({ query: true }));
 
-        router.get('/:id', coreHandler((req) => useRequestQuery(req, useRequestParam(req, 'id'))));
-        router.get('/', coreHandler((req, res) => useRequestQuery(req)));
+        router.get('/:id', defineCoreHandler((event) => useRequestQuery(event, event.params.id)));
+        router.get('/', defineCoreHandler((event) => useRequestQuery(event)));
 
-        const server = supertest(createNodeDispatcher(router));
-        let response = await server
-            .get('/sort?page[limit]=10&sort=-name');
+        let response = await router.fetch(createTestRequest('/sort?page[limit]=10&sort=-name'));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('-name');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('-name');
 
-        response = await server
-            .get('/?page[limit]=10&sort=-name');
+        response = await router.fetch(createTestRequest('/?page[limit]=10&sort=-name'));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({
             page: { limit: '10' },
             sort: '-name',
         });
