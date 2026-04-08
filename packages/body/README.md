@@ -19,9 +19,12 @@ This is a plugin for reading and parsing the request payload.
   - [raw](#raw)
   - [text](#text)
 - [Helpers](#helpers)
-  - [setRequestBody](#setrequestbody)
-  - [useRequestBody](#userequestbody)
-- [Credits](#credits)
+  - [readRequestBody](#readrequestbody)
+  - [readRequestBodyText](#readrequestbodytext)
+  - [readRequestBodyBytes](#readrequestbodybytes)
+  - [readRequestBodyArrayBuffer](#readrequestbodyarraybuffer)
+  - [readRequestBodyBlob](#readrequestbodyblob)
+  - [readRequestBodyStream](#readrequestbodystream)
 - [License](#license)
 
 ## Installation
@@ -39,134 +42,194 @@ To read the docs, visit [https://routup.net](https://routup.net)
 For standard use, the package is installed as a plugin, as shown below.
 
 ```typescript
-import { createServer } from 'node:http';
-import { 
-    createNodeDispatcher,
-    coreHandler,
-    Router, 
-    send
+import {
+    Router,
+    defineCoreHandler,
+    serve,
 } from 'routup';
-import { body, useRequestBody } from '@routup/body';
+import { body, readRequestBody } from '@routup/body';
 
 const router = new Router();
+
 // This will parse requests with Content-Type:
 // application/json
 // application/x-www-form-urlencoded
-router.install(body());
+router.use(body());
 
-router.get('/', coreHandler((req, res) => {
-    const body = useRequestBody(req);
-    console.log(body);
-    // ...
+router.post('/', defineCoreHandler(async (event) => {
+    const data = await readRequestBody(event);
+    console.log(data);
+
+    return data;
 }));
 
-
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000)
+serve(router, { port: 3000 });
 ```
 
 ## Options
 
 The plugin accepts an object as input parameter to modify the default behaviour.
+By default, `json` and `urlEncoded` are enabled.
 
 ### `json`
 
-To parse `application/json` input data, enable the json handler.
+To parse `application/json` input data.
 
-- Type: [Options](https://github.com/expressjs/body-parser#bodyparserjsonoptions) | `boolean`
+- Type: `JsonOptions | boolean`
 - Default: `true`
 
 ```typescript
 router.use(body({
     json: {
-        limit: '100kb'
+        limit: '1mb',
+        strict: true,
     }
 }));
 ```
 
+**JsonOptions:**
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `limit` | `number \| string` | none | Maximum body size (bytes or string like `'1mb'`) |
+| `strict` | `boolean` | `true` | Only accept arrays and objects |
+| `reviver` | `function` | `undefined` | A reviver function passed to `JSON.parse` |
+| `type` | `string \| string[]` | `'application/json'` | Content-types to parse |
+
 ### `urlEncoded`
 
-To parse `application/x-www-form-urlencoded` input data, enable the url-encoded handler.
+To parse `application/x-www-form-urlencoded` input data.
 
-- Type: [Options](https://github.com/expressjs/body-parser#bodyparserurlencodedoptions) | `boolean`
+- Type: `UrlEncodedOptions | boolean`
 - Default: `true`
 
 ```typescript
 router.use(body({
     urlEncoded: {
-        extended: false
+        limit: '100kb',
+        parameterLimit: 1000,
     }
 }));
 ```
 
+**UrlEncodedOptions:**
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `limit` | `number \| string` | none | Maximum body size |
+| `parameterLimit` | `number` | `1000` | Maximum number of parameters |
+| `type` | `string \| string[]` | `'application/x-www-form-urlencoded'` | Content-types to parse |
+
 ### `raw`
 
-To parse `any` input data as Buffer, enable the raw handler.
+Configure options for raw body reading (used by `readRequestBodyBytes`, `readRequestBodyArrayBuffer`, `readRequestBodyBlob`).
 
-- Type: [Options](https://github.com/expressjs/body-parser#bodyparserurlencodedoptions) | `boolean`
+- Type: `RawOptions | boolean`
 - Default: `false`
 
 ```typescript
 router.use(body({
     raw: {
-        inflate: false
+        limit: '5mb',
     }
 }));
 ```
 
 ### `text`
 
-To parse `any` input data as string, enable the text handler.
+Configure options for text body reading (used by `readRequestBodyText`).
 
-- Type: [Options](https://github.com/expressjs/body-parser#bodyparsertextoptions) | `boolean`
+- Type: `TextOptions | boolean`
 - Default: `false`
 
 ```typescript
 router.use(body({
-    raw: {
-        inflate: false
+    text: {
+        limit: '100kb',
+        defaultCharset: 'utf-8',
     }
 }));
 ```
 
+**TextOptions:**
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `limit` | `number \| string` | none | Maximum body size |
+| `defaultCharset` | `string` | `'utf-8'` | Default charset if not specified in content-type |
+| `type` | `string \| string[]` | `'text/plain'` | Content-types to parse |
+
 ## Helpers
 
-### `setRequestBody`
+### `readRequestBody`
 
-This function sets the parsed request body/payload for the current request.
-This method should be implemented by a router middleware/plugin.
+Returns the parsed request body (JSON or URL-encoded). The result is cached after the first call.
 
 ```typescript
-declare function setRequestBody(
-    req: Request,
+declare function readRequestBody(
+    event: IRoutupEvent,
+) : Promise<Record<string, any>>;
+
+declare function readRequestBody(
+    event: IRoutupEvent,
     key: string,
-    value: unknown
-) : void;
-
-declare function setRequestBody(
-    req: Request,
-    record: Record<string, any>
-) : void;
+) : Promise<any | undefined>;
 ```
 
-## `useRequestBody`
+### `readRequestBodyText`
 
-This function returns the parsed request payload.
+Returns the request body as a string.
 
 ```typescript
-declare function useRequestBody(
-    req: Request
-) : Record<string, any>;
-
-declare function useRequestBody(
-    req: Request, key: string
-) : any | undefined;
+declare function readRequestBodyText(
+    event: IRoutupEvent,
+    options?: TextOptions,
+) : Promise<string>;
 ```
 
-## Credits
+### `readRequestBodyBytes`
 
-This library is currently based on the [body-parser](https://www.npmjs.com/package/body-parser) library,
-but this might change in the near future.
+Returns the request body as a `Uint8Array`.
+
+```typescript
+declare function readRequestBodyBytes(
+    event: IRoutupEvent,
+    options?: RawOptions,
+) : Promise<Uint8Array>;
+```
+
+### `readRequestBodyArrayBuffer`
+
+Returns the request body as an `ArrayBuffer`.
+
+```typescript
+declare function readRequestBodyArrayBuffer(
+    event: IRoutupEvent,
+    options?: BaseOptions,
+) : Promise<ArrayBuffer>;
+```
+
+### `readRequestBodyBlob`
+
+Returns the request body as a `Blob`.
+
+```typescript
+declare function readRequestBodyBlob(
+    event: IRoutupEvent,
+    options?: BaseOptions,
+) : Promise<Blob>;
+```
+
+### `readRequestBodyStream`
+
+Returns the request body as a `ReadableStream`, decompressed if the `content-encoding` header indicates compression (gzip, deflate, brotli). Does not buffer or cache — useful for piping large bodies without holding them in memory.
+
+```typescript
+declare function readRequestBodyStream(
+    event: IRoutupEvent,
+    options?: BaseOptions,
+) : ReadableStream | null;
+```
 
 ## License
 
