@@ -27,7 +27,7 @@ export async function readRequestBodyRaw(
         return event.store[RawBodySymbol] as Uint8Array;
     }
 
-    const limit = options.limit ? parseSize(options.limit) : undefined;
+    const limit = options.limit !== undefined ? parseSize(options.limit) : undefined;
     const stream = readRequestBodyStream(event, options);
 
     const chunks: Uint8Array[] = [];
@@ -42,7 +42,7 @@ export async function readRequestBodyRaw(
 
             totalSize += value.length;
 
-            if (limit && totalSize > limit) {
+            if (limit !== undefined && totalSize > limit) {
                 await reader.cancel();
                 throw createError({
                     statusCode: 413,
@@ -69,7 +69,7 @@ function concat(chunks: Uint8Array[], totalSize: number): Uint8Array {
     }
 
     if (chunks.length === 1) {
-        return chunks[0]!;
+        return new Uint8Array(chunks[0]!);
     }
 
     const result = new Uint8Array(totalSize);

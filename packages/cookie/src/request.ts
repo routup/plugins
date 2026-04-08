@@ -30,5 +30,8 @@ export function setRequestCookies(event: IRoutupEvent, key: Record<string, any> 
         return;
     }
 
-    event.store[CookieSymbol] = { [key]: value };
+    const existing = CookieSymbol in event.store ?
+        event.store[CookieSymbol] as Record<string, any> :
+        {};
+    event.store[CookieSymbol] = { ...existing, [key]: value };
 }

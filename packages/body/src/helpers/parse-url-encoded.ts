@@ -26,7 +26,7 @@ export async function parseUrlEncodedBody(
     const params = new URLSearchParams(text);
 
     const limit = options.parameterLimit ?? 1000;
-    const body: Record<string, string> = {};
+    const body: Record<string, string | string[]> = Object.create(null);
     let count = 0;
 
     for (const [k, v] of params) {
@@ -36,7 +36,18 @@ export async function parseUrlEncodedBody(
                 statusMessage: 'too many parameters',
             });
         }
-        body[k] = v;
+
+        const existing = body[k];
+        if (existing !== undefined) {
+            if (Array.isArray(existing)) {
+                existing.push(v);
+            } else {
+                body[k] = [existing, v];
+            }
+        } else {
+            body[k] = v;
+        }
+
         count++;
     }
 

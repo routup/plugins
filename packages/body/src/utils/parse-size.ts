@@ -7,12 +7,19 @@ const SIZE_UNITS: Record<string, number> = {
 
 export function parseSize(input: number | string): number {
     if (typeof input === 'number') {
-        return input;
+        if (!Number.isFinite(input) || input < 0) {
+            throw new TypeError(`invalid size value: ${input}`);
+        }
+        return Math.floor(input);
     }
 
     const match = input.match(/^(\d+(?:\.\d+)?)\s*(b|kb|mb|gb)$/i);
     if (!match) {
-        return Number.parseInt(input, 10);
+        const parsed = Number.parseFloat(input);
+        if (!Number.isFinite(parsed) || parsed < 0) {
+            throw new TypeError(`invalid size format: ${input}`);
+        }
+        return Math.floor(parsed);
     }
 
     const num = Number.parseFloat(match[1]!);

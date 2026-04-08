@@ -1,8 +1,7 @@
 export type BaseOptions = {
     /**
      * Maximum body size. Can be a number (bytes) or a string like '100kb', '1mb'.
-     *
-     * @default '100kb'
+     * When not set, no size limit is enforced.
      */
     limit?: number | string;
 

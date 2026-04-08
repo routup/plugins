@@ -75,7 +75,9 @@ describe('src/**', () => {
 
         router.use(body({ text: { type: 'text/html' } }));
 
-        router.post('/', defineCoreHandler(async (event) => await readRequestBodyText(event)));
+        router.post('/', defineCoreHandler(
+            async (event) => await readRequestBodyText(event),
+        ));
 
         const response = await router.fetch(createTestRequest('/', {
             method: 'POST',
