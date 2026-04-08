@@ -1,14 +1,19 @@
 import type { Plugin } from 'routup';
-import {
-    createJsonHandler,
-    createRawHandler,
-    createTextHandler,
-    createUrlEncodedHandler,
-} from './parser';
+import { createHandler } from './handler';
 import type { Options } from './types';
-import { boolToObject } from './utils';
 
-export function body(options : Options = {}) : Plugin {
+/**
+ * Body parsing plugin for routup.
+ *
+ * Registers a middleware that stores body parsing options on the event,
+ * so that helper functions like `useRequestBody` can lazily parse and cache
+ * the request body on first access.
+ *
+ * By default, `json` and `urlEncoded` parsing are enabled.
+ *
+ * @param options - Configure which body types to support and their limits.
+ */
+export function body(options: Options = {}): Plugin {
     if (
         typeof options.json === 'undefined' &&
         typeof options.raw === 'undefined' &&
@@ -22,21 +27,7 @@ export function body(options : Options = {}) : Plugin {
     return {
         name: 'body',
         install: (router) => {
-            if (options.json) {
-                router.use(createJsonHandler(boolToObject(options.json)));
-            }
-
-            if (options.raw) {
-                router.use(createRawHandler(boolToObject(options.raw)));
-            }
-
-            if (options.text) {
-                router.use(createTextHandler(boolToObject(options.text)));
-            }
-
-            if (options.urlEncoded) {
-                router.use(createUrlEncodedHandler(boolToObject(options.urlEncoded)));
-            }
+            router.use(createHandler(options));
         },
     };
 }

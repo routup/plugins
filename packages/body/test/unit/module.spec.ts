@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router, 
-    coreHandler, 
-    createNodeDispatcher, 
-    send,
+    Router,
+    defineCoreHandler,
 } from 'routup';
-import supertest from 'supertest';
 import {
     body,
+    readRequestBodyBytes,
+    readRequestBodyText,
     useRequestBody,
 } from '../../src';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('src/**', () => {
     it('should handle application/json', async () => {
@@ -17,63 +21,53 @@ describe('src/**', () => {
 
         router.use(body({ json: true }));
 
-        router.post('/', coreHandler((req, res) => {
-            const foo = useRequestBody(req);
+        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
 
-            send(res, foo);
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
         }));
 
-        const server = supertest(createNodeDispatcher(router));
-
-        const response = await server
-            .post('/')
-            .send({ foo: 'bar' });
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
     });
 
     it('should handle application/x-www-form-urlencoded', async () => {
         const router = new Router();
 
-        router.use(body({ urlEncoded: { extended: false } }));
+        router.use(body({ urlEncoded: true }));
 
-        router.post('/', coreHandler((req, res) => {
-            const foo = useRequestBody(req);
+        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
 
-            send(res, foo);
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+            body: 'foo=bar',
         }));
 
-        const server = supertest(createNodeDispatcher(router));
-
-        const response = await server
-            .post('/')
-            .send('foo=bar');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
     });
 
-    it('should handle raw to buffer', async () => {
+    it('should handle raw to bytes', async () => {
         const router = new Router();
 
         router.use(body({ raw: true }));
 
-        router.post('/', coreHandler((req, res) => {
-            const foo = useRequestBody(req);
-
-            send(res, Buffer.isBuffer(foo));
+        router.post('/', defineCoreHandler(async (event) => {
+            const bytes = await readRequestBodyBytes(event);
+            return bytes instanceof Uint8Array;
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/octet-stream' },
+            body: 'foo',
+        }));
 
-        const response = await server
-            .post('/')
-            .set('Content-Type', 'application/octet-stream')
-            .send('foo');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual(true);
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual(true);
     });
 
     it('should handle text/html to text', async () => {
@@ -81,21 +75,16 @@ describe('src/**', () => {
 
         router.use(body({ text: { type: 'text/html' } }));
 
-        router.post('/', coreHandler((req, res) => {
-            const foo = useRequestBody(req);
+        router.post('/', defineCoreHandler(async (event) => await readRequestBodyText(event)));
 
-            send(res, foo);
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'text/html' },
+            body: '<div>foo</div>',
         }));
 
-        const server = supertest(createNodeDispatcher(router));
-
-        const response = await server
-            .post('/')
-            .set('Content-Type', 'text/html')
-            .send('<div>foo</div>');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('<div>foo</div>');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('<div>foo</div>');
     });
 
     it('should parse application/json & application/x-www-form-urlencoded', async () => {
@@ -106,26 +95,78 @@ describe('src/**', () => {
             urlEncoded: true,
         }));
 
-        router.post('/multiple', coreHandler((req, res) => {
-            const foo = useRequestBody(req);
+        router.post('/multiple', defineCoreHandler(async (event) => await useRequestBody(event)));
 
-            send(res, foo);
+        let response = await router.fetch(createTestRequest('/multiple', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
 
-        let response = await server
-            .post('/multiple')
-            .send({ foo: 'bar' });
+        response = await router.fetch(createTestRequest('/multiple', {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+            body: 'foo=bar',
+        }));
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ foo: 'bar' });
+    });
 
-        response = await server
-            .post('/multiple')
-            .send('foo=bar');
+    it('should use default options (json + urlEncoded)', async () => {
+        const router = new Router();
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ foo: 'bar' });
+        router.use(body());
+
+        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ baz: 'qux' }),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ baz: 'qux' });
+    });
+
+    it('should work without plugin (accessor-only)', async () => {
+        const router = new Router();
+
+        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(response.status).toEqual(200);
+        // Without plugin, no options are set, so useRequestBody returns {}
+        expect(await response.json()).toEqual({});
+    });
+
+    it('should cache parsed body', async () => {
+        const router = new Router();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            const first = await useRequestBody(event);
+            const second = await useRequestBody(event);
+            return { same: first === second, body: first };
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ same: true, body: { foo: 'bar' } });
     });
 });

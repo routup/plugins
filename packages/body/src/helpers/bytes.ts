@@ -1,0 +1,20 @@
+import type { IRoutupEvent } from 'routup';
+import type { RawOptions } from '../types';
+import { boolToObject, readRawBody } from '../utils';
+import { getBodyOptions } from './options';
+
+/**
+ * Reads the request body as a `Uint8Array`.
+ *
+ * The result is cached after the first raw body read.
+ *
+ * @param event - The routup event.
+ * @param options - Optional raw parsing options (limit).
+ */
+export async function readRequestBodyBytes(
+    event: IRoutupEvent,
+    options?: RawOptions,
+): Promise<Uint8Array> {
+    const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
+    return readRawBody(event, opts);
+}

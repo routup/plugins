@@ -3,8 +3,14 @@ import {
 } from './module';
 
 export * from './module';
-export * from './parser';
-export * from './request';
 export * from './types';
+
+export {
+    useRequestBody,
+    readRequestBodyArrayBuffer,
+    readRequestBodyBlob,
+    readRequestBodyBytes,
+    readRequestBodyText,
+} from './helpers';
 
 export default body;

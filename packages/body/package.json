@@ -42,24 +42,17 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/routup/plugins.git",
-        "directory": "packages/cookie"
+        "directory": "packages/body"
     },
     "bugs": {
         "url": "https://github.com/routup/plugins/issues"
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^4.0.1"
-    },
-    "dependencies": {
-        "@types/body-parser": "^1.19.5",
-        "body-parser": "^2.2.0",
-        "smob": "^1.4.0"
+        "routup": "^5.0.0-beta.3"
     },
     "devDependencies": {
-        "@types/supertest": "^7.2.0",
-        "routup": "^4.0.1",
-        "supertest": "^7.1.4"
+        "routup": "^5.0.0-beta.3"
     },
     "publishConfig": {
         "access": "public"
