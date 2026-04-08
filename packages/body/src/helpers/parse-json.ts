@@ -4,8 +4,8 @@ import type { JsonOptions } from '../types';
 import {
     isObject,
     matchContentType,
-    readRawBody,
 } from '../utils';
+import { readRequestBodyRaw } from './read-raw';
 
 /**
  * Parses the request body as JSON.
@@ -24,7 +24,7 @@ export async function parseJsonBody(
         return undefined;
     }
 
-    const raw = await readRawBody(event, options);
+    const raw = await readRequestBodyRaw(event, options);
     const text = new TextDecoder().decode(raw);
 
     if (!text) {

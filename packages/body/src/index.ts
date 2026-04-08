@@ -6,11 +6,13 @@ export * from './module';
 export * from './types';
 
 export {
-    useRequestBody,
+    readRequestBodyRaw,
+    readRequestBodyStream,
     readRequestBodyArrayBuffer,
     readRequestBodyBlob,
     readRequestBodyBytes,
     readRequestBodyText,
+    useRequestBody,
 } from './helpers';
 
 export default body;

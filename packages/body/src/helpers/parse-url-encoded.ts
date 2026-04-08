@@ -1,7 +1,8 @@
 import type { IRoutupEvent } from 'routup';
 import { createError } from 'routup';
 import type { UrlEncodedOptions } from '../types';
-import { matchContentType, readRawBody } from '../utils';
+import { matchContentType } from '../utils';
+import { readRequestBodyRaw } from './read-raw';
 
 /**
  * Parses the request body as URL-encoded form data.
@@ -20,7 +21,7 @@ export async function parseUrlEncodedBody(
         return undefined;
     }
 
-    const raw = await readRawBody(event, options);
+    const raw = await readRequestBodyRaw(event, options);
     const text = new TextDecoder().decode(raw);
     const params = new URLSearchParams(text);
 

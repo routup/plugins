@@ -1,12 +1,22 @@
 import type { IRoutupEvent } from 'routup';
 import { createError } from 'routup';
 import type { LimitOptions } from '../types';
-import { createDecompressor } from './decompress';
-import { parseSize } from './parse-size';
+import { parseSize } from '../utils';
+import { readRequestBodyStream } from './read-stream';
 
 const RawBodySymbol = Symbol.for('ReqRawBody');
 
-export async function readRawBody(
+/**
+ * Reads the full request body as a `Uint8Array`.
+ *
+ * Uses `readRequestBodyStream` internally and collects all chunks.
+ * The result is cached in `event.store` for subsequent calls.
+ * Enforces the size limit on actual decompressed bytes (not just content-length).
+ *
+ * @param event - The routup event.
+ * @param options - Optional limit options.
+ */
+export async function readRequestBodyRaw(
     event: IRoutupEvent,
     options: LimitOptions = {},
 ): Promise<Uint8Array> {
@@ -15,24 +25,7 @@ export async function readRawBody(
     }
 
     const limit = options.limit ? parseSize(options.limit) : undefined;
-
-    if (limit) {
-        const contentLength = event.headers.get('content-length');
-        if (contentLength && Number.parseInt(contentLength, 10) > limit) {
-            throw createError({
-                statusCode: 413,
-                statusMessage: 'request entity too large',
-            });
-        }
-    }
-
-    const encoding = (event.headers.get('content-encoding') || 'identity').toLowerCase();
-
-    let stream: ReadableStream | null = event.request.body;
-
-    if (encoding !== 'identity' && stream) {
-        stream = stream.pipeThrough(createDecompressor(encoding));
-    }
+    const stream = readRequestBodyStream(event, options);
 
     const chunks: Uint8Array[] = [];
     let totalSize = 0;

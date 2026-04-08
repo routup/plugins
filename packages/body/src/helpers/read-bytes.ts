@@ -1,6 +1,7 @@
 import type { IRoutupEvent } from 'routup';
 import type { RawOptions } from '../types';
-import { boolToObject, readRawBody } from '../utils';
+import { boolToObject } from '../utils';
+import { readRequestBodyRaw } from './read-raw';
 import { getBodyOptions } from './options';
 
 /**
@@ -16,5 +17,5 @@ export async function readRequestBodyBytes(
     options?: RawOptions,
 ): Promise<Uint8Array> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
-    return readRawBody(event, opts);
+    return readRequestBodyRaw(event, opts);
 }

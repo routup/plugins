@@ -1,6 +1,7 @@
 import type { IRoutupEvent } from 'routup';
 import type { TextOptions } from '../types';
-import { boolToObject, readRawBody } from '../utils';
+import { boolToObject } from '../utils';
+import { readRequestBodyRaw } from './read-raw';
 import { getBodyOptions } from './options';
 
 /**
@@ -17,6 +18,6 @@ export async function readRequestBodyText(
     options?: TextOptions,
 ): Promise<string> {
     const opts = options ?? boolToObject(getBodyOptions(event).text || {});
-    const raw = await readRawBody(event, opts);
+    const raw = await readRequestBodyRaw(event, opts);
     return new TextDecoder(opts.defaultCharset ?? 'utf-8').decode(raw);
 }

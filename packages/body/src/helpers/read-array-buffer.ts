@@ -1,6 +1,7 @@
 import type { IRoutupEvent } from 'routup';
 import type { LimitOptions } from '../types';
-import { boolToObject, readRawBody } from '../utils';
+import { boolToObject } from '../utils';
+import { readRequestBodyRaw } from './read-raw';
 import { getBodyOptions } from './options';
 
 /**
@@ -14,6 +15,6 @@ export async function readRequestBodyArrayBuffer(
     options?: LimitOptions,
 ): Promise<ArrayBuffer> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
-    const raw = await readRawBody(event, opts);
+    const raw = await readRequestBodyRaw(event, opts);
     return raw.buffer as ArrayBuffer;
 }

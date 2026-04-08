@@ -24,6 +24,7 @@ This is a plugin for reading and parsing the request payload.
   - [readRequestBodyBytes](#readrequestbodybytes)
   - [readRequestBodyArrayBuffer](#readrequestbodyarraybuffer)
   - [readRequestBodyBlob](#readrequestbodyblob)
+  - [readRequestBodyStream](#readbodystream)
 - [License](#license)
 
 ## Installation
@@ -217,6 +218,17 @@ declare function readRequestBodyBlob(
     event: IRoutupEvent,
     options?: LimitOptions,
 ) : Promise<Blob>;
+```
+
+### `readRequestBodyStream`
+
+Returns the request body as a `ReadableStream`, decompressed if the `content-encoding` header indicates compression (gzip, deflate, brotli). Does not buffer or cache — useful for piping large bodies without holding them in memory.
+
+```typescript
+declare function readRequestBodyStream(
+    event: IRoutupEvent,
+    options?: LimitOptions,
+) : ReadableStream | null;
 ```
 
 ## License
