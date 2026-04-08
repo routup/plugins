@@ -1,19 +1,18 @@
-import { useRequestParam, useRequestParams } from 'routup';
 import { ParameterType } from '../parameter';
 import type { DecoratorParameterOptions } from '../parameter';
 import type { HandlerContext, ParameterExtractMap } from '../type';
 
-export function buildDecoratorMethodArguments(
+export async function buildDecoratorMethodArguments(
     context: HandlerContext,
     parameters: DecoratorParameterOptions[],
     extractMap?: ParameterExtractMap,
-): any[] {
+): Promise<any[]> {
     /* istanbul ignore next */
     if (
         !Array.isArray(parameters) ||
         parameters.length === 0
     ) {
-        return [context.request, context.response, context.next];
+        return [context.event];
     }
 
     const items: unknown[] = [];
@@ -23,44 +22,49 @@ export function buildDecoratorMethodArguments(
             const extractFn = extractMap[parameter.type];
             if (extractFn) {
                 if (parameter.property) {
-                    items[parameter.index] = extractFn(context, parameter.property);
+                    items[parameter.index] = await extractFn(context, parameter.property);
                 } else {
-                    items[parameter.index] = extractFn(context);
+                    items[parameter.index] = await extractFn(context);
                 }
 
                 continue;
             }
         }
 
+        if (parameter.type === ParameterType.CONTEXT) {
+            items[parameter.index] = context.event;
+            continue;
+        }
+
         if (parameter.type === ParameterType.REQUEST) {
-            items[parameter.index] = context.request;
+            items[parameter.index] = context.event.request;
             continue;
         }
 
         if (parameter.type === ParameterType.RESPONSE) {
-            items[parameter.index] = context.response;
+            items[parameter.index] = context.event.response;
             continue;
         }
 
         if (parameter.type === ParameterType.NEXT) {
-            items[parameter.index] = context.next;
+            items[parameter.index] = context.event.next;
             continue;
         }
 
         if (parameter.type === ParameterType.PARAM) {
             if (parameter.property) {
-                items[parameter.index] = useRequestParam(context.request, parameter.property);
+                items[parameter.index] = context.event.params[parameter.property];
             } else {
-                items[parameter.index] = useRequestParams(context.request);
+                items[parameter.index] = context.event.params;
             }
             continue;
         }
 
         if (parameter.type === ParameterType.HEADER) {
             if (parameter.property) {
-                items[parameter.index] = context.request.headers[parameter.property.toLowerCase()];
+                items[parameter.index] = context.event.headers.get(parameter.property.toLowerCase());
             } else {
-                items[parameter.index] = context.request.headers;
+                items[parameter.index] = context.event.headers;
             }
             continue;
         }

@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { Router, createNodeDispatcher } from 'routup';
-import supertest from 'supertest';
+import { Router } from 'routup';
 import { decorators } from '../../src';
 import { HeaderController } from '../data/header';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('header.ts', () => {
     it('should handle extra decorators', async () => {
@@ -12,18 +16,15 @@ describe('header.ts', () => {
 
         router.use(decorators({ controllers: [controller] }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/header/many'));
 
-        let response = await server
-            .get('/header/many');
+        expect(response.status).toEqual(200);
+        const body = await response.json();
+        expect(body).toBeDefined();
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toBeDefined();
+        response = await router.fetch(createTestRequest('/header/single', { headers: { connection: 'keep-alive' } }));
 
-        response = await server
-            .get('/header/single');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('close');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('keep-alive');
     });
 });

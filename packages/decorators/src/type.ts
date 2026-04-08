@@ -1,4 +1,4 @@
-import type { Next, Request, Response } from 'routup';
+import type { IRoutupEvent } from 'routup';
 import type { DecoratorMethodOptions } from './method';
 import type { DecoratorParameterOptions, ParameterType } from './parameter';
 
@@ -22,13 +22,11 @@ export type DecoratorMeta = {
 };
 
 export interface HandlerInterface {
-    run(request: Request, response: Response, next: Next): Promise<void> | void;
+    run(event: IRoutupEvent): Promise<unknown> | unknown;
 }
 
 export type HandlerContext = {
-    request: Request,
-    response: Response,
-    next: Next
+    event: IRoutupEvent,
 };
 
 export type ParameterExtractFn = (

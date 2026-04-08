@@ -1,83 +1,61 @@
 // eslint-disable-next-line max-classes-per-file
-import type { Next, Request, Response } from 'routup';
-import {
-    useRequestParam,
-} from 'routup';
+import type { IRoutupEvent } from 'routup';
 import type { HandlerInterface } from '../../src';
 import {
+    DContext,
     DController,
     DDelete,
     DGet,
-    DNext,
     DPatch,
     DPath,
     DPaths,
     DPost,
     DPut,
-    DRequest,
-    DResponse,
 } from '../../src';
 
 export class DeleteMiddleware implements HandlerInterface {
-    run(request: Request, response: Response, next: Next): Promise<void> | void {
-        const id = useRequestParam(request, 'id');
+    run(event: IRoutupEvent) {
+        const { id } = event.params;
 
         if (typeof id !== 'string' || id.length < 3) {
             throw new Error();
         }
 
-        next();
+        return event.next();
     }
 }
 
 @DController('/combined')
 export class CombinedController {
     @DGet('')
-    async getMany(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-        @DNext() next: Next,
-    ) {
+    async getMany() {
         return 'many';
     }
 
     @DGet('/:id')
     async getOne(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
         @DPath('id') id: string,
     ) {
         return id;
     }
 
     @DPost('')
-    async create(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-    ) {
+    async create() {
         return 'create';
     }
 
     @DPut('')
-    async put(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-    ) {
+    async put() {
         return 'put';
     }
 
     @DPatch('')
-    async patch(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-    ) {
+    async patch() {
         return 'patch';
     }
 
     @DDelete('/:id', [DeleteMiddleware])
     async delete(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
         @DPaths() data: { id: string },
     ) {
         return data;

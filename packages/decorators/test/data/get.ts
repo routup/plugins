@@ -1,12 +1,10 @@
-import type { Response } from 'routup';
-import { send } from 'routup';
+import type { IRoutupEvent } from 'routup';
 import {
-    DController, 
-    DExample, 
-    DGet, 
-    DPath, 
+    DController,
+    DExample,
+    DGet,
+    DPath,
     DPaths,
-    DResponse,
 } from '../../src';
 
 type GetManyResponse = {
@@ -17,25 +15,21 @@ type GetManyResponse = {
 export class GetController {
     @DGet('many')
     @DExample<GetManyResponse>({ foo: 'bar' })
-    getMany(
-        @DResponse() res: Response,
-    ) {
-        send(res);
+    getMany() {
+        return null;
     }
 
     @DGet(':id')
     get(
-        @DResponse() res: Response,
         @DPath('id') foo: string,
     ) {
-        send(res, foo);
+        return foo;
     }
 
     @DGet(':id/:foo')
     getNested(
-        @DResponse() res: Response,
         @DPaths() foo: { id: string, foo: string },
     ) {
-        send(res, foo);
+        return foo;
     }
 }

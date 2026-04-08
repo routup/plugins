@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { useRequestBody } from '@routup/body';
+import { readRequestBody } from '@routup/body';
 import { useRequestCookie, useRequestCookies } from '@routup/cookie';
 import { useRequestQuery } from '@routup/query';
-import supertest from 'supertest';
-import { Router, createNodeDispatcher } from 'routup';
+import { Router } from 'routup';
 import { decorators } from '../../src';
 import { CombinedController } from '../data/combined';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('data/combined', () => {
     it('should handle decorator endpoints', async () => {
@@ -14,78 +18,67 @@ describe('data/combined', () => {
         router.use(decorators({
             controllers: [CombinedController],
             parameter: {
-                body: (context, name) => {
+                body: async (context, name) => {
                     if (name) {
-                        return useRequestBody(context.request, name);
+                        return readRequestBody(context.event, name);
                     }
 
-                    return useRequestBody(context.request);
+                    return readRequestBody(context.event);
                 },
                 cookie: (context, name) => {
                     if (name) {
-                        return useRequestCookie(context.request, name);
+                        return useRequestCookie(context.event, name);
                     }
 
-                    return useRequestCookies(context.request);
+                    return useRequestCookies(context.event);
                 },
                 query: (context, name) => {
                     if (name) {
-                        return useRequestQuery(context.request, name);
+                        return useRequestQuery(context.event, name);
                     }
 
-                    return useRequestQuery(context.request);
+                    return useRequestQuery(context.event);
                 },
             },
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/combined'));
 
-        let response = await server
-            .get('/combined');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('many');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('many');
+        response = await router.fetch(createTestRequest('/combined/admin'));
 
-        response = await server
-            .get('/combined/admin');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('admin');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('admin');
+        response = await router.fetch(createTestRequest('/combined', { method: 'POST' }));
 
-        response = await server
-            .post('/combined');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('create');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('create');
+        response = await router.fetch(createTestRequest('/combined/admin', { method: 'DELETE' }));
 
-        response = await server
-            .delete('/combined/admin');
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ id: 'admin' });
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.body).toEqual({ id: 'admin' });
+        response = await router.fetch(createTestRequest('/combined', { method: 'PUT' }));
 
-        response = await server
-            .put('/combined');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('put');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('put');
+        response = await router.fetch(createTestRequest('/combined', { method: 'PATCH' }));
 
-        response = await server
-            .patch('/combined');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('patch');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('patch');
     });
 
     it('should not handle decorator endpoints', async () => {
         const router = new Router();
         router.use(decorators({ controllers: [CombinedController] }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/combined/a', { method: 'DELETE' }));
 
-        const response = await server
-            .delete('/combined/a');
-
-        expect(response.statusCode).toEqual(500);
+        expect(response.status).toEqual(500);
     });
 });

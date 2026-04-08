@@ -1,4 +1,5 @@
 export enum ParameterType {
+    CONTEXT = 'context',
     RESPONSE = 'response',
     REQUEST = 'request',
     NEXT = 'next',
