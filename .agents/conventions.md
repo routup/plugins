@@ -52,6 +52,23 @@ npm run build             # rimraf dist && tsdown
 7. Add tests in `test/unit/` with `import { describe, it, expect } from 'vitest'`
 8. The package is auto-discovered by npm workspaces
 
+## Helper Function Naming
+
+Helper functions that interact with the request/response follow a consistent naming pattern:
+
+| Prefix | When to use | Caches? | Example |
+|--------|-------------|---------|---------|
+| `use` | Returns cached data from `event.store` | yes | `useRequestBody(event)` |
+| `read` | Reads/parses data (may cache raw bytes internally) | no* | `readRequestBodyText(event)` |
+| `get` | Returns a value synchronously, no I/O | no | `getRequestHeader(event, name)` |
+| `set` | Writes data to `event.store` or response | — | `setResponseCookie(event, ...)` |
+
+\* `read` helpers may benefit from internal raw byte caching but re-derive the typed result each call.
+
+The full pattern is: `<prefix>Request<Noun><Format?>` — e.g., `readRequestBodyBytes`, `useRequestCookies`, `setResponseCookie`.
+
+Always include `Request` (or `Response`) in the name to stay consistent with routup core helpers.
+
 ## Git Hooks (Husky)
 
 - **pre-commit**: Runs linting
