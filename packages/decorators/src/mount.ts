@@ -1,11 +1,11 @@
-import type { MethodName } from 'routup';
-import { Router, coreHandler } from 'routup';
+import type { IRouter, MethodName } from 'routup';
+import { Router, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, ParameterExtractMap } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
 export function mountController(
-    router: Router,
+    router: IRouter,
     input: (ClassType | Record<string, any>),
     extractMap?: ParameterExtractMap,
 ) {
@@ -46,24 +46,18 @@ export function mountController(
             }
         }
 
-        const handler = coreHandler({
+        const handler = defineCoreHandler({
             method: method.method as MethodName,
             path: method.url,
-            fn: (
-                req,
-                res,
-                next,
-            ) => controller[propertyKey].apply(controller, [
-                ...buildDecoratorMethodArguments(
-                    {
-                        request: req,
-                        response: res,
-                        next,
-                    },
+            fn: async (event) => {
+                const args = await buildDecoratorMethodArguments(
+                    { event },
                     meta.parameters[propertyKey] ?? [],
                     extractMap,
-                ),
-            ]),
+                );
+
+                return controller[propertyKey](...args);
+            },
         });
 
         childRouter.use(handler);
@@ -73,7 +67,7 @@ export function mountController(
 }
 
 export function mountControllers(
-    router: Router,
+    router: IRouter,
     input: (ClassType | Record<string, any>)[],
     extractMap?: ParameterExtractMap,
 ) {

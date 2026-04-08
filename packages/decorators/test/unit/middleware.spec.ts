@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { Router, createNodeDispatcher } from 'routup';
-import supertest from 'supertest';
+import { Router } from 'routup';
 import { decorators } from '../../src';
 import { MiddlewareController } from '../data/middleware';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('header.ts', () => {
     it('should handle extra decorators', async () => {
@@ -12,12 +16,9 @@ describe('header.ts', () => {
 
         router.use(decorators({ controllers: [controller] }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/middleware'));
 
-        const response = await server
-            .get('/middleware');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('value');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('value');
     });
 });

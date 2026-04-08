@@ -48,49 +48,33 @@ The first step is to define a Controller.
 
 `controller.ts`
 ```typescript
+import type { IRoutupEvent } from 'routup';
 import {
     DBody,
+    DContext,
     DController,
     DDelete,
     DGet,
-    DNext,
-    DParam,
+    DPath,
     DPost,
-    DRequest,
-    DResponse,
 } from '@routup/decorators';
-
-import {
-    Next,
-    Request,
-    Response,
-    send,
-} from 'routup';
 
 @DController('/users')
 export class UserController {
     @DGet('')
-    async getMany(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-        @DNext() next: Next
-    ) {
+    async getMany() {
         return 'Hello, World!';
     }
 
     @DGet('/:id')
     async getOne(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-        @DParam('id') id: string,
+        @DPath('id') id: string,
     ) {
         return 'Hello, World!';
     }
 
     @DPost('')
     async create(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
         @DBody() body: any,
     ) {
         return 'Hello, World!';
@@ -98,37 +82,69 @@ export class UserController {
 
     @DDelete('/:id', [])
     async delete(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-        @DParam('id') id: string,
+        @DPath('id') id: string,
     ) {
         return 'Hello, World!';
     }
 }
 ```
 
+In routup v5, handlers return values directly instead of calling `send(res, data)`.
+Use `@DContext()` when you need the full event object (e.g. to access `event.store`, `event.headers`, or `event.response`):
+
+```typescript
+import type { IRoutupEvent } from 'routup';
+import { DContext, DController, DGet } from '@routup/decorators';
+
+@DController('/example')
+export class ExampleController {
+    @DGet('')
+    async handle(
+        @DContext() event: IRoutupEvent,
+    ) {
+        event.response.status = 201;
+        return { message: 'created' };
+    }
+}
+```
+
+### Parameter Decorators
+
+| Decorator | Description |
+|-----------|-------------|
+| `@DContext()` | Full `IRoutupEvent` object (preferred) |
+| `@DRequest()` | Web Standard `Request` (`event.request`) |
+| `@DResponse()` | Response metadata (`event.response`) |
+| `@DNext()` | Next function (`event.next`) |
+| `@DPath(name)` | Route parameter by name |
+| `@DPaths()` | All route parameters |
+| `@DHeader(name)` | Request header by name |
+| `@DHeaders()` | All request headers (`Headers` object) |
+| `@DBody(prop?)` | Request body (requires extractor) |
+| `@DQuery(prop?)` | Query parameter (requires extractor) |
+| `@DCookie(name)` | Cookie by name (requires extractor) |
+| `@DCookies()` | All cookies (requires extractor) |
+
 ### Installation
 
 The last step is to install the plugin and mount the controllers to a router instance.
 
 Parameters like **body**, **cookie** and **query** cannot be automatically injected into the controller methods. 
-Therefore, so-called parameter getters must be defined, with the help of which the parameters are extracted from the request object.
+Therefore, so-called parameter getters must be defined, with the help of which the parameters are extracted from the event object.
 If you do not use the corresponding decorator, they do not need to be provided.
 
 `app.ts`
 
 ```typescript
-import { createServer } from 'node:http';
-
 import { decorators } from '@routup/decorators';
 import {
     basic,
-    useRequestBody,
+    readRequestBody,
     useRequestCookie,
     useRequestCookies,
     useRequestQuery,
 } from '@routup/basic';
-import { createNodeDispatcher, Router } from 'routup';
+import { Router, serve } from 'routup';
 
 import { UserController } from './controller';
 
@@ -140,32 +156,31 @@ router.use(decorators({
         UserController
     ],
     parameter: {
-        body: (context, name) => {
+        body: async (context, name) => {
             if (name) {
-                return useRequestBody(context.request, name);
+                return readRequestBody(context.event, name);
             }
 
-            return useRequestBody(context.request);
+            return readRequestBody(context.event);
         },
         cookie: (context, name) => {
             if (name) {
-                return useRequestCookie(context.request, name);
+                return useRequestCookie(context.event, name);
             }
 
-            return useRequestCookies(context.request);
+            return useRequestCookies(context.event);
         },
         query: (context, name) => {
             if (name) {
-                return useRequestQuery(context.request, name);
+                return useRequestQuery(context.event, name);
             }
 
-            return useRequestQuery(context.request);
+            return useRequestQuery(context.event);
         },
     },
 }))
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## License

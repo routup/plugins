@@ -28,6 +28,10 @@ export function createParameterDecorator(
     };
 }
 
+export function DContext() : ParameterDecorator {
+    return createParameterDecorator(ParameterType.CONTEXT);
+}
+
 export function DRequest() : ParameterDecorator {
     return createParameterDecorator(ParameterType.REQUEST);
 }

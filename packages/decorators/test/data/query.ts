@@ -1,29 +1,22 @@
-import type { Response } from 'routup';
-import { 
-    send,
-} from 'routup';
 import {
-    DController, 
-    DGet, 
-    DQuery, 
-    DResponse,
+    DController,
+    DGet,
+    DQuery,
 } from '../../src';
 
 @DController('/query')
 export class QueryController {
     @DGet('many')
     getMany(
-        @DResponse() res: Response,
         @DQuery() query: Record<string, any>,
     ) {
-        send(res, query);
+        return query;
     }
 
     @DGet('single')
     get(
-        @DResponse() res: Response,
         @DQuery('foo') foo: string,
     ) {
-        send(res, foo);
+        return foo;
     }
 }

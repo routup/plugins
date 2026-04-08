@@ -1,23 +1,19 @@
 // eslint-disable-next-line max-classes-per-file
-import type { Next, Request, Response } from 'routup';
-import { 
-    send,
-    setRequestEnv, 
-    useRequestEnv,
-} from 'routup';
+import type { IRoutupEvent } from 'routup';
 import type { HandlerInterface } from '../../src';
 import {
-    DController, 
-    DGet, 
-    DRequest, 
-    DResponse,
+    DContext,
+    DController,
+    DGet,
 } from '../../src';
 
-class DummyMiddleware implements HandlerInterface {
-    run(request: Request, response: Response, next: Next): Promise<void> | void {
-        setRequestEnv(request, 'key', 'value');
+const MIDDLEWARE_KEY = Symbol.for('routup:test:middleware-key');
 
-        next();
+class DummyMiddleware implements HandlerInterface {
+    run(event: IRoutupEvent) {
+        event.store[MIDDLEWARE_KEY] = 'value';
+
+        return event.next();
     }
 }
 
@@ -25,9 +21,8 @@ class DummyMiddleware implements HandlerInterface {
 export class MiddlewareController {
     @DGet('')
     async middleware(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
+        @DContext() event: IRoutupEvent,
     ) {
-        send(res, useRequestEnv(req, 'key'));
+        return event.store[MIDDLEWARE_KEY];
     }
 }

@@ -1,33 +1,27 @@
-import type { Request, Response } from 'routup';
-import {
-    send,
-} from 'routup';
 import {
     DController,
-    DGet, 
+    DGet,
     DHeader,
     DHeaders,
-    DRequest,
-    DResponse,
 } from '../../src';
 
 @DController('/header')
 export class HeaderController {
     @DGet('/many')
     async headers(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
-        @DHeaders() headers: Record<string, any>,
+        @DHeaders() headers: Headers,
     ) {
-        send(res, headers);
+        const obj: Record<string, string> = {};
+        headers.forEach((value, key) => {
+            obj[key] = value;
+        });
+        return obj;
     }
 
     @DGet('/single')
     async header(
-        @DRequest() req: Request,
-        @DResponse() res: Response,
         @DHeader('connection') header: string,
     ) {
-        send(res, header);
+        return header;
     }
 }
