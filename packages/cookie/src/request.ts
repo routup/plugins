@@ -1,34 +1,34 @@
-import type { Request } from 'routup';
+import type { IRoutupEvent } from 'routup';
 import { isObject } from './utils';
 
 const CookieSymbol = Symbol.for('ReqCookie');
 
 export function useRequestCookies(
-    req: Request,
+    event: IRoutupEvent,
 ) : Record<string, string> {
-    if (CookieSymbol in req) {
-        return (req as any)[CookieSymbol];
+    if (CookieSymbol in event.store) {
+        return event.store[CookieSymbol] as Record<string, string>;
     }
 
     return {};
 }
 
-export function hasRequestCookies(req: Request) {
-    return CookieSymbol in req &&
-        isObject((req as any)[CookieSymbol]);
+export function hasRequestCookies(event: IRoutupEvent) {
+    return CookieSymbol in event.store &&
+        isObject(event.store[CookieSymbol]);
 }
 
-export function useRequestCookie(req: Request, name: string) : string | undefined {
-    return useRequestCookies(req)[name];
+export function useRequestCookie(event: IRoutupEvent, name: string) : string | undefined {
+    return useRequestCookies(event)[name];
 }
 
-export function setRequestCookies(req: Request, key: string, value: unknown) : void;
-export function setRequestCookies(req: Request, record: Record<string, any>) : void;
-export function setRequestCookies(req: Request, key: Record<string, any> | string, value?: unknown) : void {
+export function setRequestCookies(event: IRoutupEvent, key: string, value: unknown) : void;
+export function setRequestCookies(event: IRoutupEvent, record: Record<string, any>) : void;
+export function setRequestCookies(event: IRoutupEvent, key: Record<string, any> | string, value?: unknown) : void {
     if (isObject(key)) {
-        (req as any)[CookieSymbol] = key;
+        event.store[CookieSymbol] = key;
         return;
     }
 
-    (req as any)[CookieSymbol] = { [key]: value };
+    event.store[CookieSymbol] = { [key]: value };
 }

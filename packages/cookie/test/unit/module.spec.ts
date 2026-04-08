@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import supertest from 'supertest';
 import {
-    HeaderName, 
-    Router, 
-    coreHandler, 
-    createNodeDispatcher, 
-    send,
+    Router,
+    defineCoreHandler,
 } from 'routup';
 import {
     cookie,
@@ -15,27 +11,28 @@ import {
     useRequestCookies,
 } from '../../src';
 
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
+
 describe('src/module', () => {
     it('should parse cookie', async () => {
         const router = new Router();
 
         router.use(cookie());
 
-        router.get('/', coreHandler((req, res) => {
-            useRequestCookies(req);
+        router.get('/', defineCoreHandler((event) => {
+            useRequestCookies(event);
 
-            const foo = useRequestCookie(req, 'foo');
-            send(res, foo);
+            const foo = useRequestCookie(event, 'foo');
+            return foo;
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/', { headers: { cookie: 'foo=bar' } }));
 
-        const response = await server
-            .get('/')
-            .set('Cookie', ['foo=bar']);
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('bar');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('bar');
     });
 
     it('should parse cookie with middleware', async () => {
@@ -43,74 +40,58 @@ describe('src/module', () => {
 
         router.use(cookie());
 
-        router.get('/', coreHandler((req, res) => {
-            useRequestCookies(req);
+        router.get('/', defineCoreHandler((event) => {
+            useRequestCookies(event);
 
-            const foo = useRequestCookie(req, 'bar');
-            send(res, foo);
+            const foo = useRequestCookie(event, 'bar');
+            return foo;
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/', { headers: { cookie: 'bar=baz' } }));
 
-        const response = await server
-            .get('/')
-            .set('Cookie', ['bar=baz']);
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('baz');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('baz');
     });
 
     it('should set (multiple) cookie', async () => {
         const router = new Router();
 
-        router.get('/', coreHandler((req, res) => {
-            setResponseCookie(res, 'bar', 'baz');
+        router.get('/', defineCoreHandler((event) => {
+            setResponseCookie(event, 'bar', 'baz');
 
-            send(res);
+            return null;
         }));
 
-        router.get('/multiple', coreHandler((req, res) => {
-            setResponseCookie(res, 'foo', 'bar');
-            setResponseCookie(res, 'bar', 'baz');
+        router.get('/multiple', defineCoreHandler((event) => {
+            setResponseCookie(event, 'foo', 'bar');
+            setResponseCookie(event, 'bar', 'baz');
 
-            send(res);
+            return null;
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/', { headers: { cookie: 'foo=bar' } }));
 
-        let response = await server
-            .get('/')
-            .set('Cookie', ['foo=bar']);
+        expect(response.status).toEqual(200);
+        expect(response.headers.get('set-cookie')).toEqual('bar=baz; Path=/');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.SET_COOKIE]).toEqual(['bar=baz; Path=/']);
+        response = await router.fetch(createTestRequest('/multiple'));
 
-        response = await server
-            .get('/multiple');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.SET_COOKIE]).toEqual([
-            'foo=bar; Path=/',
-            'bar=baz; Path=/',
-        ]);
+        expect(response.status).toEqual(200);
+        expect(response.headers.get('set-cookie')).toEqual('foo=bar; Path=/, bar=baz; Path=/');
     });
 
     it('should unset cookie', async () => {
         const router = new Router();
 
-        router.get('/', coreHandler((req, res) => {
-            unsetResponseCookie(res, 'foo');
+        router.get('/', defineCoreHandler((event) => {
+            unsetResponseCookie(event, 'foo');
 
-            send(res);
+            return null;
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/', { headers: { cookie: 'foo=bar' } }));
 
-        const response = await server
-            .get('/')
-            .set('Cookie', ['foo=bar']);
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.SET_COOKIE]).toEqual(['foo=; Max-Age=0; Path=/']);
+        expect(response.status).toEqual(200);
+        expect(response.headers.get('set-cookie')).toEqual('foo=; Max-Age=0; Path=/');
     });
 });
