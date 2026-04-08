@@ -6,7 +6,12 @@ import type { ParseOptions } from './type';
 export function parseRequestQuery(event: IRoutupEvent, options?: ParseOptions) {
     const { url } = event.request;
     const qIndex = url.indexOf('?');
-    const search = qIndex >= 0 ? url.substring(qIndex + 1) : '';
+    if (qIndex < 0) {
+        return parse('', options);
+    }
+
+    const hashIndex = url.indexOf('#', qIndex);
+    const search = url.substring(qIndex + 1, hashIndex >= 0 ? hashIndex : undefined);
 
     return parse(search, options);
 }
