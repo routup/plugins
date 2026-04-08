@@ -1,6 +1,6 @@
 import type { IRoutupEvent } from 'routup';
 import { createError } from 'routup';
-import type { LimitOptions } from '../types';
+import type { BaseOptions } from '../types';
 import { parseSize } from '../utils';
 import { readRequestBodyStream } from './read-stream';
 
@@ -10,17 +10,20 @@ const RawBodySymbol = Symbol.for('ReqRawBody');
  * Reads the full request body as a `Uint8Array`.
  *
  * Uses `readRequestBodyStream` internally and collects all chunks.
- * The result is cached in `event.store` for subsequent calls.
  * Enforces the size limit on actual decompressed bytes (not just content-length).
  *
+ * When `cache` is `true`, the result is stored in `event.store` so subsequent
+ * calls return the same bytes without re-reading. Defaults to `false` to avoid
+ * holding large payloads in memory.
+ *
  * @param event - The routup event.
- * @param options - Optional limit options.
+ * @param options - Optional limit and cache options.
  */
 export async function readRequestBodyRaw(
     event: IRoutupEvent,
-    options: LimitOptions = {},
+    options: BaseOptions = {},
 ): Promise<Uint8Array> {
-    if (RawBodySymbol in event.store) {
+    if (options.cache && RawBodySymbol in event.store) {
         return event.store[RawBodySymbol] as Uint8Array;
     }
 
@@ -52,7 +55,11 @@ export async function readRequestBodyRaw(
     }
 
     const bytes = concat(chunks, totalSize);
-    event.store[RawBodySymbol] = bytes;
+
+    if (options.cache) {
+        event.store[RawBodySymbol] = bytes;
+    }
+
     return bytes;
 }
 

@@ -12,7 +12,7 @@ export {
     readRequestBodyBlob,
     readRequestBodyBytes,
     readRequestBodyText,
-    useRequestBody,
+    readRequestBody,
 } from './helpers';
 
 export default body;

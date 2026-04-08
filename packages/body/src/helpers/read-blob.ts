@@ -1,5 +1,5 @@
 import type { IRoutupEvent } from 'routup';
-import type { LimitOptions } from '../types';
+import type { BaseOptions } from '../types';
 import { boolToObject } from '../utils';
 import { readRequestBodyRaw } from './read-raw';
 import { getBodyOptions } from './options';
@@ -14,7 +14,7 @@ import { getBodyOptions } from './options';
  */
 export async function readRequestBodyBlob(
     event: IRoutupEvent,
-    options?: LimitOptions,
+    options?: BaseOptions,
 ): Promise<Blob> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
     const raw = await readRequestBodyRaw(event, opts);

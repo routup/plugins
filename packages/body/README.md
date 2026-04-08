@@ -19,12 +19,12 @@ This is a plugin for reading and parsing the request payload.
   - [raw](#raw)
   - [text](#text)
 - [Helpers](#helpers)
-  - [useRequestBody](#userequestbody)
+  - [readRequestBody](#readrequestbody)
   - [readRequestBodyText](#readrequestbodytext)
   - [readRequestBodyBytes](#readrequestbodybytes)
   - [readRequestBodyArrayBuffer](#readrequestbodyarraybuffer)
   - [readRequestBodyBlob](#readrequestbodyblob)
-  - [readRequestBodyStream](#readbodystream)
+  - [readRequestBodyStream](#readrequestbodystream)
 - [License](#license)
 
 ## Installation
@@ -47,7 +47,7 @@ import {
     defineCoreHandler,
     serve,
 } from 'routup';
-import { body, useRequestBody } from '@routup/body';
+import { body, readRequestBody } from '@routup/body';
 
 const router = new Router();
 
@@ -57,7 +57,7 @@ const router = new Router();
 router.use(body());
 
 router.post('/', defineCoreHandler(async (event) => {
-    const data = await useRequestBody(event);
+    const data = await readRequestBody(event);
     console.log(data);
 
     return data;
@@ -161,16 +161,16 @@ router.use(body({
 
 ## Helpers
 
-### `useRequestBody`
+### `readRequestBody`
 
 Returns the parsed request body (JSON or URL-encoded). The result is cached after the first call.
 
 ```typescript
-declare function useRequestBody(
+declare function readRequestBody(
     event: IRoutupEvent,
 ) : Promise<Record<string, any>>;
 
-declare function useRequestBody(
+declare function readRequestBody(
     event: IRoutupEvent,
     key: string,
 ) : Promise<any | undefined>;
@@ -205,7 +205,7 @@ Returns the request body as an `ArrayBuffer`.
 ```typescript
 declare function readRequestBodyArrayBuffer(
     event: IRoutupEvent,
-    options?: LimitOptions,
+    options?: BaseOptions,
 ) : Promise<ArrayBuffer>;
 ```
 
@@ -216,7 +216,7 @@ Returns the request body as a `Blob`.
 ```typescript
 declare function readRequestBodyBlob(
     event: IRoutupEvent,
-    options?: LimitOptions,
+    options?: BaseOptions,
 ) : Promise<Blob>;
 ```
 
@@ -227,7 +227,7 @@ Returns the request body as a `ReadableStream`, decompressed if the `content-enc
 ```typescript
 declare function readRequestBodyStream(
     event: IRoutupEvent,
-    options?: LimitOptions,
+    options?: BaseOptions,
 ) : ReadableStream | null;
 ```
 

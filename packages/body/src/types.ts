@@ -1,13 +1,22 @@
-export type LimitOptions = {
+export type BaseOptions = {
     /**
      * Maximum body size. Can be a number (bytes) or a string like '100kb', '1mb'.
      *
      * @default '100kb'
      */
     limit?: number | string;
+
+    /**
+     * Cache the raw bytes in `event.store` for subsequent reads.
+     * Set to `true` for small payloads that are read multiple times (e.g., JSON).
+     * Set to `false` for large payloads (e.g., file uploads) to avoid memory pressure.
+     *
+     * @default false
+     */
+    cache?: boolean;
 };
 
-export type JsonOptions = LimitOptions & {
+export type JsonOptions = BaseOptions & {
     /**
      * Only accept arrays and objects. When false, accepts anything JSON.parse accepts.
      *
@@ -28,7 +37,7 @@ export type JsonOptions = LimitOptions & {
     type?: string | string[];
 };
 
-export type UrlEncodedOptions = LimitOptions & {
+export type UrlEncodedOptions = BaseOptions & {
     /**
      * Content-types to parse.
      *
@@ -44,7 +53,7 @@ export type UrlEncodedOptions = LimitOptions & {
     parameterLimit?: number;
 };
 
-export type TextOptions = LimitOptions & {
+export type TextOptions = BaseOptions & {
     /**
      * Content-types to parse.
      *
@@ -60,7 +69,7 @@ export type TextOptions = LimitOptions & {
     defaultCharset?: string;
 };
 
-export type RawOptions = LimitOptions & {
+export type RawOptions = BaseOptions & {
     /**
      * Content-types to parse.
      *

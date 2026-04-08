@@ -1,6 +1,6 @@
 import type { IRoutupEvent } from 'routup';
 import { createError } from 'routup';
-import type { LimitOptions } from '../types';
+import type { BaseOptions } from '../types';
 import { createDecompressor, parseSize } from '../utils';
 
 /**
@@ -14,7 +14,7 @@ import { createDecompressor, parseSize } from '../utils';
  */
 export function readRequestBodyStream(
     event: IRoutupEvent,
-    options: LimitOptions = {},
+    options: BaseOptions = {},
 ): ReadableStream | null {
     const limit = options.limit ? parseSize(options.limit) : undefined;
 

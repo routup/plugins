@@ -21,7 +21,7 @@ export async function parseUrlEncodedBody(
         return undefined;
     }
 
-    const raw = await readRequestBodyRaw(event, options);
+    const raw = await readRequestBodyRaw(event, { ...options, cache: true });
     const text = new TextDecoder().decode(raw);
     const params = new URLSearchParams(text);
 

@@ -5,9 +5,9 @@ import {
 } from 'routup';
 import {
     body,
+    readRequestBody,
     readRequestBodyBytes,
     readRequestBodyText,
-    useRequestBody,
 } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
@@ -21,7 +21,7 @@ describe('src/**', () => {
 
         router.use(body({ json: true }));
 
-        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+        router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
         const response = await router.fetch(createTestRequest('/', {
             method: 'POST',
@@ -38,7 +38,7 @@ describe('src/**', () => {
 
         router.use(body({ urlEncoded: true }));
 
-        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+        router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
         const response = await router.fetch(createTestRequest('/', {
             method: 'POST',
@@ -95,7 +95,7 @@ describe('src/**', () => {
             urlEncoded: true,
         }));
 
-        router.post('/multiple', defineCoreHandler(async (event) => await useRequestBody(event)));
+        router.post('/multiple', defineCoreHandler(async (event) => await readRequestBody(event)));
 
         let response = await router.fetch(createTestRequest('/multiple', {
             method: 'POST',
@@ -121,7 +121,7 @@ describe('src/**', () => {
 
         router.use(body());
 
-        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+        router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
         const response = await router.fetch(createTestRequest('/', {
             method: 'POST',
@@ -136,7 +136,7 @@ describe('src/**', () => {
     it('should work without plugin (accessor-only)', async () => {
         const router = new Router();
 
-        router.post('/', defineCoreHandler(async (event) => await useRequestBody(event)));
+        router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
         const response = await router.fetch(createTestRequest('/', {
             method: 'POST',
@@ -145,7 +145,7 @@ describe('src/**', () => {
         }));
 
         expect(response.status).toEqual(200);
-        // Without plugin, no options are set, so useRequestBody returns {}
+        // Without plugin, no options are set, so readRequestBody returns {}
         expect(await response.json()).toEqual({});
     });
 
@@ -155,8 +155,8 @@ describe('src/**', () => {
         router.use(body({ json: true }));
 
         router.post('/', defineCoreHandler(async (event) => {
-            const first = await useRequestBody(event);
-            const second = await useRequestBody(event);
+            const first = await readRequestBody(event);
+            const second = await readRequestBody(event);
             return { same: first === second, body: first };
         }));
 

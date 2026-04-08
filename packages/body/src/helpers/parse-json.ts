@@ -24,7 +24,7 @@ export async function parseJsonBody(
         return undefined;
     }
 
-    const raw = await readRequestBodyRaw(event, options);
+    const raw = await readRequestBodyRaw(event, { ...options, cache: true });
     const text = new TextDecoder().decode(raw);
 
     if (!text) {
