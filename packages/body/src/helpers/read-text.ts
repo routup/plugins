@@ -8,10 +8,9 @@ import { getBodyOptions } from './options';
  * Reads the request body as a string.
  *
  * Uses the `defaultCharset` option (defaults to `'utf-8'`) for decoding.
- * The underlying raw bytes are cached, but the string is decoded on each call.
  *
  * @param event - The routup event.
- * @param options - Optional text parsing options (limit, charset).
+ * @param options - Optional text parsing options (limit, charset, cache).
  */
 export async function readRequestBodyText(
     event: IRoutupEvent,

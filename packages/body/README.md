@@ -91,7 +91,7 @@ router.use(body({
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `limit` | `number \| string` | `'100kb'` | Maximum body size (bytes or string like `'1mb'`) |
+| `limit` | `number \| string` | none | Maximum body size (bytes or string like `'1mb'`) |
 | `strict` | `boolean` | `true` | Only accept arrays and objects |
 | `reviver` | `function` | `undefined` | A reviver function passed to `JSON.parse` |
 | `type` | `string \| string[]` | `'application/json'` | Content-types to parse |
@@ -116,7 +116,7 @@ router.use(body({
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `limit` | `number \| string` | `'100kb'` | Maximum body size |
+| `limit` | `number \| string` | none | Maximum body size |
 | `parameterLimit` | `number` | `1000` | Maximum number of parameters |
 | `type` | `string \| string[]` | `'application/x-www-form-urlencoded'` | Content-types to parse |
 
@@ -155,7 +155,7 @@ router.use(body({
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `limit` | `number \| string` | `'100kb'` | Maximum body size |
+| `limit` | `number \| string` | none | Maximum body size |
 | `defaultCharset` | `string` | `'utf-8'` | Default charset if not specified in content-type |
 | `type` | `string \| string[]` | `'text/plain'` | Content-types to parse |
 

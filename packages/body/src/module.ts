@@ -6,7 +6,7 @@ import type { Options } from './types';
  * Body parsing plugin for routup.
  *
  * Registers a middleware that stores body parsing options on the event,
- * so that helper functions like `useRequestBody` can lazily parse and cache
+ * so that helper functions like `readRequestBody` can lazily parse and cache
  * the request body on first access.
  *
  * By default, `json` and `urlEncoded` parsing are enabled.

@@ -7,10 +7,8 @@ import { getBodyOptions } from './options';
 /**
  * Reads the request body as a `Uint8Array`.
  *
- * The result is cached after the first raw body read.
- *
  * @param event - The routup event.
- * @param options - Optional raw parsing options (limit).
+ * @param options - Optional raw parsing options (limit, cache).
  */
 export async function readRequestBodyBytes(
     event: IRoutupEvent,
