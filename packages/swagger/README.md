@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-This is a plugin for reading and parsing the request payload.
+This is a plugin for serving Swagger UI and OpenAPI documentation.
 
 **Table of Contents**
 
@@ -88,19 +88,14 @@ The function call will save the file under the location: `./writable/swagger.jso
 Serve generated docs from (file- / web-) URL or based on a JSON file with [swagger-ui](https://www.npmjs.com/package/swagger-ui-dist).
 
 ```typescript
-import { createServer } from 'node:http';
-import {
-    createNodeDispatcher,
-    Router
-} from 'routup';
+import { Router, serve } from 'routup';
 import { swaggerUI } from '@routup/swagger';
 
 const router = new Router();
 
 router.use('/docs', swaggerUI('test/data/swagger.json'));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 Now open the browser and visit:

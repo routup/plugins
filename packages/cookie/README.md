@@ -19,6 +19,8 @@ response.
   - [setRequestCookies](#setrequestcookies)
   - [useRequestCookies](#userequestcookies)
   - [useRequestCookie](#userequestcookie)
+  - [setResponseCookie](#setresponsecookie)
+  - [unsetResponseCookie](#unsetresponsecookie)
 - [License](#license)
 
 ## Installation
@@ -37,33 +39,33 @@ It is important to invoke the request middleware,
 to parse the cookies of the request header.
 
 ```typescript
-import { createServer } from 'node:http';
 import {
-    createNodeDispatcher,
-    coreHandler,
-    Router
+    Router,
+    defineCoreHandler,
+    serve,
 } from 'routup';
 import {
     cookie,
     useRequestCookie,
-    useRequestCookies
+    useRequestCookies,
 } from '@routup/cookie';
 
 const router = new Router();
 
 router.use(cookie());
 
-router.get('/', coreHandler((req, res) => {
-    const cookies = useRequestCookies(req);
+router.get('/', defineCoreHandler((event) => {
+    const cookies = useRequestCookies(event);
     console.log(cookies);
     // { key: value, ... }
     
-    const cookie = useRequestCookie(req, 'key');
+    const value = useRequestCookie(event, 'key');
     // value
+
+    return value;
 }));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## Options
@@ -93,13 +95,13 @@ This function sets the parsed request cookies for the current request.
 
 ```typescript
 declare function setRequestCookies(
-    req: Request,
+    event: IRoutupEvent,
     key: string,
     value: unknown
 ) : void;
 
 declare function setRequestCookies(
-    req: Request,
+    event: IRoutupEvent,
     record: Record<string, any>
 ) : void;
 ```
@@ -110,19 +112,44 @@ This function returns the parsed request cookies.
 
 ```typescript
 declare function useRequestCookies(
-    req: IncomingMessage,
+    event: IRoutupEvent,
 ) : Record<string, string>;
 ```
 
 ### `useRequestCookie`
 
-This function returns a **single** parsed request cookies.
+This function returns a **single** parsed request cookie.
 
 ```typescript
 declare function useRequestCookie(
-    req: IncomingMessage,
+    event: IRoutupEvent,
     name: string
 ) : string | undefined;
+```
+
+### `setResponseCookie`
+
+This function sets a cookie on the response.
+
+```typescript
+declare function setResponseCookie(
+    event: IRoutupEvent,
+    name: string,
+    value: string,
+    options?: SerializeOptions
+) : void;
+```
+
+### `unsetResponseCookie`
+
+This function removes a cookie by setting its `maxAge` to `0`.
+
+```typescript
+declare function unsetResponseCookie(
+    event: IRoutupEvent,
+    name: string,
+    options?: SerializeOptions
+) : void;
 ```
 
 ## License

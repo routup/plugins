@@ -1,5 +1,5 @@
 import {
-    coreHandler,
+    defineCoreHandler,
 } from 'routup';
 
 import {
@@ -11,14 +11,13 @@ import type { ParseOptions } from './types';
 import { parseRequestCookies } from './utils';
 
 export function createHandler(options?: ParseOptions) {
-    return coreHandler((req, res, next) => {
-        if (hasRequestCookies(req)) {
-            next();
-            return;
+    return defineCoreHandler((event) => {
+        if (hasRequestCookies(event)) {
+            return event.next();
         }
 
-        setRequestCookies(req, parseRequestCookies(req, options));
+        setRequestCookies(event, parseRequestCookies(event, options));
 
-        next();
+        return event.next();
     });
 }
