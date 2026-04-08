@@ -66,8 +66,8 @@ describe('src/generator/**', () => {
 
         expect(pathContent).toBeDefined();
 
-        expression = jsonata('responses."204".description');
-        expect(await expression.evaluate(pathContent)).toEqual('No content');
+        expression = jsonata('responses."200".description');
+        expect(await expression.evaluate(pathContent)).toEqual('Ok');
 
         expression = jsonata('parameters[0].schema.type');
         expect(await expression.evaluate(pathContent)).toEqual('object');
@@ -85,8 +85,8 @@ describe('src/generator/**', () => {
 
         expect(pathContent).toBeDefined();
 
-        expression = jsonata('responses."204".description');
-        expect(await expression.evaluate(pathContent)).toEqual('No content');
+        expression = jsonata('responses."200".description');
+        expect(await expression.evaluate(pathContent)).toEqual('Ok');
 
         expression = jsonata('parameters[0].name');
         expect(await expression.evaluate(pathContent)).toEqual('body');

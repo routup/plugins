@@ -5,6 +5,11 @@ export function buildParameterDecoratorConfig() : DecoratorConfig[] {
     return [
         {
             id: DecoratorID.CONTEXT,
+            name: 'DContext',
+            properties: {},
+        },
+        {
+            id: DecoratorID.CONTEXT,
             name: 'DRequest',
             properties: {},
         },

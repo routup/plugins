@@ -9,13 +9,9 @@ import {
 export class HeaderController {
     @DGet('/many')
     async headers(
-        @DHeaders() headers: Headers,
+        @DHeaders() headers: Record<string, any>,
     ) {
-        const obj: Record<string, string> = {};
-        headers.forEach((value, key) => {
-            obj[key] = value;
-        });
-        return obj;
+        return headers;
     }
 
     @DGet('/single')

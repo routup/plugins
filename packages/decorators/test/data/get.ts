@@ -1,4 +1,3 @@
-import type { IRoutupEvent } from 'routup';
 import {
     DController,
     DExample,
@@ -15,8 +14,8 @@ type GetManyResponse = {
 export class GetController {
     @DGet('many')
     @DExample<GetManyResponse>({ foo: 'bar' })
-    getMany() {
-        return null;
+    getMany(): GetManyResponse {
+        return { foo: 'bar' };
     }
 
     @DGet(':id')
