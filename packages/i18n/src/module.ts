@@ -1,9 +1,8 @@
 import { Ilingo } from 'ilingo';
 import type { Plugin } from 'routup';
-import { defineCoreHandler } from 'routup';
+import { defineCoreHandler, getRequestAcceptableLanguage } from 'routup';
 import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
 import type { LocaleReqFn, Options } from './types';
-import { negotiateLanguage } from './utils';
 
 export function i18n() : Plugin;
 export function i18n(ilingo: Ilingo) : Plugin;
@@ -57,8 +56,7 @@ export function i18n(input?: Options | Ilingo) : Plugin {
                     reqLocale = await locale(event);
                 }
                 if (typeof reqLocale === 'undefined') {
-                    const acceptLanguage = event.headers.get('accept-language');
-                    reqLocale = negotiateLanguage(acceptLanguage, locales);
+                    reqLocale = getRequestAcceptableLanguage(event, locales);
                 }
 
                 event.store[REQUEST_LOCALE_SYMBOL] = reqLocale;
