@@ -16,7 +16,7 @@ export function createDecompressor(encoding: string): DecompressionStream {
     if (!format) {
         throw createError({
             statusCode: 415,
-            statusMessage: `unsupported content encoding: ${encoding}`,
+            message: `unsupported content encoding: ${encoding}`,
         });
     }
 
@@ -25,7 +25,7 @@ export function createDecompressor(encoding: string): DecompressionStream {
     } catch {
         throw createError({
             statusCode: 415,
-            statusMessage: `content encoding "${encoding}" is not supported by this runtime`,
+            message: `content encoding "${encoding}" is not supported by this runtime`,
         });
     }
 }

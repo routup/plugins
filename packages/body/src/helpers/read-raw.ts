@@ -46,7 +46,7 @@ export async function readRequestBodyRaw(
                 await reader.cancel();
                 throw createError({
                     statusCode: 413,
-                    statusMessage: 'request entity too large',
+                    message: 'request entity too large',
                 });
             }
 

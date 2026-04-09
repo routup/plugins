@@ -23,7 +23,7 @@ export function readRequestBodyStream(
         if (contentLength && Number.parseInt(contentLength, 10) > limit) {
             throw createError({
                 statusCode: 413,
-                statusMessage: 'request entity too large',
+                message: 'request entity too large',
             });
         }
     }
