@@ -114,5 +114,5 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
 export function createHandler(directory: string, input: OptionsInput = {}) : Handler {
     const fn = createCoreHandler(directory, input);
 
-    return defineCoreHandler((event) => fn(event));
+    return defineCoreHandler(fn);
 }

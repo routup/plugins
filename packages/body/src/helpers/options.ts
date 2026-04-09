@@ -1,7 +1,6 @@
 import type { IRoutupEvent } from 'routup';
+import { OptionsSymbol } from '../constants';
 import type { Options } from '../types';
-
-const OptionsSymbol = Symbol.for('ReqBodyOptions');
 
 export function setBodyOptions(event: IRoutupEvent, options: Options): void {
     event.store[OptionsSymbol] = options;

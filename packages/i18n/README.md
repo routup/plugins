@@ -84,9 +84,6 @@ const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
 ```
 
-## Types
-
-
 ## Helpers
 
 ### `useTranslator`

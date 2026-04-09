@@ -2,7 +2,7 @@
     "name": "@routup/prometheus",
     "version": "2.4.2",
     "type": "module",
-    "description": "Routup rate limiter.",
+    "description": "Prometheus metrics plugin for routup.",
     "exports": {
         "./package.json": "./package.json",
         ".": {

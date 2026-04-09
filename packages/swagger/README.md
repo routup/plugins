@@ -36,7 +36,7 @@ Generate a swagger document for the API endpoints.
 **`V2`**
 
 ```typescript
-import { generate, Version } from '@routup/swager';
+import { generate, Version } from '@routup/swagger';
 import process from 'node:process';
 
 await generate({
@@ -61,7 +61,7 @@ The function call will save the file under the location: `./writable/swagger.jso
 **`V3`**
 
 ```typescript
-import { generate, Version } from '@routup/swager';
+import { generate, Version } from '@routup/swagger';
 import process from 'node:process';
 
 await generate({

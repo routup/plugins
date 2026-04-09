@@ -1,10 +1,9 @@
 import type { IRoutupEvent } from 'routup';
 import { createError } from 'routup';
+import { RawBodySymbol } from '../constants';
 import type { BaseOptions } from '../types';
 import { parseSize } from '../utils';
 import { readRequestBodyStream } from './read-stream';
-
-const RawBodySymbol = Symbol.for('ReqRawBody');
 
 /**
  * Reads the full request body as a `Uint8Array`.
