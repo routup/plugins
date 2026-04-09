@@ -1,4 +1,2 @@
-// todo: this should be a symbol
-export const REQUEST_INSTANCE_SYMBOL = 'ILINGO_INSTANCE';
-// todo: this should be a symbol
-export const REQUEST_LOCALE_SYMBOL = 'ILINGO_LOCALE';
+export const REQUEST_INSTANCE_SYMBOL = Symbol.for('ReqI18nInstance');
+export const REQUEST_LOCALE_SYMBOL = Symbol.for('ReqI18nLocale');

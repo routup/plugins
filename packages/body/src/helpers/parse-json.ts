@@ -38,14 +38,14 @@ export async function parseJsonBody(
     } catch (e) {
         throw createError({
             statusCode: 400,
-            statusMessage: `invalid JSON: ${e instanceof Error ? e.message : 'parse error'}`,
+            message: `invalid JSON: ${e instanceof Error ? e.message : 'parse error'}`,
         });
     }
 
     if (options.strict !== false && !isObject(parsed) && !Array.isArray(parsed)) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'request body must be an object or array in strict mode',
+            message: 'request body must be an object or array in strict mode',
         });
     }
 

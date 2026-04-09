@@ -1,6 +1,6 @@
 import { Ilingo } from 'ilingo';
 import type { Plugin } from 'routup';
-import { coreHandler, getRequestAcceptableLanguage, setRequestEnv } from 'routup';
+import { defineCoreHandler, getRequestAcceptableLanguage } from 'routup';
 import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
 import type { LocaleReqFn, Options } from './types';
 
@@ -46,24 +46,22 @@ export function i18n(input?: Options | Ilingo) : Plugin {
                 instance = new Ilingo();
             }
 
-            router.use(coreHandler(async (req, res, next) => {
+            router.use(defineCoreHandler(async (event) => {
                 const locales = await resolveLocales(instance);
 
-                // todo: key should be symbol
-                setRequestEnv(req, REQUEST_INSTANCE_SYMBOL, instance);
+                event.store[REQUEST_INSTANCE_SYMBOL] = instance;
 
                 let reqLocale : string | undefined;
                 if (typeof locale === 'function') {
-                    reqLocale = await locale(req);
+                    reqLocale = await locale(event);
                 }
                 if (typeof reqLocale === 'undefined') {
-                    reqLocale = getRequestAcceptableLanguage(req, locales);
+                    reqLocale = getRequestAcceptableLanguage(event, locales);
                 }
 
-                // todo: key should be symbol
-                setRequestEnv(req, REQUEST_LOCALE_SYMBOL, reqLocale);
+                event.store[REQUEST_LOCALE_SYMBOL] = reqLocale;
 
-                next();
+                return event.next();
             }));
         },
     };

@@ -33,7 +33,7 @@ export async function parseUrlEncodedBody(
         if (count >= limit) {
             throw createError({
                 statusCode: 413,
-                statusMessage: 'too many parameters',
+                message: 'too many parameters',
             });
         }
 

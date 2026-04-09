@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { MemoryStore } from 'ilingo';
 import {
-    HeaderName, 
-    Router, 
-    coreHandler, 
-    createNodeDispatcher,
+    Router,
+    defineCoreHandler,
 } from 'routup';
-import supertest from 'supertest';
 import { i18n, useTranslator } from '../../src';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('src/module', () => {
     it('should translate text', async () => {
@@ -21,26 +23,20 @@ describe('src/module', () => {
         });
         router.use(i18n({ store }));
 
-        router.get('/', coreHandler(async (req) => {
-            const translator = useTranslator(req);
+        router.get('/', defineCoreHandler(async (event) => {
+            const translator = useTranslator(event);
             return translator({ group: 'app', key: 'key' });
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
-        let response = await server
-            .get('/')
-            .set(HeaderName.ACCEPT_LANGUAGE, 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('Hallo Welt!');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('Hallo Welt!');
+        response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' } }));
 
-        response = await server
-            .get('/')
-            .set(HeaderName.ACCEPT_LANGUAGE, 'en-US;q=0.9,en-GB;q=0.8');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('Hello world!');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('Hello world!');
     });
 
     it('should translate text with params', async () => {
@@ -54,8 +50,8 @@ describe('src/module', () => {
         });
         router.use(i18n({ store }));
 
-        router.get('/', coreHandler(async (req) => {
-            const translator = useTranslator(req);
+        router.get('/', defineCoreHandler(async (event) => {
+            const translator = useTranslator(event);
 
             return translator({
                 group: 'app',
@@ -64,21 +60,15 @@ describe('src/module', () => {
             });
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
-        let response = await server
-            .get('/')
-            .set(HeaderName.ACCEPT_LANGUAGE, 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('Hallo, mein Name ist Peter');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('Hallo, mein Name ist Peter');
+        response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' } }));
 
-        response = await server
-            .get('/')
-            .set(HeaderName.ACCEPT_LANGUAGE, 'en-US;q=0.9,en-GB;q=0.8');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('Hello, my name is Peter');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('Hello, my name is Peter');
     });
 
     it('should work with custom locale fn', async () => {
@@ -96,18 +86,14 @@ describe('src/module', () => {
             store,
         }));
 
-        router.get('/', coreHandler(async (req) => {
-            const translator = useTranslator(req);
+        router.get('/', defineCoreHandler(async (event) => {
+            const translator = useTranslator(event);
             return translator({ group: 'app', key: 'key' });
         }));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
-        const response = await server
-            .get('/')
-            .set(HeaderName.ACCEPT_LANGUAGE, 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.text).toEqual('Hello world!');
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('Hello world!');
     });
 });
