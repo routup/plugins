@@ -8,6 +8,18 @@
         ".": {
             "types": "./dist/index.d.mts",
             "import": "./dist/index.mjs"
+        },
+        "./body": {
+            "types": "./dist/body.d.mts",
+            "import": "./dist/body.mjs"
+        },
+        "./cookie": {
+            "types": "./dist/cookie.d.mts",
+            "import": "./dist/cookie.mjs"
+        },
+        "./query": {
+            "types": "./dist/query.d.mts",
+            "import": "./dist/query.mjs"
         }
     },
     "types": "./dist/index.d.mts",
