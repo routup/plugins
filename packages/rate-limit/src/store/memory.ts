@@ -23,7 +23,7 @@ export class MemoryStore implements Store {
     /**
      * Reference to the active timer.
      */
-    interval?: NodeJS.Timer;
+    interval?: NodeJS.Timeout;
 
     /**
      * Method that initializes the store.

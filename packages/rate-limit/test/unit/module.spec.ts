@@ -1,108 +1,92 @@
 import { describe, expect, it } from 'vitest';
 import {
-    HeaderName, 
-    Router, 
-    coreHandler, 
-    createNodeDispatcher,
+    HeaderName,
+    Router,
+    defineCoreHandler,
 } from 'routup';
-import supertest from 'supertest';
 import { RETRY_AGAIN_MESSAGE, rateLimit } from '../../src';
+
+function createTestRequest(url: string, options?: RequestInit): Request {
+    const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return new Request(fullUrl, options);
+}
 
 describe('src/module', () => {
     it('should set rate limit headers', async () => {
         const router = new Router();
         router.use(rateLimit());
-        router.use(coreHandler(() => 'Hello, World!'));
+        router.use(defineCoreHandler(() => 'Hello, World!'));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/'));
 
-        let response = await server
-            .get('/');
+        expect(response.status).toEqual(200);
+        expect(response.headers.get(HeaderName.RATE_LIMIT_LIMIT)).toEqual('5');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('4');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_RESET)).toBeDefined();
+        expect(response.headers.get(HeaderName.RETRY_AFTER)).toBeNull();
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.RATE_LIMIT_LIMIT]).toEqual('5');
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('4');
-        expect(response.headers[HeaderName.RATE_LIMIT_RESET]).toBeDefined();
-        expect(response.headers[HeaderName.RETRY_AFTER]).toBeUndefined();
+        response = await router.fetch(createTestRequest('/'));
 
-        response = await server
-            .get('/');
-
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.RATE_LIMIT_LIMIT]).toEqual('5');
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('3');
+        expect(response.status).toEqual(200);
+        expect(response.headers.get(HeaderName.RATE_LIMIT_LIMIT)).toEqual('5');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('3');
     });
 
     it('should not process any additional request', async () => {
         const router = new Router();
         router.use(rateLimit({ max: 1 }));
-        router.use(coreHandler(() => 'Hello, World!'));
+        router.use(defineCoreHandler(() => 'Hello, World!'));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/'));
 
-        let response = await server
-            .get('/');
+        expect(response.status).toEqual(200);
+        expect(response.headers.get(HeaderName.RATE_LIMIT_LIMIT)).toEqual('1');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('0');
 
-        expect(response.statusCode).toEqual(200);
-        expect(response.headers[HeaderName.RATE_LIMIT_LIMIT]).toEqual('1');
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('0');
+        response = await router.fetch(createTestRequest('/'));
 
-        response = await server
-            .get('/');
-
-        expect(response.statusCode).toEqual(429);
-        expect(response.text).toEqual(RETRY_AGAIN_MESSAGE);
-        expect(response.headers[HeaderName.RETRY_AFTER]).toBeDefined();
+        expect(response.status).toEqual(429);
+        expect(await response.text()).toEqual(RETRY_AGAIN_MESSAGE);
+        expect(response.headers.get(HeaderName.RETRY_AFTER)).toBeDefined();
     });
 
     it('should be possible to skip successfully responses', async () => {
         const router = new Router();
         router.use(rateLimit({ skipSuccessfulRequest: true }));
-        router.use(coreHandler(() => 'Hello, World!'));
+        router.use(defineCoreHandler(() => 'Hello, World!'));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/'));
 
-        let response = await server
-            .get('/');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('4');
 
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('4');
+        response = await router.fetch(createTestRequest('/'));
 
-        response = await server
-            .get('/');
-
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('4');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('4');
     });
 
     it('should be possible to skip failed responses', async () => {
         const router = new Router();
         router.use(rateLimit({ skipFailedRequest: true }));
 
-        const server = supertest(createNodeDispatcher(router));
+        let response = await router.fetch(createTestRequest('/'));
 
-        let response = await server
-            .get('/');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('4');
 
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('4');
+        response = await router.fetch(createTestRequest('/'));
 
-        response = await server
-            .get('/');
-
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toEqual('4');
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('4');
     });
 
     it('should skip request', async () => {
         const router = new Router();
         router.use(rateLimit({ skip: () => true }));
-        router.use(coreHandler(() => 'Hello, World!'));
+        router.use(defineCoreHandler(() => 'Hello, World!'));
 
-        const server = supertest(createNodeDispatcher(router));
+        const response = await router.fetch(createTestRequest('/'));
 
-        const response = await server
-            .get('/');
-
-        expect(response.headers[HeaderName.RATE_LIMIT_LIMIT]).toBeUndefined();
-        expect(response.headers[HeaderName.RATE_LIMIT_REMAINING]).toBeUndefined();
-        expect(response.headers[HeaderName.RATE_LIMIT_RESET]).toBeUndefined();
-        expect(response.headers[HeaderName.RETRY_AFTER]).toBeUndefined();
+        expect(response.headers.get(HeaderName.RATE_LIMIT_LIMIT)).toBeNull();
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toBeNull();
+        expect(response.headers.get(HeaderName.RATE_LIMIT_RESET)).toBeNull();
+        expect(response.headers.get(HeaderName.RETRY_AFTER)).toBeNull();
     });
 });
