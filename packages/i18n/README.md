@@ -38,7 +38,7 @@ import { createServer } from 'node:http';
 import { MemoryStore } from 'ilingo';
 import {
     createNodeDispatcher,
-    coreHandler,
+    defineCoreHandler,
     Router
 } from 'routup';
 import {
@@ -65,8 +65,8 @@ const router = new Router();
 
 router.use(i18n({ store }));
 
-router.get('/', coreHandler((req, res) => {
-    const translator = useTranslator(req);
+router.get('/', defineCoreHandler((event) => {
+    const translator = useTranslator(event);
     const translation = translator({
         group: 'app',
         key: 'key',
@@ -94,10 +94,11 @@ server.listen(3000);
 This function returns a translator function to receive a translation for a given key.
 
 ```typescript
-import { Request, Translator } from '@routup/i18n';
+import type { IRoutupEvent } from 'routup';
+import type { Translator } from '@routup/i18n';
 
 declare function useTranslator(
-    req: Request
+    event: IRoutupEvent
 ): Translator;
 ```
 

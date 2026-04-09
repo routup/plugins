@@ -45,8 +45,8 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@routup/rate-limit": "^3.0.0",
-        "redis-extension": "^1.x",
+        "@routup/rate-limit": "^2.4.2",
+        "redis-extension": "^2.0.4",
         "routup": "^5.0.0-beta.3"
     },
     "peerDependenciesMeta": {
