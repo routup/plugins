@@ -1,39 +1,34 @@
-import type { Router } from 'routup';
+import type { IRouter } from 'routup';
 import {
-    coreHandler,
+    defineCoreHandler,
     setResponseHeaderContentType,
-    useRequestPath,
 } from 'routup';
 import type {
-    LabelValues, 
+    LabelValues,
     PrometheusContentType,
-    Registry, 
+    Registry,
     RegistryContentType,
 } from 'prom-client';
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
 import type { Metrics, Options } from './type';
-import { onResponseFinished } from './utils';
 
 export function createHandler<
     T extends RegistryContentType = PrometheusContentType,
 >(input?: Registry<T>) {
-    const registry : Registry<T> = input || promClient.register as Registry<T>;
+    const registry: Registry<T> = input || promClient.register as Registry<T>;
 
-    return coreHandler(async (req, res, next) => {
-        registry.metrics()
-            .then((output) => {
-                setResponseHeaderContentType(res, registry.contentType);
-                res.end(output);
-            })
-            .catch((err) => next(err));
+    return defineCoreHandler(async (event) => {
+        const output = await registry.metrics();
+        setResponseHeaderContentType(event, registry.contentType);
+        return output;
     });
 }
 
 export function registerMetrics<
     T extends RegistryContentType = PrometheusContentType,
 >(
-    router: Router,
+    router: IRouter,
     options: Options<T>,
 ): Metrics {
     /* istanbul ignore next */
@@ -41,7 +36,7 @@ export function registerMetrics<
         promClient.collectDefaultMetrics(options.collectDefaultMetrics);
     }
 
-    const metrics : Metrics = {};
+    const metrics: Metrics = {};
 
     if (options.uptime) {
         metrics.uptime = buildUptimeMetric(options);
@@ -51,15 +46,14 @@ export function registerMetrics<
         metrics.requestDuration = buildRequestDurationMetric(options);
     }
 
-    router.use(coreHandler(async (req, res, next) => {
+    router.use(defineCoreHandler(async (event) => {
         /* istanbul ignore next */
-        if (options.skip(req)) {
-            next();
-            return;
+        if (options.skip(event)) {
+            return event.next();
         }
 
         if (metrics.requestDuration) {
-            let path = useRequestPath(req);
+            let { path } = event;
             if (!path.startsWith('/')) {
                 path = `/${path}`;
             }
@@ -67,26 +61,28 @@ export function registerMetrics<
             const labels: LabelValues<string> = {};
             const timer = metrics.requestDuration.startTimer(labels);
 
-            onResponseFinished(res, () => {
-                labels.status_code = res.statusCode;
-                labels.method = req.method;
-                labels.path = typeof options.normalizePath === 'function' ?
-                    options.normalizePath(path, req) :
-                    path;
+            const response = await event.next();
 
-                if (options.requestDurationLabels) {
-                    Object.assign(labels, options.requestDurationLabels);
-                }
+            labels.status_code = response ? response.status : 200;
+            labels.method = event.method;
+            labels.path = typeof options.normalizePath === 'function' ?
+                options.normalizePath(path, event) :
+                path;
 
-                if (options.requestDurationLabelTransformer) {
-                    options.requestDurationLabelTransformer(labels, req, res);
-                }
+            if (options.requestDurationLabels) {
+                Object.assign(labels, options.requestDurationLabels);
+            }
 
-                timer();
-            });
+            if (options.requestDurationLabelTransformer) {
+                options.requestDurationLabelTransformer(labels, event);
+            }
+
+            timer();
+
+            return response;
         }
 
-        next();
+        return event.next();
     }));
 
     return metrics;

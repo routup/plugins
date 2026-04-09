@@ -5,7 +5,7 @@ import type { Options, OptionsInput } from '../type';
 
 export function buildOptions<
     T extends RegistryContentType = PrometheusContentType,
->(input?: OptionsInput<T>) : Options<T> {
+>(input?: OptionsInput<T>): Options<T> {
     input = input || {};
 
     return {
@@ -16,7 +16,7 @@ export function buildOptions<
         requestDurationName: MetricName.REQUEST_DURATION,
         requestDurationType: MetricTypeName.HISTOGRAM,
 
-        skip: (req) => false,
+        skip: () => false,
         registry: promClient.register as Registry<T>,
 
         metricsPath: '/metrics',

@@ -1,12 +1,12 @@
-import type { Request, Response } from 'routup';
+import type { IRoutupEvent } from 'routup';
 import type {
     DefaultMetricsCollectorConfiguration,
     Gauge,
     Histogram,
     HistogramConfiguration,
-    LabelValues, 
+    LabelValues,
     PrometheusContentType,
-    Registry, 
+    Registry,
     RegistryContentType,
     Summary,
     SummaryConfiguration,
@@ -18,7 +18,7 @@ export type Metrics = {
     requestDuration?: Summary | Histogram
 };
 
-export type LabelTransformer = (labels: LabelValues<string>, req: Request, res: Response) => void;
+export type LabelTransformer = (labels: LabelValues<string>, event: IRoutupEvent) => void;
 
 export type Options<T extends RegistryContentType = PrometheusContentType> = {
     metricsPath: string,
@@ -35,8 +35,8 @@ export type Options<T extends RegistryContentType = PrometheusContentType> = {
     uptimeName: string,
     uptimeLabels?: LabelValues<string>,
 
-    normalizePath?: ((path: string, req: Request) => string);
-    skip: (req: Request) => boolean;
+    normalizePath?: ((path: string, event: IRoutupEvent) => string);
+    skip: (event: IRoutupEvent) => boolean;
 
     collectDefaultMetrics?: DefaultMetricsCollectorConfiguration<T>,
     registry: Registry<T>;
