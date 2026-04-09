@@ -61,25 +61,27 @@ export function registerMetrics<
             const labels: LabelValues<string> = {};
             const timer = metrics.requestDuration.startTimer(labels);
 
-            const response = await event.next();
+            let response: Response | undefined;
+            try {
+                response = await event.next();
+                return response;
+            } finally {
+                labels.status_code = response?.status ?? 200;
+                labels.method = event.method;
+                labels.path = typeof options.normalizePath === 'function' ?
+                    options.normalizePath(path, event) :
+                    path;
 
-            labels.status_code = response ? response.status : 200;
-            labels.method = event.method;
-            labels.path = typeof options.normalizePath === 'function' ?
-                options.normalizePath(path, event) :
-                path;
+                if (options.requestDurationLabels) {
+                    Object.assign(labels, options.requestDurationLabels);
+                }
 
-            if (options.requestDurationLabels) {
-                Object.assign(labels, options.requestDurationLabels);
+                if (options.requestDurationLabelTransformer) {
+                    options.requestDurationLabelTransformer(labels, event);
+                }
+
+                timer();
             }
-
-            if (options.requestDurationLabelTransformer) {
-                options.requestDurationLabelTransformer(labels, event);
-            }
-
-            timer();
-
-            return response;
         }
 
         return event.next();
