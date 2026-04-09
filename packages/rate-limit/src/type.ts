@@ -1,4 +1,4 @@
-import type { Next, Request, Response } from 'routup';
+import type { IRoutupEvent } from 'routup';
 import type { Store } from './store';
 
 /**
@@ -12,34 +12,26 @@ export type RateLimitInfo = {
 };
 
 /**
- * Method (in the form of middleware) to generate/retrieve a value based on the
- * incoming request.
+ * Method to generate/retrieve a value based on the incoming event.
  *
- * @param request {Request} - The Express request object.
- * @param response {Response} - The Express response object.
+ * @param event {IRoutupEvent} - The routup event.
  *
  * @returns T - The value needed.
  */
 export type ValueDeterminingMiddleware<T> = (
-    request: Request,
-    response: Response,
+    event: IRoutupEvent,
 ) => T | Promise<T>;
 
 /**
- * Request handler that sends back a response when a client is
- * rate-limited.
+ * Handler that sends back a response when a client is rate-limited.
  *
- * @param request {Request} - The Express request object.
- * @param response {Response} - The Express response object.
- * @param next {NextFunction} - The Express `next` function, can be called to skip responding.
- * @param optionsUsed {Options} - The options used to set up the middleware.
+ * @param event {IRoutupEvent} - The routup event.
+ * @param options {Options} - The options used to set up the middleware.
  */
 export type RateLimitExceededEventHandler = (
-    request: Request,
-    response: Response,
-    next: Next,
+    event: IRoutupEvent,
     options: Options,
-) => void;
+) => unknown | Promise<unknown>;
 
 /**
  * Data returned from the `Store` when a client's hit counter is incremented.
@@ -67,8 +59,8 @@ export type Options = {
      * The maximum number of connections to allow during the `window` before
      * rate limiting the client.
      *
-     * Can be the limit itself as a number or express middleware that parses
-     * the request and then figures out the limit.
+     * Can be the limit itself as a number or a function that receives
+     * the event and returns the limit.
      *
      * Defaults to `5`.
      */
@@ -112,7 +104,7 @@ export type Options = {
     keyGenerator: ValueDeterminingMiddleware<string>
 
     /**
-     * Express request handler that sends back a response when a client is
+     * Handler that sends back a response when a client is
      * rate-limited.
      *
      * By default, sends back the `statusCode` and `message` set via the options.
@@ -120,7 +112,7 @@ export type Options = {
     handler: RateLimitExceededEventHandler
 
     /**
-     * Method (in the form of middleware) to determine whether or not this request
+     * Method to determine whether or not this request
      * counts towards a client's quota.
      *
      * By default, skips no requests.
@@ -134,7 +126,7 @@ export type Options = {
      * By default, requests with a response status code less than 400 are considered
      * successful.
      */
-    requestWasSuccessful: ValueDeterminingMiddleware<boolean>
+    requestWasSuccessful: (response: Response) => boolean
 
     /**
      * The `Store` to use to store the hit count for each client.

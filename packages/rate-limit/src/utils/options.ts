@@ -1,5 +1,5 @@
-import type { Next, Request, Response } from 'routup';
-import { getRequestIP, send } from 'routup';
+import type { IRoutupEvent } from 'routup';
+import { getRequestIP } from 'routup';
 import { RETRY_AGAIN_MESSAGE } from '../constants';
 import { MemoryStore } from '../store';
 import type { Options, OptionsInput, ValueDeterminingMiddleware } from '../type';
@@ -14,29 +14,22 @@ export function buildHandlerOptions(input?: OptionsInput) : Options {
         statusCode: 429,
         skipFailedRequest: false,
         skipSuccessfulRequest: false,
-        requestWasSuccessful: (request: Request, response: Response): boolean => response.statusCode < 400,
-        skip: (_request: Request, _response: Response): boolean => false,
-        keyGenerator: (request: Request, _response: Response): string => getRequestIP(request, { trustProxy: true }),
+        requestWasSuccessful: (response: Response): boolean => response.status < 400,
+        skip: (_event: IRoutupEvent): boolean => false,
+        keyGenerator: (event: IRoutupEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
         async handler(
-            request: Request,
-            response: Response,
-            _next: Next,
+            event: IRoutupEvent,
             _optionsUsed: Options,
-        ): Promise<void> {
-            // Set the response status code
-            response.statusCode = options.statusCode;
-            // Call the `message` if it is a function.
+        ): Promise<unknown> {
             const message: unknown = typeof options.message === 'function' ?
                 await (options.message as ValueDeterminingMiddleware<any>)(
-                    request,
-                    response,
+                    event,
                 ) :
                 options.message;
 
-            // Send the response if writable.
-            if (!response.writableEnded) {
-                send(response, message ?? 'Too many requests, please try again later.');
-            }
+            event.response.status = options.statusCode;
+
+            return message ?? 'Too many requests, please try again later.';
         },
         ...input,
 

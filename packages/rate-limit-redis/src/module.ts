@@ -51,7 +51,7 @@ export class RedisStore implements Store {
             totalHits = 1;
         }
 
-        this.client.set(
+        await this.client.set(
             key,
             totalHits,
             'PX',
@@ -98,7 +98,7 @@ export class RedisStore implements Store {
     async reset(key: string) : Promise<void> {
         key = this.buildKey(key);
 
-        this.client.del(key);
+        await this.client.del(key);
     }
 
     /**
