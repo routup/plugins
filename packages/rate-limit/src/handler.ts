@@ -65,7 +65,7 @@ export function createHandler(input?: OptionsInput) {
             options.skipSuccessfulRequest
         ) {
             const wasSuccessful = response ?
-                options.requestWasSuccessful(response) :
+                options.requestWasSuccessful(event, response) :
                 false;
 
             if (

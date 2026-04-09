@@ -28,10 +28,9 @@ To read the docs, visit [https://routup.net](https://routup.net)
 ## Usage
 
 ```typescript
-import { createServer } from 'node:http';
 import {
-    createNodeDispatcher,
-    Router
+    Router,
+    serve,
 } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 import { RedisStore } from '@routup/rate-limit-redis';
@@ -52,8 +51,7 @@ router.use('/api', rateLimit({
     store: new RedisStore(),
 }));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## License

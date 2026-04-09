@@ -14,7 +14,7 @@ export function buildHandlerOptions(input?: OptionsInput) : Options {
         statusCode: 429,
         skipFailedRequest: false,
         skipSuccessfulRequest: false,
-        requestWasSuccessful: (response: Response): boolean => response.status < 400,
+        requestWasSuccessful: (_event: IRoutupEvent, response: Response): boolean => response.status < 400,
         skip: (_event: IRoutupEvent): boolean => false,
         keyGenerator: (event: IRoutupEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
         async handler(

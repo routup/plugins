@@ -126,7 +126,7 @@ export type Options = {
      * By default, requests with a response status code less than 400 are considered
      * successful.
      */
-    requestWasSuccessful: (response: Response) => boolean
+    requestWasSuccessful: (event: IRoutupEvent, response: Response) => boolean
 
     /**
      * The `Store` to use to store the hit count for each client.
