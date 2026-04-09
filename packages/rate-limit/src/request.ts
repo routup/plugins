@@ -1,10 +1,11 @@
 import type { IRoutupEvent } from 'routup';
 import type { RateLimitInfo } from './type';
+import { isObject } from './utils';
 
 const symbol = Symbol.for('ReqRateLimit');
 
-export function useRequestRateLimitInfo(event: IRoutupEvent) : RateLimitInfo;
-export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IRoutupEvent, key: K) : RateLimitInfo[K];
+export function useRequestRateLimitInfo(event: IRoutupEvent) : Partial<RateLimitInfo>;
+export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IRoutupEvent, key: K) : RateLimitInfo[K] | undefined;
 export function useRequestRateLimitInfo(event: IRoutupEvent, key?: string) {
     if (symbol in event.store) {
         if (typeof key === 'string') {
@@ -28,7 +29,7 @@ export function setRequestRateLimitInfo(event: IRoutupEvent, key: RateLimitInfo 
         event.store[symbol] as Record<string, unknown> :
         undefined;
 
-    if (typeof key === 'object') {
+    if (isObject(key)) {
         event.store[symbol] = existing ? { ...existing, ...key } : key;
     } else if (existing) {
         existing[key] = value;

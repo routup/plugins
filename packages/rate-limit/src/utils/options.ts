@@ -4,9 +4,7 @@ import { RETRY_AGAIN_MESSAGE } from '../constants';
 import { MemoryStore } from '../store';
 import type { Options, OptionsInput, ValueDeterminingMiddleware } from '../type';
 
-export function buildHandlerOptions(input?: OptionsInput) : Options {
-    input = input || {};
-
+export function normalizeHandlerOptions(input: OptionsInput = {}) : Options {
     const options : Options = {
         windowMs: 60 * 1000,
         max: 5,
