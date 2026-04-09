@@ -28,16 +28,12 @@ describe('src/module', () => {
             return translator({ group: 'app', key: 'key' });
         }));
 
-        let response = await router.fetch(createTestRequest('/', {
-            headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' },
-        }));
+        let response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('Hallo Welt!');
 
-        response = await router.fetch(createTestRequest('/', {
-            headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' },
-        }));
+        response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' } }));
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('Hello world!');
@@ -64,16 +60,12 @@ describe('src/module', () => {
             });
         }));
 
-        let response = await router.fetch(createTestRequest('/', {
-            headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' },
-        }));
+        let response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('Hallo, mein Name ist Peter');
 
-        response = await router.fetch(createTestRequest('/', {
-            headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' },
-        }));
+        response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'en-US;q=0.9,en-GB;q=0.8' } }));
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('Hello, my name is Peter');
@@ -99,9 +91,7 @@ describe('src/module', () => {
             return translator({ group: 'app', key: 'key' });
         }));
 
-        const response = await router.fetch(createTestRequest('/', {
-            headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' },
-        }));
+        const response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('Hello world!');
