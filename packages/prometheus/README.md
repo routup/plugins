@@ -39,8 +39,10 @@ http://localhost:3000/metrics
 The plugin should be installed before registering any other plugins or routes!
 
 ```typescript
-import { createServer } from 'node:http';
-import { createNodeDispatcher, Router } from 'routup';
+import {
+    Router,
+    serve,
+} from 'routup';
 import { prometheus } from '@routup/prometheus';
 
 const router = new Router();
@@ -50,8 +52,7 @@ router.use(prometheus({
     metricsPath: '/metrics'
 }));
 
-const server = createServer(createNodeDispatcher(router));
-server.listen(3000);
+serve(router, { port: 3000 });
 ```
 
 ## License
