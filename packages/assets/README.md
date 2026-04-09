@@ -1,6 +1,6 @@
 # @routup/assets
 
-[![npm version](https://badge.fury.io/js/@routup%2Fstatic.svg)](https://badge.fury.io/js/@routup%2Fstatic)
+[![npm version](https://badge.fury.io/js/@routup%2Fassets.svg)](https://badge.fury.io/js/@routup%2Fassets)
 [![main](https://github.com/Tada5hi/routup/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/routup/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/tada5hi/routup/branch/master/graph/badge.svg?token=CLIA667K6V)](https://codecov.io/gh/tada5hi/routup)
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)

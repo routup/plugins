@@ -45,7 +45,7 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/routup/plugins.git",
-        "directory": "packages/static"
+        "directory": "packages/assets"
     },
     "bugs": {
         "url": "https://github.com/routup/plugins/issues"

@@ -96,5 +96,5 @@ export function createUIHandler(
         },
     );
 
-    return defineCoreHandler((event) => handler(event));
+    return defineCoreHandler(handler);
 }

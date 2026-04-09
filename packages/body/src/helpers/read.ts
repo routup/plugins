@@ -1,10 +1,9 @@
 import type { IRoutupEvent } from 'routup';
+import { BodySymbol } from '../constants';
 import { boolToObject } from '../utils';
 import { getBodyOptions } from './options';
 import { parseJsonBody } from './parse-json';
 import { parseUrlEncodedBody } from './parse-url-encoded';
-
-const BodySymbol = Symbol.for('ReqBody');
 
 /**
  * Returns the parsed request body (JSON or URL-encoded).

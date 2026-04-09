@@ -2,7 +2,6 @@ import {
     cookie,
 } from './module';
 
-export * from './handler';
 export * from './module';
 export * from './request';
 export * from './response';

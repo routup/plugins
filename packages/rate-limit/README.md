@@ -93,14 +93,15 @@ Defaults to `5`. Set it to `0` to disable the rate limiter.
 An example of using a function:
 
 ```ts
-const isPremium = async (user) => {
+const isPremium = async (ip: string) => {
 	// ...
 }
 
 const handler = createHandler({
     // ...
     max: async (event) => {
-        if (await isPremium(event.request.user)) return 10
+        const ip = getRequestIP(event, { trustProxy: true }) || '127.0.0.1';
+        if (await isPremium(ip)) return 10
         else return 5
     },
 })
@@ -121,14 +122,15 @@ Defaults to `'Too many requests, please try again later.'`
 An example of using a function:
 
 ```ts
-const isPremium = async (user) => {
+const isPremium = async (ip: string) => {
 	// ...
 }
 
 const handler = createHandler({
     // ...
     message: async (event) => {
-        if (await isPremium(event.request.user)) {
+        const ip = getRequestIP(event, { trustProxy: true }) || '127.0.0.1';
+        if (await isPremium(ip)) {
             return 'You can only make 10 requests every hour.'
         }
 			

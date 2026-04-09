@@ -2,7 +2,7 @@
     "name": "@routup/rate-limit-redis",
     "version": "3.1.2",
     "type": "module",
-    "description": "Red adapter for the routup rate-limit plugin.",
+    "description": "Redis adapter for the routup rate-limit plugin.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -18,6 +18,8 @@
         "build": "npm run build:js && npm run build:types",
         "build:js": "rimraf ./dist && tsdown",
         "build:types": "tsc --noEmit -p tsconfig.build.json",
+        "test": "vitest run --config ./test/vitest.config.ts",
+        "test:coverage": "vitest run --config ./test/vitest.config.ts --coverage",
         "lint": "eslint ./src",
         "lint:fix": "npm run lint -- --fix"
     },
