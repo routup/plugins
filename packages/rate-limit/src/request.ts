@@ -2,7 +2,7 @@ import type { IRoutupEvent } from 'routup';
 import type { RateLimitInfo } from './type';
 import { isObject } from './utils';
 
-const RateLimitSymbol = Symbol('ReqRateLimit');
+const RateLimitSymbol = Symbol.for('@routup/rate-limit:ReqRateLimit');
 
 export function useRequestRateLimitInfo(event: IRoutupEvent) : Partial<RateLimitInfo>;
 export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IRoutupEvent, key: K) : RateLimitInfo[K] | undefined;
