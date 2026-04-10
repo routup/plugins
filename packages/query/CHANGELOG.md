@@ -1,5 +1,19 @@
 # Change Log
 
+## [2.5.0](https://github.com/routup/plugins/compare/query-v2.4.3...query-v2.5.0) (2026-04-10)
+
+
+### Features
+
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **query:** update @routup/query for routup v5 ([#762](https://github.com/routup/plugins/issues/762)) ([20635ed](https://github.com/routup/plugins/commit/20635eda7da5d3bda67926fcdc12500f084b3ca2))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#765](https://github.com/routup/plugins/issues/765)) ([4d6ee22](https://github.com/routup/plugins/commit/4d6ee22905fa4cef4c227c4669981cac8ca2f0ed))
+* strip url fragment from query string ([0828d38](https://github.com/routup/plugins/commit/0828d38d85bd82900d4a27393256b8e6bc3d56bf))
+
 ## [2.4.3](https://github.com/routup/plugins/compare/query-v2.4.2...query-v2.4.3) (2025-11-26)
 
 

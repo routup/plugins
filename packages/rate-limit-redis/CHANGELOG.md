@@ -1,5 +1,27 @@
 # Change Log
 
+## [3.2.0](https://github.com/routup/plugins/compare/rate-limit-redis-v3.1.2...rate-limit-redis-v3.2.0) (2026-04-10)
+
+
+### Features
+
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **rate-limit:** update @routup/rate-limit for routup v5 ([#766](https://github.com/routup/plugins/issues/766)) ([75c40e3](https://github.com/routup/plugins/commit/75c40e3b7f2dbd69ead233814e5ad8644aac3a77))
+
+
+### Bug Fixes
+
+* align peer dependencies and add unit tests and docs ([c23f388](https://github.com/routup/plugins/commit/c23f3883b155c90fe112333f910ad1f455fcf031))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^2.4.2 to ^2.5.0
+  * peerDependencies
+    * @routup/rate-limit bumped from ^2.4.2 to ^2.5.0
+
 ## [3.1.2](https://github.com/routup/plugins/compare/rate-limit-redis-v3.1.1...rate-limit-redis-v3.1.2) (2025-11-26)
 
 

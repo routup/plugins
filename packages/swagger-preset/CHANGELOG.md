@@ -1,5 +1,17 @@
 # Change Log
 
+## [3.0.0](https://github.com/routup/plugins/compare/swagger-preset-v2.4.3...swagger-preset-v3.0.0) (2026-04-10)
+
+
+### Features
+
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Bug Fixes
+
+* **swagger:** align generator tests with v5 decorator changes ([2fe28b0](https://github.com/routup/plugins/commit/2fe28b058ce333041245082c419e51137711d6f2))
+
 ## [2.4.3](https://github.com/routup/plugins/compare/swagger-preset-v2.4.2...swagger-preset-v2.4.3) (2025-11-26)
 
 

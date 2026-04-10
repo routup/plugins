@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.5.0](https://github.com/routup/plugins/compare/body-v2.4.3...body-v2.5.0) (2026-04-10)
+
+
+### Features
+
+* **body:** update @routup/body for routup v5 ([#761](https://github.com/routup/plugins/issues/761)) ([8e67086](https://github.com/routup/plugins/commit/8e6708674759bb0759ad1780396c8d513e20261b))
+* **i18n:** update @routup/i18n for routup v5 ([#769](https://github.com/routup/plugins/issues/769)) ([872de6f](https://github.com/routup/plugins/commit/872de6fbdf7da268bb77d841d70e4192586c7766))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
 ## [2.4.3](https://github.com/routup/plugins/compare/body-v2.4.2...body-v2.4.3) (2025-11-26)
 
 
