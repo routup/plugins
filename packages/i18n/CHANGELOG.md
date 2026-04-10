@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0](https://github.com/routup/plugins/compare/i18n-v2.0.2...i18n-v2.1.0) (2026-04-10)
+
+
+### Features
+
+* **i18n:** update @routup/i18n for routup v5 ([#769](https://github.com/routup/plugins/issues/769)) ([872de6f](https://github.com/routup/plugins/commit/872de6fbdf7da268bb77d841d70e4192586c7766))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Bug Fixes
+
+* align peer dependencies and add unit tests and docs ([c23f388](https://github.com/routup/plugins/commit/c23f3883b155c90fe112333f910ad1f455fcf031))
+
 ## [2.0.2](https://github.com/routup/plugins/compare/i18n-v2.0.1...i18n-v2.0.2) (2025-11-26)
 
 

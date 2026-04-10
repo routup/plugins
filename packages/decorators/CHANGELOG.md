@@ -6,6 +6,28 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [3.5.0](https://github.com/routup/plugins/compare/decorators-v3.4.3...decorators-v3.5.0) (2026-04-10)
+
+
+### Features
+
+* **decorators:** update @routup/decorators for routup v5 ([#764](https://github.com/routup/plugins/issues/764)) ([f72386f](https://github.com/routup/plugins/commit/f72386f2112497add6232a69913119f27a7d4feb))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Bug Fixes
+
+* **swagger:** align generator tests with v5 decorator changes ([2fe28b0](https://github.com/routup/plugins/commit/2fe28b058ce333041245082c419e51137711d6f2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/body bumped from ^2.4.3 to ^2.5.0
+    * @routup/cookie bumped from ^2.4.3 to ^2.5.0
+    * @routup/query bumped from ^2.4.3 to ^2.5.0
+
 ## [3.4.3](https://github.com/routup/plugins/compare/decorators-v3.4.2...decorators-v3.4.3) (2025-11-26)
 
 

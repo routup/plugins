@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.5.0](https://github.com/routup/plugins/compare/prometheus-v2.4.2...prometheus-v2.5.0) (2026-04-10)
+
+
+### Features
+
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **prometheus:** update @routup/prometheus for routup v5 ([#768](https://github.com/routup/plugins/issues/768)) ([bf2f693](https://github.com/routup/plugins/commit/bf2f693b73149f029e4c269b4212390f2238f807))
+
 ## [2.4.2](https://github.com/routup/plugins/compare/prometheus-v2.4.1...prometheus-v2.4.2) (2025-11-26)
 
 

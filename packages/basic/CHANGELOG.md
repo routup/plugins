@@ -6,6 +6,23 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [1.5.0](https://github.com/routup/plugins/compare/basic-v1.4.3...basic-v1.5.0) (2026-04-10)
+
+
+### Features
+
+* **basic:** update @routup/basic for routup v5 ([#763](https://github.com/routup/plugins/issues/763)) ([7a150d5](https://github.com/routup/plugins/commit/7a150d5f0112eae9f8ab4f4a97e572238e62095c))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^2.4.3 to ^2.5.0
+    * @routup/cookie bumped from ^2.4.3 to ^2.5.0
+    * @routup/query bumped from ^2.4.3 to ^2.5.0
+
 ## [1.4.3](https://github.com/routup/plugins/compare/basic-v1.4.2...basic-v1.4.3) (2025-11-26)
 
 

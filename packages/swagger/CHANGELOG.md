@@ -1,5 +1,34 @@
 # Change Log
 
+## [3.0.0](https://github.com/routup/plugins/compare/swagger-v2.4.3...swagger-v3.0.0) (2026-04-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **swagger:** routup v5
+
+### Features
+
+* **cookie:** update @routup/cookie for routup v5 ([#759](https://github.com/routup/plugins/issues/759)) ([190178f](https://github.com/routup/plugins/commit/190178f4f0f2136969fd4819d5e96b68769989a4))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **swagger:** update @routup/swagger for routup v5 ([#756](https://github.com/routup/plugins/issues/756)) ([bc1b313](https://github.com/routup/plugins/commit/bc1b313f3ff69ae3995d5708c48e88800e503218))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#765](https://github.com/routup/plugins/issues/765)) ([4d6ee22](https://github.com/routup/plugins/commit/4d6ee22905fa4cef4c227c4669981cac8ca2f0ed))
+* **swagger:** align generator tests with v5 decorator changes ([2fe28b0](https://github.com/routup/plugins/commit/2fe28b058ce333041245082c419e51137711d6f2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^3.4.2 to ^4.0.0
+    * @routup/swagger-preset bumped from ^2.4.3 to ^3.0.0
+  * devDependencies
+    * @routup/decorators bumped from ^3.4.3 to ^3.5.0
+
 ## [2.4.3](https://github.com/routup/plugins/compare/swagger-v2.4.2...swagger-v2.4.3) (2025-11-26)
 
 
