@@ -63,7 +63,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^5.0.0-beta.3"
+        "routup": "^5.0.0-beta.4"
     },
     "dependencies": {
         "@routup/body": "^2.4.3",
@@ -71,7 +71,7 @@
         "@routup/query": "^2.4.3"
     },
     "devDependencies": {
-        "routup": "^5.0.0-beta.3"
+        "routup": "^5.0.0-beta.4"
     },
     "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
     "publishConfig": {

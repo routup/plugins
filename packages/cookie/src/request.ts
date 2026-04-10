@@ -1,7 +1,7 @@
 import type { IRoutupEvent } from 'routup';
 import { isObject } from './utils';
 
-const CookieSymbol = Symbol.for('ReqCookie');
+const CookieSymbol = Symbol.for('@routup/cookie:ReqCookie');
 
 export function useRequestCookies(
     event: IRoutupEvent,

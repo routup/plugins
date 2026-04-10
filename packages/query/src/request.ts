@@ -1,7 +1,7 @@
 import type { IRoutupEvent } from 'routup';
 import { isObject } from './utils';
 
-const QuerySymbol = Symbol.for('ReqQuery');
+const QuerySymbol = Symbol.for('@routup/query:ReqQuery');
 
 export function useRequestQuery(event: IRoutupEvent) : Record<string, any>;
 export function useRequestQuery(event: IRoutupEvent, key: string) : any;

@@ -63,5 +63,8 @@
         "lint": "eslint ./packages/",
         "lint:fix": "npm run lint -- --fix",
         "prepare": "husky"
+    },
+    "peerDependencies": {
+        "routup": "^5.0.0-beta.4"
     }
 }
