@@ -1,5 +1,4 @@
 import type { IRoutupEvent } from 'routup';
-import { PluginNotInstalledError } from 'routup';
 import type { RateLimitInfo } from './type';
 import { isObject } from './utils';
 
@@ -8,15 +7,17 @@ const RateLimitSymbol = Symbol('ReqRateLimit');
 export function useRequestRateLimitInfo(event: IRoutupEvent) : Partial<RateLimitInfo>;
 export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IRoutupEvent, key: K) : RateLimitInfo[K] | undefined;
 export function useRequestRateLimitInfo(event: IRoutupEvent, key?: string) {
-    if (!(RateLimitSymbol in event.store)) {
-        throw new PluginNotInstalledError('@routup/rate-limit', 'useRequestRateLimitInfo');
+    if (RateLimitSymbol in event.store) {
+        if (typeof key === 'string') {
+            return (event.store[RateLimitSymbol] as Record<string, unknown>)[key];
+        }
+
+        return event.store[RateLimitSymbol];
     }
 
-    if (typeof key === 'string') {
-        return (event.store[RateLimitSymbol] as Record<string, unknown>)[key];
-    }
-
-    return event.store[RateLimitSymbol];
+    return typeof key === 'string' ?
+        undefined :
+        {};
 }
 
 export function setRequestRateLimitInfo<K extends keyof RateLimitInfo>(
