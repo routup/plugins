@@ -1,6 +1,6 @@
 import type { DecoratorMeta } from '../type';
 
-const symbol = Symbol.for('DecoratorMeta');
+const symbol = Symbol('DecoratorMeta');
 
 export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
     if (symbol in target) {

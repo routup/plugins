@@ -1,5 +1,6 @@
 import type { IRoutupEvent } from 'routup';
-import { BodySymbol } from '../constants';
+import { PluginNotInstalledError } from 'routup';
+import { BodySymbol, OptionsSymbol } from '../constants';
 import { boolToObject } from '../utils';
 import { getBodyOptions } from './options';
 import { parseJsonBody } from './parse-json';
@@ -30,6 +31,10 @@ export async function readRequestBody(event: IRoutupEvent, key?: string) {
     if (BodySymbol in event.store) {
         const cached = event.store[BodySymbol] as Record<string, any>;
         return typeof key === 'string' ? cached[key] : cached;
+    }
+
+    if (!(OptionsSymbol in event.store)) {
+        throw new PluginNotInstalledError('@routup/body', 'readRequestBody');
     }
 
     const options = getBodyOptions(event);

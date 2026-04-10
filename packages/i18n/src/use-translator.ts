@@ -1,17 +1,14 @@
 import type { GetContext } from 'ilingo';
 import { Ilingo } from 'ilingo';
 import type { IRoutupEvent } from 'routup';
-import { createError } from 'routup';
+import { PluginNotInstalledError, createError } from 'routup';
 import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
 import type { Translator } from './types';
 
 export function useTranslator(event: IRoutupEvent) : Translator {
     const reqInstance = event.store[REQUEST_INSTANCE_SYMBOL];
     if (!(reqInstance instanceof Ilingo)) {
-        throw createError({
-            statusCode: 500,
-            message: 'The i18n plugin is not installed.',
-        });
+        throw new PluginNotInstalledError('@routup/i18n', 'useTranslator');
     }
 
     const reqLocale = event.store[REQUEST_LOCALE_SYMBOL];

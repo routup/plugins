@@ -1,22 +1,21 @@
 import type { IRoutupEvent } from 'routup';
+import { PluginNotInstalledError } from 'routup';
 import { isObject } from './utils';
 
-const QuerySymbol = Symbol.for('ReqQuery');
+const QuerySymbol = Symbol('ReqQuery');
 
 export function useRequestQuery(event: IRoutupEvent) : Record<string, any>;
 export function useRequestQuery(event: IRoutupEvent, key: string) : any;
 export function useRequestQuery(event: IRoutupEvent, key?: string) {
-    if (QuerySymbol in event.store) {
-        if (typeof key === 'string') {
-            return (event.store[QuerySymbol] as Record<string, any>)[key];
-        }
-
-        return event.store[QuerySymbol];
+    if (!(QuerySymbol in event.store)) {
+        throw new PluginNotInstalledError('@routup/query', 'useRequestQuery');
     }
 
-    return typeof key === 'string' ?
-        undefined :
-        {};
+    if (typeof key === 'string') {
+        return (event.store[QuerySymbol] as Record<string, any>)[key];
+    }
+
+    return event.store[QuerySymbol];
 }
 
 export function hasRequestQuery(event: IRoutupEvent) : boolean {

@@ -1,16 +1,17 @@
 import type { IRoutupEvent } from 'routup';
+import { PluginNotInstalledError } from 'routup';
 import { isObject } from './utils';
 
-const CookieSymbol = Symbol.for('ReqCookie');
+const CookieSymbol = Symbol('ReqCookie');
 
 export function useRequestCookies(
     event: IRoutupEvent,
 ) : Record<string, string> {
-    if (CookieSymbol in event.store) {
-        return event.store[CookieSymbol] as Record<string, string>;
+    if (!(CookieSymbol in event.store)) {
+        throw new PluginNotInstalledError('@routup/cookie', 'useRequestCookies');
     }
 
-    return {};
+    return event.store[CookieSymbol] as Record<string, string>;
 }
 
 export function hasRequestCookies(event: IRoutupEvent) {

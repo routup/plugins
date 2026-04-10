@@ -1,3 +1,3 @@
-export const OptionsSymbol = Symbol.for('ReqBodyOptions');
-export const BodySymbol = Symbol.for('ReqBody');
-export const RawBodySymbol = Symbol.for('ReqRawBody');
+export const OptionsSymbol = Symbol('ReqBodyOptions');
+export const BodySymbol = Symbol('ReqBody');
+export const RawBodySymbol = Symbol('ReqRawBody');

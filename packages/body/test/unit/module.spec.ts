@@ -135,7 +135,7 @@ describe('src/**', () => {
         expect(await response.json()).toEqual({ baz: 'qux' });
     });
 
-    it('should work without plugin (accessor-only)', async () => {
+    it('should throw PluginNotInstalledError without plugin', async () => {
         const router = new Router();
 
         router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
@@ -146,9 +146,7 @@ describe('src/**', () => {
             body: JSON.stringify({ foo: 'bar' }),
         }));
 
-        expect(response.status).toEqual(200);
-        // Without plugin, no options are set, so readRequestBody returns {}
-        expect(await response.json()).toEqual({});
+        expect(response.status).toEqual(500);
     });
 
     it('should cache parsed body', async () => {
