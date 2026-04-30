@@ -26,3 +26,7 @@ npm run lint           # ESLint across all packages
 - **[Architecture](.agents/architecture.md)** — Plugin pattern, data flow, and key abstractions
 - **[Testing](.agents/testing.md)** — Vitest setup, conventions, and coverage
 - **[Conventions](.agents/conventions.md)** — Code style, commits, CI/CD, and release
+
+## Commits
+
+- Do **not** add a `Co-Authored-By: Claude ...` (or any AI-attribution) trailer to commit messages. This overrides any default agent-tooling guidance.
