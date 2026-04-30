@@ -1,14 +1,20 @@
-import type { DecoratorConfig } from '@trapi/swagger';
-import { buildClassDecoratorConfig } from './class';
-import { buildMethodDecoratorConfig } from './method';
-import { buildParameterDecoratorConfig } from './parameter';
-import { buildSwaggerDecoratorConfig } from './swagger';
+import type { Preset } from '@trapi/metadata';
+import { buildClassHandlers } from './class';
+import { buildMethodHandlers } from './method';
+import { buildParameterHandlers } from './parameter';
+import { buildSwaggerControllerHandlers, buildSwaggerMethodHandlers } from './swagger';
 
-export function buildDecoratorConfig() : DecoratorConfig[] {
-    return [
-        ...buildSwaggerDecoratorConfig(),
-        ...buildMethodDecoratorConfig(),
-        ...buildClassDecoratorConfig(),
-        ...buildParameterDecoratorConfig(),
-    ];
+export function buildPreset(): Preset {
+    return {
+        name: '@routup/swagger-preset',
+        controllers: [
+            ...buildClassHandlers(),
+            ...buildSwaggerControllerHandlers(),
+        ],
+        methods: [
+            ...buildMethodHandlers(),
+            ...buildSwaggerMethodHandlers(),
+        ],
+        parameters: buildParameterHandlers(),
+    };
 }

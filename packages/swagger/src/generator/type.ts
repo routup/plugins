@@ -1,30 +1,35 @@
 import type {
     Metadata,
-    MetadataOptions,
-    Options,
-    OptionsInput,
-    SpecV2,
-    SpecV3,
+    MetadataGenerateOptions,
     TsCompilerOptions,
     TsConfig,
-    Version,
+} from '@trapi/metadata';
+import type {
+    SpecV2,
+    SpecV3,
+    SwaggerGenerateData, 
+    Version, 
 } from '@trapi/swagger';
 
-export type GeneratorOutput<V extends `${Version}`> = V extends `${Version.V2}` ? SpecV2 : SpecV3;
+export type GeneratorOutput<V extends `${Version}`> = V extends typeof Version.V2 ? SpecV2 : SpecV3;
+
+export type GeneratorOptionsInput = SwaggerGenerateData & {
+    /**
+     * Pre-built metadata or options to generate metadata from source.
+     */
+    metadata?: MetadataGenerateOptions | Metadata;
+};
+
 export type GeneratorContext<V extends `${Version}`> = {
-    options: OptionsInput,
+    options: GeneratorOptionsInput,
     tsconfig?: TsConfig | string,
     version: V
 };
 
-type GeneratorOptions = Options;
-type GeneratorOptionsInput = OptionsInput;
-type GeneratorMetadataOptions = MetadataOptions;
+type GeneratorMetadataOptions = MetadataGenerateOptions;
 type GeneratorMetadata = Metadata;
 
 export type {
-    GeneratorOptions,
-    GeneratorOptionsInput,
     GeneratorMetadataOptions,
     GeneratorMetadata,
     SpecV2,

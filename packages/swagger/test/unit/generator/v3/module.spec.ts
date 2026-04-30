@@ -28,9 +28,6 @@ describe('src/generator/**', () => {
                         pattern: '**/*.ts',
                     },
                 },
-                output: false,
-                outputDirectory: 'writable',
-                yaml: false,
                 servers: ['http://localhost:3000/'],
             },
         });
@@ -40,7 +37,7 @@ describe('src/generator/**', () => {
         expect(spec).toBeDefined();
         expect(spec.paths).toBeDefined();
         expect(spec.servers).toBeDefined();
-        expect(spec.openapi).toEqual('3.1.0');
+        expect(spec.openapi).toEqual('3.0.0');
     });
 
     it('should have controller paths', async () => {

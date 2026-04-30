@@ -1,67 +1,123 @@
-import { DecoratorID } from '@trapi/swagger';
-import type { DecoratorConfig } from '@trapi/swagger';
+import {
+    type DecoratorArgument,
+    ParamKind,
+    type ParameterHandler,
+    parameter,
+} from '@trapi/metadata';
 
-export function buildParameterDecoratorConfig() : DecoratorConfig[] {
+function readString(arg: DecoratorArgument | undefined): string | undefined {
+    if (!arg) return undefined;
+    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
+    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
+    return undefined;
+}
+
+const dContextHandler = parameter({
+    match: { name: 'DContext', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+
+const dRequestHandler = parameter({
+    match: { name: 'DRequest', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+
+const dResponseHandler = parameter({
+    match: { name: 'DResponse', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+
+const dNextHandler = parameter({
+    match: { name: 'DNext', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+
+// `@DQuery()` (no arg) binds the entire query object → `Query`.
+// `@DQuery('foo')` binds a single property → `QueryProp`.
+const dQueryHandler = parameter({
+    match: { name: 'DQuery', on: 'parameter' },
+    apply: (ctx, draft) => {
+        const name = readString(ctx.argument(0));
+        if (name !== undefined) {
+            draft.in = ParamKind.QueryProp;
+            draft.name = name;
+        } else {
+            draft.in = ParamKind.Query;
+        }
+    },
+});
+
+// `@DBody()` → entire body; `@DBody('foo')` → single property.
+const dBodyHandler = parameter({
+    match: { name: 'DBody', on: 'parameter' },
+    apply: (ctx, draft) => {
+        const name = readString(ctx.argument(0));
+        if (name !== undefined) {
+            draft.in = ParamKind.BodyProp;
+            draft.name = name;
+        } else {
+            draft.in = ParamKind.Body;
+        }
+    },
+});
+
+const dHeaderHandler = parameter({
+    match: { name: 'DHeader', on: 'parameter' },
+    apply: (ctx, draft) => {
+        draft.in = ParamKind.Header;
+        const name = readString(ctx.argument(0));
+        if (name) draft.name = name;
+    },
+});
+
+// `@DHeaders()` binds the whole headers object → not representable as a single
+// OpenAPI parameter, so it's modelled as `Header` with no specific name.
+const dHeadersHandler = parameter({
+    match: { name: 'DHeaders', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Header; },
+});
+
+const dCookieHandler = parameter({
+    match: { name: 'DCookie', on: 'parameter' },
+    apply: (ctx, draft) => {
+        draft.in = ParamKind.Cookie;
+        const name = readString(ctx.argument(0));
+        if (name) draft.name = name;
+    },
+});
+
+const dCookiesHandler = parameter({
+    match: { name: 'DCookies', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Cookie; },
+});
+
+const dPathHandler = parameter({
+    match: { name: 'DPath', on: 'parameter' },
+    apply: (ctx, draft) => {
+        draft.in = ParamKind.Path;
+        const name = readString(ctx.argument(0));
+        if (name) draft.name = name;
+    },
+});
+
+const dPathsHandler = parameter({
+    match: { name: 'DPaths', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Path; },
+});
+
+export function buildParameterHandlers(): ParameterHandler[] {
     return [
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'DContext',
-            properties: {},
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'DRequest',
-            properties: {},
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'DResponse',
-            properties: {},
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'DNext',
-            properties: {},
-        },
-        {
-            id: DecoratorID.QUERY,
-            name: 'DQuery',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.BODY,
-            name: 'DBody',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.HEADER,
-            name: 'DHeader',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.HEADERS,
-            name: 'DHeaders',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.COOKIE,
-            name: 'DCookie',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.COOKIES,
-            name: 'DCookies',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PATH,
-            name: 'DPath',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PATHS,
-            name: 'DPaths',
-            properties: { value: {} },
-        },
+        dContextHandler,
+        dRequestHandler,
+        dResponseHandler,
+        dNextHandler,
+        dQueryHandler,
+        dBodyHandler,
+        dHeaderHandler,
+        dHeadersHandler,
+        dCookieHandler,
+        dCookiesHandler,
+        dPathHandler,
+        dPathsHandler,
     ];
 }
