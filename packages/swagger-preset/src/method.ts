@@ -1,24 +1,14 @@
 import {
-    type DecoratorArgument,
     type MethodDraft,
     type MethodHandler,
     method,
+    setMethodPath,
 } from '@trapi/metadata';
-
-function readString(arg: DecoratorArgument | undefined): string | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
-    return undefined;
-}
 
 function setVerbAndPath(verb: MethodDraft['verb']): MethodHandler['apply'] {
     return (ctx, draft) => {
         draft.verb = verb;
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     };
 }
 

@@ -50,10 +50,10 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@trapi/metadata": "^2.0.0-beta.0"
+        "@trapi/metadata": "^2.0.0-beta.1"
     },
     "devDependencies": {
-        "@trapi/metadata": "^2.0.0-beta.0"
+        "@trapi/metadata": "^2.0.0-beta.1"
     },
     "publishConfig": {
         "access": "public"

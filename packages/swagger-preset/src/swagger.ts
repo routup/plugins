@@ -1,7 +1,6 @@
 import {
     type ControllerDraft,
     type ControllerHandler,
-    type DecoratorArgument,
     type HandlerContext,
     MarkerName,
     type MethodDraft,
@@ -9,20 +8,9 @@ import {
     append,
     controller,
     method,
+    readNumber,
+    readString,
 } from '@trapi/metadata';
-
-function readString(arg: DecoratorArgument | undefined): string | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
-    return undefined;
-}
-
-function readNumber(arg: DecoratorArgument | undefined): number | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'number') return arg.raw;
-    return undefined;
-}
 
 const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();
@@ -72,7 +60,7 @@ const classConsumesHandler = controller({
 
 const classDeprecatedHandler = controller({
     match: { name: 'DDeprecated', on: 'class' },
-    apply: (_ctx, draft) => { (draft as Record<string, unknown>).deprecated = true; },
+    apply: (_ctx, draft) => { draft.deprecated = true; },
     marker: MarkerName.Deprecated,
 });
 

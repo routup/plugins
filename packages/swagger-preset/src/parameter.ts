@@ -1,16 +1,9 @@
 import {
-    type DecoratorArgument,
     ParamKind,
     type ParameterHandler,
     parameter,
+    readString,
 } from '@trapi/metadata';
-
-function readString(arg: DecoratorArgument | undefined): string | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
-    return undefined;
-}
 
 const dContextHandler = parameter({
     match: { name: 'DContext', on: 'parameter' },
