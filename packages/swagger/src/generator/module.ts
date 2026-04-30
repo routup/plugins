@@ -27,7 +27,9 @@ export async function generate<V extends `${Version}`>(
                 { pattern: '**/*.ts', cwd: path.join(process.cwd(), 'src') },
             ],
         };
-    } else if (!isMetadata(metadata)) {
+    }
+
+    if (!isMetadata(metadata)) {
         if (!metadata.entryPoint) {
             metadata.entryPoint = [
                 { pattern: '**/*.ts', cwd: path.join(process.cwd(), 'src') },

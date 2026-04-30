@@ -27,7 +27,7 @@ The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever 
 
 ## Source layout (TRAPI repo)
 
-```
+```text
 packages/
 ├── metadata/src/
 │   ├── core/                    # Domain types + ports (no external deps)
