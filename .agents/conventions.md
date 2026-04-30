@@ -73,3 +73,13 @@ Always include `Request` (or `Response`) in the name to stay consistent with rou
 
 - **pre-commit**: Runs linting
 - **commit-msg**: Validates conventional commit format
+
+## References
+
+External project references live in `.agents/references/`. When looking up source code in a referenced project (e.g., TRAPI), always update the corresponding reference file with:
+
+- The source file path / function name in the external project
+- The corresponding routup/plugins file path / function name
+- Any behavioral differences between the implementations
+
+This builds a cumulative mapping over time so future work can quickly find corresponding code without re-searching.

@@ -1,9 +1,7 @@
-import type { PresetSchema } from '@trapi/swagger';
-import { buildDecoratorConfig } from './module';
+import { buildPreset } from './module';
 
 export * from './module';
 
-export default {
-    extends: [],
-    items: buildDecoratorConfig(),
-} satisfies PresetSchema;
+export const preset = buildPreset();
+
+export default preset;

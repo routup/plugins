@@ -28,9 +28,6 @@ describe('src/generator/**', () => {
                         pattern: '**/*.ts',
                     },
                 },
-                output: false,
-                outputDirectory: 'writable',
-                yaml: false,
                 servers: ['http://localhost:3000/'],
             },
         });
