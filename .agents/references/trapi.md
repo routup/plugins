@@ -1,6 +1,6 @@
 # TRAPI Reference
 
-[TRAPI](https://github.com/tada5hi/trapi) is the metadata + OpenAPI generation library that `@routup/swagger-generator` depends on (the package bundles its own `@trapi/metadata` preset under `packages/swagger-generator/src/preset/`). It analyses TypeScript decorators with the compiler API and produces OpenAPI specs.
+[TRAPI](https://github.com/tada5hi/trapi) is the metadata + OpenAPI generation library that `@routup/swagger-generator` depends on. The `@trapi/metadata` preset that decodes routup's `@D*` decorators lives in `@routup/decorators` (under `packages/decorators/src/preset/`, exposed as the `./preset` subpath export); `@routup/swagger-generator` is a thin wrapper around `generateSwagger()` that pulls that preset in by default.
 
 The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever a routup-side change needs to know how the metadata pipeline interprets a decorator.
 
@@ -16,8 +16,8 @@ The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever 
 
 | TRAPI module | What it does | routup/plugins consumer |
 |---|---|---|
-| `@trapi/metadata` `Preset` type | Schema for handler-driven decorator presets | Returned by `@routup/swagger-generator`'s `buildPreset()` (`packages/swagger-generator/src/preset/module.ts`) |
-| `@trapi/metadata` `controller(...)`, `method(...)`, `parameter(...)` | Identity builders for v2 handlers | Used in `packages/swagger-generator/src/preset/{class,method,parameter,swagger}.ts` |
+| `@trapi/metadata` `Preset` type | Schema for handler-driven decorator presets | Returned by `@routup/decorators/preset`'s `buildPreset()` (`packages/decorators/src/preset/module.ts`) |
+| `@trapi/metadata` `controller(...)`, `method(...)`, `parameter(...)` | Identity builders for v2 handlers | Used in `packages/decorators/src/preset/{class,method,parameter,swagger}.ts` |
 | `@trapi/metadata` `MarkerName` (`Hidden`, `Deprecated`, `Extension`) | Concept tags so the resolver can find renamed decorators | Set on `@DHidden`/`@DDeprecated` handlers |
 | `@trapi/metadata` `ParamKind` (`Body`, `BodyProp`, `Query`, `QueryProp`, `Path`, `Cookie`, `Header`, `FormData`, `Context`) | Parameter source enumeration | Mapped from `@D*` parameter decorators |
 | `@trapi/metadata` `generateMetadata()` | Public entry: scans source, returns `Metadata` | Called by `@trapi/swagger`'s `generateSwagger()` (transitively) |
@@ -86,7 +86,8 @@ The build SHA is the head SHA of the PR or branch — find it in the pkg-pr-new 
 
 - **PR tada5hi/trapi#798** (2026-04): TRAPI v2 — preset-based decorator system, marker-driven resolver, dropped `DecoratorID`/`DecoratorConfig` types. routup/plugins migrated in lockstep (preset handlers originally lived in `packages/swagger-preset/src/*`).
 - **2026-05-04 (morning)**: `@routup/swagger-preset` package removed. Its preset was inlined into `@routup/swagger`; bumped `@trapi/metadata` and `@trapi/swagger` to `^2.0.0-beta.2`. `preset:` is now passed as a `Preset` object (returned by `buildPreset()`) instead of a string lookup.
-- **2026-05-04 (afternoon)**: `@routup/swagger` split into `@routup/swagger-generator` (generator + bundled preset, in `packages/swagger-generator/src/{generator,preset}/`) and `@routup/swagger-ui` (UI-only, in `packages/swagger-ui/src/`). UI-only consumers no longer pull `@trapi/metadata` / `@trapi/swagger` (TypeScript), generator-only consumers no longer pull `swagger-ui-dist` (~10MB of static assets).
+- **2026-05-04 (afternoon)**: `@routup/swagger` split into `@routup/swagger-generator` (generator) and `@routup/swagger-ui` (UI-only). UI-only consumers no longer pull `@trapi/metadata` / `@trapi/swagger` (TypeScript); generator-only consumers no longer pull `swagger-ui-dist` (~10MB of static assets).
+- **2026-05-04 (evening)**: Preset moved from `@routup/swagger-generator` into `@routup/decorators` as the `./preset` subpath export (`packages/decorators/src/preset/`). `@trapi/metadata` is an optional peer dep on decorators (runtime-only users skip it). `generate()` switched to taking `SwaggerGenerateOptions` directly (`{ version, metadata, data }`) instead of the old `GeneratorContext` wrapper, and `@routup/swagger-generator` re-exports everything from `@trapi/swagger` plus `buildPreset` from the decorators subpath. Trapi CLI consumers can now pass `--preset @routup/decorators/preset`.
 
 ## Quick-check after a TRAPI bump
 
@@ -100,4 +101,4 @@ npx nx run @routup/decorators:test           # 7 tests
 npm run lint
 ```
 
-If TRAPI removed or renamed an exported type, the `@routup/swagger-generator` typecheck (`build:types`) will fail loudly — adjust the imports in `packages/swagger-generator/src/preset/*.ts` (handler builders, marker enums) or `packages/swagger-generator/src/generator/{type,module}.ts` (option-shape forwarding). The UI half (`packages/swagger-ui/`) does not depend on TRAPI.
+If TRAPI removed or renamed an exported type, the `@routup/decorators` typecheck (`build:types`) will fail loudly — adjust the imports in `packages/decorators/src/preset/*.ts` (handler builders, marker enums). For changes to the swagger entry-point shape, see `packages/swagger-generator/src/generate.ts`. The UI half (`packages/swagger-ui/`) does not depend on TRAPI.

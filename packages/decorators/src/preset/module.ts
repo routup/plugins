@@ -6,7 +6,7 @@ import { buildSwaggerControllerHandlers, buildSwaggerMethodHandlers } from './sw
 
 export function buildPreset(): Preset {
     return {
-        name: '@routup/swagger-generator',
+        name: '@routup/decorators',
         controllers: [
             ...buildClassHandlers(),
             ...buildSwaggerControllerHandlers(),

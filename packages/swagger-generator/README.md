@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-Generate OpenAPI v2 / v3 documents from decorated routup controllers via [`@trapi/metadata`](https://github.com/trapi/trapi). Bundles the metadata preset that decodes routup's `@D*` decorators (`@DController`, `@DGet`, `@DBody`, …). Pair with [`@routup/swagger-ui`](../swagger-ui) to serve the generated document.
+Generate OpenAPI v2 / v3 documents from decorated routup controllers via [`@trapi/metadata`](https://github.com/trapi/trapi). Thin wrapper around `@trapi/swagger`'s `generateSwagger()` with routup-friendly defaults; the metadata preset that decodes `@D*` decorators lives in [`@routup/decorators/preset`](../decorators) and is applied by default. Pair with [`@routup/swagger-ui`](../swagger-ui) to serve the generated document.
 
 ## Installation
 
@@ -20,49 +20,59 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ## Usage
 
+`generate()` accepts a `SwaggerGenerateOptions` value (`{ version, metadata, data }`) — the same shape as `@trapi/swagger`'s `generateSwagger()`, with every field optional.
+
 **`V3`**
 
 ```typescript
 import { generate, Version } from '@routup/swagger-generator';
 import process from 'node:process';
 
-await generate({
+const spec = await generate({
     version: Version.V3,
-    options: {
-        metadata: {
-            entryPoint: {
-                cwd: process.cwd(),
-                pattern: '**/*.ts',
-            },
+    metadata: {
+        entryPoint: {
+            cwd: process.cwd(),
+            pattern: '**/*.ts',
         },
-        output: true,
-        outputDirectory: 'writable',
+    },
+    data: {
         servers: ['http://localhost:3000/'],
     },
 });
 ```
-
-The function call will save the file under the location: `./writable/swagger.json`.
 
 **`V2`**
 
 ```typescript
 import { generate, Version } from '@routup/swagger-generator';
 
-await generate({
+const spec = await generate({
     version: Version.V2,
-    options: {
-        metadata: {
-            entryPoint: { cwd: process.cwd(), pattern: '**/*.ts' },
-        },
-        output: true,
-        outputDirectory: 'writable',
+    metadata: {
+        entryPoint: { cwd: process.cwd(), pattern: '**/*.ts' },
+    },
+    data: {
         servers: ['http://localhost:3000/'],
     },
 });
 ```
 
-The bundled preset (returned by `buildPreset()`) is applied automatically — set `preset:` explicitly only if you ship a customized variant.
+The default preset (`buildPreset()` from `@routup/decorators/preset`) is applied automatically when `metadata.preset` is omitted — set it explicitly only if you ship a customized variant. To persist the document, hand the returned spec to [`saveSwagger()`](https://www.npmjs.com/package/@trapi/swagger):
+
+```typescript
+import { saveSwagger } from '@routup/swagger-generator';
+
+await saveSwagger(spec, { outputDirectory: 'writable' });
+```
+
+## Using the preset standalone
+
+Other trapi-based tools (the `trapi` CLI, custom generators) can consume the preset directly without depending on `@routup/swagger-generator`:
+
+```bash
+npx trapi --preset @routup/decorators/preset
+```
 
 ## License
 

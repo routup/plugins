@@ -53,12 +53,12 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "dependencies": {
+        "@routup/decorators": "^3.4.3",
         "@trapi/metadata": "^2.0.0-beta.2",
         "@trapi/swagger": "^2.0.0-beta.2",
         "smob": "^1.4.0"
     },
     "devDependencies": {
-        "@routup/decorators": "^3.4.3",
         "jsonata": "^2.1.0"
     },
     "publishConfig": {

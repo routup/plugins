@@ -19,17 +19,15 @@ describe('src/generator/**', () => {
     beforeAll(async () => {
         spec = await generate({
             version: Version.V2,
-            options: {
-                metadata: {
-                    cache: false,
-                    preset: buildPreset(),
-                    entryPoint: {
-                        cwd: controllerDirectoryPath,
-                        pattern: '**/*.ts',
-                    },
+            metadata: {
+                cache: false,
+                preset: buildPreset(),
+                entryPoint: {
+                    cwd: controllerDirectoryPath,
+                    pattern: '**/*.ts',
                 },
-                servers: ['http://localhost:3000/'],
             },
+            data: { servers: ['http://localhost:3000/'] },
         });
     });
 
