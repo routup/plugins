@@ -1,6 +1,6 @@
 # TRAPI Reference
 
-[TRAPI](https://github.com/tada5hi/trapi) is the metadata + OpenAPI generation library that `@routup/swagger` and `@routup/swagger-preset` depend on. It analyses TypeScript decorators with the compiler API and produces OpenAPI specs.
+[TRAPI](https://github.com/tada5hi/trapi) is the metadata + OpenAPI generation library that `@routup/swagger` depends on (the swagger package now bundles its own `@trapi/metadata` preset under `packages/swagger/src/preset/`). It analyses TypeScript decorators with the compiler API and produces OpenAPI specs.
 
 The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever a routup-side change needs to know how the metadata pipeline interprets a decorator.
 
@@ -16,8 +16,8 @@ The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever 
 
 | TRAPI module | What it does | routup/plugins consumer |
 |---|---|---|
-| `@trapi/metadata` `Preset` type | Schema for handler-driven decorator presets | Returned by `@routup/swagger-preset` `buildPreset()` |
-| `@trapi/metadata` `controller(...)`, `method(...)`, `parameter(...)` | Identity builders for v2 handlers | Used in `swagger-preset/src/{class,method,parameter,swagger}.ts` |
+| `@trapi/metadata` `Preset` type | Schema for handler-driven decorator presets | Returned by `@routup/swagger`'s `buildPreset()` (`packages/swagger/src/preset/module.ts`) |
+| `@trapi/metadata` `controller(...)`, `method(...)`, `parameter(...)` | Identity builders for v2 handlers | Used in `packages/swagger/src/preset/{class,method,parameter,swagger}.ts` |
 | `@trapi/metadata` `MarkerName` (`Hidden`, `Deprecated`, `Extension`) | Concept tags so the resolver can find renamed decorators | Set on `@DHidden`/`@DDeprecated` handlers |
 | `@trapi/metadata` `ParamKind` (`Body`, `BodyProp`, `Query`, `QueryProp`, `Path`, `Cookie`, `Header`, `FormData`, `Context`) | Parameter source enumeration | Mapped from `@D*` parameter decorators |
 | `@trapi/metadata` `generateMetadata()` | Public entry: scans source, returns `Metadata` | Called by `@trapi/swagger`'s `generateSwagger()` (transitively) |
@@ -84,17 +84,17 @@ The build SHA is the head SHA of the PR or branch — find it in the pkg-pr-new 
 
 ## Migration history
 
-- **PR tada5hi/trapi#798** (2026-04): TRAPI v2 — preset-based decorator system, marker-driven resolver, dropped `DecoratorID`/`DecoratorConfig` types. routup/plugins migrated in lockstep (see `packages/swagger-preset/src/*` rewrite + `packages/swagger/src/generator/module.ts`).
+- **PR tada5hi/trapi#798** (2026-04): TRAPI v2 — preset-based decorator system, marker-driven resolver, dropped `DecoratorID`/`DecoratorConfig` types. routup/plugins migrated in lockstep (preset handlers originally lived in `packages/swagger-preset/src/*`; the package was inlined into `@routup/swagger` on 2026-05-04 — they now live in `packages/swagger/src/preset/*`).
+- **2026-05-04**: `@routup/swagger-preset` package removed. Its preset is bundled inside `@routup/swagger` and exposed by name `@routup/swagger` (the metadata generator's default `preset`). Bumped `@trapi/metadata` and `@trapi/swagger` to `^2.0.0-beta.2`.
 
 ## Quick-check after a TRAPI bump
 
 ```bash
 # from /opt/projects/routup/plugins
-npx nx run @routup/swagger-preset:build
 npx nx run @routup/swagger:build
 npx nx run @routup/swagger:test       # 22 tests
 npx nx run @routup/decorators:test    # 7 tests
 npm run lint
 ```
 
-If TRAPI removed or renamed an exported type, the swagger or swagger-preset typecheck (`build:types`) will fail loudly — adjust the imports in `swagger-preset/src/*.ts` (handler builders, marker enums) or `swagger/src/generator/{type,module}.ts` (option-shape forwarding).
+If TRAPI removed or renamed an exported type, the swagger typecheck (`build:types`) will fail loudly — adjust the imports in `packages/swagger/src/preset/*.ts` (handler builders, marker enums) or `packages/swagger/src/generator/{type,module}.ts` (option-shape forwarding).

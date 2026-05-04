@@ -22,7 +22,7 @@ export async function generate<V extends `${Version}`>(
     if (!metadata) {
         metadata = {
             ignore: ['**/node_modules/**'],
-            preset: '@routup/swagger-preset',
+            preset: '@routup/swagger',
             entryPoint: [
                 { pattern: '**/*.ts', cwd: path.join(process.cwd(), 'src') },
             ],
@@ -36,7 +36,7 @@ export async function generate<V extends `${Version}`>(
             ];
         }
         if (!metadata.preset) {
-            metadata.preset = '@routup/swagger-preset';
+            metadata.preset = '@routup/swagger';
         }
         if (context.tsconfig && !metadata.tsconfig) {
             metadata.tsconfig = context.tsconfig;
@@ -47,7 +47,7 @@ export async function generate<V extends `${Version}`>(
     const { metadata: _omit, ...data } = options;
 
     return await generateSwagger({
-        version: context.version || Version.V3,
+        version: context.version || Version.V3_2,
         metadata,
         data,
     }) as GeneratorOutput<V>;

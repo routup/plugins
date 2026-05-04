@@ -1,14 +1,14 @@
 ---
 title: Decorators
 description: Class-, method-, and parameter-decorators for routup — define controllers in TypeScript and mount them on a router.
-relatedPlugins: [basic, body, cookie, query, swagger, swagger-preset]
+relatedPlugins: [basic, body, cookie, query, swagger]
 ---
 
 # @routup/decorators
 
 Define request handlers as classes with TypeScript decorators, then mount them on any routup router. Familiar shape if you're coming from NestJS, tsoa, or Spring — controllers, parameter injection, declarative paths.
 
-The decorator metadata is also what [`@routup/swagger`](/swagger/) reads (via [`@routup/swagger-preset`](/swagger-preset/)) to generate OpenAPI documents — so the same controller is both your routing surface and your API contract.
+The decorator metadata is also what [`@routup/swagger`](/swagger/) reads (via its bundled preset) to generate OpenAPI documents — so the same controller is both your routing surface and your API contract.
 
 ## Installation
 
@@ -77,4 +77,3 @@ The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can
 - [Controllers](./controllers) — `@DController`, HTTP method decorators, async handlers, returning a `Response`
 - [Parameters](./parameters) — every parameter decorator and the parser plugins it relies on
 - [`@routup/swagger`](/swagger/) — generate OpenAPI from your decorated controllers
-- [`@routup/swagger-preset`](/swagger-preset/) — the metadata preset that maps `@DController` / `@DGet` / `@DBody` to OpenAPI

@@ -22,7 +22,7 @@ describe('src/generator/**', () => {
             options: {
                 metadata: {
                     cache: false,
-                    preset: '@routup/swagger-preset',
+                    preset: '@routup/swagger',
                     entryPoint: {
                         cwd: controllerDirectoryPath,
                         pattern: '**/*.ts',

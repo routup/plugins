@@ -1,12 +1,12 @@
 ---
 title: Swagger — Generator
 description: Generate an OpenAPI v2 or v3 document from your decorated controllers.
-relatedPlugins: [decorators, swagger-preset]
+relatedPlugins: [decorators]
 ---
 
 # Generator
 
-`generate()` runs the [`@trapi/metadata`](https://github.com/trapi/trapi) extractor over a TypeScript pattern, applies a preset (almost always [`@routup/swagger-preset`](/swagger-preset/)), and writes a Swagger / OpenAPI document.
+`generate()` runs the [`@trapi/metadata`](https://github.com/trapi/trapi) extractor over a TypeScript pattern, applies the bundled `@routup/swagger` preset (which decodes `@DController` / `@DGet` / `@DBody` / …), and writes a Swagger / OpenAPI document.
 
 ## OpenAPI v3
 
@@ -18,7 +18,6 @@ await generate({
     version: Version.V3,
     options: {
         metadata: {
-            preset: '@routup/swagger-preset',
             entryPoint: {
                 cwd: process.cwd(),
                 pattern: '**/*.ts',
@@ -31,7 +30,7 @@ await generate({
 });
 ```
 
-The output is written to `./writable/swagger.json`.
+The output is written to `./writable/swagger.json`. The default `preset: '@routup/swagger'` is applied automatically — set it explicitly only if you ship a custom preset.
 
 ## OpenAPI v2
 
@@ -42,7 +41,6 @@ await generate({
     version: Version.V2,
     options: {
         metadata: {
-            preset: '@routup/swagger-preset',
             entryPoint: { cwd: process.cwd(), pattern: '**/*.ts' },
         },
         output: true,
@@ -64,4 +62,4 @@ A common split: generate in CI, read in production; regenerate on watch in dev.
 ## See also
 
 - [UI](./ui) — serve the generated document via Swagger UI
-- [`@routup/swagger-preset`](/swagger-preset/) — what `preset: '@routup/swagger-preset'` actually does
+- [`@routup/decorators`](/decorators/) — the decorators the preset decodes

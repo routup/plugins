@@ -9,6 +9,5 @@
     "packages/query": "2.4.3",
     "packages/rate-limit": "2.4.2",
     "packages/rate-limit-redis": "3.1.2",
-    "packages/swagger": "2.4.3",
-    "packages/swagger-preset": "2.4.3"
+    "packages/swagger": "2.4.3"
 }

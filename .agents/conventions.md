@@ -39,7 +39,7 @@ npm run build             # rimraf dist && tsdown
 
 - **release-please** automates versioning and CHANGELOG generation
 - **workspaces-publish** publishes all changed packages to npm
-- Linked version groups: `rate-limit` + `rate-limit-redis`, `swagger` + `swagger-preset`
+- Linked version groups: `rate-limit` + `rate-limit-redis`
 
 ## Adding a New Plugin
 
@@ -68,6 +68,16 @@ Helper functions that interact with the request/response follow a consistent nam
 The full pattern is: `<prefix>Request<Noun><Format?>` — e.g., `readRequestBodyBytes`, `useRequestCookies`, `setResponseCookie`.
 
 Always include `Request` (or `Response`) in the name to stay consistent with routup core helpers.
+
+## Documentation
+
+Whenever code changes alter public API, plugin options, behavior, defaults, or usage, update the corresponding user-facing documentation in the **same change**:
+
+- The package's `packages/[name]/README.md`
+- The matching VitePress page under `packages/docs/src/[name]/`
+- The root `README.md` if the change affects the overall feature list, install/quick-start snippets, or package table
+
+Treat docs as part of the implementation — a code change is not complete until docs reflect it. This includes added/removed/renamed exports, option fields, default values, env vars, and any behavior a consumer can observe.
 
 ## Git Hooks (Husky)
 

@@ -15,8 +15,7 @@ plugins/
 │   ├── query/          # Query string parsing (qs)
 │   ├── rate-limit/     # In-memory rate limiting
 │   ├── rate-limit-redis/ # Redis adapter for rate-limit
-│   ├── swagger/        # Swagger UI + OpenAPI docs
-│   └── swagger-preset/ # Swagger preset config
+│   └── swagger/        # Swagger UI + OpenAPI docs (bundles the metadata preset)
 ├── .github/            # CI workflows + reusable actions
 ├── nx.json             # NX task config and caching
 ├── rollup.config.mjs   # Shared Rollup config factory
@@ -60,14 +59,13 @@ packages/[name]/
 | `query` | `@routup/query` | Query string parsing | `qs` |
 | `rate-limit` | `@routup/rate-limit` | In-memory rate limiter | — |
 | `rate-limit-redis` | `@routup/rate-limit-redis` | Redis rate-limit adapter | `@routup/rate-limit`, `ioredis` |
-| `swagger` | `@routup/swagger` | Swagger UI serving | `@routup/assets`, `@routup/swagger-preset` |
-| `swagger-preset` | `@routup/swagger-preset` | Swagger HTML/asset preset | `swagger-ui-dist` |
+| `swagger` | `@routup/swagger` | Swagger UI + OpenAPI generator (bundles the `@trapi/metadata` preset) | `@routup/assets`, `@trapi/metadata`, `@trapi/swagger`, `swagger-ui-dist` |
 
 ## Dependency Layers
 
 ```
 Layer 3 (composites):   basic, swagger
-Layer 2 (adapters):     rate-limit-redis, swagger-preset
+Layer 2 (adapters):     rate-limit-redis
 Layer 1 (standalone):   assets, body, cookie, decorators, i18n, prometheus, query, rate-limit
 ```
 
