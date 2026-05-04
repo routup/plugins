@@ -1,17 +1,23 @@
 ---
-title: Swagger — Generator
+title: Swagger Generator
 description: Generate an OpenAPI v2 or v3 document from your decorated controllers.
-relatedPlugins: [decorators]
+relatedPlugins: [decorators, swagger-ui]
 ---
 
-# Generator
+# @routup/swagger-generator
 
-`generate()` runs the [`@trapi/metadata`](https://github.com/trapi/trapi) extractor over a TypeScript pattern, applies the bundled `@routup/swagger` preset (which decodes `@DController` / `@DGet` / `@DBody` / …), and writes a Swagger / OpenAPI document.
+`generate()` runs the [`@trapi/metadata`](https://github.com/trapi/trapi) extractor over a TypeScript pattern, applies the bundled preset (which decodes `@DController` / `@DGet` / `@DBody` / …), and writes a Swagger / OpenAPI document.
+
+## Installation
+
+```bash
+npm install @routup/swagger-generator
+```
 
 ## OpenAPI v3
 
 ```typescript
-import { generate, Version } from '@routup/swagger';
+import { generate, Version } from '@routup/swagger-generator';
 import process from 'node:process';
 
 await generate({
@@ -35,7 +41,7 @@ The output is written to `./writable/swagger.json`. The bundled preset (returned
 ## OpenAPI v2
 
 ```typescript
-import { generate, Version } from '@routup/swagger';
+import { generate, Version } from '@routup/swagger-generator';
 
 await generate({
     version: Version.V2,
@@ -61,5 +67,5 @@ A common split: generate in CI, read in production; regenerate on watch in dev.
 
 ## See also
 
-- [UI](./ui) — serve the generated document via Swagger UI
+- [`@routup/swagger-ui`](/swagger-ui/) — serve the generated document via Swagger UI
 - [`@routup/decorators`](/decorators/) — the decorators the preset decodes

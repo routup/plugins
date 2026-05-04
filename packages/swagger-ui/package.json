@@ -1,0 +1,68 @@
+{
+    "name": "@routup/swagger-ui",
+    "version": "2.4.3",
+    "type": "module",
+    "description": "Swagger UI plugin for routup — mount swagger-ui-dist on any path.",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        }
+    },
+    "types": "./dist/index.d.mts",
+    "files": [
+        "assets/",
+        "dist/"
+    ],
+    "scripts": {
+        "build": "npm run build:js && npm run build:types",
+        "build:js": "rimraf ./dist && tsdown",
+        "build:types": "tsc --noEmit -p tsconfig.build.json",
+        "test": "vitest run --config ./test/vitest.config.ts",
+        "test:coverage": "vitest run --config ./test/vitest.config.ts --coverage",
+        "lint": "eslint ./src",
+        "lint:fix": "npm run lint -- --fix"
+    },
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "keywords": [
+        "swagger",
+        "swagger-ui",
+        "openapi",
+        "api",
+        "rest",
+        "http",
+        "router",
+        "api-router",
+        "route",
+        "routing"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/routup/plugins.git",
+        "directory": "packages/swagger-ui"
+    },
+    "bugs": {
+        "url": "https://github.com/routup/plugins/issues"
+    },
+    "homepage": "https://github.com/routup/plugins#readme",
+    "peerDependencies": {
+        "routup": "^5.0.0-beta.6"
+    },
+    "dependencies": {
+        "@routup/assets": "^3.4.2",
+        "@types/swagger-ui-dist": "^3.30.5",
+        "swagger-ui-dist": "^5.32.5"
+    },
+    "devDependencies": {
+        "routup": "^5.0.0-beta.6"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

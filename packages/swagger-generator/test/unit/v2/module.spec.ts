@@ -5,20 +5,20 @@ import {
     it, 
 } from 'vitest';
 import { Version } from '@trapi/swagger';
-import type { SpecV3 } from '@trapi/swagger';
+import type { SpecV2 } from '@trapi/swagger';
 import jsonata from 'jsonata';
 import path from 'node:path';
 import process from 'node:process';
-import { buildPreset, generate } from '../../../../src';
+import { buildPreset, generate } from '../../../src';
 
 const controllerDirectoryPath = path.resolve(process.cwd(), '..', 'decorators', 'test', 'data');
 
 describe('src/generator/**', () => {
-    let spec : SpecV3;
+    let spec : SpecV2;
 
     beforeAll(async () => {
         spec = await generate({
-            version: Version.V3,
+            version: Version.V2,
             options: {
                 metadata: {
                     cache: false,
@@ -36,8 +36,8 @@ describe('src/generator/**', () => {
     it('should generate metadata', async () => {
         expect(spec).toBeDefined();
         expect(spec.paths).toBeDefined();
-        expect(spec.servers).toBeDefined();
-        expect(spec.openapi).toEqual('3.0.0');
+        expect(spec.host).toBeDefined();
+        expect(spec.swagger).toEqual('2.0');
     });
 
     it('should have controller paths', async () => {
@@ -66,13 +66,13 @@ describe('src/generator/**', () => {
         expression = jsonata('responses."200".description');
         expect(await expression.evaluate(pathContent)).toEqual('Ok');
 
-        expression = jsonata('requestBody.content."application/json".schema.type');
+        expression = jsonata('parameters[0].schema.type');
         expect(await expression.evaluate(pathContent)).toEqual('object');
 
-        expression = jsonata('requestBody.content."application/json".schema.required');
+        expression = jsonata('parameters[0].schema.required');
         expect(await expression.evaluate(pathContent)).toEqual(['foo']);
 
-        expression = jsonata('requestBody.content."application/json".schema.properties.foo.type');
+        expression = jsonata('parameters[0].schema.properties.foo.type');
         expect(await expression.evaluate(pathContent)).toEqual('string');
     });
 
@@ -85,10 +85,13 @@ describe('src/generator/**', () => {
         expression = jsonata('responses."200".description');
         expect(await expression.evaluate(pathContent)).toEqual('Ok');
 
-        expression = jsonata('requestBody.content."application/json".schema.type');
+        expression = jsonata('parameters[0].name');
+        expect(await expression.evaluate(pathContent)).toEqual('body');
+
+        expression = jsonata('parameters[0].schema.type');
         expect(await expression.evaluate(pathContent)).toEqual('object');
 
-        expression = jsonata('requestBody.content."application/json".schema.properties.foo.type');
+        expression = jsonata('parameters[0].schema.properties.foo.type');
         expect(await expression.evaluate(pathContent)).toEqual('string');
     });
 
@@ -101,10 +104,10 @@ describe('src/generator/**', () => {
         expression = jsonata('responses."200".description');
         expect(await expression.evaluate(pathContent)).toEqual('Ok');
 
-        expression = jsonata('responses."200".content."application/json".schema."$ref"');
-        expect(await expression.evaluate(pathContent)).toEqual('#/components/schemas/GetManyResponse');
+        expression = jsonata('responses."200".schema."$ref"');
+        expect(await expression.evaluate(pathContent)).toEqual('#/definitions/GetManyResponse');
 
-        expression = jsonata('responses."200".content."application/json".examples.example1.value');
+        expression = jsonata('responses."200".examples."application/json"');
         expect(await expression.evaluate(pathContent)).toEqual({ foo: 'bar' });
     });
 

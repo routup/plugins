@@ -1,14 +1,14 @@
 ---
 title: Decorators
 description: Class-, method-, and parameter-decorators for routup — define controllers in TypeScript and mount them on a router.
-relatedPlugins: [basic, body, cookie, query, swagger]
+relatedPlugins: [basic, body, cookie, query, swagger-generator, swagger-ui]
 ---
 
 # @routup/decorators
 
 Define request handlers as classes with TypeScript decorators, then mount them on any routup router. Familiar shape if you're coming from NestJS, tsoa, or Spring — controllers, parameter injection, declarative paths.
 
-The decorator metadata is also what [`@routup/swagger`](/swagger/) reads (via its bundled preset) to generate OpenAPI documents — so the same controller is both your routing surface and your API contract.
+The decorator metadata is also what [`@routup/swagger-generator`](/swagger-generator/) reads (via its bundled preset) to produce OpenAPI documents — so the same controller is both your routing surface and your API contract.
 
 ## Installation
 
@@ -67,7 +67,7 @@ serve(router, { port: 3000 });
 ## When to use it
 
 - You prefer class-based controllers to functional handler files
-- You're generating OpenAPI from your controllers via [`@routup/swagger`](/swagger/)
+- You're generating OpenAPI from your controllers via [`@routup/swagger-generator`](/swagger-generator/)
 - You're migrating a NestJS / tsoa / class-validator codebase and want a familiar shape
 
 The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can mount decorator controllers and functional handlers on the same router.
@@ -76,4 +76,5 @@ The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can
 
 - [Controllers](./controllers) — `@DController`, HTTP method decorators, async handlers, returning a `Response`
 - [Parameters](./parameters) — every parameter decorator and the parser plugins it relies on
-- [`@routup/swagger`](/swagger/) — generate OpenAPI from your decorated controllers
+- [`@routup/swagger-generator`](/swagger-generator/) — generate OpenAPI from your decorated controllers
+- [`@routup/swagger-ui`](/swagger-ui/) — serve the generated document with Swagger UI

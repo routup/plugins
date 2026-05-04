@@ -1,8 +1,8 @@
 {
-    "name": "@routup/swagger",
+    "name": "@routup/swagger-generator",
     "version": "2.4.3",
     "type": "module",
-    "description": "Swagger plugin for routup.",
+    "description": "Generate OpenAPI v2 / v3 documents from decorated routup controllers via @trapi/metadata.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,7 +12,6 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
-        "assets/",
         "dist/"
     ],
     "scripts": {
@@ -32,8 +31,10 @@
     "license": "MIT",
     "keywords": [
         "swagger",
-        "swagger-ui",
         "openapi",
+        "generator",
+        "trapi",
+        "decorators",
         "api",
         "rest",
         "http",
@@ -45,30 +46,22 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/routup/plugins.git",
-        "directory": "packages/swagger"
+        "directory": "packages/swagger-generator"
     },
     "bugs": {
         "url": "https://github.com/routup/plugins/issues"
     },
     "homepage": "https://github.com/routup/plugins#readme",
-    "peerDependencies": {
-        "routup": "^5.0.0-beta.6"
-    },
     "dependencies": {
-        "@routup/assets": "^3.4.2",
         "@trapi/metadata": "^2.0.0-beta.2",
         "@trapi/swagger": "^2.0.0-beta.2",
-        "@types/swagger-ui-dist": "^3.30.5",
-        "smob": "^1.4.0",
-        "swagger-ui-dist": "^5.32.5"
+        "smob": "^1.4.0"
     },
     "devDependencies": {
         "@routup/decorators": "^3.4.3",
-        "jsonata": "^2.1.0",
-        "routup": "^5.0.0-beta.6"
+        "jsonata": "^2.1.0"
     },
     "publishConfig": {
         "access": "public"
-    },
-    "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b"
+    }
 }

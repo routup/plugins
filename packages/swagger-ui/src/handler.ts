@@ -7,16 +7,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
-import { ASSETS_PATH } from '../constants';
+import { ASSETS_PATH } from './constants';
+import { isObject } from './object';
 import type { UIOptions } from './type';
-import { isFileURL } from './utils';
 import {
     cleanDoubleSlashes,
-    isObject,
     withLeadingSlash,
     withTrailingSlash,
     withoutLeadingSlash,
-} from '../utils';
+} from './url';
+import { isFileURL } from './utils';
 
 /* istanbul ignore next */
 const stringify = (obj: Record<string, any>) => {

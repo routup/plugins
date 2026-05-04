@@ -1,18 +1,24 @@
 ---
-title: Swagger — UI
-description: Serve Swagger UI for a generated or hand-written OpenAPI document.
-relatedPlugins: [decorators]
+title: Swagger UI
+description: Mount Swagger UI on a routup router from a JSON document or remote URL.
+relatedPlugins: [swagger-generator]
 ---
 
-# UI
+# @routup/swagger-ui
 
 `swaggerUI()` mounts [`swagger-ui-dist`](https://www.npmjs.com/package/swagger-ui-dist) at any path and serves a given OpenAPI document.
+
+## Installation
+
+```bash
+npm install @routup/swagger-ui
+```
 
 ## Quick start
 
 ```typescript
 import { Router, serve } from 'routup';
-import { swaggerUI } from '@routup/swagger';
+import { swaggerUI } from '@routup/swagger-ui';
 
 const router = new Router();
 
@@ -45,9 +51,9 @@ The UI is mounted under whatever path you pass to `router.use()`. Trailing slash
 
 ## When to combine UI + generator
 
-Run the [generator](./generator) at build time to produce `swagger.json`, then point `swaggerUI()` at that file. Production servers don't need to recompute the document every boot.
+Run [`@routup/swagger-generator`](/swagger-generator/) at build time to produce `swagger.json`, then point `swaggerUI()` at that file. Production servers don't need to recompute the document every boot.
 
 ## See also
 
-- [Generator](./generator) — produce the document the UI serves
+- [`@routup/swagger-generator`](/swagger-generator/) — produce the document the UI serves
 - [`@routup/decorators`](/decorators/) — the source of metadata the generator reads
