@@ -57,7 +57,6 @@ export default defineConfig({
                 text: 'API documentation',
                 items: [
                     { text: 'swagger', link: '/swagger/' },
-                    { text: 'swagger-preset', link: '/swagger-preset/' },
                 ],
             },
             {

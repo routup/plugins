@@ -1,7 +1,7 @@
 ---
 title: Swagger
 description: Generate OpenAPI v2 / v3 documents from decorated controllers and serve Swagger UI.
-relatedPlugins: [decorators, swagger-preset]
+relatedPlugins: [decorators]
 ---
 
 # @routup/swagger
@@ -11,12 +11,12 @@ Two things in one plugin:
 1. **Generator** — walk a TypeScript codebase, extract route metadata via [`@trapi/metadata`](https://github.com/trapi/trapi), and emit an OpenAPI v2 or v3 document.
 2. **UI** — mount [Swagger UI](https://github.com/swagger-api/swagger-ui) at any path to serve the generated document interactively.
 
-Pair with [`@routup/decorators`](/decorators/) (controllers and parameter decorators are the source of truth) and [`@routup/swagger-preset`](/swagger-preset/) (which teaches the generator how to interpret routup's `@D*` decorators).
+The package also bundles the `@trapi/metadata` preset that interprets routup's `@D*` decorators (`@DController`, `@DGet`, `@DBody`, …) — no separate preset install needed. Pair with [`@routup/decorators`](/decorators/) so controllers and parameter decorators are the source of truth.
 
 ## Installation
 
 ```bash
-npm install @routup/swagger @routup/swagger-preset
+npm install @routup/swagger
 ```
 
 ## When to use it
@@ -31,5 +31,4 @@ If you're hand-writing your OpenAPI document (or generating it from another sour
 
 - [Generator](./generator) — `generate()`, V2 vs V3, output paths
 - [UI](./ui) — `swaggerUI()`, mounting, custom UI options
-- [`@routup/swagger-preset`](/swagger-preset/) — the `@trapi/metadata` preset that decodes `@DController` / `@DGet` / `@DBody`
 - [`@routup/decorators`](/decorators/) — write controllers in the shape the generator expects

@@ -9,7 +9,7 @@ import type { SpecV3 } from '@trapi/swagger';
 import jsonata from 'jsonata';
 import path from 'node:path';
 import process from 'node:process';
-import { generate } from '../../../../src';
+import { buildPreset, generate } from '../../../../src';
 
 const controllerDirectoryPath = path.resolve(process.cwd(), '..', 'decorators', 'test', 'data');
 
@@ -22,7 +22,7 @@ describe('src/generator/**', () => {
             options: {
                 metadata: {
                     cache: false,
-                    preset: '@routup/swagger-preset',
+                    preset: buildPreset(),
                     entryPoint: {
                         cwd: controllerDirectoryPath,
                         pattern: '**/*.ts',

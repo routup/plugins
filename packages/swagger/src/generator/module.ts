@@ -4,6 +4,7 @@ import { isMetadata } from '@trapi/metadata';
 import { Version, generateSwagger } from '@trapi/swagger';
 import { createMerger } from 'smob';
 import type { GeneratorContext, GeneratorOptionsInput, GeneratorOutput } from './type';
+import { buildPreset } from '../preset';
 
 const DEFAULT_DATA = {
     name: 'API Documentation',
@@ -22,7 +23,7 @@ export async function generate<V extends `${Version}`>(
     if (!metadata) {
         metadata = {
             ignore: ['**/node_modules/**'],
-            preset: '@routup/swagger-preset',
+            preset: buildPreset(),
             entryPoint: [
                 { pattern: '**/*.ts', cwd: path.join(process.cwd(), 'src') },
             ],
@@ -36,7 +37,7 @@ export async function generate<V extends `${Version}`>(
             ];
         }
         if (!metadata.preset) {
-            metadata.preset = '@routup/swagger-preset';
+            metadata.preset = buildPreset();
         }
         if (context.tsconfig && !metadata.tsconfig) {
             metadata.tsconfig = context.tsconfig;
@@ -47,7 +48,7 @@ export async function generate<V extends `${Version}`>(
     const { metadata: _omit, ...data } = options;
 
     return await generateSwagger({
-        version: context.version || Version.V3,
+        version: context.version || Version.V3_2,
         metadata,
         data,
     }) as GeneratorOutput<V>;

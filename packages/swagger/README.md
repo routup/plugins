@@ -43,7 +43,6 @@ await generate({
     version: Version.V2,
     options: {
         metadata: {
-            preset: '@routup/swagger-preset',
             entryPoint: {
                 cwd: process.cwd(),
                 pattern: '**/*.ts',
@@ -68,7 +67,6 @@ await generate({
     version: Version.V3,
     options: {
         metadata: {
-            preset: '@routup/swagger-preset',
             entryPoint: {
                 cwd: process.cwd(),
                 pattern: '**/*.ts',
