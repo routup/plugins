@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { query, useRequestQuery } from '@routup/query';
+import { query } from '@routup/query';
 import { Router } from 'routup';
 import { decorators } from '../../src';
 import { QueryController } from '../data/query';
@@ -14,18 +14,7 @@ describe('src/decorator', () => {
         const router = new Router();
 
         router.use(query());
-        router.use(decorators({
-            controllers: [QueryController],
-            parameter: {
-                query: (context, name) => {
-                    if (name) {
-                        return useRequestQuery(context.event, name);
-                    }
-
-                    return useRequestQuery(context.event);
-                },
-            },
-        }));
+        router.use(decorators({ controllers: [QueryController] }));
 
         let response = await router.fetch(createTestRequest('/query/many?foo=bar'));
 

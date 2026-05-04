@@ -1,7 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { readRequestBody } from '@routup/body';
-import { useRequestCookie, useRequestCookies } from '@routup/cookie';
-import { useRequestQuery } from '@routup/query';
 import { Router } from 'routup';
 import { decorators } from '../../src';
 import { CombinedController } from '../data/combined';
@@ -15,32 +12,7 @@ describe('data/combined', () => {
     it('should handle decorator endpoints', async () => {
         const router = new Router();
 
-        router.use(decorators({
-            controllers: [CombinedController],
-            parameter: {
-                body: async (context, name) => {
-                    if (name) {
-                        return readRequestBody(context.event, name);
-                    }
-
-                    return readRequestBody(context.event);
-                },
-                cookie: (context, name) => {
-                    if (name) {
-                        return useRequestCookie(context.event, name);
-                    }
-
-                    return useRequestCookies(context.event);
-                },
-                query: (context, name) => {
-                    if (name) {
-                        return useRequestQuery(context.event, name);
-                    }
-
-                    return useRequestQuery(context.event);
-                },
-            },
-        }));
+        router.use(decorators({ controllers: [CombinedController] }));
 
         let response = await router.fetch(createTestRequest('/combined'));
 

@@ -9,7 +9,6 @@ export function decorators(options: Options) : Plugin {
             mountControllers(
                 router,
                 options.controllers,
-                options.parameter,
             );
         },
     };
