@@ -94,4 +94,4 @@ export class UserController {
 
 - [Controllers](./controllers) — `@DController` and HTTP method decorators
 - [`@routup/basic`](/basic/) — bundle of body, cookie, and query parsers
-- [`@routup/body`](/body/) · [`@routup/cookie`](/cookie/) · [`@routup/query`](/query/) — the parsers decorators depends on
+- [`@routup/body`](/body/) · [`@routup/cookie`](/cookie/) · [`@routup/query`](/query/) — the parsers that `@routup/decorators` depends on
