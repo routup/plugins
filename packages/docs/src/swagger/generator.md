@@ -30,7 +30,7 @@ await generate({
 });
 ```
 
-The output is written to `./writable/swagger.json`. The default `preset: '@routup/swagger'` is applied automatically — set it explicitly only if you ship a custom preset.
+The output is written to `./writable/swagger.json`. The bundled preset (returned by `buildPreset()`) is applied automatically — set `preset:` explicitly only if you ship a customized variant.
 
 ## OpenAPI v2
 
