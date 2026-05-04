@@ -12,5 +12,7 @@ reports
 .tmp
 .temp
 .nx
+.vitepress/cache
+.vitepress/dist
 .claude/settings.local.json
 .agents/plans
