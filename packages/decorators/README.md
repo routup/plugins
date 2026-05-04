@@ -120,30 +120,22 @@ export class ExampleController {
 | `@DPaths()` | All route parameters |
 | `@DHeader(name)` | Request header by name |
 | `@DHeaders()` | All request headers (`Headers` object) |
-| `@DBody(prop?)` | Request body (requires extractor) |
-| `@DQuery(prop?)` | Query parameter (requires extractor) |
-| `@DCookie(name)` | Cookie by name (requires extractor) |
-| `@DCookies()` | All cookies (requires extractor) |
+| `@DBody(prop?)` | Request body (requires `@routup/body`) |
+| `@DQuery(prop?)` | Query parameter (requires `@routup/query`) |
+| `@DCookie(name)` | Cookie by name (requires `@routup/cookie`) |
+| `@DCookies()` | All cookies (requires `@routup/cookie`) |
 
 ### Installation
 
 The last step is to install the plugin and mount the controllers to a router instance.
 
-Parameters like **body**, **cookie** and **query** cannot be automatically injected into the controller methods. 
-Therefore, so-called parameter getters must be defined, with the help of which the parameters are extracted from the event object.
-If you do not use the corresponding decorator, they do not need to be provided.
+`@DBody`, `@DCookie`/`@DCookies`, and `@DQuery` defer to the helpers from `@routup/body`, `@routup/cookie`, and `@routup/query` — install whichever parsers your controllers actually use. The simplest setup mounts [`@routup/basic`](https://www.npmjs.com/package/@routup/basic), which bundles all three.
 
 `app.ts`
 
 ```typescript
 import { decorators } from '@routup/decorators';
-import {
-    basic,
-    readRequestBody,
-    useRequestCookie,
-    useRequestCookies,
-    useRequestQuery,
-} from '@routup/basic';
+import { basic } from '@routup/basic';
 import { Router, serve } from 'routup';
 
 import { UserController } from './controller';
@@ -153,32 +145,9 @@ const router = new Router();
 router.use(basic());
 router.use(decorators({
     controllers: [
-        UserController
+        UserController,
     ],
-    parameter: {
-        body: async (context, name) => {
-            if (name) {
-                return readRequestBody(context.event, name);
-            }
-
-            return readRequestBody(context.event);
-        },
-        cookie: (context, name) => {
-            if (name) {
-                return useRequestCookie(context.event, name);
-            }
-
-            return useRequestCookies(context.event);
-        },
-        query: (context, name) => {
-            if (name) {
-                return useRequestQuery(context.event, name);
-            }
-
-            return useRequestQuery(context.event);
-        },
-    },
-}))
+}));
 
 serve(router, { port: 3000 });
 ```

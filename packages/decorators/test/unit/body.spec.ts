@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { body, readRequestBody } from '@routup/body';
-import { Router, defineCoreHandler } from 'routup';
+import { body } from '@routup/body';
+import { Router } from 'routup';
 import { decorators } from '../../src';
 import { PostController } from '../data/post';
 
@@ -14,19 +14,7 @@ describe('data/body', () => {
         const router = new Router();
 
         router.use(body());
-
-        router.use(decorators({
-            controllers: [PostController],
-            parameter: {
-                body: async (context, name) => {
-                    if (name) {
-                        return readRequestBody(context.event, name);
-                    }
-
-                    return readRequestBody(context.event);
-                },
-            },
-        }));
+        router.use(decorators({ controllers: [PostController] }));
 
         let response = await router.fetch(createTestRequest('/post/many', {
             method: 'POST',

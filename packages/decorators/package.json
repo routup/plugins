@@ -53,10 +53,12 @@
     "peerDependencies": {
         "routup": "^5.0.0-beta.6"
     },
-    "devDependencies": {
+    "dependencies": {
         "@routup/body": "^2.4.3",
         "@routup/cookie": "^2.4.3",
-        "@routup/query": "^2.4.3",
+        "@routup/query": "^2.4.3"
+    },
+    "devDependencies": {
         "routup": "^5.0.0-beta.6"
     },
     "publishConfig": {

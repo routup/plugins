@@ -51,7 +51,7 @@ export class UserController {
 // app.ts
 import { Router, serve } from 'routup';
 import { decorators } from '@routup/decorators';
-import { basic, readRequestBody, useRequestCookie, useRequestQuery } from '@routup/basic';
+import { basic } from '@routup/basic';
 import { UserController } from './controller';
 
 const router = new Router();
@@ -59,11 +59,6 @@ const router = new Router();
 router.use(basic());
 router.use(decorators({
     controllers: [UserController],
-    parameter: {
-        body: (ctx, name) => name ? readRequestBody(ctx.event, name) : readRequestBody(ctx.event),
-        cookie: (ctx, name) => useRequestCookie(ctx.event, name as string),
-        query: (ctx, name) => name ? useRequestQuery(ctx.event, name) : useRequestQuery(ctx.event),
-    },
 }));
 
 serve(router, { port: 3000 });
@@ -80,6 +75,6 @@ The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can
 ## See also
 
 - [Controllers](./controllers) — `@DController`, HTTP method decorators, async handlers, returning a `Response`
-- [Parameters](./parameters) — every parameter decorator with its parser-extractor wiring
+- [Parameters](./parameters) — every parameter decorator and the parser plugins it relies on
 - [`@routup/swagger`](/swagger/) — generate OpenAPI from your decorated controllers
 - [`@routup/swagger-preset`](/swagger-preset/) — the metadata preset that maps `@DController` / `@DGet` / `@DBody` to OpenAPI

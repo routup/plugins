@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cookie, useRequestCookie, useRequestCookies } from '@routup/cookie';
+import { cookie } from '@routup/cookie';
 import { Router } from 'routup';
 import { decorators } from '../../src';
 import { CookieController } from '../data/cookie';
@@ -14,18 +14,7 @@ describe('data/cookie', () => {
         const router = new Router();
 
         router.use(cookie());
-        router.use(decorators({
-            controllers: [CookieController],
-            parameter: {
-                cookie: (context, name) => {
-                    if (name) {
-                        return useRequestCookie(context.event, name);
-                    }
-
-                    return useRequestCookies(context.event);
-                },
-            },
-        }));
+        router.use(decorators({ controllers: [CookieController] }));
 
         let response = await router.fetch(createTestRequest('/cookie/many', { headers: { cookie: 'foo=bar' } }));
 

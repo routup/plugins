@@ -1,13 +1,12 @@
 import type { IRouter, MethodName } from 'routup';
 import { Router, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
-import type { ClassType, ParameterExtractMap } from './type';
+import type { ClassType } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
 export function mountController(
     router: IRouter,
     input: (ClassType | Record<string, any>),
-    extractMap?: ParameterExtractMap,
 ) {
     let controller : Record<string, any>;
 
@@ -53,7 +52,6 @@ export function mountController(
                 const args = await buildDecoratorMethodArguments(
                     { event },
                     meta.parameters[propertyKey] ?? [],
-                    extractMap,
                 );
 
                 return controller[propertyKey](...args);
@@ -69,9 +67,8 @@ export function mountController(
 export function mountControllers(
     router: IRouter,
     input: (ClassType | Record<string, any>)[],
-    extractMap?: ParameterExtractMap,
 ) {
     for (const element of input) {
-        mountController(router, element, extractMap);
+        mountController(router, element);
     }
 }

@@ -1,11 +1,13 @@
+import { readRequestBody } from '@routup/body';
+import { useRequestCookie, useRequestCookies } from '@routup/cookie';
+import { useRequestQuery } from '@routup/query';
 import { ParameterType } from '../parameter';
 import type { DecoratorParameterOptions } from '../parameter';
-import type { HandlerContext, ParameterExtractMap } from '../type';
+import type { HandlerContext } from '../type';
 
 export async function buildDecoratorMethodArguments(
     context: HandlerContext,
     parameters: DecoratorParameterOptions[],
-    extractMap?: ParameterExtractMap,
 ): Promise<any[]> {
     /* istanbul ignore next */
     if (
@@ -18,19 +20,6 @@ export async function buildDecoratorMethodArguments(
     const items: unknown[] = [];
 
     for (const parameter of parameters) {
-        if (extractMap) {
-            const extractFn = extractMap[parameter.type];
-            if (extractFn) {
-                if (parameter.property) {
-                    items[parameter.index] = await extractFn(context, parameter.property);
-                } else {
-                    items[parameter.index] = await extractFn(context);
-                }
-
-                continue;
-            }
-        }
-
         if (parameter.type === ParameterType.CONTEXT) {
             items[parameter.index] = context.event;
             continue;
@@ -66,6 +55,27 @@ export async function buildDecoratorMethodArguments(
             } else {
                 items[parameter.index] = context.event.headers;
             }
+            continue;
+        }
+
+        if (parameter.type === ParameterType.BODY) {
+            items[parameter.index] = parameter.property ?
+                await readRequestBody(context.event, parameter.property) :
+                await readRequestBody(context.event);
+            continue;
+        }
+
+        if (parameter.type === ParameterType.QUERY) {
+            items[parameter.index] = parameter.property ?
+                useRequestQuery(context.event, parameter.property) :
+                useRequestQuery(context.event);
+            continue;
+        }
+
+        if (parameter.type === ParameterType.COOKIE) {
+            items[parameter.index] = parameter.property ?
+                useRequestCookie(context.event, parameter.property) :
+                useRequestCookies(context.event);
             continue;
         }
 
