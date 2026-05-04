@@ -45,11 +45,11 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "prom-client": ">=15.0.0",
-        "routup": "^5.0.0-beta.5"
+        "routup": "^5.0.0-beta.6"
     },
     "devDependencies": {
         "prom-client": "^15.1.3",
-        "routup": "^5.0.0-beta.5"
+        "routup": "^5.0.0-beta.6"
     },
     "publishConfig": {
         "access": "public"
