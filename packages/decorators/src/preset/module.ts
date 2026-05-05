@@ -1,4 +1,4 @@
-import type { Preset } from '@trapi/metadata';
+import type { Preset } from '@trapi/core';
 import { buildClassHandlers } from './class';
 import { buildMethodHandlers } from './method';
 import { buildParameterHandlers } from './parameter';

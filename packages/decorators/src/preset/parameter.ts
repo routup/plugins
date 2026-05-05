@@ -3,7 +3,7 @@ import {
     type ParameterHandler,
     parameter,
     readString,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const dContextHandler = parameter({
     match: { name: 'DContext', on: 'parameter' },

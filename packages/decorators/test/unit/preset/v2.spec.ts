@@ -4,6 +4,7 @@ import {
     expect,
     it,
 } from 'vitest';
+import { generateMetadata } from '@trapi/metadata';
 import { Version, generateSwagger } from '@trapi/swagger';
 import type { SpecV2 } from '@trapi/swagger';
 import jsonata from 'jsonata';
@@ -17,16 +18,18 @@ describe('src/preset (V2)', () => {
     let spec : SpecV2;
 
     beforeAll(async () => {
+        const metadata = await generateMetadata({
+            cache: false,
+            preset: buildPreset(),
+            entryPoint: {
+                cwd: controllerDirectoryPath,
+                pattern: '**/*.ts',
+            },
+        });
+
         spec = await generateSwagger({
             version: Version.V2,
-            metadata: {
-                cache: false,
-                preset: buildPreset(),
-                entryPoint: {
-                    cwd: controllerDirectoryPath,
-                    pattern: '**/*.ts',
-                },
-            },
+            metadata,
             data: { servers: ['http://localhost:3000/'] },
         });
     });

@@ -8,7 +8,7 @@ relatedPlugins: [basic, body, cookie, query, swagger-ui]
 
 Define request handlers as classes with TypeScript decorators, then mount them on any routup router. Familiar shape if you're coming from NestJS, tsoa, or Spring — controllers, parameter injection, declarative paths.
 
-The same decorator metadata also drives OpenAPI generation: this package ships a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath, so the same controller serves as both your routing surface and your API contract. See [OpenAPI generation](#openapi-generation) below.
+The same decorator metadata also drives OpenAPI generation: this package ships a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath, so the same controller serves as both your routing surface and your API contract. See [OpenAPI generation](#openapi-generation) below.
 
 ## Installation
 
@@ -74,26 +74,30 @@ The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can
 
 ## OpenAPI generation
 
-`@routup/decorators` exposes a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath that maps `@DController` / `@DGet` / `@DBody` / `@DQuery` / etc. into the schema TRAPI's generators consume. There is no dedicated `@routup/swagger-generator` package — call `@trapi/swagger` directly, or use the `trapi` CLI.
+`@routup/decorators` exposes a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath that maps `@DController` / `@DGet` / `@DBody` / `@DQuery` / etc. into the schema TRAPI's generators consume. There is no dedicated `@routup/swagger-generator` package — extract metadata with `@trapi/metadata`, feed it into `@trapi/swagger`, or use the `trapi` CLI.
 
 ### Programmatically
 
+`generateSwagger()` accepts pre-built metadata, so run `generateMetadata()` from `@trapi/metadata` first. The preset can be referenced by package specifier — `@trapi/metadata` resolves it through the `preset` export of `@routup/decorators/preset`:
+
 ```typescript
+import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
-import { buildPreset } from '@routup/decorators/preset';
 import process from 'node:process';
 import path from 'node:path';
 
+const metadata = await generateMetadata({
+    preset: '@routup/decorators/preset',
+    entryPoint: {
+        cwd: path.join(process.cwd(), 'src'),
+        pattern: '**/*.ts',
+    },
+    ignore: ['**/node_modules/**'],
+});
+
 const spec = await generateSwagger({
     version: Version.V3_2,
-    metadata: {
-        preset: buildPreset(),
-        entryPoint: {
-            cwd: path.join(process.cwd(), 'src'),
-            pattern: '**/*.ts',
-        },
-        ignore: ['**/node_modules/**'],
-    },
+    metadata,
     data: {
         name: 'My API',
         servers: ['http://localhost:3000/'],
@@ -103,6 +107,8 @@ const spec = await generateSwagger({
 await saveSwagger(spec, { outputDirectory: 'writable' });
 ```
 
+To customise the preset before generation, import `buildPreset` from `@routup/decorators/preset` and pass the returned object as `preset` instead of the string identifier.
+
 Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at runtime.
 
 ### Via the trapi CLI
@@ -111,7 +117,7 @@ Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at
 npx trapi --preset @routup/decorators/preset
 ```
 
-`@trapi/metadata` is declared as an *optional* peer dependency on `@routup/decorators`, so runtime-only consumers never pay for it. Install it (and `@trapi/swagger`) only when you call into the generator.
+The preset depends on `@trapi/core` (bundled as a runtime dependency of `@routup/decorators`). `@trapi/metadata` and `@trapi/swagger` are only needed when you call into the generator yourself — install them on demand.
 
 ## See also
 

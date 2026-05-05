@@ -10,7 +10,7 @@ import {
     method,
     readNumber,
     readString,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();

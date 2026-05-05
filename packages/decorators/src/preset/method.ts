@@ -3,7 +3,7 @@ import {
     type MethodHandler,
     method,
     setMethodPath,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 function setVerbAndPath(verb: MethodDraft['verb']): MethodHandler['apply'] {
     return (ctx, draft) => {
