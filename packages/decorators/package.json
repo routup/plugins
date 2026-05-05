@@ -55,15 +55,21 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
+        "@trapi/core": ">=2.0.0-beta.3 <3.0.0",
         "routup": "^5.0.0"
+    },
+    "peerDependenciesMeta": {
+        "@trapi/core": {
+            "optional": true
+        }
     },
     "dependencies": {
         "@routup/body": "^2.4.3",
         "@routup/cookie": "^2.4.3",
-        "@routup/query": "^2.4.3",
-        "@trapi/core": "^2.0.0-beta.3"
+        "@routup/query": "^2.4.3"
     },
     "devDependencies": {
+        "@trapi/core": "^2.0.0-beta.3",
         "@trapi/metadata": "^2.0.0-beta.3",
         "@trapi/swagger": "^2.0.0-beta.3",
         "jsonata": "^2.1.0",

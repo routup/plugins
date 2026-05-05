@@ -200,7 +200,7 @@ Skip the JS glue entirely — the CLI accepts the preset by name:
 npx trapi --preset @routup/decorators/preset
 ```
 
-The preset itself depends on `@trapi/core` (bundled as a runtime dependency). Install `@trapi/metadata` and `@trapi/swagger` only when you actually call into the generator.
+`@trapi/core` is declared as an *optional* peer dependency, so runtime-only consumers of `@routup/decorators` never pay for it. Install it (alongside `@trapi/metadata` and `@trapi/swagger`) only when you actually call into the generator.
 
 ## License
 

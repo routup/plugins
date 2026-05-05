@@ -117,7 +117,7 @@ Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at
 npx trapi --preset @routup/decorators/preset
 ```
 
-The preset depends on `@trapi/core` (bundled as a runtime dependency of `@routup/decorators`). `@trapi/metadata` and `@trapi/swagger` are only needed when you call into the generator yourself — install them on demand.
+`@trapi/core` is declared as an *optional* peer dependency on `@routup/decorators`, so runtime-only consumers never pay for it. Install it (alongside `@trapi/metadata` and `@trapi/swagger`) only when you call into the generator.
 
 ## See also
 
