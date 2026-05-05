@@ -1,20 +1,19 @@
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
-import { Version } from '@trapi/swagger';
+import { Version, generateSwagger } from '@trapi/swagger';
 import type { SpecV2 } from '@trapi/swagger';
 import jsonata from 'jsonata';
 import path from 'node:path';
 import process from 'node:process';
-import { buildPreset } from '@routup/decorators/preset';
-import { generateSwagger } from '../../../src';
+import { buildPreset } from '../../../src/preset';
 
-const controllerDirectoryPath = path.resolve(process.cwd(), '..', 'decorators', 'test', 'data');
+const controllerDirectoryPath = path.resolve(process.cwd(), 'test', 'data');
 
-describe('src/generator/**', () => {
+describe('src/preset (V2)', () => {
     let spec : SpecV2;
 
     beforeAll(async () => {

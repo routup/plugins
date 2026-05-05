@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress';
 
 export default defineConfig({
     title: 'Routup Plugins',
-    description: 'Plugins for the routup HTTP routing framework — body, cookie, query, decorators, swagger-generator, swagger-ui, rate-limit, prometheus, i18n, and more.',
+    description: 'Plugins for the routup HTTP routing framework — body, cookie, query, decorators, swagger-ui, rate-limit, prometheus, i18n, and more.',
     base: '/',
     cleanUrls: true,
     lastUpdated: true,
@@ -56,7 +56,6 @@ export default defineConfig({
             {
                 text: 'API documentation',
                 items: [
-                    { text: 'swagger-generator', link: '/swagger-generator/' },
                     { text: 'swagger-ui', link: '/swagger-ui/' },
                 ],
             },

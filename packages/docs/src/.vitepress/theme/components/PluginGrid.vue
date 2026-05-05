@@ -68,21 +68,14 @@ const categories: PluginCategory[] = [
                 href: '/decorators/',
                 accent: '#8b5cf6',
                 summary: 'Class-based controllers with TypeScript decorators.',
-                bullets: ['@DController + method decorators', 'Parameter injection', 'OpenAPI metadata source for @routup/swagger-generator'],
+                bullets: ['@DController + method decorators', 'Parameter injection', 'Ships @trapi/metadata preset for OpenAPI generation'],
             },
         ],
     },
     {
         name: 'API documentation',
-        summary: 'Generate and serve OpenAPI documents.',
+        summary: 'Serve OpenAPI documents — generate via @trapi/swagger directly.',
         plugins: [
-            {
-                name: '@routup/swagger-generator',
-                href: '/swagger-generator/',
-                accent: '#22c55e',
-                summary: 'Generate OpenAPI v2 / v3 documents from decorated controllers. Bundles the @trapi/metadata preset that decodes routup decorators.',
-                bullets: ['OpenAPI v2 + v3', 'Reads decorator metadata', 'CI-friendly file output'],
-            },
             {
                 name: '@routup/swagger-ui',
                 href: '/swagger-ui/',

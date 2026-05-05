@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `Router` to serve an OpenAPI document interactively. Pair with [`@routup/swagger-generator`](../swagger-generator) if you want to *produce* the document from decorated controllers.
+Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `Router` to serve an OpenAPI document interactively. To *produce* the document from decorated controllers, see the [`@routup/decorators` OpenAPI generation docs](../decorators#openapi-generation) — the preset feeds straight into [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()`.
 
 ## Installation
 

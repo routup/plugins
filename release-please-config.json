@@ -15,7 +15,6 @@
         "packages/query": {"component": "query" },
         "packages/rate-limit": {"component": "rate-limit" },
         "packages/rate-limit-redis": {"component": "rate-limit-redis" },
-        "packages/swagger-generator": {"component": "swagger-generator" },
         "packages/swagger-ui": {"component": "swagger-ui" }
     },
     "plugins": [
@@ -29,14 +28,6 @@
             "components": [
                 "rate-limit",
                 "rate-limit-preset"
-            ]
-        },
-        {
-            "type": "linked-versions",
-            "groupName": "swagger",
-            "components": [
-                "swagger-generator",
-                "swagger-ui"
             ]
         }
     ],
