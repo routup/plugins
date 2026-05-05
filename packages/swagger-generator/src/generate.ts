@@ -20,12 +20,19 @@ const DEFAULT_DATA: SwaggerGenerateData = {
     produces: ['application/json'],
 };
 
-export type GenerateOptions<V extends `${Version}` = `${Version}`> = Partial<Omit<SwaggerGenerateOptions, 'version'>> & { version?: V };
+export type GenerateOptions = Partial<SwaggerGenerateOptions>;
 
-export async function generate<V extends `${Version}` = typeof Version.V3_2>(
-    options: GenerateOptions<V> = {},
-): Promise<OutputForVersion<V>> {
-    const merge = createMerger({ array: true, arrayDistinct: true });
+export function generate(): Promise<OutputForVersion<typeof Version.V3_2>>;
+export function generate(
+    options: Omit<GenerateOptions, 'version'>,
+): Promise<OutputForVersion<typeof Version.V3_2>>;
+export function generate<V extends `${Version}`>(
+    options: Omit<GenerateOptions, 'version'> & { version: V },
+): Promise<OutputForVersion<V>>;
+export async function generate(
+    options: GenerateOptions = {},
+): Promise<OutputForVersion<`${Version}`>> {
+    const merge = createMerger({ array: false, priority: 'right' });
     const data = merge({}, DEFAULT_DATA, options.data || {}) as SwaggerGenerateData;
 
     let { metadata } = options;
@@ -49,7 +56,7 @@ export async function generate<V extends `${Version}` = typeof Version.V3_2>(
     }
 
     return generateSwagger({
-        version: (options.version || Version.V3_2) as V,
+        version: options.version || Version.V3_2,
         metadata,
         data,
     });

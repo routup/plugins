@@ -26,7 +26,7 @@ import { swaggerUI } from '@routup/swagger-ui';
 
 const router = new Router();
 
-router.use('/docs', swaggerUI('test/data/swagger.json'));
+router.use('/docs', swaggerUI('./openapi.json'));
 
 serve(router, { port: 3000 });
 ```

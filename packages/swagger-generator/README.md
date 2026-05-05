@@ -26,16 +26,9 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ```typescript
 import { generate, Version } from '@routup/swagger-generator';
-import process from 'node:process';
 
 const spec = await generate({
     version: Version.V3,
-    metadata: {
-        entryPoint: {
-            cwd: process.cwd(),
-            pattern: '**/*.ts',
-        },
-    },
     data: {
         servers: ['http://localhost:3000/'],
     },
@@ -49,14 +42,13 @@ import { generate, Version } from '@routup/swagger-generator';
 
 const spec = await generate({
     version: Version.V2,
-    metadata: {
-        entryPoint: { cwd: process.cwd(), pattern: '**/*.ts' },
-    },
     data: {
         servers: ['http://localhost:3000/'],
     },
 });
 ```
+
+`metadata` is optional — when omitted, the wrapper scans `<cwd>/src/**/*.ts` (ignoring `node_modules`) with the bundled preset. Override it only when you need a different scan root or pattern.
 
 The default preset (`buildPreset()` from `@routup/decorators/preset`) is applied automatically when `metadata.preset` is omitted — set it explicitly only if you ship a customized variant. To persist the document, hand the returned spec to [`saveSwagger()`](https://www.npmjs.com/package/@trapi/swagger):
 

@@ -28,16 +28,9 @@ The shape mirrors [`SwaggerGenerateOptions`](https://github.com/trapi/trapi/blob
 
 ```typescript
 import { generate, Version } from '@routup/swagger-generator';
-import process from 'node:process';
 
 const spec = await generate({
     version: Version.V3,
-    metadata: {
-        entryPoint: {
-            cwd: process.cwd(),
-            pattern: '**/*.ts',
-        },
-    },
     data: {
         servers: ['http://localhost:3000/'],
     },
@@ -51,9 +44,6 @@ import { generate, Version } from '@routup/swagger-generator';
 
 const spec = await generate({
     version: Version.V2,
-    metadata: {
-        entryPoint: { cwd: process.cwd(), pattern: '**/*.ts' },
-    },
     data: {
         servers: ['http://localhost:3000/'],
     },
@@ -61,6 +51,8 @@ const spec = await generate({
 ```
 
 Same extraction logic, different document shape. Pick V3 unless you're integrating with a tool that hasn't moved past V2 (rare in 2026).
+
+`metadata` is optional — when omitted, the wrapper scans `<cwd>/src/**/*.ts` (ignoring `node_modules`) with the bundled preset. Pass an explicit `metadata.entryPoint` only when you need a different scan root or pattern.
 
 ## Persisting the document
 
