@@ -1,0 +1,47 @@
+# @routup/swagger-ui
+
+[![npm version](https://badge.fury.io/js/@routup%2Fswagger-ui.svg)](https://badge.fury.io/js/@routup%2Fswagger-ui)
+[![main](https://github.com/Tada5hi/routup/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/routup/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/tada5hi/routup/branch/master/graph/badge.svg?token=QFGCsHRUax)](https://codecov.io/gh/tada5hi/routup)
+[![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+
+Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `Router` to serve an OpenAPI document interactively. Pair with [`@routup/swagger-generator`](../swagger-generator) if you want to *produce* the document from decorated controllers.
+
+## Installation
+
+```bash
+npm install @routup/swagger-ui
+```
+
+## Documentation
+
+To read the docs, visit [https://routup.net](https://routup.net)
+
+## Usage
+
+```typescript
+import { Router, serve } from 'routup';
+import { swaggerUI } from '@routup/swagger-ui';
+
+const router = new Router();
+
+router.use('/docs', swaggerUI('./openapi.json'));
+
+serve(router, { port: 3000 });
+```
+
+Open `http://localhost:3000/docs/` in a browser.
+
+You can also pass a parsed spec object or a remote URL:
+
+```typescript
+router.use('/docs', swaggerUI({ openapi: '3.0.0', /* ... */ }));
+router.use('/docs', swaggerUI('https://petstore3.swagger.io/api/v3/openapi.json'));
+```
+
+## License
+
+Made with 💚
+
+Published under [MIT License](./LICENSE).

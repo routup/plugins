@@ -42,7 +42,8 @@ typically http framework functions, which are not integrated in the main package
 | [query](packages/query)                       | Read and parse the query string of the request url.                                                |
 | [rate-limit](packages/rate-limit)             | Rate limit incoming requests.                                                                      |
 | [rate-limit-redis](packages/rate-limit-redis) | Redis adapter for the rate-limit plugin.                                                           |
-| [swagger](packages/swagger)                   | Serve generated docs from URL or based on a JSON file.                                             |
+| [swagger-generator](packages/swagger-generator) | Generate OpenAPI v2 / v3 documents from decorated controllers via @trapi/metadata.               |
+| [swagger-ui](packages/swagger-ui)             | Mount Swagger UI on a routup router from a JSON document or URL.                                   |
 
 ## Contributing
 

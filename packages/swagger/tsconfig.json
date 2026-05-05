@@ -1,9 +1,0 @@
-{
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "paths": {
-            "@routup/assets": ["./packages/assets/src"]
-        }
-    }
-}
-

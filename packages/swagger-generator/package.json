@@ -1,22 +1,17 @@
 {
-    "name": "@routup/decorators",
-    "version": "3.4.3",
+    "name": "@routup/swagger-generator",
+    "version": "2.4.3",
     "type": "module",
-    "description": "Decorators plugin for routup.",
+    "description": "Generate OpenAPI v2 / v3 documents from decorated routup controllers via @trapi/metadata.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
             "types": "./dist/index.d.mts",
             "import": "./dist/index.mjs"
-        },
-        "./preset": {
-            "types": "./dist/preset.d.mts",
-            "import": "./dist/preset.mjs"
         }
     },
     "types": "./dist/index.d.mts",
     "files": [
-        "assets/",
         "dist/"
     ],
     "scripts": {
@@ -35,8 +30,11 @@
     },
     "license": "MIT",
     "keywords": [
+        "swagger",
+        "openapi",
+        "generator",
+        "trapi",
         "decorators",
-        "annotations",
         "api",
         "rest",
         "http",
@@ -48,32 +46,22 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/routup/plugins.git",
-        "directory": "packages/decorators"
+        "directory": "packages/swagger-generator"
     },
     "bugs": {
         "url": "https://github.com/routup/plugins/issues"
     },
     "homepage": "https://github.com/routup/plugins#readme",
-    "peerDependencies": {
-        "@trapi/metadata": ">=2.0.0-beta.2 <3.0.0",
-        "routup": "^5.0.0-beta.6"
-    },
-    "peerDependenciesMeta": {
-        "@trapi/metadata": {
-            "optional": true
-        }
-    },
     "dependencies": {
-        "@routup/body": "^2.4.3",
-        "@routup/cookie": "^2.4.3",
-        "@routup/query": "^2.4.3"
+        "@routup/decorators": "^3.4.3",
+        "@trapi/metadata": "^2.0.0-beta.2",
+        "@trapi/swagger": "^2.0.0-beta.2",
+        "smob": "^1.4.0"
     },
     "devDependencies": {
-        "@trapi/metadata": "^2.0.0-beta.2",
-        "routup": "^5.0.0-beta.6"
+        "jsonata": "^2.1.0"
     },
     "publishConfig": {
         "access": "public"
-    },
-    "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b"
+    }
 }
