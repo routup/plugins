@@ -1,5 +1,18 @@
 # Change Log
 
+## [3.0.0](https://github.com/routup/plugins/compare/rate-limit-v2.4.2...rate-limit-v3.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+
+### Features
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **rate-limit:** update @routup/rate-limit for routup v5 ([#766](https://github.com/routup/plugins/issues/766)) ([75c40e3](https://github.com/routup/plugins/commit/75c40e3b7f2dbd69ead233814e5ad8644aac3a77))
+
 ## [2.4.2](https://github.com/routup/plugins/compare/rate-limit-v2.4.1...rate-limit-v2.4.2) (2025-11-26)
 
 

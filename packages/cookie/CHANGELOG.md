@@ -1,5 +1,24 @@
 # Change Log
 
+## [3.0.0](https://github.com/routup/plugins/compare/cookie-v2.4.3...cookie-v3.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+
+### Features
+
+* **body:** update @routup/body for routup v5 ([#761](https://github.com/routup/plugins/issues/761)) ([8e67086](https://github.com/routup/plugins/commit/8e6708674759bb0759ad1780396c8d513e20261b))
+* **cookie:** update @routup/cookie for routup v5 ([#759](https://github.com/routup/plugins/issues/759)) ([190178f](https://github.com/routup/plugins/commit/190178f4f0f2136969fd4819d5e96b68769989a4))
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Bug Fixes
+
+* **deps:** bump cookie-es from 1.2.3 to 3.1.1 in the majorprod group ([#753](https://github.com/routup/plugins/issues/753)) ([5473f11](https://github.com/routup/plugins/commit/5473f1194d8278b30541f41e88d33d9723a8aca1))
+
 ## [2.4.3](https://github.com/routup/plugins/compare/cookie-v2.4.2...cookie-v2.4.3) (2025-11-26)
 
 
