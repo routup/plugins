@@ -2,7 +2,7 @@ import {
     type ControllerHandler,
     controller,
     setControllerPaths,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const dControllerHandler = controller({
     match: { name: 'DController', on: 'class' },

@@ -155,26 +155,30 @@ serve(router, { port: 3000 });
 
 ## OpenAPI generation
 
-`@routup/decorators` ships a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath that decodes routup's `@D*` decorators into the schema TRAPI's generators understand. There's no separate generator package — call `@trapi/swagger` directly, or wire the preset into the `trapi` CLI.
+`@routup/decorators` ships a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath that decodes routup's `@D*` decorators into the schema TRAPI's generators understand. There's no separate generator package — extract metadata with `@trapi/metadata`, hand it to `@trapi/swagger`, or wire the preset into the `trapi` CLI.
 
 ### Programmatically
 
+`@trapi/swagger`'s `generateSwagger()` accepts pre-built metadata, so call `generateMetadata()` from `@trapi/metadata` first. Reference the preset by package specifier — `@trapi/metadata` resolves it via the `preset` export of `@routup/decorators/preset`:
+
 ```typescript
+import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
-import { buildPreset } from '@routup/decorators/preset';
 import process from 'node:process';
 import path from 'node:path';
 
+const metadata = await generateMetadata({
+    preset: '@routup/decorators/preset',
+    entryPoint: {
+        cwd: path.join(process.cwd(), 'src'),
+        pattern: '**/*.ts',
+    },
+    ignore: ['**/node_modules/**'],
+});
+
 const spec = await generateSwagger({
     version: Version.V3_2,
-    metadata: {
-        preset: buildPreset(),
-        entryPoint: {
-            cwd: path.join(process.cwd(), 'src'),
-            pattern: '**/*.ts',
-        },
-        ignore: ['**/node_modules/**'],
-    },
+    metadata,
     data: {
         name: 'My API',
         servers: ['http://localhost:3000/'],
@@ -183,6 +187,8 @@ const spec = await generateSwagger({
 
 await saveSwagger(spec, { outputDirectory: 'writable' });
 ```
+
+If you need to customise the preset before passing it in, import `buildPreset` from `@routup/decorators/preset` and supply the returned object as `preset` instead of the string identifier.
 
 Pair the result with [`@routup/swagger-ui`](https://www.npmjs.com/package/@routup/swagger-ui) to serve the generated document at runtime.
 
@@ -194,7 +200,7 @@ Skip the JS glue entirely — the CLI accepts the preset by name:
 npx trapi --preset @routup/decorators/preset
 ```
 
-`@trapi/metadata` is declared as an optional peer dependency, so consumers who never generate OpenAPI don't pay for it. Install it (and `@trapi/swagger`) only when you actually call into the generator.
+`@trapi/core` is declared as an *optional* peer dependency, so runtime-only consumers of `@routup/decorators` never pay for it. Install it (alongside `@trapi/metadata` and `@trapi/swagger`) only when you actually call into the generator.
 
 ## License
 
