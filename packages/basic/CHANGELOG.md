@@ -6,6 +6,28 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [2.0.0](https://github.com/routup/plugins/compare/basic-v1.4.3...basic-v2.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+
+### Features
+
+* **basic:** update @routup/basic for routup v5 ([#763](https://github.com/routup/plugins/issues/763)) ([7a150d5](https://github.com/routup/plugins/commit/7a150d5f0112eae9f8ab4f4a97e572238e62095c))
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^2.4.3 to ^3.0.0
+    * @routup/cookie bumped from ^2.4.3 to ^3.0.0
+    * @routup/query bumped from ^2.4.3 to ^3.0.0
+
 ## [1.4.3](https://github.com/routup/plugins/compare/basic-v1.4.2...basic-v1.4.3) (2025-11-26)
 
 

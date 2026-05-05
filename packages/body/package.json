@@ -1,6 +1,6 @@
 {
     "name": "@routup/body",
-    "version": "2.4.3",
+    "version": "3.0.0",
     "type": "module",
     "description": "Body plugin for routup.",
     "exports": {

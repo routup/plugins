@@ -6,6 +6,39 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [4.0.0](https://github.com/routup/plugins/compare/decorators-v3.4.3...decorators-v4.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+* **swagger-generator,decorators:** `@routup/swagger-generator` has been removed. Replace `import { generateSwagger } from '@routup/swagger-generator'` with `import { generateSwagger } from '@trapi/swagger'` plus `import { buildPreset } from '@routup/decorators/preset'`, and pass the preset explicitly via `metadata.preset`. See the "OpenAPI generation" section in `@routup/decorators`'s README.
+* `@routup/swagger` is removed. Replace `import { generate, Version, buildPreset } from '@routup/swagger'` with `@routup/swagger-generator`, and `import { swaggerUI } from '@routup/swagger'` with `@routup/swagger-ui`. Install whichever halves you need.
+* **decorators:** built-in body/cookie/query extractors and depend o… ([#781](https://github.com/routup/plugins/issues/781))
+
+### Features
+
+* **decorators:** built-in body/cookie/query extractors and depend o… ([#781](https://github.com/routup/plugins/issues/781)) ([90e0562](https://github.com/routup/plugins/commit/90e0562ce7374a0f0beae509f526c425b1e9f111))
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* **decorators:** update @routup/decorators for routup v5 ([#764](https://github.com/routup/plugins/issues/764)) ([f72386f](https://github.com/routup/plugins/commit/f72386f2112497add6232a69913119f27a7d4feb))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* split swagger package in ui, generator and move preset ([#783](https://github.com/routup/plugins/issues/783)) ([bd81c1c](https://github.com/routup/plugins/commit/bd81c1c849fd88ccc8498baebd2bf24b7de75f5c))
+* **swagger-generator,decorators:** drop @routup/swagger-generator package ([#786](https://github.com/routup/plugins/issues/786)) ([7d96957](https://github.com/routup/plugins/commit/7d96957fb23daa111283e23c1078f536b599a47a))
+
+
+### Bug Fixes
+
+* **swagger:** align generator tests with v5 decorator changes ([2fe28b0](https://github.com/routup/plugins/commit/2fe28b058ce333041245082c419e51137711d6f2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^2.4.3 to ^3.0.0
+    * @routup/cookie bumped from ^2.4.3 to ^3.0.0
+    * @routup/query bumped from ^2.4.3 to ^3.0.0
+
 ## [3.4.3](https://github.com/routup/plugins/compare/decorators-v3.4.2...decorators-v3.4.3) (2025-11-26)
 
 

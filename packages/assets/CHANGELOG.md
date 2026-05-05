@@ -1,5 +1,22 @@
 # Change Log
 
+## [4.0.0](https://github.com/routup/plugins/compare/assets-v3.4.2...assets-v4.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+* **swagger:** routup v5
+* **assets:** routup v5
+
+### Features
+
+* **assets:** update @routup/assets for routup v5 ([#755](https://github.com/routup/plugins/issues/755)) ([821478e](https://github.com/routup/plugins/commit/821478e78c3ebaaaa1b293047ad526eccfdca85e))
+* **cookie:** update @routup/cookie for routup v5 ([#759](https://github.com/routup/plugins/issues/759)) ([190178f](https://github.com/routup/plugins/commit/190178f4f0f2136969fd4819d5e96b68769989a4))
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+* **swagger:** update @routup/swagger for routup v5 ([#756](https://github.com/routup/plugins/issues/756)) ([bc1b313](https://github.com/routup/plugins/commit/bc1b313f3ff69ae3995d5708c48e88800e503218))
+
 ## [3.4.2](https://github.com/routup/plugins/compare/assets-v3.4.1...assets-v3.4.2) (2025-11-26)
 
 

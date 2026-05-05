@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.0](https://github.com/routup/plugins/compare/i18n-v2.0.2...i18n-v3.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to @trapi… ([#787](https://github.com/routup/plugins/issues/787))
+
+### Features
+
+* **decorators:** bump routup to ^5.0.0 and migrate preset to [@trapi](https://github.com/trapi)… ([#787](https://github.com/routup/plugins/issues/787)) ([1f5d0f6](https://github.com/routup/plugins/commit/1f5d0f6fab61ea50c55393d1e5c70d50281719f5))
+* **i18n:** update @routup/i18n for routup v5 ([#769](https://github.com/routup/plugins/issues/769)) ([872de6f](https://github.com/routup/plugins/commit/872de6fbdf7da268bb77d841d70e4192586c7766))
+* modernize monorepo ([a5965ba](https://github.com/routup/plugins/commit/a5965baa51025e34e4a8bca52825b638392263cc))
+
+
+### Bug Fixes
+
+* align peer dependencies and add unit tests and docs ([c23f388](https://github.com/routup/plugins/commit/c23f3883b155c90fe112333f910ad1f455fcf031))
+
 ## [2.0.2](https://github.com/routup/plugins/compare/i18n-v2.0.1...i18n-v2.0.2) (2025-11-26)
 
 
