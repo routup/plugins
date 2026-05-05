@@ -6,7 +6,7 @@ relatedPlugins: [decorators, swagger-ui]
 
 # @routup/swagger-generator
 
-`generate()` is a thin wrapper around [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()` that applies routup-friendly defaults. The preset that decodes routup's `@D*` decorators lives in [`@routup/decorators/preset`](/decorators/) and is applied automatically when `metadata.preset` is omitted.
+`generateSwagger()` is a thin wrapper around [`@trapi/swagger`](https://github.com/trapi/trapi)'s upstream `generateSwagger()` that applies routup-friendly defaults. The preset that decodes routup's `@D*` decorators lives in [`@routup/decorators/preset`](/decorators/) and is applied automatically when `metadata.preset` is omitted.
 
 ## Installation
 
@@ -17,19 +17,23 @@ npm install @routup/swagger-generator
 ## API
 
 ```typescript
-generate<V extends `${Version}` = Version.V3_2>(
-    options?: Partial<Omit<SwaggerGenerateOptions, 'version'>> & { version?: V },
+function generateSwagger(): Promise<OutputForVersion<Version.V3_2>>;
+function generateSwagger(
+    options: Omit<Partial<SwaggerGenerateOptions>, 'version'>,
+): Promise<OutputForVersion<Version.V3_2>>;
+function generateSwagger<V extends `${Version}`>(
+    options: Omit<Partial<SwaggerGenerateOptions>, 'version'> & { version: V },
 ): Promise<OutputForVersion<V>>;
 ```
 
-The shape mirrors [`SwaggerGenerateOptions`](https://github.com/trapi/trapi/blob/main/packages/swagger/README.md): `{ version, metadata, data }`. Every field is optional — version defaults to `V3_2`, metadata gets a sensible default scan of `<cwd>/src/**/*.ts` plus the `@routup/decorators` preset, and `data` is merged onto a small `DEFAULT_DATA` (name, description, default `application/json` consumes/produces).
+The shape mirrors [`SwaggerGenerateOptions`](https://github.com/trapi/trapi/blob/main/packages/swagger/README.md): `{ version, metadata, data }`. Every field is optional — version defaults to `V3_2`, metadata gets a sensible default scan of `<cwd>/src/**/*.ts` plus the `@routup/decorators/preset`, and `data` is merged onto a small baseline (name, description, default `application/json` consumes/produces).
 
 ## OpenAPI v3
 
 ```typescript
-import { generate, Version } from '@routup/swagger-generator';
+import { generateSwagger, Version } from '@routup/swagger-generator';
 
-const spec = await generate({
+const spec = await generateSwagger({
     version: Version.V3,
     data: {
         servers: ['http://localhost:3000/'],
@@ -40,9 +44,9 @@ const spec = await generate({
 ## OpenAPI v2
 
 ```typescript
-import { generate, Version } from '@routup/swagger-generator';
+import { generateSwagger, Version } from '@routup/swagger-generator';
 
-const spec = await generate({
+const spec = await generateSwagger({
     version: Version.V2,
     data: {
         servers: ['http://localhost:3000/'],
@@ -56,12 +60,12 @@ Same extraction logic, different document shape. Pick V3 unless you're integrati
 
 ## Persisting the document
 
-`generate()` returns the spec object. Hand it to `saveSwagger()` to write it to disk:
+`generateSwagger()` returns the spec object. Hand it to `saveSwagger()` to write it to disk:
 
 ```typescript
-import { generate, saveSwagger } from '@routup/swagger-generator';
+import { generateSwagger, saveSwagger } from '@routup/swagger-generator';
 
-const spec = await generate({ /* ... */ });
+const spec = await generateSwagger({ /* ... */ });
 await saveSwagger(spec, { outputDirectory: 'writable' });
 ```
 

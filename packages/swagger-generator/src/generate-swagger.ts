@@ -4,7 +4,7 @@ import { buildPreset } from '@routup/decorators/preset';
 import { isMetadata } from '@trapi/metadata';
 import {
     Version,
-    generateSwagger,
+    generateSwagger as generateSwaggerSpec,
 } from '@trapi/swagger';
 import type {
     OutputForVersion,
@@ -20,17 +20,17 @@ const DEFAULT_DATA: SwaggerGenerateData = {
     produces: ['application/json'],
 };
 
-export type GenerateOptions = Partial<SwaggerGenerateOptions>;
+export type GenerateSwaggerOptions = Partial<SwaggerGenerateOptions>;
 
-export function generate(): Promise<OutputForVersion<typeof Version.V3_2>>;
-export function generate(
-    options: Omit<GenerateOptions, 'version'>,
+export function generateSwagger(): Promise<OutputForVersion<typeof Version.V3_2>>;
+export function generateSwagger(
+    options: Omit<GenerateSwaggerOptions, 'version'>,
 ): Promise<OutputForVersion<typeof Version.V3_2>>;
-export function generate<V extends `${Version}`>(
-    options: Omit<GenerateOptions, 'version'> & { version: V },
+export function generateSwagger<V extends `${Version}`>(
+    options: Omit<GenerateSwaggerOptions, 'version'> & { version: V },
 ): Promise<OutputForVersion<V>>;
-export async function generate(
-    options: GenerateOptions = {},
+export async function generateSwagger(
+    options: GenerateSwaggerOptions = {},
 ): Promise<OutputForVersion<`${Version}`>> {
     const merge = createMerger({ array: false, priority: 'right' });
     const data = merge({}, DEFAULT_DATA, options.data || {}) as SwaggerGenerateData;
@@ -55,7 +55,7 @@ export async function generate(
         }
     }
 
-    return generateSwagger({
+    return generateSwaggerSpec({
         version: options.version || Version.V3_2,
         metadata,
         data,

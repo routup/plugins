@@ -5,6 +5,19 @@ export type {
     TsCompilerOptions,
     TsConfig,
 } from '@trapi/metadata';
-export * from '@trapi/swagger';
-export { buildPreset } from '@routup/decorators/preset';
-export * from './generate';
+
+export type {
+    OutputForVersion,
+    SpecV2,
+    SpecV3,
+    SwaggerGenerateData,
+    SwaggerGenerateOptions,
+    SwaggerSaveOptions,
+} from '@trapi/swagger';
+
+export {
+    Version,
+    saveSwagger,
+} from '@trapi/swagger';
+
+export * from './generate-swagger';

@@ -20,14 +20,14 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ## Usage
 
-`generate()` accepts a `SwaggerGenerateOptions` value (`{ version, metadata, data }`) — the same shape as `@trapi/swagger`'s `generateSwagger()`, with every field optional.
+`generateSwagger()` is a routup-flavored wrapper around `@trapi/swagger`'s `generateSwagger()`. It accepts the same `SwaggerGenerateOptions` shape (`{ version, metadata, data }`) with every field optional, applying defaults for `metadata.entryPoint`, `metadata.preset`, `version`, and a small `data` baseline.
 
 **`V3`**
 
 ```typescript
-import { generate, Version } from '@routup/swagger-generator';
+import { generateSwagger, Version } from '@routup/swagger-generator';
 
-const spec = await generate({
+const spec = await generateSwagger({
     version: Version.V3,
     data: {
         servers: ['http://localhost:3000/'],
@@ -38,9 +38,9 @@ const spec = await generate({
 **`V2`**
 
 ```typescript
-import { generate, Version } from '@routup/swagger-generator';
+import { generateSwagger, Version } from '@routup/swagger-generator';
 
-const spec = await generate({
+const spec = await generateSwagger({
     version: Version.V2,
     data: {
         servers: ['http://localhost:3000/'],

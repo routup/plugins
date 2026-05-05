@@ -9,7 +9,8 @@ import type { SpecV2 } from '@trapi/swagger';
 import jsonata from 'jsonata';
 import path from 'node:path';
 import process from 'node:process';
-import { buildPreset, generate } from '../../../src';
+import { buildPreset } from '@routup/decorators/preset';
+import { generateSwagger } from '../../../src';
 
 const controllerDirectoryPath = path.resolve(process.cwd(), '..', 'decorators', 'test', 'data');
 
@@ -17,7 +18,7 @@ describe('src/generator/**', () => {
     let spec : SpecV2;
 
     beforeAll(async () => {
-        spec = await generate({
+        spec = await generateSwagger({
             version: Version.V2,
             metadata: {
                 cache: false,
