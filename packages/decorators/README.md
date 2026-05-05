@@ -15,6 +15,7 @@ Those, can than be bound/mounted to an arbitrary router instance.
 - [Configuration](#configuration)
 - [Documentation](#documentation)
 - [Usage](#usage)
+- [OpenAPI generation](#openapi-generation)
 - [License](#license)
 
 ## Installation
@@ -151,6 +152,49 @@ router.use(decorators({
 
 serve(router, { port: 3000 });
 ```
+
+## OpenAPI generation
+
+`@routup/decorators` ships a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath that decodes routup's `@D*` decorators into the schema TRAPI's generators understand. There's no separate generator package — call `@trapi/swagger` directly, or wire the preset into the `trapi` CLI.
+
+### Programmatically
+
+```typescript
+import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
+import { buildPreset } from '@routup/decorators/preset';
+import process from 'node:process';
+import path from 'node:path';
+
+const spec = await generateSwagger({
+    version: Version.V3_2,
+    metadata: {
+        preset: buildPreset(),
+        entryPoint: {
+            cwd: path.join(process.cwd(), 'src'),
+            pattern: '**/*.ts',
+        },
+        ignore: ['**/node_modules/**'],
+    },
+    data: {
+        name: 'My API',
+        servers: ['http://localhost:3000/'],
+    },
+});
+
+await saveSwagger(spec, { outputDirectory: 'writable' });
+```
+
+Pair the result with [`@routup/swagger-ui`](https://www.npmjs.com/package/@routup/swagger-ui) to serve the generated document at runtime.
+
+### Via the trapi CLI
+
+Skip the JS glue entirely — the CLI accepts the preset by name:
+
+```bash
+npx trapi --preset @routup/decorators/preset
+```
+
+`@trapi/metadata` is declared as an optional peer dependency, so consumers who never generate OpenAPI don't pay for it. Install it (and `@trapi/swagger`) only when you actually call into the generator.
 
 ## License
 

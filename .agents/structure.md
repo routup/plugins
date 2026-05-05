@@ -15,7 +15,6 @@ plugins/
 │   ├── query/          # Query string parsing (qs)
 │   ├── rate-limit/     # In-memory rate limiting
 │   ├── rate-limit-redis/ # Redis adapter for rate-limit
-│   ├── swagger-generator/ # OpenAPI document generator (uses @routup/decorators/preset)
 │   └── swagger-ui/     # Mount Swagger UI from a generated/given OpenAPI document
 ├── .github/            # CI workflows + reusable actions
 ├── nx.json             # NX task config and caching
@@ -60,13 +59,14 @@ packages/[name]/
 | `query` | `@routup/query` | Query string parsing | `qs` |
 | `rate-limit` | `@routup/rate-limit` | In-memory rate limiter | — |
 | `rate-limit-redis` | `@routup/rate-limit-redis` | Redis rate-limit adapter | `@routup/rate-limit`, `ioredis` |
-| `swagger-generator` | `@routup/swagger-generator` | OpenAPI v2 / v3 generator from decorated controllers (thin wrapper over `generateSwagger()`) | `@routup/decorators`, `@trapi/metadata`, `@trapi/swagger`, `smob` |
 | `swagger-ui` | `@routup/swagger-ui` | Mount Swagger UI from a JSON document or URL | `@routup/assets`, `swagger-ui-dist` |
+
+OpenAPI generation is not a routup-owned package — call `@trapi/swagger`'s `generateSwagger()` directly with `buildPreset()` from `@routup/decorators/preset`, or use the `trapi` CLI with `--preset @routup/decorators/preset`. See `packages/decorators/README.md` for the snippet.
 
 ## Dependency Layers
 
 ```
-Layer 3 (composites):   basic, swagger-generator
+Layer 3 (composites):   basic
 Layer 2 (adapters):     rate-limit-redis, swagger-ui
 Layer 1 (standalone):   assets, body, cookie, decorators, i18n, prometheus, query, rate-limit
 ```

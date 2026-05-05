@@ -1,14 +1,14 @@
 ---
 title: Decorators
 description: Class-, method-, and parameter-decorators for routup — define controllers in TypeScript and mount them on a router.
-relatedPlugins: [basic, body, cookie, query, swagger-generator, swagger-ui]
+relatedPlugins: [basic, body, cookie, query, swagger-ui]
 ---
 
 # @routup/decorators
 
 Define request handlers as classes with TypeScript decorators, then mount them on any routup router. Familiar shape if you're coming from NestJS, tsoa, or Spring — controllers, parameter injection, declarative paths.
 
-The decorator metadata is also what [`@routup/swagger-generator`](/swagger-generator/) reads (via its bundled preset) to produce OpenAPI documents — so the same controller is both your routing surface and your API contract.
+The same decorator metadata also drives OpenAPI generation: this package ships a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath, so the same controller serves as both your routing surface and your API contract. See [OpenAPI generation](#openapi-generation) below.
 
 ## Installation
 
@@ -67,14 +67,55 @@ serve(router, { port: 3000 });
 ## When to use it
 
 - You prefer class-based controllers to functional handler files
-- You're generating OpenAPI from your controllers via [`@routup/swagger-generator`](/swagger-generator/)
+- You want to generate OpenAPI documentation from the same controller definitions (see below)
 - You're migrating a NestJS / tsoa / class-validator codebase and want a familiar shape
 
 The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can mount decorator controllers and functional handlers on the same router.
+
+## OpenAPI generation
+
+`@routup/decorators` exposes a [`@trapi/metadata`](https://github.com/trapi/trapi) preset under the `./preset` subpath that maps `@DController` / `@DGet` / `@DBody` / `@DQuery` / etc. into the schema TRAPI's generators consume. There is no dedicated `@routup/swagger-generator` package — call `@trapi/swagger` directly, or use the `trapi` CLI.
+
+### Programmatically
+
+```typescript
+import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
+import { buildPreset } from '@routup/decorators/preset';
+import process from 'node:process';
+import path from 'node:path';
+
+const spec = await generateSwagger({
+    version: Version.V3_2,
+    metadata: {
+        preset: buildPreset(),
+        entryPoint: {
+            cwd: path.join(process.cwd(), 'src'),
+            pattern: '**/*.ts',
+        },
+        ignore: ['**/node_modules/**'],
+    },
+    data: {
+        name: 'My API',
+        servers: ['http://localhost:3000/'],
+    },
+});
+
+await saveSwagger(spec, { outputDirectory: 'writable' });
+```
+
+Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at runtime.
+
+### Via the trapi CLI
+
+```bash
+npx trapi --preset @routup/decorators/preset
+```
+
+`@trapi/metadata` is declared as an *optional* peer dependency on `@routup/decorators`, so runtime-only consumers never pay for it. Install it (and `@trapi/swagger`) only when you call into the generator.
 
 ## See also
 
 - [Controllers](./controllers) — `@DController`, HTTP method decorators, async handlers, returning a `Response`
 - [Parameters](./parameters) — every parameter decorator and the parser plugins it relies on
-- [`@routup/swagger-generator`](/swagger-generator/) — generate OpenAPI from your decorated controllers
 - [`@routup/swagger-ui`](/swagger-ui/) — serve the generated document with Swagger UI
+- [`@trapi/swagger`](https://github.com/trapi/trapi) — the upstream OpenAPI generator the preset feeds into

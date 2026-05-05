@@ -1,7 +1,7 @@
 ---
 title: Swagger UI
 description: Mount Swagger UI on a routup router from a JSON document or remote URL.
-relatedPlugins: [swagger-generator]
+relatedPlugins: [decorators]
 ---
 
 # @routup/swagger-ui
@@ -49,11 +49,11 @@ router.use('/docs', swaggerUI({
 
 The UI is mounted under whatever path you pass to `router.use()`. Trailing slashes matter for static-asset resolution — visit `/docs/` not `/docs`.
 
-## When to combine UI + generator
+## Producing the document
 
-Run [`@routup/swagger-generator`](/swagger-generator/) at build time to produce `swagger.json`, then point `swaggerUI()` at that file. Production servers don't need to recompute the document every boot.
+For OpenAPI documents generated from `@routup/decorators` controllers, see [Decorators → OpenAPI generation](/decorators/#openapi-generation). It walks through calling [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()` with the bundled `@routup/decorators/preset`, or using the `trapi` CLI. Run that at build time, write the spec to `./openapi.json` (or wherever), and point `swaggerUI()` at the result so production doesn't recompute it on every boot.
 
 ## See also
 
-- [`@routup/swagger-generator`](/swagger-generator/) — produce the document the UI serves
-- [`@routup/decorators`](/decorators/) — the source of metadata the generator reads
+- [`@routup/decorators` → OpenAPI generation](/decorators/#openapi-generation) — produce the document the UI serves
+- [`@trapi/swagger`](https://github.com/trapi/trapi) — the upstream OpenAPI generator
