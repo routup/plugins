@@ -1,6 +1,6 @@
 {
     "name": "@routup/swagger-ui",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "type": "module",
     "description": "Swagger UI plugin for routup — mount swagger-ui-dist on any path.",
     "exports": {
@@ -56,7 +56,7 @@
         "routup": "^5.0.1"
     },
     "dependencies": {
-        "@routup/assets": "^4.0.0",
+        "@routup/assets": "^4.1.0",
         "swagger-ui-dist": "^5.32.5"
     },
     "devDependencies": {
