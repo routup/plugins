@@ -9,6 +9,7 @@ plugins/
 │   ├── basic/          # Bundle: body + cookie + query
 │   ├── body/           # Request body parsing
 │   ├── cookie/         # Cookie read/write
+│   ├── cors/           # Native CORS — preflight + Access-Control-* headers
 │   ├── decorators/     # Class/method/parameter decorators (also exports ./preset for trapi)
 │   ├── i18n/           # Request translation
 │   ├── prometheus/     # Metrics collection (prom-client)
@@ -53,6 +54,7 @@ packages/[name]/
 | `basic` | `@routup/basic` | Body + cookie + query bundle | `@routup/body`, `@routup/cookie`, `@routup/query` |
 | `body` | `@routup/body` | Parse JSON, form, text, raw bodies | — |
 | `cookie` | `@routup/cookie` | Read/serialize cookies | `cookie` |
+| `cors` | `@routup/cors` | Native CORS handling (preflight + headers), ported from h3 | — |
 | `decorators` | `@routup/decorators` | Route decorators + `./preset` subpath (the `@trapi/metadata` preset for `@D*`) | `@routup/body`, `@routup/cookie`, `@routup/query`; optional peer `@trapi/metadata` |
 | `i18n` | `@routup/i18n` | Request translations | — |
 | `prometheus` | `@routup/prometheus` | Metrics + /metrics endpoint | `prom-client` |
@@ -68,7 +70,7 @@ OpenAPI generation is not a routup-owned package — call `@trapi/swagger`'s `ge
 ```
 Layer 3 (composites):   basic
 Layer 2 (adapters):     rate-limit-redis, swagger-ui
-Layer 1 (standalone):   assets, body, cookie, decorators, i18n, prometheus, query, rate-limit
+Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, prometheus, query, rate-limit
 ```
 
 All packages peer-depend on `routup@^4.0.1`.
