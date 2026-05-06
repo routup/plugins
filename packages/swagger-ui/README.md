@@ -1,9 +1,9 @@
 # @routup/swagger-ui
 
 [![npm version](https://badge.fury.io/js/@routup%2Fswagger-ui.svg)](https://badge.fury.io/js/@routup%2Fswagger-ui)
-[![main](https://github.com/Tada5hi/routup/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/routup/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/tada5hi/routup/branch/master/graph/badge.svg?token=QFGCsHRUax)](https://codecov.io/gh/tada5hi/routup)
-[![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
+[![main](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `Router` to serve an OpenAPI document interactively. To *produce* the document from decorated controllers, see the [`@routup/decorators` OpenAPI generation docs](../decorators#openapi-generation) — the preset feeds straight into [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()`.
