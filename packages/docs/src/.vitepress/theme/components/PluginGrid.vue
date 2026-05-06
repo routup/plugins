@@ -87,8 +87,15 @@ const categories: PluginCategory[] = [
     },
     {
         name: 'Operations',
-        summary: 'Throttle, observe, translate.',
+        summary: 'Secure, throttle, observe, translate.',
         plugins: [
+            {
+                name: '@routup/cors',
+                href: '/cors/',
+                accent: '#22c55e',
+                summary: 'CORS — preflight handling and Access-Control-* response headers.',
+                bullets: ['Single-string, RegExp, array, or predicate origin', 'preflightContinue + custom preflight status', 'Preserves multiple Vary values'],
+            },
             {
                 name: '@routup/rate-limit',
                 href: '/rate-limit/',

@@ -62,6 +62,7 @@ export default defineConfig({
             {
                 text: 'Operations',
                 items: [
+                    { text: 'cors', link: '/cors/' },
                     { text: 'rate-limit', link: '/rate-limit/' },
                     { text: 'rate-limit-redis', link: '/rate-limit-redis/' },
                     { text: 'prometheus', link: '/prometheus/' },
