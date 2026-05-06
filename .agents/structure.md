@@ -12,6 +12,7 @@ plugins/
 │   ├── cors/           # Native CORS — preflight + Access-Control-* headers
 │   ├── decorators/     # Class/method/parameter decorators (also exports ./preset for trapi)
 │   ├── i18n/           # Request translation
+│   ├── logger/         # Morgan-compatible request logger (handler factory, not Plugin)
 │   ├── prometheus/     # Metrics collection (prom-client)
 │   ├── query/          # Query string parsing (qs)
 │   ├── rate-limit/     # In-memory rate limiting
@@ -57,6 +58,7 @@ packages/[name]/
 | `cors` | `@routup/cors` | Native CORS handling (preflight + headers), ported from h3 | — |
 | `decorators` | `@routup/decorators` | Route decorators + `./preset` subpath (the `@trapi/metadata` preset for `@D*`) | `@routup/body`, `@routup/cookie`, `@routup/query`; optional peer `@trapi/metadata` |
 | `i18n` | `@routup/i18n` | Request translations | — |
+| `logger` | `@routup/logger` | Request logger ported from morgan; **handler factory**, not a Plugin | — |
 | `prometheus` | `@routup/prometheus` | Metrics + /metrics endpoint | `prom-client` |
 | `query` | `@routup/query` | Query string parsing | `qs` |
 | `rate-limit` | `@routup/rate-limit` | In-memory rate limiter | — |
@@ -70,7 +72,7 @@ OpenAPI generation is not a routup-owned package — call `@trapi/swagger`'s `ge
 ```
 Layer 3 (composites):   basic
 Layer 2 (adapters):     rate-limit-redis, swagger-ui
-Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, prometheus, query, rate-limit
+Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, prometheus, query, rate-limit
 ```
 
 All packages peer-depend on `routup@^5.0.0`.

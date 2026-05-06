@@ -87,7 +87,7 @@ const categories: PluginCategory[] = [
     },
     {
         name: 'Operations',
-        summary: 'Secure, throttle, observe, translate.',
+        summary: 'Secure, log, throttle, observe, translate.',
         plugins: [
             {
                 name: '@routup/cors',
@@ -95,6 +95,13 @@ const categories: PluginCategory[] = [
                 accent: '#22c55e',
                 summary: 'CORS — preflight handling and Access-Control-* response headers.',
                 bullets: ['Single-string, RegExp, array, or predicate origin', 'preflightContinue + custom preflight status', 'Preserves multiple Vary values'],
+            },
+            {
+                name: '@routup/logger',
+                href: '/logger/',
+                accent: '#f43f5e',
+                summary: 'Morgan-compatible HTTP request logger built on the web-API.',
+                bullets: ['Tiny / short / common / combined / dev presets', 'Custom tokens & formatters', 'Pluggable write target + skip predicate'],
             },
             {
                 name: '@routup/rate-limit',
