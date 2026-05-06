@@ -6,7 +6,7 @@ relatedPlugins: []
 
 # @routup/logger
 
-A native request logger ported from [morgan](https://github.com/expressjs/morgan). Same token DSL, same preset formats (`tiny`, `short`, `common`, `combined`, `dev`) — but built on routup's `IRoutupEvent` + `Response` so you don't need `fromNodeMiddleware`.
+A request logger ported from [morgan](https://github.com/expressjs/morgan). Same token DSL, same preset formats (`tiny`, `short`, `common`, `combined`, `dev`) — built on routup's `IRoutupEvent` + `Response`.
 
 ## Installation
 

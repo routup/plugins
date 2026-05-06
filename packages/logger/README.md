@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-A native HTTP request logger for routup — morgan-compatible token DSL on top of routup's web-API helpers, no `fromNodeMiddleware` adapter.
+An HTTP request logger for routup — morgan-compatible token DSL on top of routup's web-API helpers.
 
 **Table of Contents**
 
