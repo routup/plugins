@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/routup/badge.svg)](https://snyk.io/test/github/Tada5hi/routup)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-A native CORS plugin for routup — handles preflight (`OPTIONS`) requests and adds `Access-Control-*` response headers without going through `fromNodeMiddleware`.
+A CORS plugin for routup — handles preflight (`OPTIONS`) requests and adds `Access-Control-*` response headers.
 
 **Table of Contents**
 

@@ -93,8 +93,8 @@ const categories: PluginCategory[] = [
                 name: '@routup/cors',
                 href: '/cors/',
                 accent: '#22c55e',
-                summary: 'Native CORS — preflight handling and Access-Control-* headers without an Express adapter.',
-                bullets: ['Web-API based (no fromNodeMiddleware)', 'Allow-list strings, RegExps, or predicate fns', 'Preserves multiple Vary values'],
+                summary: 'CORS — preflight handling and Access-Control-* response headers.',
+                bullets: ['Single-string, RegExp, array, or predicate origin', 'preflightContinue + custom preflight status', 'Preserves multiple Vary values'],
             },
             {
                 name: '@routup/rate-limit',

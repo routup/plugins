@@ -1,12 +1,12 @@
 ---
 title: CORS
-description: Handle preflight requests and add Access-Control-* response headers natively, without an Express middleware adapter.
+description: Handle preflight requests and add Access-Control-* response headers.
 relatedPlugins: [body, cookie]
 ---
 
 # @routup/cors
 
-Native CORS plugin for routup — built on Web Standard `Request` / `Response` (no `fromNodeMiddleware` adapter). Handles preflight (`OPTIONS`) requests and decorates ordinary responses with the right `Access-Control-*` headers.
+CORS plugin for routup — built on Web Standard `Request` / `Response`. Handles preflight (`OPTIONS`) requests and decorates ordinary responses with the right `Access-Control-*` headers.
 
 ## Installation
 
@@ -38,7 +38,6 @@ The plugin short-circuits preflight requests with a `204` and adds the right `Ac
 ## When to use it
 
 - Your API is consumed from a browser on a different origin.
-- You want first-class CORS handling without going through the Express `cors` package via `fromNodeMiddleware`.
 - You need precise control over preflight: status code, allow-listed methods/headers, max-age, credentials.
 
 ## Options at a glance
