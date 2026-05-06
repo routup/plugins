@@ -14,7 +14,8 @@ export function resolveOptions(options: Options = {}): ResolvedOptions {
         exposeHeaders: options.exposeHeaders ?? '*',
         credentials: options.credentials ?? false,
         maxAge: options.maxAge ?? false,
-        preflight: { statusCode: options.preflight?.statusCode ?? 204 },
+        preflightContinue: options.preflightContinue ?? false,
+        preflight: { status: options.preflight?.status ?? 204 },
     };
 }
 
@@ -29,17 +30,28 @@ export function isPreflightRequest(event: IRoutupEvent): boolean {
     return !!origin && !!acrm;
 }
 
+function testRegExp(pattern: RegExp, origin: string): boolean {
+    const stateless = pattern.global || pattern.sticky ?
+        new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, '')) :
+        pattern;
+    return stateless.test(origin);
+}
+
 export function isCorsOriginAllowed(
     origin: string | null | undefined,
     options: Options,
 ): boolean {
     const { origin: originOption } = options;
 
+    if (originOption === false) {
+        return false;
+    }
+
     if (!origin) {
         return false;
     }
 
-    if (!originOption || originOption === '*') {
+    if (originOption === undefined || originOption === '*' || originOption === true) {
         return true;
     }
 
@@ -47,13 +59,14 @@ export function isCorsOriginAllowed(
         return originOption(origin);
     }
 
+    if (originOption instanceof RegExp) {
+        return testRegExp(originOption, origin);
+    }
+
     if (Array.isArray(originOption)) {
         return originOption.some((entry) => {
             if (entry instanceof RegExp) {
-                const stateless = entry.global || entry.sticky ?
-                    new RegExp(entry.source, entry.flags.replace(/[gy]/g, '')) :
-                    entry;
-                return stateless.test(origin);
+                return testRegExp(entry, origin);
             }
 
             return origin === entry;
@@ -68,22 +81,37 @@ export function createOriginHeaders(
     options: Options,
 ): CorsHeaderEntry[] {
     const { origin: originOption } = options;
-    const origin = getRequestHeader(event, 'origin');
 
-    if (!originOption || originOption === '*') {
+    if (originOption === false) {
+        return [];
+    }
+
+    if (originOption === undefined || originOption === '*') {
         return [['access-control-allow-origin', '*']];
     }
 
-    if (originOption === 'null') {
+    const requestOrigin = getRequestHeader(event, 'origin');
+
+    if (originOption === true) {
+        if (!requestOrigin) {
+            return [];
+        }
         return [
-            ['access-control-allow-origin', 'null'],
+            ['access-control-allow-origin', requestOrigin],
             ['vary', 'origin'],
         ];
     }
 
-    if (isCorsOriginAllowed(origin, options)) {
+    if (typeof originOption === 'string') {
         return [
-            ['access-control-allow-origin', origin as string],
+            ['access-control-allow-origin', originOption],
+            ['vary', 'origin'],
+        ];
+    }
+
+    if (isCorsOriginAllowed(requestOrigin, options)) {
+        return [
+            ['access-control-allow-origin', requestOrigin as string],
             ['vary', 'origin'],
         ];
     }
@@ -158,9 +186,12 @@ export function createExposeHeaders(options: Options): CorsHeaderEntry[] {
 }
 
 export function createMaxAgeHeader(options: Options): CorsHeaderEntry[] {
-    return options.maxAge ?
-        [['access-control-max-age', options.maxAge]] :
-        [];
+    const { maxAge } = options;
+    if (maxAge === false || maxAge === undefined) {
+        return [];
+    }
+
+    return [['access-control-max-age', String(maxAge)]];
 }
 
 export function applyHeaders(event: IRoutupEvent, entries: CorsHeaderEntry[]): void {

@@ -31,6 +31,15 @@ function applyResolvedCorsHeaders(event: IRoutupEvent, resolved: ResolvedOptions
     ]);
 }
 
+function buildPreflightResponse(event: IRoutupEvent, resolved: ResolvedOptions): Response {
+    const headers = new Headers(event.response.headers);
+    headers.set('content-length', '0');
+    return new Response(null, {
+        status: resolved.preflight.status,
+        headers,
+    });
+}
+
 export function appendCorsPreflightHeaders(event: IRoutupEvent, options: Options): void {
     applyResolvedCorsPreflightHeaders(event, resolveOptions(options));
 }
@@ -41,12 +50,16 @@ export function appendCorsHeaders(event: IRoutupEvent, options: Options): void {
 
 export function handleCors(event: IRoutupEvent, options: Options): Response | undefined {
     const resolved = resolveOptions(options);
+    if (resolved.origin === false) {
+        return undefined;
+    }
+
     if (isPreflightRequest(event)) {
         applyResolvedCorsPreflightHeaders(event, resolved);
-        return new Response(null, {
-            status: resolved.preflight.statusCode,
-            headers: event.response.headers,
-        });
+        if (resolved.preflightContinue) {
+            return undefined;
+        }
+        return buildPreflightResponse(event, resolved);
     }
 
     applyResolvedCorsHeaders(event, resolved);
@@ -59,7 +72,7 @@ function warnInvalidCredentialsCombination(input: Options, resolved: ResolvedOpt
     }
 
     const wildcardFields: string[] = [];
-    if (!input.origin || input.origin === '*') {
+    if (input.origin === undefined || input.origin === '*') {
         wildcardFields.push('origin');
     }
     if (resolved.methods === '*') {
@@ -86,12 +99,16 @@ export function createHandler(input?: Options) {
     warnInvalidCredentialsCombination(input ?? {}, options);
 
     return defineCoreHandler((event) => {
+        if (options.origin === false) {
+            return event.next();
+        }
+
         if (isPreflightRequest(event)) {
             applyResolvedCorsPreflightHeaders(event, options);
-            return new Response(null, {
-                status: options.preflight.statusCode,
-                headers: event.response.headers,
-            });
+            if (options.preflightContinue) {
+                return event.next();
+            }
+            return buildPreflightResponse(event, options);
         }
 
         applyResolvedCorsHeaders(event, options);

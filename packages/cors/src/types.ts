@@ -1,16 +1,23 @@
-export type CorsOriginOption = '*' |
-    'null' |
+export type CorsOriginOption = boolean |
+    string |
+    RegExp |
     (string | RegExp)[] |
     ((origin: string) => boolean);
 
 export type CorsListOption = '*' | string[];
 
+export type CorsMaxAgeOption = string | number | false;
+
 export type Options = {
     /**
      * Determines the value of the `access-control-allow-origin` response header.
+     * - `true` reflects the request `Origin` (credentials-friendly equivalent of `'*'`).
+     * - `false` skips CORS handling entirely (no headers, preflight passes through).
      * - `'*'` allows all origins.
      * - `'null'` allows opaque (sandboxed) origins.
-     * - An array of strings / RegExps is matched against the request `Origin`.
+     * - A bare string is emitted as-is (e.g. `'https://app.example.com'`).
+     * - A `RegExp` is matched against the request `Origin`; on match, the origin is reflected.
+     * - An array of strings / RegExps is iterated; on first match, the origin is reflected.
      * - A function receives the request `Origin` and returns `true` if allowed.
      *
      * @default '*'
@@ -49,11 +56,21 @@ export type Options = {
     credentials?: boolean;
 
     /**
-     * Value of `access-control-max-age` for preflight responses.
+     * Value of `access-control-max-age` for preflight responses, in seconds.
+     * Numbers are stringified.
      *
      * @default false
      */
-    maxAge?: string | false;
+    maxAge?: CorsMaxAgeOption;
+
+    /**
+     * When `true`, preflight responses set the `Access-Control-*` headers and
+     * then call `event.next()` so the user's own `OPTIONS` handler can take
+     * over. When `false` (default), the plugin short-circuits with a 204.
+     *
+     * @default false
+     */
+    preflightContinue?: boolean;
 
     /**
      * Tuning for the preflight response itself.
@@ -64,7 +81,7 @@ export type Options = {
          *
          * @default 204
          */
-        statusCode?: number;
+        status?: number;
     };
 };
 
@@ -74,9 +91,10 @@ export type ResolvedOptions = {
     allowHeaders: CorsListOption;
     exposeHeaders: CorsListOption;
     credentials: boolean;
-    maxAge: string | false;
+    maxAge: CorsMaxAgeOption;
+    preflightContinue: boolean;
     preflight: {
-        statusCode: number;
+        status: number;
     };
 };
 

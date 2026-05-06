@@ -54,9 +54,9 @@ describe('src/module', () => {
         expect(response.headers.get('access-control-allow-headers')).toEqual('content-type');
     });
 
-    it('should override preflight statusCode', async () => {
+    it('should override preflight status', async () => {
         const router = new Router();
-        router.use(cors({ preflight: { statusCode: 200 } }));
+        router.use(cors({ preflight: { status: 200 } }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
         const response = await router.fetch(createTestRequest('/', {
@@ -265,6 +265,122 @@ describe('src/module', () => {
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual('ok');
+    });
+
+    it('should set Content-Length: 0 on preflight (Safari compat)', async () => {
+        const router = new Router();
+        router.use(cors());
+        router.post('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'POST',
+            },
+        }));
+
+        expect(response.status).toEqual(204);
+        expect(response.headers.get('content-length')).toEqual('0');
+    });
+
+    it('should accept maxAge as number', async () => {
+        const router = new Router();
+        router.use(cors({ maxAge: 600 }));
+        router.post('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'POST',
+            },
+        }));
+
+        expect(response.headers.get('access-control-max-age')).toEqual('600');
+    });
+});
+
+describe('origin option shapes', () => {
+    it('should emit fixed string origin verbatim', async () => {
+        const router = new Router();
+        router.use(cors({ origin: 'https://app.example.com' }));
+        router.get('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', { headers: { origin: 'http://other.test' } }));
+
+        expect(response.headers.get('access-control-allow-origin'))
+            .toEqual('https://app.example.com');
+        expect(response.headers.get('vary')).toContain('origin');
+    });
+
+    it('should reflect origin matched by a single RegExp', async () => {
+        const router = new Router();
+        router.use(cors({ origin: /\.example\.com$/ }));
+        router.get('/', defineCoreHandler(() => 'ok'));
+
+        const allowed = await router.fetch(createTestRequest('/', { headers: { origin: 'http://api.example.com' } }));
+        expect(allowed.headers.get('access-control-allow-origin'))
+            .toEqual('http://api.example.com');
+
+        const denied = await router.fetch(createTestRequest('/', { headers: { origin: 'http://denied.test' } }));
+        expect(denied.headers.get('access-control-allow-origin')).toBeNull();
+    });
+
+    it('should reflect any request origin when origin=true', async () => {
+        const router = new Router();
+        router.use(cors({ origin: true }));
+        router.get('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', { headers: { origin: 'http://anything.test' } }));
+
+        expect(response.headers.get('access-control-allow-origin'))
+            .toEqual('http://anything.test');
+        expect(response.headers.get('vary')).toContain('origin');
+    });
+
+    it('should bypass CORS entirely when origin=false', async () => {
+        const router = new Router();
+        router.use(cors({ origin: false }));
+        router.post('/', defineCoreHandler(() => 'ok'));
+
+        const simple = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { origin: 'http://example.com' },
+        }));
+        expect(simple.headers.get('access-control-allow-origin')).toBeNull();
+
+        const preflight = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'POST',
+            },
+        }));
+        expect(preflight.headers.get('access-control-allow-origin')).toBeNull();
+    });
+});
+
+describe('preflightContinue', () => {
+    it('should call next() instead of sending 204 when set', async () => {
+        const router = new Router();
+        router.use(cors({ preflightContinue: true }));
+        router.options('/', defineCoreHandler((event) => new Response('custom-options', {
+            status: 200,
+            headers: event.response.headers,
+        })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'POST',
+            },
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.text()).toEqual('custom-options');
+        expect(response.headers.get('access-control-allow-origin')).toEqual('*');
     });
 });
 

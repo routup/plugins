@@ -57,13 +57,14 @@ serve(router, { port: 3000 });
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `origin` | `'*' \| 'null' \| (string \| RegExp)[] \| (origin) => boolean` | `'*'` | Value of `Access-Control-Allow-Origin`. Arrays / RegExp / functions match against the request `Origin`. |
+| `origin` | `boolean \| string \| RegExp \| (string \| RegExp)[] \| (origin) => boolean` | `'*'` | Value of `Access-Control-Allow-Origin`. `true` reflects the request origin (credentials-friendly); `false` skips CORS entirely. A bare string is emitted verbatim (`'*'`, `'null'`, or any concrete origin). A RegExp / array / function reflects the request origin on match. |
 | `methods` | `'*' \| string[]` | `'*'` | Value of `Access-Control-Allow-Methods` on preflight. |
 | `allowHeaders` | `'*' \| string[]` | `'*'` | Value of `Access-Control-Allow-Headers` on preflight. When `'*'` or empty, mirrors the request's `Access-Control-Request-Headers`. |
 | `exposeHeaders` | `'*' \| string[]` | `'*'` | Value of `Access-Control-Expose-Headers`. |
 | `credentials` | `boolean` | `false` | Sets `Access-Control-Allow-Credentials: true`. With credentials, none of `origin` / `methods` / `allowHeaders` / `exposeHeaders` may be `'*'` — browsers will reject the response. |
-| `maxAge` | `string \| false` | `false` | Value of `Access-Control-Max-Age` on preflight. |
-| `preflight.statusCode` | `number` | `204` | Status code returned for preflight responses. |
+| `maxAge` | `string \| number \| false` | `false` | Value of `Access-Control-Max-Age` on preflight, in seconds. Numbers are stringified. |
+| `preflightContinue` | `boolean` | `false` | When `true`, sets the preflight headers and calls `event.next()` instead of returning a 204 — lets your own `OPTIONS` handler take over. |
+| `preflight.status` | `number` | `204` | Status code returned for preflight responses. Preflight responses also set `Content-Length: 0` for Safari compatibility. |
 
 ## Helpers
 

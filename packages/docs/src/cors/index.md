@@ -45,13 +45,14 @@ The plugin short-circuits preflight requests with a `204` and adds the right `Ac
 
 | Option | Default | Notes |
 |---|---|---|
-| `origin` | `'*'` | Wildcard, `'null'`, allow-list of strings/RegExps, or a custom predicate. |
+| `origin` | `'*'` | `true` reflects the request origin (credentials-friendly); `false` skips CORS entirely. Strings (`'*'`, `'null'`, `'https://app.example.com'`), `RegExp`, allow-list arrays, or custom predicates also supported. |
 | `methods` | `'*'` | Allowed methods on preflight. Pass `['GET','POST']` for explicit lists. |
 | `allowHeaders` | `'*'` | Mirrors `Access-Control-Request-Headers` when `'*'` or empty. |
 | `exposeHeaders` | `'*'` | Headers visible to the browser via `getResponseHeader`. |
 | `credentials` | `false` | Enable `Access-Control-Allow-Credentials: true`. Forbids any `'*'` origin/method/header — browsers will reject. |
-| `maxAge` | `false` | Cache duration for preflight, in seconds. |
-| `preflight.statusCode` | `204` | Override if a downstream client doesn't tolerate 204. |
+| `maxAge` | `false` | Cache duration for preflight, in seconds. Accepts `string` or `number`. |
+| `preflightContinue` | `false` | When `true`, sets preflight headers and forwards to your own `OPTIONS` handler instead of returning 204. |
+| `preflight.status` | `204` | Override if a downstream client doesn't tolerate 204. Preflight responses also set `Content-Length: 0` (Safari compat). |
 
 ## Common patterns
 
