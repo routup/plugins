@@ -1,0 +1,65 @@
+{
+    "name": "@routup/logger",
+    "version": "0.0.0",
+    "type": "module",
+    "description": "Request logging plugin for routup.",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        }
+    },
+    "types": "./dist/index.d.mts",
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "build": "npm run build:js && npm run build:types",
+        "build:js": "rimraf ./dist && tsdown",
+        "build:types": "tsc --noEmit -p tsconfig.build.json",
+        "test": "vitest run --config ./test/vitest.config.ts",
+        "test:coverage": "vitest run --config ./test/vitest.config.ts --coverage",
+        "lint": "eslint ./src",
+        "lint:fix": "npm run lint -- --fix"
+    },
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "keywords": [
+        "logger",
+        "logging",
+        "morgan",
+        "request-logger",
+        "access-log",
+        "middleware",
+        "api",
+        "rest",
+        "http",
+        "router",
+        "api-router",
+        "route",
+        "routing"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/routup/plugins.git",
+        "directory": "packages/logger"
+    },
+    "bugs": {
+        "url": "https://github.com/routup/plugins/issues"
+    },
+    "homepage": "https://github.com/routup/plugins#readme",
+    "peerDependencies": {
+        "routup": "^5.0.0"
+    },
+    "devDependencies": {
+        "routup": "^5.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

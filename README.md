@@ -38,6 +38,7 @@ typically http framework functions, which are not integrated in the main package
 | [cookie](packages/cookie)                     | Read and parse request cookies and serialize cookies for the response.                             |
 | [decorators](packages/decorators)             | Create request handlers with class-, method- & parameter-decorators.                               |
 | [i18n](packages/i18n)                         | Provide translations for incoming requests.                                                        |
+| [logger](packages/logger)                     | Morgan-compatible HTTP request logger (native, no `fromNodeMiddleware`).                           |
 | [prometheus](packages/prometheus)             | Collect and serve metrics for prometheus.                                                          |
 | [query](packages/query)                       | Read and parse the query string of the request url.                                                |
 | [rate-limit](packages/rate-limit)             | Rate limit incoming requests.                                                                      |

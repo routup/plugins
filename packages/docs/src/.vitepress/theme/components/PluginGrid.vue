@@ -87,8 +87,15 @@ const categories: PluginCategory[] = [
     },
     {
         name: 'Operations',
-        summary: 'Throttle, observe, translate.',
+        summary: 'Log, throttle, observe, translate.',
         plugins: [
+            {
+                name: '@routup/logger',
+                href: '/logger/',
+                accent: '#f43f5e',
+                summary: 'Morgan-compatible HTTP request logger built on the web-API.',
+                bullets: ['Tiny / short / common / combined / dev presets', 'Custom tokens & formatters', 'Pluggable write target + skip predicate'],
+            },
             {
                 name: '@routup/rate-limit',
                 href: '/rate-limit/',
