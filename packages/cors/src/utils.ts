@@ -39,7 +39,7 @@ function testRegExp(pattern: RegExp, origin: string): boolean {
 
 export function isCorsOriginAllowed(
     origin: string | null | undefined,
-    options: Options,
+    options: Options = {},
 ): boolean {
     const { origin: originOption } = options;
 
@@ -78,7 +78,7 @@ export function isCorsOriginAllowed(
 
 export function createOriginHeaders(
     event: IRoutupEvent,
-    options: Options,
+    options: Options = {},
 ): CorsHeaderEntry[] {
     const { origin: originOption } = options;
 
@@ -119,7 +119,7 @@ export function createOriginHeaders(
     return [];
 }
 
-export function createMethodsHeaders(options: Options): CorsHeaderEntry[] {
+export function createMethodsHeaders(options: Options = {}): CorsHeaderEntry[] {
     const { methods } = options;
 
     if (!methods) {
@@ -137,7 +137,7 @@ export function createMethodsHeaders(options: Options): CorsHeaderEntry[] {
     return [['access-control-allow-methods', methods.join(',')]];
 }
 
-export function createCredentialsHeaders(options: Options): CorsHeaderEntry[] {
+export function createCredentialsHeaders(options: Options = {}): CorsHeaderEntry[] {
     return options.credentials ?
         [['access-control-allow-credentials', 'true']] :
         [];
@@ -145,7 +145,7 @@ export function createCredentialsHeaders(options: Options): CorsHeaderEntry[] {
 
 export function createAllowHeaderHeaders(
     event: IRoutupEvent,
-    options: Options,
+    options: Options = {},
 ): CorsHeaderEntry[] {
     const { allowHeaders } = options;
 
@@ -167,7 +167,7 @@ export function createAllowHeaderHeaders(
     ];
 }
 
-export function createExposeHeaders(options: Options): CorsHeaderEntry[] {
+export function createExposeHeaders(options: Options = {}): CorsHeaderEntry[] {
     const { exposeHeaders } = options;
 
     if (!exposeHeaders) {
@@ -185,7 +185,7 @@ export function createExposeHeaders(options: Options): CorsHeaderEntry[] {
     return [['access-control-expose-headers', exposeHeaders.join(',')]];
 }
 
-export function createMaxAgeHeader(options: Options): CorsHeaderEntry[] {
+export function createMaxAgeHeader(options: Options = {}): CorsHeaderEntry[] {
     const { maxAge } = options;
     if (maxAge === false || maxAge === undefined) {
         return [];
