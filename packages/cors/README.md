@@ -102,7 +102,7 @@ declare function appendCorsHeaders(
 
 ### `appendCorsPreflightHeaders`
 
-Appends the preflight set (`Allow-Methods`, `Allow-Headers`, `Max-Age`, etc.) to `event.response.headers`. Caller is responsible for returning a `Response`.
+Appends the preflight set (`Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, `Access-Control-Max-Age`, etc.) to `event.response.headers`. Caller is responsible for returning a `Response`.
 
 ```typescript
 declare function appendCorsPreflightHeaders(

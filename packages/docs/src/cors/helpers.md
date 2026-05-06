@@ -30,7 +30,7 @@ router.all('/', defineCoreHandler((event) => {
 
 ## `appendCorsHeaders`
 
-Appends the non-preflight CORS headers (`Allow-Origin`, `Allow-Credentials`, `Expose-Headers`).
+Appends the non-preflight CORS headers (`Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`, `Access-Control-Expose-Headers`).
 
 ```typescript
 declare function appendCorsHeaders(
@@ -41,7 +41,7 @@ declare function appendCorsHeaders(
 
 ## `appendCorsPreflightHeaders`
 
-Appends the preflight CORS headers (`Allow-Methods`, `Allow-Headers`, `Max-Age`, plus origin/credentials).
+Appends the preflight CORS headers (`Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, `Access-Control-Max-Age`, plus origin/credentials).
 
 ```typescript
 declare function appendCorsPreflightHeaders(

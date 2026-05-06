@@ -50,7 +50,10 @@ export function isCorsOriginAllowed(
     if (Array.isArray(originOption)) {
         return originOption.some((entry) => {
             if (entry instanceof RegExp) {
-                return entry.test(origin);
+                const stateless = entry.global || entry.sticky ?
+                    new RegExp(entry.source, entry.flags.replace(/[gy]/g, '')) :
+                    entry;
+                return stateless.test(origin);
             }
 
             return origin === entry;

@@ -1,6 +1,6 @@
 import type { IRoutupEvent } from 'routup';
 import { defineCoreHandler } from 'routup';
-import type { Options } from './types';
+import type { Options, ResolvedOptions } from './types';
 import {
     applyHeaders,
     createAllowHeaderHeaders,
@@ -13,8 +13,7 @@ import {
     resolveOptions,
 } from './utils';
 
-export function appendCorsPreflightHeaders(event: IRoutupEvent, options: Options): void {
-    const resolved = resolveOptions(options);
+function applyResolvedCorsPreflightHeaders(event: IRoutupEvent, resolved: ResolvedOptions): void {
     applyHeaders(event, [
         ...createOriginHeaders(event, resolved),
         ...createCredentialsHeaders(resolved),
@@ -24,8 +23,7 @@ export function appendCorsPreflightHeaders(event: IRoutupEvent, options: Options
     ]);
 }
 
-export function appendCorsHeaders(event: IRoutupEvent, options: Options): void {
-    const resolved = resolveOptions(options);
+function applyResolvedCorsHeaders(event: IRoutupEvent, resolved: ResolvedOptions): void {
     applyHeaders(event, [
         ...createOriginHeaders(event, resolved),
         ...createCredentialsHeaders(resolved),
@@ -33,40 +31,70 @@ export function appendCorsHeaders(event: IRoutupEvent, options: Options): void {
     ]);
 }
 
+export function appendCorsPreflightHeaders(event: IRoutupEvent, options: Options): void {
+    applyResolvedCorsPreflightHeaders(event, resolveOptions(options));
+}
+
+export function appendCorsHeaders(event: IRoutupEvent, options: Options): void {
+    applyResolvedCorsHeaders(event, resolveOptions(options));
+}
+
 export function handleCors(event: IRoutupEvent, options: Options): Response | undefined {
+    const resolved = resolveOptions(options);
     if (isPreflightRequest(event)) {
-        appendCorsPreflightHeaders(event, options);
-        const statusCode = options.preflight?.statusCode ?? 204;
+        applyResolvedCorsPreflightHeaders(event, resolved);
         return new Response(null, {
-            status: statusCode,
+            status: resolved.preflight.statusCode,
             headers: event.response.headers,
         });
     }
 
-    appendCorsHeaders(event, options);
+    applyResolvedCorsHeaders(event, resolved);
     return undefined;
+}
+
+function warnInvalidCredentialsCombination(input: Options, resolved: ResolvedOptions): void {
+    if (!resolved.credentials) {
+        return;
+    }
+
+    const wildcardFields: string[] = [];
+    if (!input.origin || input.origin === '*') {
+        wildcardFields.push('origin');
+    }
+    if (resolved.methods === '*') {
+        wildcardFields.push('methods');
+    }
+    if (resolved.allowHeaders === '*') {
+        wildcardFields.push('allowHeaders');
+    }
+    if (resolved.exposeHeaders === '*') {
+        wildcardFields.push('exposeHeaders');
+    }
+
+    if (wildcardFields.length > 0) {
+        // eslint-disable-next-line no-console
+        console.warn(
+            `[@routup/cors] credentials: true cannot be combined with '*' for ${wildcardFields.join(', ')}. Browsers will reject the response.`,
+        );
+    }
 }
 
 export function createHandler(input?: Options) {
     const options = resolveOptions(input);
 
-    if (options.credentials && (!input?.origin || input.origin === '*')) {
-        // eslint-disable-next-line no-console
-        console.warn(
-            '[@routup/cors] `credentials: true` with wildcard origin is not allowed. Browsers will reject the response.',
-        );
-    }
+    warnInvalidCredentialsCombination(input ?? {}, options);
 
     return defineCoreHandler((event) => {
         if (isPreflightRequest(event)) {
-            appendCorsPreflightHeaders(event, options);
+            applyResolvedCorsPreflightHeaders(event, options);
             return new Response(null, {
                 status: options.preflight.statusCode,
                 headers: event.response.headers,
             });
         }
 
-        appendCorsHeaders(event, options);
+        applyResolvedCorsHeaders(event, options);
         return event.next();
     });
 }

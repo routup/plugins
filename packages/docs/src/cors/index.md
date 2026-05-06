@@ -49,7 +49,7 @@ The plugin short-circuits preflight requests with a `204` and adds the right `Ac
 | `methods` | `'*'` | Allowed methods on preflight. Pass `['GET','POST']` for explicit lists. |
 | `allowHeaders` | `'*'` | Mirrors `Access-Control-Request-Headers` when `'*'` or empty. |
 | `exposeHeaders` | `'*'` | Headers visible to the browser via `getResponseHeader`. |
-| `credentials` | `false` | Enable `Allow-Credentials: true`. Forbids any `'*'` origin/method/header — browsers will reject. |
+| `credentials` | `false` | Enable `Access-Control-Allow-Credentials: true`. Forbids any `'*'` origin/method/header — browsers will reject. |
 | `maxAge` | `false` | Cache duration for preflight, in seconds. |
 | `preflight.statusCode` | `204` | Override if a downstream client doesn't tolerate 204. |
 
