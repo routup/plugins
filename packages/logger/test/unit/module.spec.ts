@@ -23,7 +23,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
     return new Request(fullUrl, options);
 }
 
-describe('plugin', () => {
+describe('handler', () => {
     let lines: string[];
     let write: (line: string) => void;
 
@@ -144,6 +144,13 @@ describe('resolveFormat / formatStrings', () => {
     it('should default to tiny when given non-string non-fn', () => {
         const fn = resolveFormat(undefined);
         expect(typeof fn).toEqual('function');
+    });
+
+    it('should not match prototype keys like "toString" as a preset', () => {
+        const fn = resolveFormat('toString');
+        // Treated as a raw format string, not a preset; tokens fall back to '-'
+        const out = fn({}, {} as any, undefined);
+        expect(out).toEqual('toString');
     });
 
     it('should colorize dev format by status', () => {

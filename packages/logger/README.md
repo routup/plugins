@@ -70,7 +70,7 @@ combined   :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-ver
 common     :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]
 short      :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms
 tiny       :method :url :status :res[content-length] - :response-time ms
-dev        method url status (color-coded by status range) :response-time ms - :res[content-length]
+dev        :method :url :status (color-coded by status range) :response-time ms - :res[content-length]
 ```
 
 Pass the preset name directly:

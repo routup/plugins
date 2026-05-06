@@ -38,17 +38,23 @@ const myFormat = compile(`${formatStrings.tiny} :req[x-trace]`);
 
 ## `defaultTokens`
 
-The built-in token map. Spread it into a custom token map to extend rather than replace:
+The built-in token map. `logger()` already merges `defaultTokens` under any `options.tokens` you supply, so passing custom tokens **extends** the defaults — no manual spread required:
 
 ```typescript
-import { defaultTokens } from '@routup/logger';
-
 router.use(logger(':method :url :user', {
     tokens: {
-        ...defaultTokens,
         user: (event) => event.store.userId as string | undefined,
     },
 }));
+```
+
+Import `defaultTokens` directly when you call `compile()` yourself or build a `Formatter` outside of `logger()` (where the auto-merge doesn't apply):
+
+```typescript
+import { compile, defaultTokens } from '@routup/logger';
+
+const formatter = compile(':method :url :user');
+const line = formatter({ ...defaultTokens, user: () => 'alice' }, event, response);
 ```
 
 ## `devFormatter`

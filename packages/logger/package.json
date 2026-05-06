@@ -2,7 +2,7 @@
     "name": "@routup/logger",
     "version": "0.0.0",
     "type": "module",
-    "description": "Request logging plugin for routup.",
+    "description": "HTTP request logger handler for routup, with morgan-compatible tokens and presets.",
     "exports": {
         "./package.json": "./package.json",
         ".": {

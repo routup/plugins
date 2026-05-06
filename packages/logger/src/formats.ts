@@ -52,7 +52,7 @@ export function resolveFormat(format: unknown): Formatter {
         return devFormatter;
     }
 
-    if (format in formatStrings) {
+    if (Object.hasOwn(formatStrings, format)) {
         return compile(formatStrings[format as PresetFormatName]);
     }
 
