@@ -3,7 +3,7 @@
     "packages/basic": "2.1.0",
     "packages/body": "3.1.0",
     "packages/cookie": "3.1.0",
-    "packages/cors": "1.0.0",
+    "packages/cors": "1.0.1",
     "packages/decorators": "4.1.0",
     "packages/i18n": "3.1.0",
     "packages/logger": "1.0.0",
