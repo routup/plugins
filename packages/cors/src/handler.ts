@@ -66,29 +66,22 @@ export function handleCors(event: IRoutupEvent, options: Options): Response | un
     return undefined;
 }
 
-function warnInvalidCredentialsCombination(input: Options, resolved: ResolvedOptions): void {
+function warnInvalidCredentialsCombination(resolved: ResolvedOptions): void {
     if (!resolved.credentials) {
         return;
     }
 
-    const wildcardFields: string[] = [];
-    if (input.origin === undefined || input.origin === '*') {
-        wildcardFields.push('origin');
-    }
-    if (resolved.methods === '*') {
-        wildcardFields.push('methods');
-    }
-    if (resolved.allowHeaders === '*') {
-        wildcardFields.push('allowHeaders');
-    }
-    if (resolved.exposeHeaders === '*') {
-        wildcardFields.push('exposeHeaders');
-    }
-
-    if (wildcardFields.length > 0) {
+    if (resolved.origin === '*') {
         // eslint-disable-next-line no-console
         console.warn(
-            `[@routup/cors] credentials: true cannot be combined with '*' for ${wildcardFields.join(', ')}. Browsers will reject the response.`,
+            '[@routup/cors] credentials: true cannot be combined with \'*\' for origin. The browser will block the request. Use `origin: true` to reflect the request origin instead.',
+        );
+    }
+
+    if (resolved.exposeHeaders === '*') {
+        // eslint-disable-next-line no-console
+        console.warn(
+            '[@routup/cors] credentials: true cannot be combined with \'*\' for exposeHeaders. The response is not rejected, but custom response headers will not be exposed to JavaScript.',
         );
     }
 }
@@ -96,7 +89,7 @@ function warnInvalidCredentialsCombination(input: Options, resolved: ResolvedOpt
 export function createHandler(input?: Options) {
     const options = resolveOptions(input);
 
-    warnInvalidCredentialsCombination(input ?? {}, options);
+    warnInvalidCredentialsCombination(options);
 
     return defineCoreHandler((event) => {
         if (options.origin === false) {

@@ -2,17 +2,35 @@ import type { IRoutupEvent } from 'routup';
 import { appendResponseHeader, getRequestHeader } from 'routup';
 import type {
     CorsHeaderEntry,
+    CorsListOption,
     Options,
     ResolvedOptions,
 } from './types';
 
+const CREDENTIALS_SAFE_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as const;
+
+function normalizeListOption(value: CorsListOption | undefined): CorsListOption {
+    if (value === undefined || value === '*') {
+        return '*';
+    }
+    if (value.length === 1 && value[0] === '*') {
+        return '*';
+    }
+    return value;
+}
+
 export function resolveOptions(options: Options = {}): ResolvedOptions {
+    const credentials = options.credentials ?? false;
+    const methods = normalizeListOption(options.methods);
+
     return {
         origin: options.origin ?? '*',
-        methods: options.methods ?? '*',
-        allowHeaders: options.allowHeaders ?? '*',
-        exposeHeaders: options.exposeHeaders ?? '*',
-        credentials: options.credentials ?? false,
+        methods: credentials && methods === '*' ?
+            [...CREDENTIALS_SAFE_METHODS] :
+            methods,
+        allowHeaders: normalizeListOption(options.allowHeaders),
+        exposeHeaders: normalizeListOption(options.exposeHeaders),
+        credentials,
         maxAge: options.maxAge ?? false,
         preflightContinue: options.preflightContinue ?? false,
         preflight: { status: options.preflight?.status ?? 204 },

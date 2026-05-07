@@ -26,6 +26,10 @@ export type Options = {
 
     /**
      * Value of `access-control-allow-methods` for preflight responses.
+     * When `'*'` is combined with `credentials: true`, the value is auto-expanded to the
+     * enumerated list of HTTP methods browsers can send via fetch
+     * (`GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS`), since the literal `*` is not
+     * honoured as a wildcard by browsers under credentialed requests.
      *
      * @default '*'
      */
@@ -33,7 +37,8 @@ export type Options = {
 
     /**
      * Value of `access-control-allow-headers` for preflight responses.
-     * When `'*'` or empty, mirrors the request's `access-control-request-headers`.
+     * When `'*'` or empty, mirrors the request's `access-control-request-headers` — so `'*'` is
+     * safe to use even with `credentials: true`, since the literal `*` never hits the wire.
      *
      * @default '*'
      */
@@ -48,8 +53,19 @@ export type Options = {
 
     /**
      * Sets `access-control-allow-credentials: true` when enabled.
-     * When credentials are allowed, none of `origin`, `methods`, `exposeHeaders`,
-     * `allowHeaders` may be `'*'` — browsers will reject the response.
+     * Browsers treat a literal `'*'` as non-wildcard for credentialed requests, so the plugin
+     * normalises the wildcards it can:
+     * - `methods: '*'` is auto-expanded to the enumerated list of fetchable HTTP methods.
+     * - `allowHeaders: '*'` is mirrored from the preflight's `Access-Control-Request-Headers`,
+     *   so `*` never reaches the wire.
+     * - `exposeHeaders: '*'` cannot be auto-resolved (the browser does not advertise wanted
+     *   response headers). The response is not blocked, but only the seven CORS-safelisted
+     *   response headers stay visible to JavaScript. Enumerate any custom headers you want
+     *   readable from the client.
+     * - `origin: '*'` is *not* auto-rewritten because the credentials-friendly equivalent
+     *   (`origin: true`) changes the security posture (any origin can call you with the user's
+     *   cookies). The plugin emits a warning instead — switch to `origin: true` or an explicit
+     *   allow-list yourself.
      *
      * @default false
      */

@@ -48,7 +48,7 @@ The plugin short-circuits preflight requests with a `204` and adds the right `Ac
 | `methods` | `'*'` | Allowed methods on preflight. Pass `['GET','POST']` for explicit lists. |
 | `allowHeaders` | `'*'` | Mirrors `Access-Control-Request-Headers` when `'*'` or empty. |
 | `exposeHeaders` | `'*'` | Headers visible to the browser via `getResponseHeader`. |
-| `credentials` | `false` | Enable `Access-Control-Allow-Credentials: true`. Forbids any `'*'` origin/method/header — browsers will reject. |
+| `credentials` | `false` | Enable `Access-Control-Allow-Credentials: true`. With credentials, the browser treats a literal `'*'` as non-wildcard: a `'*'` `origin` or `methods` blocks the request, and `'*'` `exposeHeaders` silently hides custom (non-CORS-safelisted) response headers from JavaScript. Use `origin: true` to reflect the requester, enumerate `methods` (e.g. `['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS']`), and enumerate any non-safelisted response headers you want exposed. `allowHeaders: '*'` is safe — the plugin mirrors `Access-Control-Request-Headers` so `*` never reaches the wire. |
 | `maxAge` | `false` | Cache duration for preflight, in seconds. Accepts `string` or `number`. |
 | `preflightContinue` | `false` | When `true`, sets preflight headers and forwards to your own `OPTIONS` handler instead of returning 204. |
 | `preflight.status` | `204` | Override if a downstream client doesn't tolerate 204. Preflight responses also set `Content-Length: 0` (Safari compat). |

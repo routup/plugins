@@ -152,7 +152,7 @@ describe('src/module', () => {
         }
     });
 
-    it('should warn when credentials is combined with wildcard methods / allowHeaders / exposeHeaders', () => {
+    it('should warn only about exposeHeaders when other wildcards are auto-handled under credentials', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
@@ -163,11 +163,122 @@ describe('src/module', () => {
             }));
 
             expect(warn).toHaveBeenCalledOnce();
-            const message = warn.mock.calls[0]?.[0] as string;
-            expect(message).toContain('methods');
-            expect(message).toContain('allowHeaders');
-            expect(message).toContain('exposeHeaders');
-            expect(message).not.toContain('origin,');
+
+            const exposeMessage = warn.mock.calls[0]?.[0] as string;
+            expect(exposeMessage).toContain('exposeHeaders');
+            expect(exposeMessage).toContain('not be exposed to JavaScript');
+            expect(exposeMessage).not.toContain('methods');
+            expect(exposeMessage).not.toContain('allowHeaders');
+            expect(exposeMessage).not.toContain('origin');
+        } finally {
+            warn.mockRestore();
+        }
+    });
+
+    it('should auto-expand methods wildcard to the fetchable HTTP verb list under credentials', async () => {
+        const router = new Router();
+        router.use(cors({
+            credentials: true,
+            origin: ['http://example.com'],
+            exposeHeaders: ['etag'],
+        }));
+        router.options('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'PATCH',
+            },
+        }));
+
+        const allowed = response.headers.get('access-control-allow-methods');
+        expect(allowed).toEqual('GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS');
+    });
+
+    it('should treat single-element wildcard arrays the same as the bare wildcard', async () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        try {
+            const router = new Router();
+            router.use(cors({
+                credentials: true,
+                origin: ['http://example.com'],
+                methods: ['*'],
+                allowHeaders: ['*'],
+                exposeHeaders: ['*'],
+            }));
+            router.options('/', defineCoreHandler(() => 'ok'));
+
+            const response = await router.fetch(createTestRequest('/', {
+                method: 'OPTIONS',
+                headers: {
+                    origin: 'http://example.com',
+                    'access-control-request-method': 'PATCH',
+                    'access-control-request-headers': 'x-foo',
+                },
+            }));
+
+            expect(response.headers.get('access-control-allow-methods'))
+                .toEqual('GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS');
+            expect(response.headers.get('access-control-allow-headers')).toEqual('x-foo');
+
+            expect(warn).toHaveBeenCalledOnce();
+            expect(warn.mock.calls[0]?.[0]).toContain('exposeHeaders');
+        } finally {
+            warn.mockRestore();
+        }
+    });
+
+    it('should keep emitting wildcard methods on the wire when credentials is disabled', async () => {
+        const router = new Router();
+        router.use(cors({ origin: ['http://example.com'] }));
+        router.options('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://example.com',
+                'access-control-request-method': 'PATCH',
+            },
+        }));
+
+        expect(response.headers.get('access-control-allow-methods')).toEqual('*');
+    });
+
+    it('should not warn about allowHeaders wildcard with credentials (mirrored from request)', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        try {
+            const router = new Router();
+            router.use(cors({
+                credentials: true,
+                origin: ['http://example.com'],
+                methods: ['GET'],
+                allowHeaders: '*',
+                exposeHeaders: ['etag'],
+            }));
+
+            expect(warn).not.toHaveBeenCalled();
+        } finally {
+            warn.mockRestore();
+        }
+    });
+
+    it('should not warn about origin when caller passed an explicit non-wildcard origin', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        try {
+            const router = new Router();
+            router.use(cors({
+                credentials: true,
+                origin: ['http://example.com'],
+                methods: ['GET'],
+                allowHeaders: ['content-type'],
+                exposeHeaders: ['etag'],
+            }));
+
+            expect(warn).not.toHaveBeenCalled();
         } finally {
             warn.mockRestore();
         }
