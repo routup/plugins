@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/routup/plugins/compare/cors-v1.0.0...cors-v1.0.1) (2026-05-07)
+
+
+### Bug Fixes
+
+* **cors:** resolve credentials + wildcard footguns ([03ab6ef](https://github.com/routup/plugins/commit/03ab6ef937a93ccf31ff16d48c6e6d2d21c571e8))
+
 ## 1.0.0 (2026-05-06)
 
 
