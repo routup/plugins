@@ -32,8 +32,10 @@ export function resolveOptions(options: Options = {}): ResolvedOptions {
         exposeHeaders: normalizeListOption(options.exposeHeaders),
         credentials,
         maxAge: options.maxAge ?? false,
-        preflightContinue: options.preflightContinue ?? false,
-        preflight: { status: options.preflight?.status ?? 204 },
+        preflight: {
+            status: options.preflight?.status ?? 204,
+            continue: options.preflight?.continue ?? false,
+        },
     };
 }
 

@@ -63,7 +63,7 @@ serve(router, { port: 3000 });
 | `exposeHeaders` | `'*' \| string[]` | `'*'` | Value of `Access-Control-Expose-Headers`. |
 | `credentials` | `boolean` | `false` | Sets `Access-Control-Allow-Credentials: true`. With credentials, the browser treats a literal `'*'` as a non-wildcard value: a `'*'` `origin` or `methods` causes the request to be blocked, and `'*'` `exposeHeaders` silently hides custom response headers from JavaScript. Use `origin: true` to reflect the request origin (credentials-safe), enumerate `methods` explicitly, and list the response headers you want exposed. `allowHeaders: '*'` is fine — the plugin mirrors `Access-Control-Request-Headers` so `*` never appears on the wire. |
 | `maxAge` | `string \| number \| false` | `false` | Value of `Access-Control-Max-Age` on preflight, in seconds. Numbers are stringified. |
-| `preflightContinue` | `boolean` | `false` | When `true`, sets the preflight headers and calls `event.next()` instead of returning a 204 — lets your own `OPTIONS` handler take over. |
+| `preflight.continue` | `boolean` | `false` | When `true`, sets the preflight headers and calls `event.next()` instead of returning a 204 — lets your own `OPTIONS` handler take over. |
 | `preflight.status` | `number` | `204` | Status code returned for preflight responses. Preflight responses also set `Content-Length: 0` for Safari compatibility. |
 
 ## Helpers

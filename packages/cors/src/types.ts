@@ -80,15 +80,6 @@ export type Options = {
     maxAge?: CorsMaxAgeOption;
 
     /**
-     * When `true`, preflight responses set the `Access-Control-*` headers and
-     * then call `event.next()` so the user's own `OPTIONS` handler can take
-     * over. When `false` (default), the plugin short-circuits with a 204.
-     *
-     * @default false
-     */
-    preflightContinue?: boolean;
-
-    /**
      * Tuning for the preflight response itself.
      */
     preflight?: {
@@ -98,6 +89,15 @@ export type Options = {
          * @default 204
          */
         status?: number;
+
+        /**
+         * When `true`, preflight responses set the `Access-Control-*` headers and
+         * then call `event.next()` so the user's own `OPTIONS` handler can take
+         * over. When `false` (default), the plugin short-circuits with a 204.
+         *
+         * @default false
+         */
+        continue?: boolean;
     };
 };
 
@@ -108,9 +108,9 @@ export type ResolvedOptions = {
     exposeHeaders: CorsListOption;
     credentials: boolean;
     maxAge: CorsMaxAgeOption;
-    preflightContinue: boolean;
     preflight: {
         status: number;
+        continue: boolean;
     };
 };
 

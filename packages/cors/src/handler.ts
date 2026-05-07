@@ -56,7 +56,7 @@ export function handleCors(event: IRoutupEvent, options: Options): Response | un
 
     if (isPreflightRequest(event)) {
         applyResolvedCorsPreflightHeaders(event, resolved);
-        if (resolved.preflightContinue) {
+        if (resolved.preflight.continue) {
             return undefined;
         }
         return buildPreflightResponse(event, resolved);
@@ -98,7 +98,7 @@ export function createHandler(input?: Options) {
 
         if (isPreflightRequest(event)) {
             applyResolvedCorsPreflightHeaders(event, options);
-            if (options.preflightContinue) {
+            if (options.preflight.continue) {
                 return event.next();
             }
             return buildPreflightResponse(event, options);

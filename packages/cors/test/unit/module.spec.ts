@@ -472,10 +472,10 @@ describe('origin option shapes', () => {
     });
 });
 
-describe('preflightContinue', () => {
+describe('preflight.continue', () => {
     it('should call next() instead of sending 204 when set', async () => {
         const router = new Router();
-        router.use(cors({ preflightContinue: true }));
+        router.use(cors({ preflight: { continue: true } }));
         router.options('/', defineCoreHandler((event) => new Response('custom-options', {
             status: 200,
             headers: event.response.headers,
