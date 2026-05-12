@@ -4,13 +4,15 @@
 
 The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever a routup-side change needs to know how the metadata pipeline interprets a decorator.
 
-## Version Snapshot (as of 2026-04-26)
+## Version Snapshot (as of 2026-05-12)
 
 | | Version | Notes |
 |---|---|---|
-| `@trapi/metadata` | 1.3.0 (next: 2.0.0 on PR #798) | Core metadata extraction; v2 adds `Preset` + handler architecture |
-| `@trapi/swagger` | 1.3.0 (next: 2.0.0 on PR #798) | OpenAPI 2.0 / 3.0 / 3.1 / 3.2 emission |
-| `@trapi/decorators` | 1.3.0 (next: 2.0.0) | Reference decorator preset (canonical names: `@Controller`, `@Get`, ...) |
+| `@trapi/core` | 2.0.0 | Domain types + handler/preset primitives extracted from `@trapi/metadata` |
+| `@trapi/metadata` | 2.0.0 | Source-scan + metadata extraction; consumes presets |
+| `@trapi/swagger` | 2.0.0 | OpenAPI 2.0 / 3.0 / 3.1 / 3.2 emission |
+| `@trapi/cli` | 2.0.0 | `trapi --preset @routup/decorators/preset` entry point |
+| `@trapi/decorators` | 2.0.0 | Reference decorator preset (canonical names: `@Controller`, `@Get`, ...) |
 
 ## Code Mapping (TRAPI → routup/plugins)
 
