@@ -57,7 +57,7 @@
     },
     "dependencies": {
         "@routup/assets": "^4.1.0",
-        "swagger-ui-dist": "^5.32.5"
+        "swagger-ui-dist": "^5.32.6"
     },
     "devDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
