@@ -54,10 +54,10 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^5.0.0"
+        "routup": "^5.1.1"
     },
     "devDependencies": {
-        "routup": "^5.0.0"
+        "routup": "^5.1.1"
     },
     "publishConfig": {
         "access": "public"
