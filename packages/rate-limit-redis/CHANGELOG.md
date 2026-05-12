@@ -1,5 +1,21 @@
 # Change Log
 
+## [4.2.0](https://github.com/routup/plugins/compare/rate-limit-redis-v4.1.0...rate-limit-redis-v4.2.0) (2026-05-12)
+
+
+### Features
+
+* **decorators:** support array of paths in @DController ([#801](https://github.com/routup/plugins/issues/801)) ([a45df32](https://github.com/routup/plugins/commit/a45df32e75512a1ef79b93a78cdd0b6fbf6505ba))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^3.1.0 to ^3.2.0
+  * peerDependencies
+    * @routup/rate-limit bumped from ^3.1.0 to ^3.2.0
+
 ## [4.1.0](https://github.com/routup/plugins/compare/rate-limit-redis-v4.0.0...rate-limit-redis-v4.1.0) (2026-05-06)
 
 

@@ -1,6 +1,6 @@
 {
     "name": "@routup/decorators",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "type": "module",
     "description": "Decorators plugin for routup.",
     "exports": {
@@ -64,9 +64,9 @@
         }
     },
     "dependencies": {
-        "@routup/body": "^3.1.0",
-        "@routup/cookie": "^3.1.0",
-        "@routup/query": "^3.1.0"
+        "@routup/body": "^3.2.0",
+        "@routup/cookie": "^3.2.0",
+        "@routup/query": "^3.2.0"
     },
     "devDependencies": {
         "@trapi/core": "^2.0.0",
