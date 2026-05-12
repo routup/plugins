@@ -8,7 +8,7 @@ export interface ClassType extends Function {
 }
 
 export type DecoratorMeta = {
-    url: string,
+    url: string | string[],
 
     methods: {
         [key: string]: DecoratorMethodOptions

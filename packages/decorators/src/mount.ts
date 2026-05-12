@@ -1,23 +1,13 @@
 import type { IRouter, MethodName } from 'routup';
 import { Router, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
-import type { ClassType } from './type';
+import type { ClassType, DecoratorMeta } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
-export function mountController(
-    router: IRouter,
-    input: (ClassType | Record<string, any>),
-) {
-    let controller : Record<string, any>;
-
-    if (isObject(input)) {
-        controller = input;
-    } else {
-        controller = new (input as ClassType)();
-    }
-
-    const meta = useDecoratorMeta(controller);
-
+function buildControllerRouter(
+    controller: Record<string, any>,
+    meta: DecoratorMeta,
+): Router {
     const childRouter = new Router();
 
     for (let i = 0; i < meta.middlewares.length; i++) {
@@ -61,7 +51,31 @@ export function mountController(
         childRouter.use(handler);
     }
 
-    router.use(meta.url, childRouter);
+    return childRouter;
+}
+
+export function mountController(
+    router: IRouter,
+    input: (ClassType | Record<string, any>),
+) {
+    let controller : Record<string, any>;
+
+    if (isObject(input)) {
+        controller = input;
+    } else {
+        controller = new (input as ClassType)();
+    }
+
+    const meta = useDecoratorMeta(controller);
+
+    if (Array.isArray(meta.url)) {
+        const childRouter = buildControllerRouter(controller, meta);
+        for (const url of meta.url) {
+            router.use(url, childRouter.clone());
+        }
+    } else {
+        router.use(meta.url, buildControllerRouter(controller, meta));
+    }
 }
 
 export function mountControllers(

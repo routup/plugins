@@ -33,6 +33,20 @@ export class UserController {
 
 The full path is `controllerPath + methodPath`, so the `show` handler above resolves to `GET /users/:id`.
 
+## Multiple mount paths
+
+`@DController` also accepts an array of paths. The controller is mounted under each path, so every method is reachable through any of them:
+
+```typescript
+@DController(['/users', '/members'])
+export class UserController {
+    @DGet('')         async list()                          {}
+    @DGet('/:id')     async show(@DPath('id') id: string)   {}
+}
+```
+
+`GET /users` and `GET /members` both resolve to `list`; `GET /users/42` and `GET /members/42` both resolve to `show`. This mirrors `@trapi/core`'s controller `paths` field, so the OpenAPI generator picks up every mount point.
+
 ## Returning values
 
 In routup v5, handlers return values directly — no `send(res, data)`. The return value is converted to a `Response` by the core (see [routup's response model](https://routup.dev/guide/response)):
