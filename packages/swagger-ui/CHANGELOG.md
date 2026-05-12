@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.2.0](https://github.com/routup/plugins/compare/swagger-ui-v3.1.0...swagger-ui-v3.2.0) (2026-05-12)
+
+
+### Features
+
+* **decorators:** support array of paths in @DController ([#801](https://github.com/routup/plugins/issues/801)) ([a45df32](https://github.com/routup/plugins/commit/a45df32e75512a1ef79b93a78cdd0b6fbf6505ba))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 8 updates ([#805](https://github.com/routup/plugins/issues/805)) ([392752f](https://github.com/routup/plugins/commit/392752f06d3b8499f7accc176aea965f41cf834d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^4.1.0 to ^4.2.0
+
 ## [3.1.0](https://github.com/routup/plugins/compare/swagger-ui-v3.0.0...swagger-ui-v3.1.0) (2026-05-06)
 
 

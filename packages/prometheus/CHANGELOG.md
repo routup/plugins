@@ -1,5 +1,12 @@
 # Change Log
 
+## [3.2.0](https://github.com/routup/plugins/compare/prometheus-v3.1.0...prometheus-v3.2.0) (2026-05-12)
+
+
+### Features
+
+* **decorators:** support array of paths in @DController ([#801](https://github.com/routup/plugins/issues/801)) ([a45df32](https://github.com/routup/plugins/commit/a45df32e75512a1ef79b93a78cdd0b6fbf6505ba))
+
 ## [3.1.0](https://github.com/routup/plugins/compare/prometheus-v3.0.0...prometheus-v3.1.0) (2026-05-06)
 
 

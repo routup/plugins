@@ -6,6 +6,22 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [2.2.0](https://github.com/routup/plugins/compare/basic-v2.1.0...basic-v2.2.0) (2026-05-12)
+
+
+### Features
+
+* **decorators:** support array of paths in @DController ([#801](https://github.com/routup/plugins/issues/801)) ([a45df32](https://github.com/routup/plugins/commit/a45df32e75512a1ef79b93a78cdd0b6fbf6505ba))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^3.1.0 to ^3.2.0
+    * @routup/cookie bumped from ^3.1.0 to ^3.2.0
+    * @routup/query bumped from ^3.1.0 to ^3.2.0
+
 ## [2.1.0](https://github.com/routup/plugins/compare/basic-v2.0.0...basic-v2.1.0) (2026-05-06)
 
 
