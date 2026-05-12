@@ -72,7 +72,7 @@
         "@trapi/core": "^2.0.0-beta.3",
         "@trapi/metadata": "^2.0.0-beta.3",
         "@trapi/swagger": "^2.0.0-beta.3",
-        "jsonata": "^2.1.0",
+        "jsonata": "^2.1.1",
         "routup": "^5.2.0"
     },
     "publishConfig": {
