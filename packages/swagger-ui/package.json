@@ -53,7 +53,7 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
-        "routup": "^5.0.1"
+        "routup": "^5.2.0"
     },
     "dependencies": {
         "@routup/assets": "^4.1.0",
@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
-        "routup": "^5.0.1"
+        "routup": "^5.2.0"
     },
     "publishConfig": {
         "access": "public"

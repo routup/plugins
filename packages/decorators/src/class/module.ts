@@ -2,7 +2,7 @@ import type { ClassType } from '../type';
 import { useDecoratorMeta } from '../utils';
 
 export function createClassDecorator(
-    url: string,
+    url: string | string[],
     middlewares?: ClassType[],
 ) : ClassDecorator {
     return (target: any) : void => {
@@ -21,7 +21,7 @@ export function createClassDecorator(
 }
 
 export function DController(
-    url: string,
+    url: string | string[],
     middlewares?: ClassType[],
 ) : ClassDecorator {
     return createClassDecorator(url, middlewares);

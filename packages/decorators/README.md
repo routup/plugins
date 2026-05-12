@@ -67,6 +67,9 @@ export class UserController {
         return 'Hello, World!';
     }
 
+    // `@DController` also accepts `string[]` to mount the controller under
+    // multiple paths, e.g. `@DController(['/users', '/members'])`.
+
     @DGet('/:id')
     async getOne(
         @DPath('id') id: string,
