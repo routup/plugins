@@ -37,10 +37,10 @@ To read the docs, visit [https://routup.net](https://routup.net)
 Mount the plugin once at the top of the router. It both adds CORS headers to ordinary responses and short-circuits preflight `OPTIONS` requests with a 204.
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { cors } from '@routup/cors';
 
-const router = new Router();
+const router = new App();
 
 router.use(cors({
     origin: ['https://app.example.com'],
@@ -74,7 +74,7 @@ All-in-one helper: appends headers and, on a preflight request, returns the pref
 
 ```typescript
 declare function handleCors(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): Response | undefined;
 ```
@@ -96,7 +96,7 @@ Appends the standard `Access-Control-Allow-*` and `Access-Control-Expose-Headers
 
 ```typescript
 declare function appendCorsHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): void;
 ```
@@ -107,7 +107,7 @@ Appends the preflight set (`Access-Control-Allow-Methods`, `Access-Control-Allow
 
 ```typescript
 declare function appendCorsPreflightHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): void;
 ```
@@ -117,7 +117,7 @@ declare function appendCorsPreflightHeaders(
 Returns `true` when the request is `OPTIONS` with both an `Origin` header and an `Access-Control-Request-Method` header.
 
 ```typescript
-declare function isPreflightRequest(event: IRoutupEvent): boolean;
+declare function isPreflightRequest(event: IAppEvent): boolean;
 ```
 
 ### `isCorsOriginAllowed`

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import {
@@ -18,7 +18,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/module', () => {
     it('should parse cookie', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(cookie());
 
@@ -36,7 +36,7 @@ describe('src/module', () => {
     });
 
     it('should parse cookie with middleware', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(cookie());
 
@@ -54,7 +54,7 @@ describe('src/module', () => {
     });
 
     it('should set (multiple) cookie', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.get('/', defineCoreHandler((event) => {
             setResponseCookie(event, 'bar', 'baz');
@@ -81,7 +81,7 @@ describe('src/module', () => {
     });
 
     it('should unset cookie', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.get('/', defineCoreHandler((event) => {
             unsetResponseCookie(event, 'foo');

@@ -1,12 +1,12 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { RateLimitInfo } from './type';
 import { isObject } from './utils';
 
 const RateLimitSymbol = Symbol.for('@routup/rate-limit:ReqRateLimit');
 
-export function useRequestRateLimitInfo(event: IRoutupEvent) : Partial<RateLimitInfo>;
-export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IRoutupEvent, key: K) : RateLimitInfo[K] | undefined;
-export function useRequestRateLimitInfo(event: IRoutupEvent, key?: string) {
+export function useRequestRateLimitInfo(event: IAppEvent) : Partial<RateLimitInfo>;
+export function useRequestRateLimitInfo<K extends keyof RateLimitInfo>(event: IAppEvent, key: K) : RateLimitInfo[K] | undefined;
+export function useRequestRateLimitInfo(event: IAppEvent, key?: string) {
     if (RateLimitSymbol in event.store) {
         if (typeof key === 'string') {
             return (event.store[RateLimitSymbol] as Record<string, unknown>)[key];
@@ -21,12 +21,12 @@ export function useRequestRateLimitInfo(event: IRoutupEvent, key?: string) {
 }
 
 export function setRequestRateLimitInfo<K extends keyof RateLimitInfo>(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: K,
     value: RateLimitInfo[K],
 ) : void;
-export function setRequestRateLimitInfo(event: IRoutupEvent, record: RateLimitInfo) : void;
-export function setRequestRateLimitInfo(event: IRoutupEvent, key: RateLimitInfo | string, value?: unknown) : void {
+export function setRequestRateLimitInfo(event: IAppEvent, record: RateLimitInfo) : void;
+export function setRequestRateLimitInfo(event: IAppEvent, key: RateLimitInfo | string, value?: unknown) : void {
     const existing = RateLimitSymbol in event.store ?
         event.store[RateLimitSymbol] as Record<string, unknown> :
         undefined;

@@ -1,5 +1,5 @@
-import type { IRouter, MethodName } from 'routup';
-import { Router, defineCoreHandler } from 'routup';
+import type { IApp, MethodName } from 'routup';
+import { App, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, DecoratorMeta } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
@@ -7,8 +7,8 @@ import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 function buildControllerRouter(
     controller: Record<string, any>,
     meta: DecoratorMeta,
-): Router {
-    const childRouter = new Router();
+): App {
+    const childRouter = new App();
 
     for (let i = 0; i < meta.middlewares.length; i++) {
         const handler = createHandlerForClassType(meta.middlewares[i]!, {});
@@ -55,7 +55,7 @@ function buildControllerRouter(
 }
 
 export function mountController(
-    router: IRouter,
+    router: IApp,
     input: (ClassType | Record<string, any>),
 ) {
     let controller : Record<string, any>;
@@ -79,7 +79,7 @@ export function mountController(
 }
 
 export function mountControllers(
-    router: IRouter,
+    router: IApp,
     input: (ClassType | Record<string, any>)[],
 ) {
     for (const element of input) {

@@ -7,7 +7,7 @@ import {
     vi,
 } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import {
@@ -33,7 +33,7 @@ describe('handler', () => {
     });
 
     it('should log default tiny format after response', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger({ write }));
         router.get('/items', defineCoreHandler(() => 'ok'));
 
@@ -45,7 +45,7 @@ describe('handler', () => {
     });
 
     it('should accept a custom format string', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':method :status', { write }));
         router.post('/x', defineCoreHandler(() => new Response('made', { status: 201 })));
 
@@ -55,7 +55,7 @@ describe('handler', () => {
     });
 
     it('should accept a custom formatter function', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(
             (_tokens, event, response) => `[${event.method}] ${response?.status ?? '-'}`,
             { write },
@@ -68,7 +68,7 @@ describe('handler', () => {
     });
 
     it('should support skip predicate', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger({
             write,
             skip: (event) => event.path === '/health',
@@ -84,7 +84,7 @@ describe('handler', () => {
     });
 
     it('should support custom tokens', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':who', {
             write,
             tokens: { who: () => 'agent-007' },
@@ -97,7 +97,7 @@ describe('handler', () => {
     });
 
     it('should log immediately when immediate=true', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':method :status', { write, immediate: true }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -109,7 +109,7 @@ describe('handler', () => {
     it('should use console.log when no write fn given', async () => {
         const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
 
-        const router = new Router();
+        const router = new App();
         router.use(logger());
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -228,7 +228,7 @@ describe('built-in tokens', () => {
     });
 
     it(':url renders pathname + search', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':url', { write }));
         router.get('/x', defineCoreHandler(() => 'ok'));
 
@@ -238,7 +238,7 @@ describe('built-in tokens', () => {
     });
 
     it(':status renders the response status', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':status', { write }));
         router.get('/', defineCoreHandler(() => new Response('!', { status: 418 })));
 
@@ -248,7 +248,7 @@ describe('built-in tokens', () => {
     });
 
     it(':response-time produces a numeric ms value', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':response-time', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -259,7 +259,7 @@ describe('built-in tokens', () => {
     });
 
     it(':req[name] renders a request header', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':req[x-trace]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -269,7 +269,7 @@ describe('built-in tokens', () => {
     });
 
     it(':res[name] renders a response header', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':res[x-foo]', { write }));
         router.get('/', defineCoreHandler(() => new Response('ok', { headers: { 'x-foo': 'bar' } })));
 
@@ -279,7 +279,7 @@ describe('built-in tokens', () => {
     });
 
     it(':user-agent renders the request user-agent', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':user-agent', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -289,7 +289,7 @@ describe('built-in tokens', () => {
     });
 
     it(':remote-user decodes basic auth', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':remote-user', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -300,7 +300,7 @@ describe('built-in tokens', () => {
     });
 
     it(':date renders an ISO timestamp when format=iso', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':date[iso]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -311,7 +311,7 @@ describe('built-in tokens', () => {
     });
 
     it(':date[clf] renders the CLF format', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(logger(':date[clf]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 

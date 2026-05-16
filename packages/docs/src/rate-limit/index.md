@@ -17,10 +17,10 @@ npm install @routup/rate-limit
 ## Quick start
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 
-const router = new Router();
+const router = new App();
 
 router.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

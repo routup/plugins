@@ -40,12 +40,12 @@ The plugin should be installed before registering any other plugins or routes!
 
 ```typescript
 import {
-    Router,
+    App,
     serve,
 } from 'routup';
 import { prometheus } from '@routup/prometheus';
 
-const router = new Router();
+const router = new App();
 
 router.use(prometheus({
     // serve metrics on path /metrics

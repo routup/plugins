@@ -14,11 +14,11 @@ Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single 
 
 ```typescript
 declare function readRequestBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
 ): Promise<Record<string, any>>;
 
 declare function readRequestBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
 ): Promise<any | undefined>;
 ```
@@ -34,7 +34,7 @@ Returns the body decoded as a string.
 
 ```typescript
 declare function readRequestBodyText(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: TextOptions,
 ): Promise<string>;
 ```
@@ -47,7 +47,7 @@ Returns the body as a `Uint8Array`.
 
 ```typescript
 declare function readRequestBodyBytes(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: RawOptions,
 ): Promise<Uint8Array>;
 ```
@@ -60,7 +60,7 @@ Returns the body as an `ArrayBuffer`.
 
 ```typescript
 declare function readRequestBodyArrayBuffer(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ): Promise<ArrayBuffer>;
 ```
@@ -71,7 +71,7 @@ Returns the body as a `Blob` — the `Blob`'s `type` reflects the request `Conte
 
 ```typescript
 declare function readRequestBodyBlob(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ): Promise<Blob>;
 ```
@@ -82,7 +82,7 @@ Returns the body as a `ReadableStream`, with transparent decoding when the `Cont
 
 ```typescript
 declare function readRequestBodyStream(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ): ReadableStream | null;
 ```

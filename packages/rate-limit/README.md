@@ -42,12 +42,12 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ```typescript
 import {
-    Router,
+    App,
     serve,
 } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 
-const router = new Router();
+const router = new App();
 
 router.use(rateLimit({
     // 15 minutes

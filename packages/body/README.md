@@ -43,13 +43,13 @@ For standard use, the package is installed as a plugin, as shown below.
 
 ```typescript
 import {
-    Router,
+    App,
     defineCoreHandler,
     serve,
 } from 'routup';
 import { body, readRequestBody } from '@routup/body';
 
-const router = new Router();
+const router = new App();
 
 // This will parse requests with Content-Type:
 // application/json
@@ -167,11 +167,11 @@ Returns the parsed request body (JSON or URL-encoded). The result is cached afte
 
 ```typescript
 declare function readRequestBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
 ) : Promise<Record<string, any>>;
 
 declare function readRequestBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
 ) : Promise<any | undefined>;
 ```
@@ -182,7 +182,7 @@ Returns the request body as a string.
 
 ```typescript
 declare function readRequestBodyText(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: TextOptions,
 ) : Promise<string>;
 ```
@@ -193,7 +193,7 @@ Returns the request body as a `Uint8Array`.
 
 ```typescript
 declare function readRequestBodyBytes(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: RawOptions,
 ) : Promise<Uint8Array>;
 ```
@@ -204,7 +204,7 @@ Returns the request body as an `ArrayBuffer`.
 
 ```typescript
 declare function readRequestBodyArrayBuffer(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ) : Promise<ArrayBuffer>;
 ```
@@ -215,7 +215,7 @@ Returns the request body as a `Blob`.
 
 ```typescript
 declare function readRequestBodyBlob(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ) : Promise<Blob>;
 ```
@@ -226,7 +226,7 @@ Returns the request body as a `ReadableStream`, decompressed if the `content-enc
 
 ```typescript
 declare function readRequestBodyStream(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ) : ReadableStream | null;
 ```

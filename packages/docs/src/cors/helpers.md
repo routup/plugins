@@ -12,7 +12,7 @@ All-in-one helper. Appends the right CORS headers and, on a preflight request, r
 
 ```typescript
 declare function handleCors(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): Response | undefined;
 ```
@@ -34,7 +34,7 @@ Appends the non-preflight CORS headers (`Access-Control-Allow-Origin`, `Access-C
 
 ```typescript
 declare function appendCorsHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): void;
 ```
@@ -45,7 +45,7 @@ Appends the preflight CORS headers (`Access-Control-Allow-Methods`, `Access-Cont
 
 ```typescript
 declare function appendCorsPreflightHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ): void;
 ```
@@ -55,7 +55,7 @@ declare function appendCorsPreflightHeaders(
 Returns `true` for `OPTIONS` requests carrying both an `Origin` header and `Access-Control-Request-Method`.
 
 ```typescript
-declare function isPreflightRequest(event: IRoutupEvent): boolean;
+declare function isPreflightRequest(event: IAppEvent): boolean;
 ```
 
 ## `isCorsOriginAllowed`

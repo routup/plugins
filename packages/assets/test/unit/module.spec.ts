@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Router } from 'routup';
+import { App } from 'routup';
 import path from 'node:path';
 import { assets } from '../../src';
 
@@ -14,7 +14,7 @@ const directoryPath = path.join(__dirname, '..', 'data');
 
 describe('src/module', () => {
     it('should serve text file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(assets(directoryPath));
 
@@ -28,7 +28,7 @@ describe('src/module', () => {
     });
 
     it('should serve node modules file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use('/docs', assets(path.dirname(require.resolve('swagger-ui-dist')), { scan: false }));
 
@@ -38,7 +38,7 @@ describe('src/module', () => {
     });
 
     it('should serve non preloaded text file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(assets(directoryPath, { scan: false }));
 
@@ -50,7 +50,7 @@ describe('src/module', () => {
     });
 
     it('should serve js file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(assets(directoryPath));
 
@@ -64,7 +64,7 @@ describe('src/module', () => {
     });
 
     it('should not serve file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(assets(directoryPath));
 
@@ -76,7 +76,7 @@ describe('src/module', () => {
     });
 
     it('should serve directory by index file', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(assets(directoryPath, { fallback: true }));
 

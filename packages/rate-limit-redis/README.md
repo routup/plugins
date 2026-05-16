@@ -29,13 +29,13 @@ To read the docs, visit [https://routup.net](https://routup.net)
 
 ```typescript
 import {
-    Router,
+    App,
     serve,
 } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 import { RedisStore } from '@routup/rate-limit-redis';
 
-const router = new Router();
+const router = new App();
 
 // Apply the rate limiting middleware to API calls only
 router.use('/api', rateLimit({

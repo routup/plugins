@@ -5,7 +5,7 @@ import {
     vi, 
 } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import {
@@ -24,7 +24,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/module', () => {
     it('should add wildcard origin headers on a simple request', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors());
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -35,7 +35,7 @@ describe('src/module', () => {
     });
 
     it('should answer preflight with default 204 + headers', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors());
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -55,7 +55,7 @@ describe('src/module', () => {
     });
 
     it('should override preflight status', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ preflight: { status: 200 } }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -71,7 +71,7 @@ describe('src/module', () => {
     });
 
     it('should allow origin from string array', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: ['http://allowed.test'] }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -84,7 +84,7 @@ describe('src/module', () => {
     });
 
     it('should allow origin from RegExp entry', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: [/\.allowed\.test$/] }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -95,7 +95,7 @@ describe('src/module', () => {
     });
 
     it('should allow origin from custom function', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: (origin) => origin.endsWith('.example.com') }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -106,7 +106,7 @@ describe('src/module', () => {
     });
 
     it('should emit "null" origin when configured', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: 'null' }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -120,7 +120,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({ credentials: true }));
             router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -137,7 +137,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({
                 credentials: true,
                 origin: ['http://example.com'],
@@ -156,7 +156,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({
                 credentials: true,
                 origin: ['http://example.com'],
@@ -176,7 +176,7 @@ describe('src/module', () => {
     });
 
     it('should auto-expand methods wildcard to the fetchable HTTP verb list under credentials', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({
             credentials: true,
             origin: ['http://example.com'],
@@ -200,7 +200,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({
                 credentials: true,
                 origin: ['http://example.com'],
@@ -231,7 +231,7 @@ describe('src/module', () => {
     });
 
     it('should keep emitting wildcard methods on the wire when credentials is disabled', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: ['http://example.com'] }));
         router.options('/', defineCoreHandler(() => 'ok'));
 
@@ -250,7 +250,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({
                 credentials: true,
                 origin: ['http://example.com'],
@@ -269,7 +269,7 @@ describe('src/module', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         try {
-            const router = new Router();
+            const router = new App();
             router.use(cors({
                 credentials: true,
                 origin: ['http://example.com'],
@@ -285,7 +285,7 @@ describe('src/module', () => {
     });
 
     it('should match origins against a global-flagged RegExp deterministically', async () => {
-        const router = new Router();
+        const router = new App();
         const pattern = /\.allowed\.test$/g;
         router.use(cors({ origin: [pattern] }));
         router.get('/', defineCoreHandler(() => 'ok'));
@@ -298,7 +298,7 @@ describe('src/module', () => {
     });
 
     it('should join methods array', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ methods: ['GET', 'POST'] }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -314,7 +314,7 @@ describe('src/module', () => {
     });
 
     it('should expose listed response headers', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ exposeHeaders: ['x-total-count', 'etag'] }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -325,7 +325,7 @@ describe('src/module', () => {
     });
 
     it('should set max-age on preflight', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ maxAge: '600' }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -341,7 +341,7 @@ describe('src/module', () => {
     });
 
     it('should preserve both vary values when origin and allowHeaders are concrete', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({
             origin: ['http://example.com'],
             allowHeaders: ['content-type'],
@@ -362,7 +362,7 @@ describe('src/module', () => {
     });
 
     it('should not produce a preflight response on a non-OPTIONS request', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors());
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -379,7 +379,7 @@ describe('src/module', () => {
     });
 
     it('should set Content-Length: 0 on preflight (Safari compat)', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors());
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -396,7 +396,7 @@ describe('src/module', () => {
     });
 
     it('should accept maxAge as number', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ maxAge: 600 }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -414,7 +414,7 @@ describe('src/module', () => {
 
 describe('origin option shapes', () => {
     it('should emit fixed string origin verbatim', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: 'https://app.example.com' }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -426,7 +426,7 @@ describe('origin option shapes', () => {
     });
 
     it('should reflect origin matched by a single RegExp', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: /\.example\.com$/ }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -439,7 +439,7 @@ describe('origin option shapes', () => {
     });
 
     it('should reflect any request origin when origin=true', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: true }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -451,7 +451,7 @@ describe('origin option shapes', () => {
     });
 
     it('should bypass CORS entirely when origin=false', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ origin: false }));
         router.post('/', defineCoreHandler(() => 'ok'));
 
@@ -474,7 +474,7 @@ describe('origin option shapes', () => {
 
 describe('preflight.continue', () => {
     it('should call next() instead of sending 204 when set', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(cors({ preflight: { continue: true } }));
         router.options('/', defineCoreHandler((event) => new Response('custom-options', {
             status: 200,
@@ -511,7 +511,7 @@ describe('helpers', () => {
     });
 
     it('isPreflightRequest returns false without origin or ACRM', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(defineCoreHandler((event) => {
             if (isPreflightRequest(event)) {
                 return 'pre';
@@ -529,7 +529,7 @@ describe('helpers', () => {
     });
 
     it('handleCors returns a response on preflight, undefined otherwise', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(defineCoreHandler((event) => {
             const corsResponse = handleCors(event, { origin: '*' });
             if (corsResponse) {
@@ -554,7 +554,7 @@ describe('helpers', () => {
     });
 
     it('appendCorsHeaders / appendCorsPreflightHeaders can be used standalone', async () => {
-        const router = new Router();
+        const router = new App();
         router.get('/', defineCoreHandler((event) => {
             appendCorsHeaders(event, { origin: '*', exposeHeaders: ['x-foo'] });
             return 'ok';

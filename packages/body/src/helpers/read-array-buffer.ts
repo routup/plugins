@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { BaseOptions } from '../types';
 import { boolToObject } from '../utils';
 import { readRequestBodyRaw } from './read-raw';
@@ -11,7 +11,7 @@ import { getBodyOptions } from './options';
  * @param options - Optional limit options.
  */
 export async function readRequestBodyArrayBuffer(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: BaseOptions,
 ): Promise<ArrayBuffer> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});

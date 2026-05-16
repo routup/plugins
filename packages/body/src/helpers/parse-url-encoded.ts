@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { createError } from 'routup';
 import type { UrlEncodedOptions } from '../types';
 import { matchContentType } from '../utils';
@@ -14,7 +14,7 @@ import { readRequestBodyRaw } from './read-raw';
  * @param options - URL-encoded parsing options (limit, parameterLimit, type).
  */
 export async function parseUrlEncodedBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: UrlEncodedOptions,
 ): Promise<Record<string, any> | undefined> {
     if (!matchContentType(event, options.type ?? 'application/x-www-form-urlencoded')) {

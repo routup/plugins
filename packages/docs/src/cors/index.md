@@ -17,10 +17,10 @@ npm install @routup/cors
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { cors } from '@routup/cors';
 
-const router = new Router();
+const router = new App();
 
 router.use(cors({
     origin: ['https://app.example.com'],

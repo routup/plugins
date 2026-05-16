@@ -49,12 +49,12 @@ export class UserController {
 
 ```typescript
 // app.ts
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { decorators } from '@routup/decorators';
 import { basic } from '@routup/basic';
 import { UserController } from './controller';
 
-const router = new Router();
+const router = new App();
 
 router.use(basic());
 router.use(decorators({

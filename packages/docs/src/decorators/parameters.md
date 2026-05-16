@@ -12,7 +12,7 @@ Parameter decorators inject typed values into a controller method. The helpers b
 
 | Decorator | Source |
 |---|---|
-| `@DContext()` | `IRoutupEvent` |
+| `@DContext()` | `IAppEvent` |
 | `@DRequest()` | `event.request` |
 | `@DResponse()` | `event.response` |
 | `@DNext()` | `event.next` |
@@ -30,11 +30,11 @@ Parameter decorators inject typed values into a controller method. The helpers b
 Install whichever parsers your controllers actually use, then mount decorators. The simplest setup uses [`@routup/basic`](/basic/), which bundles all three:
 
 ```typescript
-import { Router } from 'routup';
+import { App } from 'routup';
 import { basic } from '@routup/basic';
 import { decorators } from '@routup/decorators';
 
-const router = new Router();
+const router = new App();
 
 router.use(basic());
 router.use(decorators({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { DController, DGet, decorators } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
@@ -22,7 +22,7 @@ class MultiPathController {
 
 describe('multi-path controller', () => {
     it('mounts the controller under each path', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(decorators({ controllers: [MultiPathController] }));
 
         const users = await router.fetch(createTestRequest('/users'));

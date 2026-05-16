@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Router } from 'routup';
+import { App } from 'routup';
 import type { UIOptions } from '../../../src';
 import { swaggerUI } from '../../../src';
 
@@ -9,7 +9,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 }
 
 const createRouter = async (options?: UIOptions) => {
-    const router = new Router();
+    const router = new App();
 
     router.use('/docs', swaggerUI('test/data/swagger.json', options));
 
@@ -40,7 +40,7 @@ describe('src/ui', () => {
     });
 
     it('should serve template file for nested routers', async () => {
-        const router = new Router();
+        const router = new App();
         const child = await createRouter();
         router.use('/sub', child);
 

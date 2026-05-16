@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { RawOptions } from '../types';
 import { boolToObject } from '../utils';
 import { readRequestBodyRaw } from './read-raw';
@@ -11,7 +11,7 @@ import { getBodyOptions } from './options';
  * @param options - Optional raw parsing options (limit, cache).
  */
 export async function readRequestBodyBytes(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: RawOptions,
 ): Promise<Uint8Array> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});

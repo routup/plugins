@@ -3,7 +3,7 @@ import { Readable } from 'node:stream';
 import {
     type CoreHandler,
     type Handler,
-    type IRoutupEvent,
+    type IAppEvent,
     toResponse,
 } from 'routup';
 import {
@@ -36,7 +36,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
 
     scanFiles(stack, options);
 
-    return async (event: IRoutupEvent) => {
+    return async (event: IAppEvent) => {
         let requestPath = event.path;
 
         const { mountPath } = event;

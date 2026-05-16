@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MemoryStore } from 'ilingo';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import { i18n, useTranslator } from '../../src';
@@ -13,7 +13,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/module', () => {
     it('should translate text', async () => {
-        const router = new Router();
+        const router = new App();
 
         const store = new MemoryStore({
             data: {
@@ -40,7 +40,7 @@ describe('src/module', () => {
     });
 
     it('should translate text with params', async () => {
-        const router = new Router();
+        const router = new App();
 
         const store = new MemoryStore({
             data: {
@@ -72,7 +72,7 @@ describe('src/module', () => {
     });
 
     it('should work with custom locale fn', async () => {
-        const router = new Router();
+        const router = new App();
 
         const store = new MemoryStore({
             data: {

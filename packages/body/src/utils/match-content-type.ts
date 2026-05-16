@@ -1,8 +1,8 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { matchRequestContentType } from 'routup';
 
 export function matchContentType(
-    event: IRoutupEvent,
+    event: IAppEvent,
     types: string | string[],
 ): boolean {
     const typeList = Array.isArray(types) ? types : [types];

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { decorators } from '../../src';
 import { CombinedController } from '../data/combined';
 
@@ -10,7 +10,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('data/combined', () => {
     it('should handle decorator endpoints', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(decorators({ controllers: [CombinedController] }));
 
@@ -46,7 +46,7 @@ describe('data/combined', () => {
     });
 
     it('should not handle decorator endpoints', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(decorators({ controllers: [CombinedController] }));
 
         const response = await router.fetch(createTestRequest('/combined/a', { method: 'DELETE' }));

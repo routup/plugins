@@ -24,10 +24,10 @@ npm install @routup/prometheus
 ## Quick start
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { prometheus } from '@routup/prometheus';
 
-const router = new Router();
+const router = new App();
 
 router.use(prometheus({
     metricsPath: '/metrics',

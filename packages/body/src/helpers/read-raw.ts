@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { createError } from 'routup';
 import { RawBodySymbol } from '../constants';
 import type { BaseOptions } from '../types';
@@ -19,7 +19,7 @@ import { readRequestBodyStream } from './read-stream';
  * @param options - Optional limit and cache options.
  */
 export async function readRequestBodyRaw(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: BaseOptions = {},
 ): Promise<Uint8Array> {
     if (options.cache && RawBodySymbol in event.store) {

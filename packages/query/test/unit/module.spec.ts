@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import { stringify } from 'qs';
@@ -13,7 +13,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/module', () => {
     it('should parse request query', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(query());
 
@@ -55,7 +55,7 @@ describe('src/module', () => {
     });
 
     it('should strip url fragment from query string', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(query());
 
@@ -68,7 +68,7 @@ describe('src/module', () => {
     });
 
     it('should parse request query with middleware', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(query());
 

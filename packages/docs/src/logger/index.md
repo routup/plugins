@@ -6,7 +6,7 @@ relatedPlugins: []
 
 # @routup/logger
 
-A request logger ported from [morgan](https://github.com/expressjs/morgan). Same token DSL, same preset formats (`tiny`, `short`, `common`, `combined`, `dev`) — built on routup's `IRoutupEvent` + `Response`.
+A request logger ported from [morgan](https://github.com/expressjs/morgan). Same token DSL, same preset formats (`tiny`, `short`, `common`, `combined`, `dev`) — built on routup's `IAppEvent` + `Response`.
 
 ## Installation
 
@@ -17,10 +17,10 @@ npm install @routup/logger
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { logger } from '@routup/logger';
 
-const router = new Router();
+const router = new App();
 
 router.use(logger('tiny'));
 

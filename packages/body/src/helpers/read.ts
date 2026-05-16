@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { BodySymbol } from '../constants';
 import { boolToObject } from '../utils';
 import { getBodyOptions } from './options';
@@ -13,7 +13,7 @@ import { parseUrlEncodedBody } from './parse-url-encoded';
  *
  * @param event - The routup event.
  */
-export async function readRequestBody(event: IRoutupEvent): Promise<Record<string, any>>;
+export async function readRequestBody(event: IAppEvent): Promise<Record<string, any>>;
 
 /**
  * Returns the parsed request body (JSON or URL-encoded).
@@ -24,9 +24,9 @@ export async function readRequestBody(event: IRoutupEvent): Promise<Record<strin
  * @param event - The routup event.
  * @param key - Optional key to retrieve a single property from the parsed body.
  */
-export async function readRequestBody(event: IRoutupEvent, key: string): Promise<any | undefined>;
+export async function readRequestBody(event: IAppEvent, key: string): Promise<any | undefined>;
 
-export async function readRequestBody(event: IRoutupEvent, key?: string) {
+export async function readRequestBody(event: IAppEvent, key?: string) {
     if (BodySymbol in event.store) {
         const cached = event.store[BodySymbol] as Record<string, any>;
         return typeof key === 'string' ? cached[key] : cached;

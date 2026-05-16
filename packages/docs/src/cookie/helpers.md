@@ -26,7 +26,7 @@ Returns every parsed cookie as a string-to-string map.
 
 ```typescript
 declare function useRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
 ): Record<string, string>;
 ```
 
@@ -36,7 +36,7 @@ Returns a single cookie by name, or `undefined` if absent.
 
 ```typescript
 declare function useRequestCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string,
 ): string | undefined;
 ```
@@ -47,13 +47,13 @@ Override the cached parsed cookies (e.g. inside a middleware that resolves a ses
 
 ```typescript
 declare function setRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
     value: unknown,
 ): void;
 
 declare function setRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
     record: Record<string, any>,
 ): void;
 ```
@@ -64,7 +64,7 @@ Append a `Set-Cookie` header to the response. Accepts the standard cookie serial
 
 ```typescript
 declare function setResponseCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string,
     value: string,
     options?: SerializeOptions,
@@ -86,7 +86,7 @@ Clear a cookie by emitting a `Set-Cookie` header with `Max-Age=0`.
 
 ```typescript
 declare function unsetResponseCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string,
     options?: SerializeOptions,
 ): void;

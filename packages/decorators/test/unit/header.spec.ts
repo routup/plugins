@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { decorators } from '../../src';
 import { HeaderController } from '../data/header';
 
@@ -10,7 +10,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('header.ts', () => {
     it('should handle extra decorators', async () => {
-        const router = new Router();
+        const router = new App();
 
         const controller = new HeaderController();
 

@@ -49,7 +49,7 @@ The first step is to define a Controller.
 
 `controller.ts`
 ```typescript
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import {
     DBody,
     DContext,
@@ -97,14 +97,14 @@ In routup v5, handlers return values directly instead of calling `send(res, data
 Use `@DContext()` when you need the full event object (e.g. to access `event.store`, `event.headers`, or `event.response`):
 
 ```typescript
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { DContext, DController, DGet } from '@routup/decorators';
 
 @DController('/example')
 export class ExampleController {
     @DGet('')
     async handle(
-        @DContext() event: IRoutupEvent,
+        @DContext() event: IAppEvent,
     ) {
         event.response.status = 201;
         return { message: 'created' };
@@ -116,7 +116,7 @@ export class ExampleController {
 
 | Decorator | Description |
 |-----------|-------------|
-| `@DContext()` | Full `IRoutupEvent` object (preferred) |
+| `@DContext()` | Full `IAppEvent` object (preferred) |
 | `@DRequest()` | Web Standard `Request` (`event.request`) |
 | `@DResponse()` | Response metadata (`event.response`) |
 | `@DNext()` | Next function (`event.next`) |
@@ -140,11 +140,11 @@ The last step is to install the plugin and mount the controllers to a router ins
 ```typescript
 import { decorators } from '@routup/decorators';
 import { basic } from '@routup/basic';
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 
 import { UserController } from './controller';
 
-const router = new Router();
+const router = new App();
 
 router.use(basic());
 router.use(decorators({

@@ -23,13 +23,13 @@ npm install @routup/basic
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { basic } from '@routup/basic';
 import { readRequestBody } from '@routup/basic/body';
 import { useRequestCookie } from '@routup/basic/cookie';
 import { useRequestQuery } from '@routup/basic/query';
 
-const router = new Router();
+const router = new App();
 
 router.use(basic());
 

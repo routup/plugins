@@ -1,9 +1,9 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { parse } from 'qs';
 
 import type { ParseOptions } from './type';
 
-export function parseRequestQuery(event: IRoutupEvent, options?: ParseOptions) {
+export function parseRequestQuery(event: IAppEvent, options?: ParseOptions) {
     const { url } = event.request;
     const qIndex = url.indexOf('?');
     if (qIndex < 0) {

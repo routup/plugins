@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { createError } from 'routup';
 import type { BaseOptions } from '../types';
 import { createDecompressor, parseSize } from '../utils';
@@ -13,7 +13,7 @@ import { createDecompressor, parseSize } from '../utils';
  * @param options - Optional limit options (content-length pre-check only).
  */
 export function readRequestBodyStream(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: BaseOptions = {},
 ): ReadableStream | null {
     const limit = options.limit !== undefined ? parseSize(options.limit) : undefined;

@@ -17,10 +17,10 @@ npm install @routup/swagger-ui
 ## Quick start
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { swaggerUI } from '@routup/swagger-ui';
 
-const router = new Router();
+const router = new App();
 
 router.use('/docs', swaggerUI('./openapi.json'));
 

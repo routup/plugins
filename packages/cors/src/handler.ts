@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { defineCoreHandler } from 'routup';
 import type { Options, ResolvedOptions } from './types';
 import {
@@ -13,7 +13,7 @@ import {
     resolveOptions,
 } from './utils';
 
-function applyResolvedCorsPreflightHeaders(event: IRoutupEvent, resolved: ResolvedOptions): void {
+function applyResolvedCorsPreflightHeaders(event: IAppEvent, resolved: ResolvedOptions): void {
     applyHeaders(event, [
         ...createOriginHeaders(event, resolved),
         ...createCredentialsHeaders(resolved),
@@ -23,7 +23,7 @@ function applyResolvedCorsPreflightHeaders(event: IRoutupEvent, resolved: Resolv
     ]);
 }
 
-function applyResolvedCorsHeaders(event: IRoutupEvent, resolved: ResolvedOptions): void {
+function applyResolvedCorsHeaders(event: IAppEvent, resolved: ResolvedOptions): void {
     applyHeaders(event, [
         ...createOriginHeaders(event, resolved),
         ...createCredentialsHeaders(resolved),
@@ -31,7 +31,7 @@ function applyResolvedCorsHeaders(event: IRoutupEvent, resolved: ResolvedOptions
     ]);
 }
 
-function buildPreflightResponse(event: IRoutupEvent, resolved: ResolvedOptions): Response {
+function buildPreflightResponse(event: IAppEvent, resolved: ResolvedOptions): Response {
     const headers = new Headers(event.response.headers);
     headers.set('content-length', '0');
     return new Response(null, {
@@ -40,15 +40,15 @@ function buildPreflightResponse(event: IRoutupEvent, resolved: ResolvedOptions):
     });
 }
 
-export function appendCorsPreflightHeaders(event: IRoutupEvent, options: Options): void {
+export function appendCorsPreflightHeaders(event: IAppEvent, options: Options): void {
     applyResolvedCorsPreflightHeaders(event, resolveOptions(options));
 }
 
-export function appendCorsHeaders(event: IRoutupEvent, options: Options): void {
+export function appendCorsHeaders(event: IAppEvent, options: Options): void {
     applyResolvedCorsHeaders(event, resolveOptions(options));
 }
 
-export function handleCors(event: IRoutupEvent, options: Options): Response | undefined {
+export function handleCors(event: IAppEvent, options: Options): Response | undefined {
     const resolved = resolveOptions(options);
     if (resolved.origin === false) {
         return undefined;

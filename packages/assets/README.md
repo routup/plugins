@@ -35,10 +35,10 @@ When a file is not found, instead of sending a 404 response, this module will in
 to move on to the next middleware, allowing for stacking and fall-backs.
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { assets } from '@routup/assets';
 
-const router = new Router();
+const router = new App();
 
 // serve static files of folder: public
 router.use(assets('public'));
@@ -53,10 +53,10 @@ To accomplish this, this plugin can be used multiple times.
 An example of this is shown below:
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { assets } from '@routup/assets';
 
-const router = new Router();
+const router = new App();
 
 router.use(assets('public'));
 router.use(assets('files'));
@@ -74,10 +74,10 @@ It is also possible to define a mount path for a root directory.
 This is done as follows:
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { assets } from '@routup/assets';
 
-const router = new Router();
+const router = new App();
 
 router.use('/public', assets('public'));
 

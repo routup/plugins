@@ -1,11 +1,11 @@
 import type { GetContext } from 'ilingo';
 import { Ilingo } from 'ilingo';
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { createError } from 'routup';
 import { REQUEST_INSTANCE_SYMBOL, REQUEST_LOCALE_SYMBOL } from './constants';
 import type { Translator } from './types';
 
-export function useTranslator(event: IRoutupEvent) : Translator {
+export function useTranslator(event: IAppEvent) : Translator {
     const reqInstance = event.store[REQUEST_INSTANCE_SYMBOL];
     if (!(reqInstance instanceof Ilingo)) {
         throw createError({

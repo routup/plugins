@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import { Registry } from 'prom-client';
@@ -15,14 +15,14 @@ function createTestRequest(url: string, options?: RequestInit): Request {
     return new Request(fullUrl, options);
 }
 
-function createRouterWithHandlers(options?: OptionsInput): Router {
+function createRouterWithHandlers(options?: OptionsInput): App {
     options = options || {};
 
     if (!options.registry) {
         options.registry = new Registry();
     }
 
-    const router = new Router();
+    const router = new App();
     router.use(prometheus(options));
 
     router.get('/', defineCoreHandler(() => 'Hello, World!'));

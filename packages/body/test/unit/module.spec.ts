@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import {
@@ -17,7 +17,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/**', () => {
     it('should handle application/json', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({ json: true }));
 
@@ -34,7 +34,7 @@ describe('src/**', () => {
     });
 
     it('should handle application/x-www-form-urlencoded', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({ urlEncoded: true }));
 
@@ -51,7 +51,7 @@ describe('src/**', () => {
     });
 
     it('should handle raw to bytes', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({ raw: true }));
 
@@ -71,7 +71,7 @@ describe('src/**', () => {
     });
 
     it('should handle text/html to text', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({ text: { type: 'text/html' } }));
 
@@ -90,7 +90,7 @@ describe('src/**', () => {
     });
 
     it('should parse application/json & application/x-www-form-urlencoded', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({
             json: true,
@@ -119,7 +119,7 @@ describe('src/**', () => {
     });
 
     it('should use default options (json + urlEncoded)', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body());
 
@@ -136,7 +136,7 @@ describe('src/**', () => {
     });
 
     it('should work without plugin (accessor-only)', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
 
@@ -152,7 +152,7 @@ describe('src/**', () => {
     });
 
     it('should cache parsed body', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body({ json: true }));
 

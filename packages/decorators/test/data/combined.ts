@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { HandlerInterface } from '../../src';
 import {
     DContext,
@@ -14,7 +14,7 @@ import {
 } from '../../src';
 
 export class DeleteMiddleware implements HandlerInterface {
-    run(event: IRoutupEvent) {
+    run(event: IAppEvent) {
         const { id } = event.params;
 
         if (typeof id !== 'string' || id.length < 3) {

@@ -1,8 +1,8 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { parse } from 'cookie-es';
 import type { ParseOptions } from './types';
 
-export function parseRequestCookies(event: IRoutupEvent, options?: ParseOptions) {
+export function parseRequestCookies(event: IAppEvent, options?: ParseOptions) {
     return parse(event.headers.get('cookie') || '', options || {});
 }
 

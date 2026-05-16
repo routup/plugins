@@ -40,7 +40,7 @@ to parse the cookies of the request header.
 
 ```typescript
 import {
-    Router,
+    App,
     defineCoreHandler,
     serve,
 } from 'routup';
@@ -50,7 +50,7 @@ import {
     useRequestCookies,
 } from '@routup/cookie';
 
-const router = new Router();
+const router = new App();
 
 router.use(cookie());
 
@@ -95,13 +95,13 @@ This function sets the parsed request cookies for the current request.
 
 ```typescript
 declare function setRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
     value: unknown
 ) : void;
 
 declare function setRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
     record: Record<string, any>
 ) : void;
 ```
@@ -112,7 +112,7 @@ This function returns the parsed request cookies.
 
 ```typescript
 declare function useRequestCookies(
-    event: IRoutupEvent,
+    event: IAppEvent,
 ) : Record<string, string>;
 ```
 
@@ -122,7 +122,7 @@ This function returns a **single** parsed request cookie.
 
 ```typescript
 declare function useRequestCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string
 ) : string | undefined;
 ```
@@ -133,7 +133,7 @@ This function sets a cookie on the response.
 
 ```typescript
 declare function setResponseCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string,
     value: string,
     options?: SerializeOptions
@@ -146,7 +146,7 @@ This function removes a cookie by setting its `maxAge` to `0`.
 
 ```typescript
 declare function unsetResponseCookie(
-    event: IRoutupEvent,
+    event: IAppEvent,
     name: string,
     options?: SerializeOptions
 ) : void;

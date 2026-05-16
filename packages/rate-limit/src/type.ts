@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { Store } from './store';
 
 /**
@@ -14,22 +14,22 @@ export type RateLimitInfo = {
 /**
  * Method to generate/retrieve a value based on the incoming event.
  *
- * @param event {IRoutupEvent} - The routup event.
+ * @param event {IAppEvent} - The routup event.
  *
  * @returns T - The value needed.
  */
 export type ValueDeterminingMiddleware<T> = (
-    event: IRoutupEvent,
+    event: IAppEvent,
 ) => T | Promise<T>;
 
 /**
  * Handler that sends back a response when a client is rate-limited.
  *
- * @param event {IRoutupEvent} - The routup event.
+ * @param event {IAppEvent} - The routup event.
  * @param options {Options} - The options used to set up the middleware.
  */
 export type RateLimitExceededEventHandler = (
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options,
 ) => unknown | Promise<unknown>;
 
@@ -126,7 +126,7 @@ export type Options = {
      * By default, requests with a response status code less than 400 are considered
      * successful.
      */
-    requestWasSuccessful: (event: IRoutupEvent, response: Response) => boolean
+    requestWasSuccessful: (event: IAppEvent, response: Response) => boolean
 
     /**
      * The `Store` to use to store the hit count for each client.

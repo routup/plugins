@@ -17,10 +17,10 @@ npm install @routup/cookie
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { cookie, useRequestCookie, useRequestCookies } from '@routup/cookie';
 
-const router = new Router();
+const router = new App();
 
 router.use(cookie());
 

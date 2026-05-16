@@ -39,7 +39,7 @@ import { MemoryStore } from 'ilingo';
 import {
     createNodeDispatcher,
     defineCoreHandler,
-    Router
+    App
 } from 'routup';
 import {
     i18n,
@@ -61,7 +61,7 @@ const store = new MemoryStore({
     },
 })
 
-const router = new Router();
+const router = new App();
 
 router.use(i18n({ store }));
 
@@ -91,11 +91,11 @@ server.listen(3000);
 This function returns a translator function to receive a translation for a given key.
 
 ```typescript
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { Translator } from '@routup/i18n';
 
 declare function useTranslator(
-    event: IRoutupEvent
+    event: IAppEvent
 ): Translator;
 ```
 

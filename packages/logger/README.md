@@ -34,10 +34,10 @@ To read the docs, visit [https://routup.net](https://routup.net)
 `logger()` returns a routup `CoreHandler` — pass it to `router.use(...)`. It logs after the response is resolved so `:status`, `:response-time`, and `:res[*]` tokens see real values.
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { logger } from '@routup/logger';
 
-const router = new Router();
+const router = new App();
 
 router.use(logger('tiny'));
 

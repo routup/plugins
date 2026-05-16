@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { createError } from 'routup';
 import type { JsonOptions } from '../types';
 import {
@@ -17,7 +17,7 @@ import { readRequestBodyRaw } from './read-raw';
  * @param options - JSON parsing options (limit, strict, reviver, type).
  */
 export async function parseJsonBody(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: JsonOptions,
 ): Promise<Record<string, any> | undefined> {
     if (!matchContentType(event, options.type ?? 'application/json')) {

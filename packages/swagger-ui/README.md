@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `Router` to serve an OpenAPI document interactively. To *produce* the document from decorated controllers, see the [`@routup/decorators` OpenAPI generation docs](../decorators#openapi-generation) — the preset feeds straight into [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()`.
+Mount [Swagger UI](https://www.npmjs.com/package/swagger-ui-dist) on a routup `App` to serve an OpenAPI document interactively. To *produce* the document from decorated controllers, see the [`@routup/decorators` OpenAPI generation docs](../decorators#openapi-generation) — the preset feeds straight into [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()`.
 
 ## Installation
 
@@ -21,10 +21,10 @@ To read the docs, visit [https://routup.net](https://routup.net)
 ## Usage
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { swaggerUI } from '@routup/swagger-ui';
 
-const router = new Router();
+const router = new App();
 
 router.use('/docs', swaggerUI('./openapi.json'));
 

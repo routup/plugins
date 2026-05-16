@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { getRequestIP } from 'routup';
 import { RETRY_AGAIN_MESSAGE } from '../constants';
 import { MemoryStore } from '../store';
@@ -12,11 +12,11 @@ export function normalizeHandlerOptions(input: OptionsInput = {}) : Options {
         statusCode: 429,
         skipFailedRequest: false,
         skipSuccessfulRequest: false,
-        requestWasSuccessful: (_event: IRoutupEvent, response: Response): boolean => response.status < 400,
-        skip: (_event: IRoutupEvent): boolean => false,
-        keyGenerator: (event: IRoutupEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
+        requestWasSuccessful: (_event: IAppEvent, response: Response): boolean => response.status < 400,
+        skip: (_event: IAppEvent): boolean => false,
+        keyGenerator: (event: IAppEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
         async handler(
-            event: IRoutupEvent,
+            event: IAppEvent,
             _optionsUsed: Options,
         ): Promise<unknown> {
             const message: unknown = typeof options.message === 'function' ?

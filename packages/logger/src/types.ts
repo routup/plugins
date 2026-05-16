@@ -1,7 +1,7 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 
 export type Token = (
-    event: IRoutupEvent,
+    event: IAppEvent,
     response: Response | undefined,
     arg?: string,
 ) => string | undefined;
@@ -10,14 +10,14 @@ export type TokenMap = Record<string, Token>;
 
 export type Formatter = (
     tokens: TokenMap,
-    event: IRoutupEvent,
+    event: IAppEvent,
     response: Response | undefined,
 ) => string | undefined;
 
 export type FormatInput = string | Formatter;
 
 export type SkipFn = (
-    event: IRoutupEvent,
+    event: IAppEvent,
     response: Response | undefined,
 ) => boolean;
 

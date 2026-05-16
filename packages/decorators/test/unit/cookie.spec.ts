@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cookie } from '@routup/cookie';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { decorators } from '../../src';
 import { CookieController } from '../data/cookie';
 
@@ -11,7 +11,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('data/cookie', () => {
     it('should handle decorator endpoints', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(cookie());
         router.use(decorators({ controllers: [CookieController] }));

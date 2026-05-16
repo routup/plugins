@@ -1,8 +1,8 @@
 import type { Stats } from 'node:fs';
 import type fs from 'node:fs';
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 
-export type ResolveFn = (event: IRoutupEvent) => Promise<unknown>;
+export type ResolveFn = (event: IAppEvent) => Promise<unknown>;
 
 export type Options = {
     /**

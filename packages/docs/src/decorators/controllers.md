@@ -70,16 +70,16 @@ async file() {
 
 ## Accessing the event
 
-Use `@DContext()` when you need the full `IRoutupEvent` (e.g. to set `event.response.status`, read `event.headers`, mutate `event.store`):
+Use `@DContext()` when you need the full `IAppEvent` (e.g. to set `event.response.status`, read `event.headers`, mutate `event.store`):
 
 ```typescript
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { DContext, DController, DPost } from '@routup/decorators';
 
 @DController('/orders')
 export class OrderController {
     @DPost('')
-    async create(@DContext() event: IRoutupEvent) {
+    async create(@DContext() event: IAppEvent) {
         event.response.status = 201;
         return { id: '...' };
     }

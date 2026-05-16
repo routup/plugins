@@ -12,11 +12,11 @@ Returns the parsed query parameters. Pass a key to read a single value.
 
 ```typescript
 declare function useRequestQuery(
-    event: IRoutupEvent,
+    event: IAppEvent,
 ): Record<string, any>;
 
 declare function useRequestQuery(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
 ): any;
 ```
@@ -32,13 +32,13 @@ Override the cached parsed query (e.g. inside a middleware that normalizes pagin
 
 ```typescript
 declare function setRequestQuery(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
     value: unknown,
 ): void;
 
 declare function setRequestQuery(
-    event: IRoutupEvent,
+    event: IAppEvent,
     record: Record<string, any>,
 ): void;
 ```

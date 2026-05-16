@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    Router,
+    App,
     defineCoreHandler,
 } from 'routup';
 import { basic } from '../../src';
@@ -15,12 +15,12 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/**', () => {
     it('should use body plugin', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(basic({ body: true }));
 
         router.post('/:id', defineCoreHandler(async (event) => {
-            const body = await readRequestBody(event, event.params.id);
+            const body = await readRequestBody(event, event.params.id!);
             return body;
         }));
         router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));
@@ -45,11 +45,11 @@ describe('src/**', () => {
     });
 
     it('should use cookie plugin', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(basic({ cookie: true }));
 
-        router.get('/:id', defineCoreHandler((event) => useRequestCookie(event, event.params.id)));
+        router.get('/:id', defineCoreHandler((event) => useRequestCookie(event, event.params.id!)));
         router.get('/', defineCoreHandler((event) => useRequestCookies(event)));
 
         let response = await router.fetch(createTestRequest('/foo', { headers: { 'cookie': 'foo=bar' } }));
@@ -64,11 +64,11 @@ describe('src/**', () => {
     });
 
     it('should use query plugin', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(basic({ query: true }));
 
-        router.get('/:id', defineCoreHandler((event) => useRequestQuery(event, event.params.id)));
+        router.get('/:id', defineCoreHandler((event) => useRequestQuery(event, event.params.id!)));
         router.get('/', defineCoreHandler((event) => useRequestQuery(event)));
 
         let response = await router.fetch(createTestRequest('/sort?page[limit]=10&sort=-name'));

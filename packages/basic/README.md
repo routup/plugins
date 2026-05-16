@@ -36,7 +36,7 @@ export path as shown in the following code snippet.
 ```typescript
 import {
     defineCoreHandler,
-    Router,
+    App,
     serve,
 } from 'routup';
 import { basic } from '@routup/basic';
@@ -44,7 +44,7 @@ import { readRequestBody } from '@routup/basic/body';
 import { useRequestCookie, useRequestCookies } from '@routup/basic/cookie';
 import { useRequestQuery } from '@routup/basic/query';
 
-const router = new Router();
+const router = new App();
 
 router.use(basic());
 

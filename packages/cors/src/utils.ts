@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { appendResponseHeader, getRequestHeader } from 'routup';
 import type {
     CorsHeaderEntry,
@@ -39,7 +39,7 @@ export function resolveOptions(options: Options = {}): ResolvedOptions {
     };
 }
 
-export function isPreflightRequest(event: IRoutupEvent): boolean {
+export function isPreflightRequest(event: IAppEvent): boolean {
     if (event.method !== 'OPTIONS') {
         return false;
     }
@@ -97,7 +97,7 @@ export function isCorsOriginAllowed(
 }
 
 export function createOriginHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options = {},
 ): CorsHeaderEntry[] {
     const { origin: originOption } = options;
@@ -164,7 +164,7 @@ export function createCredentialsHeaders(options: Options = {}): CorsHeaderEntry
 }
 
 export function createAllowHeaderHeaders(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options: Options = {},
 ): CorsHeaderEntry[] {
     const { allowHeaders } = options;
@@ -214,7 +214,7 @@ export function createMaxAgeHeader(options: Options = {}): CorsHeaderEntry[] {
     return [['access-control-max-age', String(maxAge)]];
 }
 
-export function applyHeaders(event: IRoutupEvent, entries: CorsHeaderEntry[]): void {
+export function applyHeaders(event: IAppEvent, entries: CorsHeaderEntry[]): void {
     for (const [name, value] of entries) {
         if (name === 'vary') {
             appendResponseHeader(event, name, value);

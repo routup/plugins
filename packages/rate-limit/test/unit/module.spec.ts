@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+    App,
     HeaderName,
-    Router,
     defineCoreHandler,
 } from 'routup';
 import { RETRY_AGAIN_MESSAGE, rateLimit } from '../../src';
@@ -13,7 +13,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/module', () => {
     it('should set rate limit headers', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(rateLimit());
         router.use(defineCoreHandler(() => 'Hello, World!'));
 
@@ -33,7 +33,7 @@ describe('src/module', () => {
     });
 
     it('should not process any additional request', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(rateLimit({ max: 1 }));
         router.use(defineCoreHandler(() => 'Hello, World!'));
 
@@ -51,7 +51,7 @@ describe('src/module', () => {
     });
 
     it('should be possible to skip successfully responses', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(rateLimit({ skipSuccessfulRequest: true }));
         router.use(defineCoreHandler(() => 'Hello, World!'));
 
@@ -65,7 +65,7 @@ describe('src/module', () => {
     });
 
     it('should be possible to skip failed responses', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(rateLimit({ skipFailedRequest: true }));
 
         let response = await router.fetch(createTestRequest('/'));
@@ -78,7 +78,7 @@ describe('src/module', () => {
     });
 
     it('should skip request', async () => {
-        const router = new Router();
+        const router = new App();
         router.use(rateLimit({ skip: () => true }));
         router.use(defineCoreHandler(() => 'Hello, World!'));
 

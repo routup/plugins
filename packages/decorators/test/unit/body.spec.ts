@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { body } from '@routup/body';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { decorators } from '../../src';
 import { PostController } from '../data/post';
 
@@ -11,7 +11,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('data/body', () => {
     it('should handle decorator endpoints', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(body());
         router.use(decorators({ controllers: [PostController] }));

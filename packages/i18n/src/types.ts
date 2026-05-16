@@ -2,9 +2,9 @@ import type {
     ConfigInput,
     GetContext,
 } from 'ilingo';
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 
-export type LocaleReqFn = (event: IRoutupEvent) => Promise<string | undefined> | string | undefined;
+export type LocaleReqFn = (event: IAppEvent) => Promise<string | undefined> | string | undefined;
 
 export type Options = Omit<ConfigInput, 'locale'> & {
     locale?: string | LocaleReqFn

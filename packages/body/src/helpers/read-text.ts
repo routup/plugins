@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { TextOptions } from '../types';
 import { boolToObject } from '../utils';
 import { readRequestBodyRaw } from './read-raw';
@@ -13,7 +13,7 @@ import { getBodyOptions } from './options';
  * @param options - Optional text parsing options (limit, charset, cache).
  */
 export async function readRequestBodyText(
-    event: IRoutupEvent,
+    event: IAppEvent,
     options?: TextOptions,
 ): Promise<string> {
     const opts = options ?? boolToObject(getBodyOptions(event).text || {});

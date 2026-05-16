@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { DecoratorMethodOptions } from './method';
 import type { DecoratorParameterOptions } from './parameter';
 
@@ -22,11 +22,11 @@ export type DecoratorMeta = {
 };
 
 export interface HandlerInterface {
-    run(event: IRoutupEvent): Promise<unknown> | unknown;
+    run(event: IAppEvent): Promise<unknown> | unknown;
 }
 
 export type HandlerContext = {
-    event: IRoutupEvent,
+    event: IAppEvent,
 };
 
 export type Options = {

@@ -17,7 +17,7 @@ npm install @routup/i18n ilingo
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { MemoryStore } from 'ilingo';
 import { i18n, useTranslator } from '@routup/i18n';
 
@@ -28,7 +28,7 @@ const store = new MemoryStore({
     },
 });
 
-const router = new Router();
+const router = new App();
 
 router.use(i18n({ store }));
 
@@ -55,10 +55,10 @@ The middleware inspects each incoming request and selects a locale (defaulting t
 Returns a translator bound to the request's resolved locale.
 
 ```typescript
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { Translator } from '@routup/i18n';
 
-declare function useTranslator(event: IRoutupEvent): Translator;
+declare function useTranslator(event: IAppEvent): Translator;
 ```
 
 ```typescript

@@ -35,7 +35,7 @@ to parse the query-string of the request url.
 
 ```typescript
 import {
-    Router,
+    App,
     defineCoreHandler,
     serve,
 } from 'routup';
@@ -44,7 +44,7 @@ import {
     useRequestQuery
 } from '@routup/query';
 
-const router = new Router();
+const router = new App();
 
 router.use(query());
 
@@ -67,13 +67,13 @@ This function sets the parsed request query parameters for the current request.
 
 ```typescript
 declare function setRequestQuery(
-    event: IRoutupEvent,
+    event: IAppEvent,
     key: string,
     value: unknown
 ) : void;
 
 declare function setRequestQuery(
-    event: IRoutupEvent, 
+    event: IAppEvent, 
     record: Record<string, any>
 ) : void;
 ```
@@ -84,11 +84,11 @@ This function returns the query parameters of the request.
 
 ```typescript
 declare function useRequestQuery(
-    event: IRoutupEvent
+    event: IAppEvent
 ) : Record<string, any>;
 
 declare function useRequestQuery(
-    event: IRoutupEvent, 
+    event: IAppEvent, 
     key: string
 ) : any;
 ```

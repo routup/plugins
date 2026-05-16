@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { HandlerInterface } from '../../src';
 import {
     DContext,
@@ -10,7 +10,7 @@ import {
 const MIDDLEWARE_KEY = Symbol.for('routup:test:middleware-key');
 
 class DummyMiddleware implements HandlerInterface {
-    run(event: IRoutupEvent) {
+    run(event: IAppEvent) {
         event.store[MIDDLEWARE_KEY] = 'value';
 
         return event.next();
@@ -21,7 +21,7 @@ class DummyMiddleware implements HandlerInterface {
 export class MiddlewareController {
     @DGet('')
     async middleware(
-        @DContext() event: IRoutupEvent,
+        @DContext() event: IAppEvent,
     ) {
         return event.store[MIDDLEWARE_KEY];
     }

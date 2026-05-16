@@ -17,10 +17,10 @@ npm install @routup/assets
 ## Quick start
 
 ```typescript
-import { Router, serve } from 'routup';
+import { App, serve } from 'routup';
 import { assets } from '@routup/assets';
 
-const router = new Router();
+const router = new App();
 
 router.use(assets('public'));
 

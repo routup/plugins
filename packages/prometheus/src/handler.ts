@@ -1,4 +1,4 @@
-import type { IRouter } from 'routup';
+import type { IApp } from 'routup';
 import {
     defineCoreHandler,
     setResponseHeaderContentType,
@@ -28,7 +28,7 @@ export function createHandler<
 export function registerMetrics<
     T extends RegistryContentType = PrometheusContentType,
 >(
-    router: IRouter,
+    router: IApp,
     options: Options<T>,
 ): Metrics {
     /* istanbul ignore next */

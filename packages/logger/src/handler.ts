@@ -1,4 +1,4 @@
-import type { IRoutupEvent } from 'routup';
+import type { IAppEvent } from 'routup';
 import { defineCoreHandler } from 'routup';
 import { resolveFormat } from './formats';
 import { StartTimeSymbol, defaultTokens } from './tokens';
@@ -17,7 +17,7 @@ export function createHandler(options: Options = {}) {
     });
     const immediate = options.immediate ?? false;
 
-    const emit = (event: IRoutupEvent, response: Response | undefined): void => {
+    const emit = (event: IAppEvent, response: Response | undefined): void => {
         if (skip && skip(event, response)) {
             return;
         }

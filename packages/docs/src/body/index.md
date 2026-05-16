@@ -17,10 +17,10 @@ npm install @routup/body
 ## Quick start
 
 ```typescript
-import { Router, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler, serve } from 'routup';
 import { body, readRequestBody } from '@routup/body';
 
-const router = new Router();
+const router = new App();
 
 router.use(body());
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { query } from '@routup/query';
-import { Router } from 'routup';
+import { App } from 'routup';
 import { decorators } from '../../src';
 import { QueryController } from '../data/query';
 
@@ -11,7 +11,7 @@ function createTestRequest(url: string, options?: RequestInit): Request {
 
 describe('src/decorator', () => {
     it('should handle query decorator', async () => {
-        const router = new Router();
+        const router = new App();
 
         router.use(query());
         router.use(decorators({ controllers: [QueryController] }));
