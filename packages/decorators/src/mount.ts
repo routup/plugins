@@ -4,16 +4,16 @@ import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, DecoratorMeta } from './type';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
-function buildControllerRouter(
+function buildControllerApp(
     controller: Record<string, any>,
     meta: DecoratorMeta,
 ): App {
-    const childRouter = new App();
+    const childApp = new App();
 
     for (let i = 0; i < meta.middlewares.length; i++) {
         const handler = createHandlerForClassType(meta.middlewares[i]!, {});
 
-        childRouter.use(handler);
+        childApp.use(handler);
     }
 
     const propertyKeys = Object.keys(meta.methods);
@@ -25,7 +25,7 @@ function buildControllerRouter(
 
         if (method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
-                childRouter.use(createHandlerForClassType(
+                childApp.use(createHandlerForClassType(
                     method.middlewares[i]!,
                     {
                         method: method.method as MethodName,
@@ -48,10 +48,10 @@ function buildControllerRouter(
             },
         });
 
-        childRouter.use(handler);
+        childApp.use(handler);
     }
 
-    return childRouter;
+    return childApp;
 }
 
 export function mountController(
@@ -69,12 +69,12 @@ export function mountController(
     const meta = useDecoratorMeta(controller);
 
     if (Array.isArray(meta.url)) {
-        const childRouter = buildControllerRouter(controller, meta);
+        const childApp = buildControllerApp(controller, meta);
         for (const url of meta.url) {
-            router.use(url, childRouter.clone());
+            router.use(url, childApp.clone());
         }
     } else {
-        router.use(meta.url, buildControllerRouter(controller, meta));
+        router.use(meta.url, buildControllerApp(controller, meta));
     }
 }
 
