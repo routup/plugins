@@ -6,6 +6,26 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.0.0](https://github.com/routup/plugins/compare/decorators-v4.2.0...decorators-v5.0.0) (2026-05-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* requires routup ^6.0.0-beta.0. Public APIs that previously typed against `Router` / `IRouter` (e.g. decorators `mountController(router: IRouter, ...)`) now type against `App` / `IApp`.
+
+### Features
+
+* migrate plugins to routup v6.0.0-beta.0 ([b1cbc45](https://github.com/routup/plugins/commit/b1cbc45673b38d27ab489f08efff46f90e81a17c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^3.2.0 to ^4.0.0
+    * @routup/cookie bumped from ^3.2.0 to ^4.0.0
+    * @routup/query bumped from ^3.2.0 to ^4.0.0
+
 ## [4.2.0](https://github.com/routup/plugins/compare/decorators-v4.1.0...decorators-v4.2.0) (2026-05-12)
 
 
