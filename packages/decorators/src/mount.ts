@@ -70,8 +70,12 @@ export function mountController(
 
     if (Array.isArray(meta.url)) {
         const childApp = buildControllerApp(controller, meta);
+        // `router.use(url, childApp)` snapshots `childApp.routes` per
+        // call (flatten-on-use), so mounting the same child under
+        // multiple paths needs no clone — each mount gets its own
+        // copy of the routes with the right prefix.
         for (const url of meta.url) {
-            router.use(url, childApp.clone());
+            router.use(url, childApp);
         }
     } else {
         router.use(meta.url, buildControllerApp(controller, meta));
