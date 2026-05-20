@@ -6,6 +6,28 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [3.0.0](https://github.com/routup/plugins/compare/basic-v2.2.0...basic-v3.0.0) (2026-05-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* plugins now require routup ^6.0.0. v5 is no longer supported.
+* requires routup ^6.0.0-beta.0. Public APIs that previously typed against `Router` / `IRouter` (e.g. decorators `mountController(router: IRouter, ...)`) now type against `App` / `IApp`.
+
+### Features
+
+* migrate plugins to routup v6.0.0-beta.0 ([b1cbc45](https://github.com/routup/plugins/commit/b1cbc45673b38d27ab489f08efff46f90e81a17c))
+* pin to routup ^6.0.0 GA and drop App.clone() usage ([1042d71](https://github.com/routup/plugins/commit/1042d7194c21e3a6d155804038245e4c7f62d0c1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^3.2.0 to ^4.0.0
+    * @routup/cookie bumped from ^3.2.0 to ^4.0.0
+    * @routup/query bumped from ^3.2.0 to ^4.0.0
+
 ## [2.2.0](https://github.com/routup/plugins/compare/basic-v2.1.0...basic-v2.2.0) (2026-05-12)
 
 
