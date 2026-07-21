@@ -1,6 +1,6 @@
 {
     "name": "@routup/swagger-ui",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "type": "module",
     "description": "Swagger UI plugin for routup — mount swagger-ui-dist on any path.",
     "exports": {
