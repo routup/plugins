@@ -47,11 +47,11 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "ilingo": "^5.0.0",
+        "ilingo": "^6.0.0",
         "routup": "^6.0.0"
     },
     "devDependencies": {
-        "ilingo": "^5.0.0",
+        "ilingo": "^6.0.0",
         "routup": "^6.0.0"
     },
     "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
