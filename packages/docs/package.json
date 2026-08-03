@@ -20,6 +20,6 @@
         "vue": "^3.5.40"
     },
     "peerDependencies": {
-        "routup": "^6.0.0"
+        "routup": "^6.1.0"
     }
 }
