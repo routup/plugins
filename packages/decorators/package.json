@@ -55,8 +55,8 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@trapi/core": "^2.0.1",
-        "routup": "^6.0.0"
+        "@trapi/core": "^2.0.5",
+        "routup": "^6.1.0"
     },
     "peerDependenciesMeta": {
         "@trapi/core": {
@@ -69,11 +69,11 @@
         "@routup/query": "^4.0.0"
     },
     "devDependencies": {
-        "@trapi/core": "^2.0.1",
-        "@trapi/metadata": "^2.0.1",
-        "@trapi/swagger": "^2.0.1",
+        "@trapi/core": "^2.0.5",
+        "@trapi/metadata": "^2.0.5",
+        "@trapi/swagger": "^2.0.5",
         "jsonata": "^2.2.2",
-        "routup": "^6.0.0"
+        "routup": "^6.1.0"
     },
     "publishConfig": {
         "access": "public"
