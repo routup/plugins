@@ -53,15 +53,15 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
-        "routup": "^6.0.0"
+        "routup": "^6.1.0"
     },
     "dependencies": {
         "@routup/assets": "^5.0.0",
-        "swagger-ui-dist": "^5.32.8"
+        "swagger-ui-dist": "^5.32.14"
     },
     "devDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
-        "routup": "^6.0.0"
+        "routup": "^6.1.0"
     },
     "publishConfig": {
         "access": "public"
