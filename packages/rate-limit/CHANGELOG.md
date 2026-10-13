@@ -1,5 +1,12 @@
 # Change Log
 
+## [4.0.1](https://github.com/routup/plugins/compare/rate-limit-v4.0.0...rate-limit-v4.0.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **rate-limit:** refresh the remaining header after a skipped request ([#846](https://github.com/routup/plugins/issues/846)) ([d15b97a](https://github.com/routup/plugins/commit/d15b97a37a830690ec1305b4984603ae0fdc8381))
+
 ## [4.0.0](https://github.com/routup/plugins/compare/rate-limit-v3.2.0...rate-limit-v4.0.0) (2026-05-20)
 
 

@@ -1,5 +1,16 @@
 # Change Log
 
+## [5.0.1](https://github.com/routup/plugins/compare/rate-limit-redis-v5.0.0...rate-limit-redis-v5.0.1) (2026-10-13)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^4.0.0 to ^4.0.1
+  * peerDependencies
+    * @routup/rate-limit bumped from ^4.0.0 to ^4.0.1
+
 ## [5.0.0](https://github.com/routup/plugins/compare/rate-limit-redis-v4.2.0...rate-limit-redis-v5.0.0) (2026-05-20)
 
 
