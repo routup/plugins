@@ -253,6 +253,10 @@ const handler = createHandler({
 })
 ```
 
+A request whose handler throws is judged by the response of the error handler
+that answers it. When no error handler is registered, the middleware sees no
+response at all and counts the request as not successful, whatever its status.
+
 ### `store`
 
 The `Store` to use to store the hit count for each client.
