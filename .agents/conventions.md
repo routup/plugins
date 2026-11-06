@@ -38,7 +38,7 @@ npm run build             # rimraf dist && tsdown
 ## Release
 
 - **release-please** automates versioning and CHANGELOG generation
-- **workspaces-publish** publishes all changed packages to npm
+- **monoship** publishes all changed packages to npm
 - Linked version groups: `rate-limit` + `rate-limit-redis`
 
 ## Adding a New Plugin
