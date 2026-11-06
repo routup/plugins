@@ -35,7 +35,7 @@ It is important to install the plugin, to enable locale detection and translator
 
 ```typescript
 import { createServer } from 'node:http';
-import { MemoryStore } from 'ilingo';
+import { MemoryStore, defineLocale, defineNamespace, defineTranslations } from 'ilingo';
 import {
     createNodeDispatcher,
     defineCoreHandler,
@@ -47,18 +47,18 @@ import {
 } from '@routup/i18n';
 
 const store = new MemoryStore({
-    data: {
-        de: {
-            app: {
-                key: 'Hallo, mein Name ist {{name}}',
-            },
-        },
-        en: {
-            app: {
-                key: 'Hello, my name is {{name}}',
-            },
-        },
-    },
+    data: [
+        defineLocale('de', [
+            defineNamespace('app', [
+                defineTranslations({ key: 'Hallo, mein Name ist {{name}}' }),
+            ]),
+        ]),
+        defineLocale('en', [
+            defineNamespace('app', [
+                defineTranslations({ key: 'Hello, my name is {{name}}' }),
+            ]),
+        ]),
+    ],
 })
 
 const router = new App();
@@ -68,7 +68,7 @@ router.use(i18n({ store }));
 router.get('/', defineCoreHandler((event) => {
     const translator = useTranslator(event);
     const translation = translator({
-        group: 'app',
+        namespace: 'app',
         key: 'key',
         data: {
             name: 'Peter'
@@ -83,6 +83,8 @@ router.get('/', defineCoreHandler((event) => {
 const server = createServer(createNodeDispatcher(router));
 server.listen(3000);
 ```
+
+Ilingo 6 uses catalog nodes (`defineLocale`, `defineNamespace`, `defineTranslations`) instead of locale-keyed objects. Pass `namespace` (formerly `group`) when translating.
 
 ## Helpers
 
