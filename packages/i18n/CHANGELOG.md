@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.0.0](https://github.com/routup/plugins/compare/i18n-v4.0.0...i18n-v5.0.0) (2026-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **i18n:** the ilingo peer dependency is now ^6.2.1. The translator context uses `namespace` instead of `group`, and plugin options only accept `store` and `locale`; pass an Ilingo instance for other ilingo options.
+
+### Features
+
+* **i18n:** upgrade to ilingo v6 ([c8bb6c5](https://github.com/routup/plugins/commit/c8bb6c5a4ef2fd8a4bf690135b348606c2c151a7))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 16 updates ([#851](https://github.com/routup/plugins/issues/851)) ([135bf8f](https://github.com/routup/plugins/commit/135bf8f14141992d7624654aa04fed7bdac70005))
+
 ## [4.0.0](https://github.com/routup/plugins/compare/i18n-v3.2.0...i18n-v4.0.0) (2026-05-20)
 
 

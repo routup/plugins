@@ -1,6 +1,6 @@
 {
     "name": "@routup/prometheus",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "type": "module",
     "description": "Prometheus metrics plugin for routup.",
     "exports": {

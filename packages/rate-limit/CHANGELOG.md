@@ -1,5 +1,12 @@
 # Change Log
 
+## [4.0.2](https://github.com/routup/plugins/compare/rate-limit-v4.0.1...rate-limit-v4.0.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 16 updates ([#851](https://github.com/routup/plugins/issues/851)) ([135bf8f](https://github.com/routup/plugins/commit/135bf8f14141992d7624654aa04fed7bdac70005))
+
 ## [4.0.1](https://github.com/routup/plugins/compare/rate-limit-v4.0.0...rate-limit-v4.0.1) (2026-10-13)
 
 

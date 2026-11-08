@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/routup/plugins/compare/cors-v2.0.0...cors-v2.0.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 16 updates ([#851](https://github.com/routup/plugins/issues/851)) ([135bf8f](https://github.com/routup/plugins/commit/135bf8f14141992d7624654aa04fed7bdac70005))
+
 ## [2.0.0](https://github.com/routup/plugins/compare/cors-v1.1.0...cors-v2.0.0) (2026-05-20)
 
 
