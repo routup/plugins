@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { assets } from '../../src';
+import { lookup } from '../../src/utils/lookup';
+import { buildOptions } from '../../src/utils/options';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
@@ -125,5 +127,25 @@ describe('src/module', () => {
         } finally {
             await fs.promises.rm(directory, { recursive: true, force: true });
         }
+    });
+
+    describe('without a scan', () => {
+        const options = buildOptions({ directoryPath: path.join(directoryPath, 'html'), scan: false });
+
+        it('should find a file inside the directory', async () => {
+            const fileInfo = await lookup('/index.html', options);
+
+            expect(fileInfo?.filePath).toEqual(path.join(directoryPath, 'html', 'index.html'));
+        });
+
+        it('should not find a file outside the directory', async () => {
+            expect(await lookup('/../file.txt', options)).toBeUndefined();
+        });
+
+        it('should not find a sibling directory sharing the directory prefix', async () => {
+            const sibling = buildOptions({ directoryPath: path.join(directoryPath, 'ht'), scan: false });
+
+            expect(await lookup('/../html/index.html', sibling)).toBeUndefined();
+        });
     });
 });
