@@ -6,5 +6,6 @@ export function matchContentType(
     types: string | string[],
 ): boolean {
     const typeList = Array.isArray(types) ? types : [types];
+
     return typeList.some((t) => matchRequestContentType(event, t));
 }

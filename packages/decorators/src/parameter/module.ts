@@ -16,6 +16,7 @@ export function createParameterDecorator(
         }
 
         const meta = useDecoratorMeta(target);
+
         if (typeof meta.parameters[propertyKey] === 'undefined') {
             meta.parameters[propertyKey] = [];
         }

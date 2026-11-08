@@ -1,5 +1,5 @@
 import type { IAppEvent } from 'routup';
-import type { RateLimitInfo } from './type';
+import type { RateLimitInfo } from './types';
 import { isObject } from './utils';
 
 const RateLimitSymbol = Symbol.for('@routup/rate-limit:ReqRateLimit');

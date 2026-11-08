@@ -32,6 +32,7 @@ export function withTrailingSlash(input = '', queryParams = false): string {
     }
 
     const [s0, ...s] = input.split('?');
+
     return `${s0}/${s.length ? `?${s.join('?')}` : ''}`;
 }
 

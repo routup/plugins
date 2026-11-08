@@ -10,6 +10,7 @@ import { useRequestQuery } from '@routup/query';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -21,6 +22,7 @@ describe('src/**', () => {
 
         router.post('/:id', defineCoreHandler(async (event) => {
             const body = await readRequestBody(event, event.params.id!);
+
             return body;
         }));
         router.post('/', defineCoreHandler(async (event) => await readRequestBody(event)));

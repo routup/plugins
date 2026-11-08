@@ -15,5 +15,6 @@ export async function readRequestBodyBytes(
     options?: RawOptions,
 ): Promise<Uint8Array> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
+
     return readRequestBodyRaw(event, opts);
 }

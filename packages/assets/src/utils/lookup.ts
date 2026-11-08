@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileInfo, Options } from '../type';
+import type { FileInfo, Options } from '../types';
 import { isRegexMatch } from './regex';
 
 function generatePathForExtensions(
@@ -42,9 +42,11 @@ const lookupPath = async (
         .filter((el) => el.length > 0);
 
     const basePaths : string[] = [];
+
     // no file
     while (parts.length > 0) {
         const next = parts.join('/');
+
         if (next.length > 0) {
             basePaths.push(withLeadingSlash(next));
         }
@@ -77,11 +79,13 @@ const lookupPath = async (
         }
     } else {
         let filePath : string;
+
         for (const relativeFilePath of relativeFilePaths) {
             filePath = path.join(options.directoryPath, relativeFilePath);
 
             try {
                 const stats = await fs.promises.stat(filePath);
+
                 if (stats.isFile()) {
                     return {
                         stats,

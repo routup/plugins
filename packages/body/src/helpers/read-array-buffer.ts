@@ -16,5 +16,6 @@ export async function readRequestBodyArrayBuffer(
 ): Promise<ArrayBuffer> {
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
     const raw = await readRequestBodyRaw(event, opts);
+
     return raw.buffer as ArrayBuffer;
 }

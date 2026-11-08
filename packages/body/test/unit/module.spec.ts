@@ -12,6 +12,7 @@ import {
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -57,6 +58,7 @@ describe('src/**', () => {
 
         router.post('/', defineCoreHandler(async (event) => {
             const bytes = await readRequestBodyBytes(event);
+
             return bytes instanceof Uint8Array;
         }));
 
@@ -159,6 +161,7 @@ describe('src/**', () => {
         router.post('/', defineCoreHandler(async (event) => {
             const first = await readRequestBody(event);
             const second = await readRequestBody(event);
+
             return { same: first === second, body: first };
         }));
 

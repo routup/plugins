@@ -7,7 +7,7 @@ import type {
 } from 'prom-client';
 import promClient from 'prom-client';
 import { MetricTypeName } from '../constants';
-import type { Options } from '../type';
+import type { Options } from '../types';
 
 export function buildRequestDurationMetric<
     T extends RegistryContentType = PrometheusContentType,

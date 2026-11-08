@@ -5,6 +5,7 @@ import { CombinedController } from '../data/combined';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -47,6 +48,7 @@ describe('data/combined', () => {
 
     it('should not handle decorator endpoints', async () => {
         const router = new App();
+
         router.use(decorators({ controllers: [CombinedController] }));
 
         const response = await router.fetch(createTestRequest('/combined/a', { method: 'DELETE' }));

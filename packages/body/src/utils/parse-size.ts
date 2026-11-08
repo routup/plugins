@@ -10,15 +10,19 @@ export function parseSize(input: number | string): number {
         if (!Number.isFinite(input) || input < 0) {
             throw new TypeError(`invalid size value: ${input}`);
         }
+
         return Math.floor(input);
     }
 
     const match = input.match(/^(\d+(?:\.\d+)?)\s*(b|kb|mb|gb)$/i);
+
     if (!match) {
         const parsed = Number.parseFloat(input);
+
         if (!Number.isFinite(parsed) || parsed < 0) {
             throw new TypeError(`invalid size format: ${input}`);
         }
+
         return Math.floor(parsed);
     }
 

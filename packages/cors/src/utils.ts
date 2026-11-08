@@ -13,9 +13,11 @@ function normalizeListOption(value: CorsListOption | undefined): CorsListOption 
     if (value === undefined || value === '*') {
         return '*';
     }
+
     if (value.length === 1 && value[0] === '*') {
         return '*';
     }
+
     return value;
 }
 
@@ -54,6 +56,7 @@ function testRegExp(pattern: RegExp, origin: string): boolean {
     const stateless = pattern.global || pattern.sticky ?
         new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, '')) :
         pattern;
+
     return stateless.test(origin);
 }
 
@@ -63,11 +66,7 @@ export function isCorsOriginAllowed(
 ): boolean {
     const { origin: originOption } = options;
 
-    if (originOption === false) {
-        return false;
-    }
-
-    if (!origin) {
+    if ((originOption === false) || !origin) {
         return false;
     }
 
@@ -116,6 +115,7 @@ export function createOriginHeaders(
         if (!requestOrigin) {
             return [];
         }
+
         return [
             ['access-control-allow-origin', requestOrigin],
             ['vary', 'origin'],
@@ -171,6 +171,7 @@ export function createAllowHeaderHeaders(
 
     if (!allowHeaders || allowHeaders === '*' || allowHeaders.length === 0) {
         const requested = getRequestHeader(event, 'access-control-request-headers');
+
         if (!requested) {
             return [];
         }
@@ -207,6 +208,7 @@ export function createExposeHeaders(options: Options = {}): CorsHeaderEntry[] {
 
 export function createMaxAgeHeader(options: Options = {}): CorsHeaderEntry[] {
     const { maxAge } = options;
+
     if (maxAge === false || maxAge === undefined) {
         return [];
     }

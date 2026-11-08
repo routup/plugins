@@ -27,13 +27,16 @@ function clfDate(date: Date): string {
     const hh = pad2(date.getUTCHours());
     const mm = pad2(date.getUTCMinutes());
     const ss = pad2(date.getUTCSeconds());
+
     return `${day}/${month}/${year}:${hh}:${mm}:${ss} +0000`;
 }
 
 const URL_TOKEN: Token = (event) => {
     const { url } = event.request;
+
     try {
         const parsed = new URL(url);
+
         return parsed.pathname + parsed.search;
     } catch {
         return url;
@@ -48,6 +51,7 @@ const STATUS_TOKEN: Token = (event, response) => (response ?
 
 const DATE_TOKEN: Token = (event, response, format = 'web') => {
     const date = new Date();
+
     switch (format) {
         case 'clf':
             return clfDate(date);
@@ -69,6 +73,7 @@ const USER_AGENT_TOKEN: Token = (event) => getRequestHeader(event, 'user-agent')
 
 const HTTP_VERSION_TOKEN: Token = (event) => {
     const protocol = (event.request as unknown as { httpVersion?: string }).httpVersion;
+
     return protocol ?? '1.1';
 };
 
@@ -90,11 +95,13 @@ const RES_HEADER_TOKEN: Token = (event, response, field) => {
 
 const RESPONSE_TIME_TOKEN: Token = (event, response, digits = '3') => {
     const start = (event.store as Record<string | symbol, unknown>)[StartTimeSymbol];
+
     if (typeof start !== 'number') {
         return undefined;
     }
 
     const ms = performance.now() - start;
+
     return ms.toFixed(Number.parseInt(digits, 10));
 };
 
@@ -102,12 +109,15 @@ const PID_TOKEN: Token = () => String(typeof process !== 'undefined' ? process.p
 
 const REMOTE_USER_TOKEN: Token = (event) => {
     const auth = getRequestHeader(event, 'authorization');
+
     if (!auth || !auth.toLowerCase().startsWith('basic ')) {
         return undefined;
     }
+
     try {
         const decoded = atob(auth.slice(6).trim());
         const idx = decoded.indexOf(':');
+
         return idx >= 0 ? decoded.slice(0, idx) : decoded;
     } catch {
         return undefined;

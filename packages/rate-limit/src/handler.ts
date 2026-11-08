@@ -1,6 +1,6 @@
 import { HeaderName, defineCoreHandler } from 'routup';
 import { setRequestRateLimitInfo } from './request';
-import type { OptionsInput } from './type';
+import type { OptionsInput } from './types';
 import { normalizeHandlerOptions } from './utils';
 
 export function createHandler(input?: OptionsInput) {
@@ -12,6 +12,7 @@ export function createHandler(input?: OptionsInput) {
 
     return defineCoreHandler(async (event) => {
         const skip = await options.skip(event);
+
         if (skip) {
             return event.next();
         }
@@ -43,6 +44,7 @@ export function createHandler(input?: OptionsInput) {
             const deltaSeconds = Math.ceil(
                 (resetTime.getTime() - Date.now()) / 1000,
             );
+
             event.response.headers.set(HeaderName.RATE_LIMIT_RESET, String(Math.max(0, deltaSeconds)));
         }
 
@@ -77,10 +79,12 @@ export function createHandler(input?: OptionsInput) {
                 await options.store.decrement(key);
 
                 const remaining = Math.max(maxHits - totalHits + 1, 0);
+
                 setRequestRateLimitInfo(event, 'current', totalHits - 1);
                 setRequestRateLimitInfo(event, 'remaining', remaining);
 
                 const value = String(remaining);
+
                 event.response.headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
 
                 if (!response) {
@@ -89,10 +93,12 @@ export function createHandler(input?: OptionsInput) {
 
                 try {
                     response.headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
+
                     return response;
                 } catch {
                     // the headers of a forwarded fetch() response are immutable
                     const headers = new Headers(response.headers);
+
                     headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
 
                     return new Response(response.body, {

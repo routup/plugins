@@ -3,7 +3,7 @@ import { defineCoreHandler } from 'routup';
 import {
     isObject,
 } from './object';
-import type { ClassType, HandlerInterface } from '../type';
+import type { ClassType, HandlerInterface } from '../types';
 
 export function isHandlerClassInstance(input: unknown) : input is HandlerInterface {
     return isObject(input) &&

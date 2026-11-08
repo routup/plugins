@@ -4,6 +4,6 @@ import {
 
 export * from './module';
 export * from './request';
-export * from './type';
+export * from './types';
 
 export default query;

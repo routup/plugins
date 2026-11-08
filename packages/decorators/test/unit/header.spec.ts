@@ -5,6 +5,7 @@ import { HeaderController } from '../data/header';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -19,7 +20,9 @@ describe('header.ts', () => {
         let response = await router.fetch(createTestRequest('/header/many'));
 
         expect(response.status).toEqual(200);
+
         const body = await response.json();
+
         expect(body).toBeDefined();
 
         response = await router.fetch(createTestRequest('/header/single', { headers: { connection: 'keep-alive' } }));

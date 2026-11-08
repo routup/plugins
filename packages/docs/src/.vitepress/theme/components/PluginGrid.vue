@@ -1,5 +1,5 @@
 <script setup lang="ts">
-interface PluginCategory {
+interface IPluginCategory {
     name: string;
     summary: string;
     plugins: Array<{
@@ -11,7 +11,7 @@ interface PluginCategory {
     }>;
 }
 
-const categories: PluginCategory[] = [
+const categories: IPluginCategory[] = [
     {
         name: 'Bundles',
         summary: 'One install, the things almost every API needs.',

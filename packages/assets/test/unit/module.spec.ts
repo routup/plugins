@@ -5,10 +5,13 @@ import { assets } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
-const tick = () => new Promise<void>((resolve) => { setTimeout(resolve, 10); });
+const tick = () => new Promise<void>((resolve) => {
+    setTimeout(resolve, 10); 
+});
 
 const directoryPath = path.join(__dirname, '..', 'data');
 

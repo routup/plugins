@@ -1,4 +1,4 @@
-import type { FileInfo, Options } from '../type';
+import type { FileInfo, Options } from '../types';
 import { readDirectory } from './directory';
 import { isRegexMatch } from './regex';
 

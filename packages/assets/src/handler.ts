@@ -11,7 +11,7 @@ import {
     defineCoreHandler,
     sendFile,
 } from 'routup';
-import type { FileInfo, OptionsInput } from './type';
+import type { FileInfo, OptionsInput } from './types';
 import { buildOptions, scanFiles } from './utils';
 import { lookup } from './utils/lookup';
 
@@ -22,6 +22,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
     });
 
     let cacheControl : string | undefined;
+
     if (typeof options.cacheMaxAge !== 'undefined') {
         cacheControl = `public,max-age=${options.cacheMaxAge}`;
 
@@ -40,6 +41,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
         let requestPath = event.path;
 
         const { mountPath } = event;
+
         if (requestPath.startsWith(mountPath)) {
             requestPath = requestPath.substring(mountPath.length);
         }
@@ -62,6 +64,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
             if (options.resolve) {
                 const output = await options.resolve(event);
                 const response = await toResponse(output, event);
+
                 if (response) {
                     return response;
                 }
@@ -72,6 +75,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
             }
 
             event.response.status = 404;
+
             return null;
         }
 
@@ -83,6 +87,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
             event.headers.get(HeaderName.IF_NONE_MATCH) === `W/"${fileInfo.stats.size}-${fileInfo.stats.mtime.getTime()}"`
         ) {
             event.response.status = 304;
+
             return null;
         }
 
@@ -96,6 +101,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
             if (options.resolve) {
                 const output = await options.resolve(event);
                 const response = await toResponse(output, event);
+
                 if (response) {
                     return response;
                 }
@@ -106,6 +112,7 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
             }
 
             event.response.status = 404;
+
             return null;
         }
     };

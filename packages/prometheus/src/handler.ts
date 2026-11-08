@@ -11,7 +11,7 @@ import type {
 } from 'prom-client';
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
-import type { Metrics, Options } from './type';
+import type { Metrics, Options } from './types';
 
 export function createHandler<
     T extends RegistryContentType = PrometheusContentType,
@@ -20,7 +20,9 @@ export function createHandler<
 
     return defineCoreHandler(async (event) => {
         const output = await registry.metrics();
+
         setResponseHeaderContentType(event, registry.contentType);
+
         return output;
     });
 }
@@ -54,6 +56,7 @@ export function registerMetrics<
 
         if (metrics.requestDuration) {
             let { path } = event;
+
             if (!path.startsWith('/')) {
                 path = `/${path}`;
             }
@@ -62,8 +65,10 @@ export function registerMetrics<
             const timer = metrics.requestDuration.startTimer(labels);
 
             let response: Response | undefined;
+
             try {
                 response = await event.next();
+
                 return response;
             } finally {
                 labels.status_code = response?.status ?? 200;

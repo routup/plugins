@@ -33,7 +33,9 @@ function applyResolvedCorsHeaders(event: IAppEvent, resolved: ResolvedOptions): 
 
 function buildPreflightResponse(event: IAppEvent, resolved: ResolvedOptions): Response {
     const headers = new Headers(event.response.headers);
+
     headers.set('content-length', '0');
+
     return new Response(null, {
         status: resolved.preflight.status,
         headers,
@@ -50,19 +52,23 @@ export function appendCorsHeaders(event: IAppEvent, options: Options): void {
 
 export function handleCors(event: IAppEvent, options: Options): Response | undefined {
     const resolved = resolveOptions(options);
+
     if (resolved.origin === false) {
         return undefined;
     }
 
     if (isPreflightRequest(event)) {
         applyResolvedCorsPreflightHeaders(event, resolved);
+
         if (resolved.preflight.continue) {
             return undefined;
         }
+
         return buildPreflightResponse(event, resolved);
     }
 
     applyResolvedCorsHeaders(event, resolved);
+
     return undefined;
 }
 
@@ -98,13 +104,16 @@ export function createHandler(input?: Options) {
 
         if (isPreflightRequest(event)) {
             applyResolvedCorsPreflightHeaders(event, options);
+
             if (options.preflight.continue) {
                 return event.next();
             }
+
             return buildPreflightResponse(event, options);
         }
 
         applyResolvedCorsHeaders(event, options);
+
         return event.next();
     });
 }

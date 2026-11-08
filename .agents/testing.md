@@ -2,7 +2,7 @@
 
 ## Framework
 
-- **Runner**: Vitest 4 with v8 coverage provider
+- **Runner**: Vitest 5 with v8 coverage provider
 - **HTTP Testing**: `supertest` for integration-style tests against routup Router
 - **Coverage**: Enforced thresholds (~58% branches, ~73-77% lines/functions/statements)
 

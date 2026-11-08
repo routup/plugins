@@ -1,6 +1,6 @@
 import type { Plugin } from 'routup';
 import { createHandler } from './handler';
-import type { Options } from './type';
+import type { Options } from './types';
 
 export function query(options: Options = {}): Plugin {
     return {

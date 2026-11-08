@@ -1,4 +1,4 @@
-import type { ClassType } from '../type';
+import type { ClassType } from '../types';
 import { useDecoratorMeta } from '../utils';
 
 export function createMethodDecorator(

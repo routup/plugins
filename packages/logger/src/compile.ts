@@ -15,10 +15,12 @@ function parse(format: string): Piece[] {
     let match: RegExpExecArray | null;
 
     TOKEN_RE.lastIndex = 0;
+
     while ((match = TOKEN_RE.exec(format)) !== null) {
         if (match.index > lastIndex) {
             pieces.push({ type: 'literal', value: format.slice(lastIndex, match.index) });
         }
+
         pieces.push({
             type: 'token',
             name: match[1] as string,
@@ -43,9 +45,11 @@ export function compile(format: string): Formatter {
 
     return (tokens: TokenMap, event, response) => {
         let out = '';
+
         for (const piece of pieces) {
             if (piece.type === 'literal') {
                 out += piece.value;
+
                 continue;
             }
 
@@ -53,6 +57,7 @@ export function compile(format: string): Formatter {
             const value = token ?
                 token(event, response, piece.arg) :
                 undefined;
+
             out += value ?? '-';
         }
 

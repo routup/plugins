@@ -9,7 +9,7 @@ import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
 import { ASSETS_PATH } from './constants';
 import { isObject } from './object';
-import type { UIOptions } from './type';
+import type { UIOptions } from './types';
 import {
     cleanDoubleSlashes,
     withLeadingSlash,
@@ -26,6 +26,7 @@ const stringify = (obj: Record<string, any>) => {
     let json = JSON.stringify(obj, (key, value) => {
         if (typeof value === 'function') {
             fns.push(value);
+
             return placeholder;
         }
 
@@ -51,6 +52,7 @@ export function createUIHandler(
         options.spec = document;
     } else if (isFileURL(document)) {
         const documentFile = fs.readFileSync(document, { encoding: 'utf-8' });
+
         options.spec = JSON.parse(documentFile);
     } else {
         options.url = document;
@@ -83,6 +85,7 @@ export function createUIHandler(
             resolve: async (event) => {
                 if (event.path.includes('/package.json')) {
                     event.response.status = 404;
+
                     return null;
                 }
 
@@ -91,6 +94,7 @@ export function createUIHandler(
                 }
 
                 event.response.headers.set('content-type', 'text/html; charset=utf-8');
+
                 return template;
             },
         },

@@ -37,12 +37,16 @@ export async function readRequestBodyRaw(
 
         for (;;) {
             const { done, value } = await reader.read();
-            if (done) break;
+
+            if (done) {
+                break;
+            }
 
             totalSize += value.length;
 
             if (limit !== undefined && totalSize > limit) {
                 await reader.cancel();
+
                 throw createError({
                     statusCode: 413,
                     message: 'request entity too large',

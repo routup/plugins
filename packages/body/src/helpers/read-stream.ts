@@ -20,6 +20,7 @@ export function readRequestBodyStream(
 
     if (limit !== undefined) {
         const contentLength = event.headers.get('content-length');
+
         if (contentLength && Number.parseInt(contentLength, 10) > limit) {
             throw createError({
                 statusCode: 413,

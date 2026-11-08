@@ -29,11 +29,13 @@ export function setRequestQuery(event: IAppEvent, record: Record<string, any>) :
 export function setRequestQuery(event: IAppEvent, key: Record<string, any> | string, value?: unknown) : void {
     if (isObject(key)) {
         event.store[QuerySymbol] = key;
+
         return;
     }
 
     const existing = QuerySymbol in event.store ?
         event.store[QuerySymbol] as Record<string, any> :
         {};
+
     event.store[QuerySymbol] = { ...existing, [key]: value };
 }

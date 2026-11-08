@@ -1,4 +1,4 @@
-import type { ClassType } from '../type';
+import type { ClassType } from '../types';
 
 export type DecoratorMethodOptions = {
     method: string;

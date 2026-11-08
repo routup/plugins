@@ -2,7 +2,7 @@ import type { IAppEvent } from 'routup';
 import type { DecoratorMethodOptions } from './method';
 import type { DecoratorParameterOptions } from './parameter';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/naming-convention -- public API name
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }
@@ -21,6 +21,7 @@ export type DecoratorMeta = {
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- public API name
 export interface HandlerInterface {
     run(event: IAppEvent): Promise<unknown> | unknown;
 }

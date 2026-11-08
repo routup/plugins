@@ -29,6 +29,7 @@ export async function readRequestBody(event: IAppEvent, key: string): Promise<an
 export async function readRequestBody(event: IAppEvent, key?: string) {
     if (BodySymbol in event.store) {
         const cached = event.store[BodySymbol] as Record<string, any>;
+
         return typeof key === 'string' ? cached[key] : cached;
     }
 
