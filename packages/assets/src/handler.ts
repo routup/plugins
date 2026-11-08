@@ -35,9 +35,14 @@ export function createCoreHandler(directory: string, input: OptionsInput = {}) :
 
     const stack : Record<string, FileInfo> = {};
 
-    scanFiles(stack, options);
+    const scanned = scanFiles(stack, options);
+
+    // A failure is reported to requests, which may never arrive.
+    scanned.catch(() => {});
 
     return async (event: IAppEvent) => {
+        await scanned;
+
         let requestPath = event.path;
 
         const { mountPath } = event;

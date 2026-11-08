@@ -2,27 +2,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ReadDirectoryCallback } from '../types';
 
-export function readDirectory(
+export async function readDirectory(
     dir: string,
     callback: ReadDirectoryCallback,
     prefix = '',
-) {
-    dir = path.resolve('.', dir);
+) : Promise<void> {
+    const directoryPath = path.resolve('.', dir);
+    const elements = await fs.promises.readdir(directoryPath);
 
-    let abs : string;
-    let stats : fs.Stats;
+    for (const element of elements) {
+        const filePath = path.join(directoryPath, element);
 
-    fs.promises.readdir(dir)
-        .then((arr) => {
-            for (const element of arr) {
-                abs = path.join(dir, element);
-                stats = fs.statSync(abs);
+        try {
+            const stats = await fs.promises.stat(filePath);
 
-                if (stats.isDirectory()) {
-                    readDirectory(abs, callback, path.join(prefix, element));
-                } else {
-                    callback(path.join(prefix, element), abs, stats);
-                }
+            if (stats.isDirectory()) {
+                await readDirectory(filePath, callback, path.join(prefix, element));
+            } else {
+                callback(path.join(prefix, element), filePath, stats);
             }
-        });
+        } catch (error) {
+            // Dangling symlinks and entries removed during the scan cannot be served.
+            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+                throw error;
+            }
+        }
+    }
 }

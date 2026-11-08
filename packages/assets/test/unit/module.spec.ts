@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { App } from 'routup';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { assets } from '../../src';
+import { lookup } from '../../src/utils/lookup';
+import { buildOptions } from '../../src/utils/options';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
 
     return new Request(fullUrl, options);
 }
-
-const tick = () => new Promise<void>((resolve) => {
-    setTimeout(resolve, 10); 
-});
 
 const directoryPath = path.join(__dirname, '..', 'data');
 
@@ -20,8 +20,6 @@ describe('src/module', () => {
         const router = new App();
 
         router.use(assets(directoryPath));
-
-        await tick();
 
         const response = await router.fetch(createTestRequest('/file.txt'));
 
@@ -57,8 +55,6 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        await tick();
-
         const response = await router.fetch(createTestRequest('/file.js'));
 
         expect(await response.text()).toEqual('console.log(\'foo\');\n');
@@ -71,8 +67,6 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        await tick();
-
         const response = await router.fetch(createTestRequest('/file.bar'));
 
         expect(response.status).toEqual(404);
@@ -82,8 +76,6 @@ describe('src/module', () => {
         const router = new App();
 
         router.use(assets(directoryPath, { fallback: true }));
-
-        await tick();
 
         let response = await router.fetch(createTestRequest('/html'));
 
@@ -96,5 +88,87 @@ describe('src/module', () => {
         expect(await response.text()).toEqual('foo\n');
         expect(response.headers.get('content-type')).toEqual('text/html; charset=utf-8');
         expect(response.headers.get('content-length')).toEqual('4');
+    });
+
+    it('should serve a nested file on the first request', async () => {
+        const router = new App();
+
+        router.use(assets(directoryPath));
+
+        const response = await router.fetch(createTestRequest('/html/index.html'));
+
+        expect(response.status).toEqual(200);
+    });
+
+    it('should report a failed directory scan to the request', async () => {
+        const router = new App();
+
+        router.use(assets(path.join(directoryPath, 'missing')));
+
+        const response = await router.fetch(createTestRequest('/file.txt'));
+
+        expect(response.status).toEqual(500);
+    });
+
+    it('should skip entries that cannot be resolved during the scan', async () => {
+        const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'routup-assets-'));
+
+        try {
+            await fs.promises.writeFile(path.join(directory, 'file.txt'), 'foo');
+            await fs.promises.symlink(path.join(directory, 'missing'), path.join(directory, 'dangling'));
+
+            const router = new App();
+
+            router.use(assets(directory));
+
+            const response = await router.fetch(createTestRequest('/file.txt'));
+
+            expect(response.status).toEqual(200);
+        } finally {
+            await fs.promises.rm(directory, { recursive: true, force: true });
+        }
+    });
+
+    describe('without a scan', () => {
+        const options = buildOptions({ directoryPath: path.join(directoryPath, 'html'), scan: false });
+
+        it('should only serve dotfiles from .well-known unless enabled', async () => {
+            const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'routup-assets-'));
+
+            try {
+                await fs.promises.mkdir(path.join(directory, '.well-known'));
+                await fs.promises.writeFile(path.join(directory, '.env'), 'foo');
+                await fs.promises.writeFile(path.join(directory, '.well-known', 'file.txt'), 'foo');
+
+                const hidden = buildOptions({ directoryPath: directory, scan: false });
+                const visible = buildOptions({
+                    directoryPath: directory, 
+                    scan: false, 
+                    dotFiles: true, 
+                });
+
+                expect(await lookup('/.env', hidden)).toBeUndefined();
+                expect(await lookup('/.well-known/file.txt', hidden)).toBeDefined();
+                expect(await lookup('/.env', visible)).toBeDefined();
+            } finally {
+                await fs.promises.rm(directory, { recursive: true, force: true });
+            }
+        });
+
+        it('should find a file inside the directory', async () => {
+            const fileInfo = await lookup('/index.html', options);
+
+            expect(fileInfo?.filePath).toEqual(path.join(directoryPath, 'html', 'index.html'));
+        });
+
+        it('should not find a file outside the directory', async () => {
+            expect(await lookup('/../file.txt', options)).toBeUndefined();
+        });
+
+        it('should not find a sibling directory sharing the directory prefix', async () => {
+            const sibling = buildOptions({ directoryPath: path.join(directoryPath, 'ht'), scan: false });
+
+            expect(await lookup('/../html/index.html', sibling)).toBeUndefined();
+        });
     });
 });

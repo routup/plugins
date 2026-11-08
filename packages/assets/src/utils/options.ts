@@ -33,15 +33,13 @@ export function buildOptions(input: OptionsInput) : Options {
 
     const ignores : RegExp[] = [];
 
-    if (typeof input.ignores !== 'undefined') {
-        if (!input.dotFiles) {
-            ignores.push(/\/\.\w/);
-        }
+    if (!input.dotFiles) {
+        ignores.push(/\/\.(?!well-known(?:\/|$))\w/);
+    }
 
-        if (Array.isArray(input.ignores)) {
-            for (let i = 0; i < input.ignores.length; i++) {
-                ignores.push(new RegExp(input.ignores[i]!, 'i'));
-            }
+    if (Array.isArray(input.ignores)) {
+        for (let i = 0; i < input.ignores.length; i++) {
+            ignores.push(new RegExp(input.ignores[i]!, 'i'));
         }
     }
 

@@ -30,6 +30,14 @@ function withLeadingSlash(input: string) {
     return input;
 }
 
+function isInsideDirectory(filePath: string, directoryPath: string) : boolean {
+    const relative = path.relative(directoryPath, filePath);
+
+    return relative !== '..' &&
+        !relative.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(relative);
+}
+
 const lookupPath = async (
     requestPath: string,
     options: Options,
@@ -82,6 +90,10 @@ const lookupPath = async (
 
         for (const relativeFilePath of relativeFilePaths) {
             filePath = path.join(options.directoryPath, relativeFilePath);
+
+            if (!isInsideDirectory(filePath, options.directoryPath)) {
+                continue;
+            }
 
             try {
                 const stats = await fs.promises.stat(filePath);
