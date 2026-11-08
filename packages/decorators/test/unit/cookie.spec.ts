@@ -6,6 +6,7 @@ import { CookieController } from '../data/cookie';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 

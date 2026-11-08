@@ -8,6 +8,7 @@ export function logger(
     maybeOptions?: Options,
 ) {
     let resolved: Options;
+
     if (typeof formatOrOptions === 'string' || typeof formatOrOptions === 'function') {
         resolved = { ...(maybeOptions ?? {}), format: formatOrOptions };
     } else {

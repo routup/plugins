@@ -1,5 +1,5 @@
 import { compile } from './compile';
-import type { Formatter, TokenMap } from './types';
+import type { Formatter, PresetFormatName, TokenMap } from './types';
 
 export const formatStrings = {
     combined: ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
@@ -7,8 +7,6 @@ export const formatStrings = {
     short: ':remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms',
     tiny: ':method :url :status :res[content-length] - :response-time ms',
 } as const satisfies Record<string, string>;
-
-export type PresetFormatName = keyof typeof formatStrings;
 
 const ANSI_RESET = '\x1b[0m';
 function ansi(code: number, text: string): string {
@@ -18,6 +16,7 @@ function ansi(code: number, text: string): string {
 export const devFormatter: Formatter = (tokens: TokenMap, event, response) => {
     const status = response?.status;
     let color = 0;
+
     if (status) {
         if (status >= 500) {
             color = 31;

@@ -1,7 +1,7 @@
 import type { PrometheusContentType, Registry, RegistryContentType } from 'prom-client';
 import promClient from 'prom-client';
 import { MetricName, MetricTypeName } from '../constants';
-import type { Options, OptionsInput } from '../type';
+import type { Options, OptionsInput } from '../types';
 
 export function buildOptions<
     T extends RegistryContentType = PrometheusContentType,

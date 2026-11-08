@@ -1,6 +1,6 @@
 import { defineCoreHandler } from 'routup';
 import { hasRequestQuery, setRequestQuery } from './request';
-import type { ParseOptions } from './type';
+import type { ParseOptions } from './types';
 import { parseRequestQuery } from './utils';
 
 export function createHandler(options?: ParseOptions) {

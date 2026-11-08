@@ -1,5 +1,5 @@
-import type { IncrementResponse, Options } from '../type';
-import type { Store } from './type';
+import type { IncrementResponse, Options } from '../types';
+import type { Store } from './types';
 import { calculateNextResetTime } from './utils';
 
 export class MemoryStore implements Store {
@@ -47,7 +47,9 @@ export class MemoryStore implements Store {
         }, this.windowMs);
 
         // Cleaning up the interval will be taken care of by the `shutdown` method.
-        if (this.interval.unref) this.interval.unref();
+        if (this.interval.unref) {
+            this.interval.unref();
+        }
     }
 
     /**
@@ -61,6 +63,7 @@ export class MemoryStore implements Store {
      */
     async increment(key: string): Promise<IncrementResponse> {
         const totalHits = (this.hits[key] ?? 0) + 1;
+
         this.hits[key] = totalHits;
 
         return {
@@ -79,7 +82,9 @@ export class MemoryStore implements Store {
     async decrement(key: string): Promise<void> {
         const current = this.hits[key];
 
-        if (current) this.hits[key] = current - 1;
+        if (current) {
+            this.hits[key] = current - 1;
+        }
     }
 
     /**

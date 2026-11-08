@@ -1,4 +1,4 @@
-import type { DecoratorMeta } from '../type';
+import type { DecoratorMeta } from '../types';
 
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 

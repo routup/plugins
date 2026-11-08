@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ReadDirectoryCallback } from '../type';
+import type { ReadDirectoryCallback } from '../types';
 
 export async function readDirectory(
     dir: string,

@@ -32,6 +32,7 @@ export function i18n(input?: Options | Ilingo) : Plugin {
             let locale : string | LocaleReqFn | undefined;
 
             let instance : Ilingo;
+
             if (input instanceof Ilingo) {
                 instance = input;
             } else if (input) {
@@ -52,9 +53,11 @@ export function i18n(input?: Options | Ilingo) : Plugin {
                 event.store[REQUEST_INSTANCE_SYMBOL] = instance;
 
                 let reqLocale : string | undefined;
+
                 if (typeof locale === 'function') {
                     reqLocale = await locale(event);
                 }
+
                 if (typeof reqLocale === 'undefined') {
                     reqLocale = getRequestAcceptableLanguage(event, locales);
                 }

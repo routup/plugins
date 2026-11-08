@@ -1,7 +1,7 @@
 import type { IApp, MethodName } from 'routup';
 import { App, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
-import type { ClassType, DecoratorMeta } from './type';
+import type { ClassType, DecoratorMeta } from './types';
 import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
 
 function buildControllerApp(
@@ -17,8 +17,10 @@ function buildControllerApp(
     }
 
     const propertyKeys = Object.keys(meta.methods);
+
     for (const propertyKey of propertyKeys) {
         const method = meta.methods[propertyKey];
+
         if (!method) {
             continue;
         }
@@ -70,6 +72,7 @@ export function mountController(
 
     if (Array.isArray(meta.url)) {
         const childApp = buildControllerApp(controller, meta);
+
         // `router.use(url, childApp)` snapshots `childApp.routes` per
         // call (flatten-on-use), so mounting the same child under
         // multiple paths needs no clone — each mount gets its own

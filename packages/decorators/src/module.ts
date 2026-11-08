@@ -1,6 +1,6 @@
 import type { Plugin } from 'routup';
 import { mountControllers } from './mount';
-import type { Options } from './type';
+import type { Options } from './types';
 
 export function decorators(options: Options) : Plugin {
     return {

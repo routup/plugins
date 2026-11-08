@@ -3,7 +3,7 @@ import { useRequestCookie, useRequestCookies } from '@routup/cookie';
 import { useRequestQuery } from '@routup/query';
 import { ParameterType } from '../parameter';
 import type { DecoratorParameterOptions } from '../parameter';
-import type { HandlerContext } from '../type';
+import type { HandlerContext } from '../types';
 
 export async function buildDecoratorMethodArguments(
     context: HandlerContext,
@@ -22,21 +22,25 @@ export async function buildDecoratorMethodArguments(
     for (const parameter of parameters) {
         if (parameter.type === ParameterType.CONTEXT) {
             items[parameter.index] = context.event;
+
             continue;
         }
 
         if (parameter.type === ParameterType.REQUEST) {
             items[parameter.index] = context.event.request;
+
             continue;
         }
 
         if (parameter.type === ParameterType.RESPONSE) {
             items[parameter.index] = context.event.response;
+
             continue;
         }
 
         if (parameter.type === ParameterType.NEXT) {
             items[parameter.index] = context.event.next;
+
             continue;
         }
 
@@ -46,6 +50,7 @@ export async function buildDecoratorMethodArguments(
             } else {
                 items[parameter.index] = context.event.params;
             }
+
             continue;
         }
 
@@ -55,6 +60,7 @@ export async function buildDecoratorMethodArguments(
             } else {
                 items[parameter.index] = context.event.headers;
             }
+
             continue;
         }
 
@@ -62,6 +68,7 @@ export async function buildDecoratorMethodArguments(
             items[parameter.index] = parameter.property ?
                 await readRequestBody(context.event, parameter.property) :
                 await readRequestBody(context.event);
+
             continue;
         }
 
@@ -69,6 +76,7 @@ export async function buildDecoratorMethodArguments(
             items[parameter.index] = parameter.property ?
                 useRequestQuery(context.event, parameter.property) :
                 useRequestQuery(context.event);
+
             continue;
         }
 
@@ -76,6 +84,7 @@ export async function buildDecoratorMethodArguments(
             items[parameter.index] = parameter.property ?
                 useRequestCookie(context.event, parameter.property) :
                 useRequestCookies(context.event);
+
             continue;
         }
 

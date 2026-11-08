@@ -42,9 +42,11 @@ export class RedisStore implements Store {
      */
     async increment(key: string) : Promise<IncrementResponse> {
         key = this.buildKey(key);
+
         const entry = await this.client.get(key);
 
         let totalHits : number;
+
         if (entry) {
             totalHits = Number.parseInt(entry, 10) + 1;
         } else {
@@ -75,17 +77,21 @@ export class RedisStore implements Store {
      */
     async decrement(key: string): Promise<void> {
         key = this.buildKey(key);
-        const entry = await this.client.get(key);
-        if (entry) {
-            const totalHits = Number.parseInt(entry, 10) - 1;
 
-            this.client.set(
-                key,
-                totalHits,
-                'PX',
-                this.options.windowMs,
-            );
+        const entry = await this.client.get(key);
+
+        if (!entry) {
+            return;
         }
+
+        const totalHits = Number.parseInt(entry, 10) - 1;
+
+        this.client.set(
+            key,
+            totalHits,
+            'PX',
+            this.options.windowMs,
+        );
     }
 
     /**

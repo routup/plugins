@@ -12,6 +12,7 @@ import {
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -23,6 +24,7 @@ function createRouterWithHandlers(options?: OptionsInput): App {
     }
 
     const router = new App();
+
     router.use(prometheus(options));
 
     router.get('/', defineCoreHandler(() => 'Hello, World!'));
@@ -41,7 +43,9 @@ describe('src/module', () => {
         response = await router.fetch(createTestRequest('/metrics'));
 
         expect(response.status).toEqual(200);
+
         const text = await response.text();
+
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} histogram`)).toBeTruthy();
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} summary`)).toBeFalsy();
         expect(text.includes(`TYPE ${MetricName.UPTIME} gauge`)).toBeTruthy();
@@ -53,7 +57,9 @@ describe('src/module', () => {
         const response = await router.fetch(createTestRequest('/metrics'));
 
         expect(response.status).toEqual(200);
+
         const text = await response.text();
+
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} histogram`)).toBeFalsy();
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} summary`)).toBeTruthy();
     });
@@ -64,7 +70,9 @@ describe('src/module', () => {
         const response = await router.fetch(createTestRequest('/metrics'));
 
         expect(response.status).toEqual(200);
+
         const text = await response.text();
+
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} histogram`)).toBeFalsy();
         expect(text.includes(`TYPE ${MetricName.REQUEST_DURATION} summary`)).toBeFalsy();
     });
@@ -75,7 +83,9 @@ describe('src/module', () => {
         const response = await router.fetch(createTestRequest('/metrics'));
 
         expect(response.status).toEqual(200);
+
         const text = await response.text();
+
         expect(text.includes(`TYPE ${MetricName.UPTIME} gauge`)).toBeFalsy();
     });
 });

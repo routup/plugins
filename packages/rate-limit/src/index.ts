@@ -5,6 +5,6 @@ export * from './handler';
 export * from './module';
 export * from './request';
 export * from './store';
-export * from './type';
+export * from './types';
 export * from './utils';
 export default rateLimit;

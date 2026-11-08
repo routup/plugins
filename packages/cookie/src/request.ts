@@ -27,11 +27,13 @@ export function setRequestCookies(event: IAppEvent, record: Record<string, any>)
 export function setRequestCookies(event: IAppEvent, key: Record<string, any> | string, value?: unknown) : void {
     if (isObject(key)) {
         event.store[CookieSymbol] = key;
+
         return;
     }
 
     const existing = CookieSymbol in event.store ?
         event.store[CookieSymbol] as Record<string, any> :
         {};
+
     event.store[CookieSymbol] = { ...existing, [key]: value };
 }

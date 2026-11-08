@@ -6,7 +6,7 @@ import type {
     RegistryContentType,
 } from 'prom-client';
 import promClient from 'prom-client';
-import type { Options } from '../type';
+import type { Options } from '../types';
 
 export function buildUptimeMetric<
     T extends RegistryContentType = PrometheusContentType,

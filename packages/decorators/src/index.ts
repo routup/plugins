@@ -8,7 +8,7 @@ export * from './method';
 export * from './module';
 export * from './mount';
 export * from './parameter';
-export * from './type';
+export * from './types';
 export * from './utils';
 
 export default decorators;

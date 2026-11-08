@@ -18,5 +18,6 @@ export async function readRequestBodyText(
 ): Promise<string> {
     const opts = options ?? boolToObject(getBodyOptions(event).text || {});
     const raw = await readRequestBodyRaw(event, opts);
+
     return new TextDecoder(opts.defaultCharset ?? 'utf-8').decode(raw);
 }

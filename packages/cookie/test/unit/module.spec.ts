@@ -13,6 +13,7 @@ import {
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -26,6 +27,7 @@ describe('src/module', () => {
             useRequestCookies(event);
 
             const foo = useRequestCookie(event, 'foo');
+
             return foo;
         }));
 
@@ -44,6 +46,7 @@ describe('src/module', () => {
             useRequestCookies(event);
 
             const foo = useRequestCookie(event, 'bar');
+
             return foo;
         }));
 

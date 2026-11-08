@@ -1,14 +1,17 @@
 import path from 'node:path';
-import type { Options, OptionsInput } from '../type';
+import type { Options, OptionsInput } from '../types';
 
 export function buildOptions(input: OptionsInput) : Options {
     let fallbackPath = '/';
+
     if (typeof input.fallback === 'string') {
         const idx = input.fallback.lastIndexOf('.');
+
         fallbackPath += ~idx ? input.fallback.substring(0, idx) : input.fallback;
     }
 
     const fallbackIgnores : RegExp[] = [];
+
     if (typeof input.fallbackIgnores !== 'undefined') {
         // any file with extension
         fallbackIgnores.push(/[/]([A-Za-z\s\d~$._-]+\.\w+)+$/);
@@ -29,6 +32,7 @@ export function buildOptions(input: OptionsInput) : Options {
     }
 
     const ignores : RegExp[] = [];
+
     if (typeof input.ignores !== 'undefined') {
         if (!input.dotFiles) {
             ignores.push(/\/\.\w/);
@@ -42,6 +46,7 @@ export function buildOptions(input: OptionsInput) : Options {
     }
 
     let directoryPath : string;
+
     if (input.directoryPath) {
         if (path.isAbsolute(input.directoryPath)) {
             directoryPath = input.directoryPath;

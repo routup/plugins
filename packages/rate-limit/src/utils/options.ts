@@ -2,7 +2,7 @@ import type { IAppEvent } from 'routup';
 import { getRequestIP } from 'routup';
 import { RETRY_AGAIN_MESSAGE } from '../constants';
 import { MemoryStore } from '../store';
-import type { Options, OptionsInput, ValueDeterminingMiddleware } from '../type';
+import type { Options, OptionsInput, ValueDeterminingMiddleware } from '../types';
 
 export function normalizeHandlerOptions(input: OptionsInput = {}) : Options {
     const options : Options = {

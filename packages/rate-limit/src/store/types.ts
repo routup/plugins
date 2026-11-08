@@ -1,8 +1,9 @@
-import type { IncrementResponse, Options } from '../type';
+import type { IncrementResponse, Options } from '../types';
 
 /**
  * An interface that all stores must implement.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- public API name
 export interface Store {
     /**
      * Method that initializes the store, and has access to the options passed to

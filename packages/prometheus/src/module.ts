@@ -1,7 +1,7 @@
 import type { PrometheusContentType, RegistryContentType } from 'prom-client';
 import type { Plugin } from 'routup';
 import { createHandler, registerMetrics } from './handler';
-import type { Options, OptionsInput } from './type';
+import type { Options, OptionsInput } from './types';
 import { buildOptions } from './utils';
 
 export function prometheus<

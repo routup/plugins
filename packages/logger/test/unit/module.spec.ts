@@ -20,6 +20,7 @@ import {
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -29,15 +30,19 @@ describe('handler', () => {
 
     beforeEach(() => {
         lines = [];
-        write = (line) => lines.push(line);
+        write = (line) => {
+            lines.push(line);
+        };
     });
 
     it('should log default tiny format after response', async () => {
         const router = new App();
+
         router.use(logger({ write }));
         router.get('/items', defineCoreHandler(() => 'ok'));
 
         const response = await router.fetch(createTestRequest('/items'));
+
         expect(response.status).toEqual(200);
 
         expect(lines).toHaveLength(1);
@@ -46,6 +51,7 @@ describe('handler', () => {
 
     it('should accept a custom format string', async () => {
         const router = new App();
+
         router.use(logger(':method :status', { write }));
         router.post('/x', defineCoreHandler(() => new Response('made', { status: 201 })));
 
@@ -56,6 +62,7 @@ describe('handler', () => {
 
     it('should accept a custom formatter function', async () => {
         const router = new App();
+
         router.use(logger(
             (_tokens, event, response) => `[${event.method}] ${response?.status ?? '-'}`,
             { write },
@@ -69,6 +76,7 @@ describe('handler', () => {
 
     it('should support skip predicate', async () => {
         const router = new App();
+
         router.use(logger({
             write,
             skip: (event) => event.path === '/health',
@@ -85,6 +93,7 @@ describe('handler', () => {
 
     it('should support custom tokens', async () => {
         const router = new App();
+
         router.use(logger(':who', {
             write,
             tokens: { who: () => 'agent-007' },
@@ -98,6 +107,7 @@ describe('handler', () => {
 
     it('should log immediately when immediate=true', async () => {
         const router = new App();
+
         router.use(logger(':method :status', { write, immediate: true }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -110,6 +120,7 @@ describe('handler', () => {
         const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
 
         const router = new App();
+
         router.use(logger());
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -128,21 +139,25 @@ describe('resolveFormat / formatStrings', () => {
 
     it('should treat string as preset name when matched', () => {
         const fn = resolveFormat('tiny');
+
         expect(typeof fn).toEqual('function');
     });
 
     it('should treat unknown string as raw format', () => {
         const fn = resolveFormat(':method ::raw');
+
         expect(typeof fn).toEqual('function');
     });
 
     it('should pass through formatter functions', () => {
         const fmt = () => 'static';
+
         expect(resolveFormat(fmt)).toBe(fmt);
     });
 
     it('should default to tiny when given non-string non-fn', () => {
         const fn = resolveFormat(undefined);
+
         expect(typeof fn).toEqual('function');
     });
 
@@ -150,6 +165,7 @@ describe('resolveFormat / formatStrings', () => {
         const fn = resolveFormat('toString');
         // Treated as a raw format string, not a preset; tokens fall back to '-'
         const out = fn({}, {} as any, undefined);
+
         expect(out).toEqual('toString');
     });
 
@@ -186,6 +202,7 @@ describe('compile', () => {
             {} as any,
             undefined,
         );
+
         expect(out).toEqual('POST | /x');
     });
 
@@ -196,6 +213,7 @@ describe('compile', () => {
             {} as any,
             undefined,
         );
+
         expect(out).toEqual('42');
     });
 
@@ -206,6 +224,7 @@ describe('compile', () => {
             {} as any,
             undefined,
         );
+
         expect(out).toEqual('- GET');
     });
 
@@ -220,7 +239,9 @@ describe('built-in tokens', () => {
 
     beforeEach(() => {
         lines = [];
-        write = (line) => lines.push(line);
+        write = (line) => {
+            lines.push(line);
+        };
     });
 
     afterEach(() => {
@@ -229,6 +250,7 @@ describe('built-in tokens', () => {
 
     it(':url renders pathname + search', async () => {
         const router = new App();
+
         router.use(logger(':url', { write }));
         router.get('/x', defineCoreHandler(() => 'ok'));
 
@@ -239,6 +261,7 @@ describe('built-in tokens', () => {
 
     it(':status renders the response status', async () => {
         const router = new App();
+
         router.use(logger(':status', { write }));
         router.get('/', defineCoreHandler(() => new Response('!', { status: 418 })));
 
@@ -249,6 +272,7 @@ describe('built-in tokens', () => {
 
     it(':response-time produces a numeric ms value', async () => {
         const router = new App();
+
         router.use(logger(':response-time', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -260,6 +284,7 @@ describe('built-in tokens', () => {
 
     it(':req[name] renders a request header', async () => {
         const router = new App();
+
         router.use(logger(':req[x-trace]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -270,6 +295,7 @@ describe('built-in tokens', () => {
 
     it(':res[name] renders a response header', async () => {
         const router = new App();
+
         router.use(logger(':res[x-foo]', { write }));
         router.get('/', defineCoreHandler(() => new Response('ok', { headers: { 'x-foo': 'bar' } })));
 
@@ -280,6 +306,7 @@ describe('built-in tokens', () => {
 
     it(':user-agent renders the request user-agent', async () => {
         const router = new App();
+
         router.use(logger(':user-agent', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -290,10 +317,12 @@ describe('built-in tokens', () => {
 
     it(':remote-user decodes basic auth', async () => {
         const router = new App();
+
         router.use(logger(':remote-user', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
         const auth = `Basic ${btoa('alice:secret')}`;
+
         await router.fetch(createTestRequest('/', { headers: { authorization: auth } }));
 
         expect(lines).toEqual(['alice']);
@@ -301,6 +330,7 @@ describe('built-in tokens', () => {
 
     it(':date renders an ISO timestamp when format=iso', async () => {
         const router = new App();
+
         router.use(logger(':date[iso]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 
@@ -312,6 +342,7 @@ describe('built-in tokens', () => {
 
     it(':date[clf] renders the CLF format', async () => {
         const router = new App();
+
         router.use(logger(':date[clf]', { write }));
         router.get('/', defineCoreHandler(() => 'ok'));
 

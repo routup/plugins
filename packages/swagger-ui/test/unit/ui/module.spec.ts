@@ -5,6 +5,7 @@ import { swaggerUI } from '../../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
 }
 
@@ -42,6 +43,7 @@ describe('src/ui', () => {
     it('should serve template file for nested routers', async () => {
         const router = new App();
         const child = await createRouter();
+
         router.use('/sub', child);
 
         let response = await router.fetch(createTestRequest('/sub/docs'));
@@ -81,6 +83,7 @@ describe('src/ui', () => {
         const router = await createRouter();
 
         const response = await router.fetch(createTestRequest('/docs/swagger-ui-bundle.js'));
+
         expect(response.status).toEqual(200);
         expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
     });

@@ -23,6 +23,7 @@ export function createHandler(options: Options = {}) {
         }
 
         const line = formatter(tokens, event, response);
+
         if (line === undefined) {
             return;
         }
@@ -39,11 +40,14 @@ export function createHandler(options: Options = {}) {
 
         if (immediate) {
             emit(event, undefined);
+
             return event.next();
         }
 
         const response = await event.next();
+
         emit(event, response);
+
         return response;
     });
 }

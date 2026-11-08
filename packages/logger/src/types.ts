@@ -1,4 +1,7 @@
 import type { IAppEvent } from 'routup';
+import type { formatStrings } from './formats';
+
+export type PresetFormatName = keyof typeof formatStrings;
 
 export type Token = (
     event: IAppEvent,

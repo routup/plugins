@@ -19,5 +19,6 @@ export async function readRequestBodyBlob(
     const opts = options ?? boolToObject(getBodyOptions(event).raw || {});
     const raw = await readRequestBodyRaw(event, opts);
     const contentType = event.headers.get('content-type') || 'application/octet-stream';
+
     return new Blob([raw.buffer as ArrayBuffer], { type: contentType });
 }

@@ -15,10 +15,12 @@ function createMockClient() {
         get: vi.fn(async (key: string) => store.get(key) ?? null),
         set: vi.fn(async (key: string, value: number | string, _mode: string, _px: number) => {
             store.set(key, String(value));
+
             return 'OK';
         }),
         del: vi.fn(async (key: string) => {
             store.delete(key);
+
             return 1;
         }),
         _store: store,
@@ -46,6 +48,7 @@ describe('src/module', () => {
 
     it('should increment an existing key', async () => {
         await store.increment('test-key');
+
         const result = await store.increment('test-key');
 
         expect(result.totalHits).toEqual(2);

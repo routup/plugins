@@ -1,6 +1,6 @@
 import type { Plugin } from 'routup';
 import { createHandler } from './handler';
-import type { OptionsInput } from './type';
+import type { OptionsInput } from './types';
 
 export function assets(
     directory: string,

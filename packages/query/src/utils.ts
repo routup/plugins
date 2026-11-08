@@ -1,11 +1,12 @@
 import type { IAppEvent } from 'routup';
 import { parse } from 'qs';
 
-import type { ParseOptions } from './type';
+import type { ParseOptions } from './types';
 
 export function parseRequestQuery(event: IAppEvent, options?: ParseOptions) {
     const { url } = event.request;
     const qIndex = url.indexOf('?');
+
     if (qIndex < 0) {
         return parse('', options);
     }

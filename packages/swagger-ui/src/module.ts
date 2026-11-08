@@ -1,7 +1,7 @@
 import type { Plugin } from 'routup';
 import type { Spec } from 'swagger-ui-dist';
 import { createUIHandler } from './handler';
-import type { UIOptions } from './type';
+import type { UIOptions } from './types';
 
 export function swaggerUI(
     document: Spec | string,
