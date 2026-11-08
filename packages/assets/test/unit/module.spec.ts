@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { App } from 'routup';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { assets } from '../../src';
 
@@ -103,5 +105,24 @@ describe('src/module', () => {
         const response = await router.fetch(createTestRequest('/file.txt'));
 
         expect(response.status).toEqual(500);
+    });
+
+    it('should skip entries that cannot be resolved during the scan', async () => {
+        const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'routup-assets-'));
+
+        try {
+            await fs.promises.writeFile(path.join(directory, 'file.txt'), 'foo');
+            await fs.promises.symlink(path.join(directory, 'missing'), path.join(directory, 'dangling'));
+
+            const router = new App();
+
+            router.use(assets(directory));
+
+            const response = await router.fetch(createTestRequest('/file.txt'));
+
+            expect(response.status).toEqual(200);
+        } finally {
+            await fs.promises.rm(directory, { recursive: true, force: true });
+        }
     });
 });
