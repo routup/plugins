@@ -8,8 +8,6 @@ function createTestRequest(url: string, options?: RequestInit): Request {
     return new Request(fullUrl, options);
 }
 
-const tick = () => new Promise<void>((resolve) => { setTimeout(resolve, 10); });
-
 const directoryPath = path.join(__dirname, '..', 'data');
 
 describe('src/module', () => {
@@ -17,8 +15,6 @@ describe('src/module', () => {
         const router = new App();
 
         router.use(assets(directoryPath));
-
-        await tick();
 
         const response = await router.fetch(createTestRequest('/file.txt'));
 
@@ -54,8 +50,6 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        await tick();
-
         const response = await router.fetch(createTestRequest('/file.js'));
 
         expect(await response.text()).toEqual('console.log(\'foo\');\n');
@@ -68,8 +62,6 @@ describe('src/module', () => {
 
         router.use(assets(directoryPath));
 
-        await tick();
-
         const response = await router.fetch(createTestRequest('/file.bar'));
 
         expect(response.status).toEqual(404);
@@ -79,8 +71,6 @@ describe('src/module', () => {
         const router = new App();
 
         router.use(assets(directoryPath, { fallback: true }));
-
-        await tick();
 
         let response = await router.fetch(createTestRequest('/html'));
 
@@ -93,5 +83,25 @@ describe('src/module', () => {
         expect(await response.text()).toEqual('foo\n');
         expect(response.headers.get('content-type')).toEqual('text/html; charset=utf-8');
         expect(response.headers.get('content-length')).toEqual('4');
+    });
+
+    it('should serve a nested file on the first request', async () => {
+        const router = new App();
+
+        router.use(assets(directoryPath));
+
+        const response = await router.fetch(createTestRequest('/html/index.html'));
+
+        expect(response.status).toEqual(200);
+    });
+
+    it('should report a failed directory scan to the request', async () => {
+        const router = new App();
+
+        router.use(assets(path.join(directoryPath, 'missing')));
+
+        const response = await router.fetch(createTestRequest('/file.txt'));
+
+        expect(response.status).toEqual(500);
     });
 });

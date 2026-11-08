@@ -2,15 +2,15 @@ import type { FileInfo, Options } from '../type';
 import { readDirectory } from './directory';
 import { isRegexMatch } from './regex';
 
-export function scanFiles(
+export async function scanFiles(
     stack: Record<string, FileInfo>,
     options: Options,
-) {
+) : Promise<void> {
     if (!options.scan) {
         return;
     }
 
-    readDirectory(options.directoryPath, (relativePath, filePath, stats) => {
+    await readDirectory(options.directoryPath, (relativePath, filePath, stats) => {
         if (
             !(/\.well-known[\\+/]/.test(relativePath)) &&
             !options.dotFiles &&
