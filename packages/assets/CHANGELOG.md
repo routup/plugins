@@ -1,5 +1,13 @@
 # Change Log
 
+## [5.0.1](https://github.com/routup/plugins/compare/assets-v5.0.0...assets-v5.0.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* **assets:** await directory scan and harden unscanned lookups ([#852](https://github.com/routup/plugins/issues/852)) ([8a30891](https://github.com/routup/plugins/commit/8a308916873077d12092867b36fa7311f4de7ee9))
+* **deps:** bump the minorandpatch group across 1 directory with 16 updates ([#851](https://github.com/routup/plugins/issues/851)) ([135bf8f](https://github.com/routup/plugins/commit/135bf8f14141992d7624654aa04fed7bdac70005))
+
 ## [5.0.0](https://github.com/routup/plugins/compare/assets-v4.2.0...assets-v5.0.0) (2026-05-20)
 
 

@@ -6,6 +6,22 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.0.2](https://github.com/routup/plugins/compare/decorators-v5.0.1...decorators-v5.0.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 16 updates ([#851](https://github.com/routup/plugins/issues/851)) ([135bf8f](https://github.com/routup/plugins/commit/135bf8f14141992d7624654aa04fed7bdac70005))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^4.0.0 to ^4.0.1
+    * @routup/cookie bumped from ^4.0.0 to ^4.0.1
+    * @routup/query bumped from ^4.0.1 to ^4.0.2
+
 ## [5.0.1](https://github.com/routup/plugins/compare/decorators-v5.0.0...decorators-v5.0.1) (2026-10-13)
 
 
