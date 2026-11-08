@@ -35,7 +35,13 @@ It is important to install the plugin, to enable locale detection and translator
 
 ```typescript
 import { createServer } from 'node:http';
-import { MemoryStore } from 'ilingo';
+import {
+    MemoryStore,
+    defineCatalog,
+    defineLocale,
+    defineNamespace,
+    defineTranslations,
+} from 'ilingo';
 import {
     createNodeDispatcher,
     defineCoreHandler,
@@ -47,18 +53,18 @@ import {
 } from '@routup/i18n';
 
 const store = new MemoryStore({
-    data: {
-        de: {
-            app: {
-                key: 'Hallo, mein Name ist {{name}}',
-            },
-        },
-        en: {
-            app: {
-                key: 'Hello, my name is {{name}}',
-            },
-        },
-    },
+    data: defineCatalog([
+        defineLocale('de', [
+            defineNamespace('app', [
+                defineTranslations({ key: 'Hallo, mein Name ist {{name}}' }),
+            ]),
+        ]),
+        defineLocale('en', [
+            defineNamespace('app', [
+                defineTranslations({ key: 'Hello, my name is {{name}}' }),
+            ]),
+        ]),
+    ]),
 })
 
 const router = new App();
@@ -68,7 +74,7 @@ router.use(i18n({ store }));
 router.get('/', defineCoreHandler((event) => {
     const translator = useTranslator(event);
     const translation = translator({
-        group: 'app',
+        namespace: 'app',
         key: 'key',
         data: {
             name: 'Peter'

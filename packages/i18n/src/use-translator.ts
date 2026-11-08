@@ -7,6 +7,7 @@ import type { Translator } from './types';
 
 export function useTranslator(event: IAppEvent) : Translator {
     const reqInstance = event.store[REQUEST_INSTANCE_SYMBOL];
+
     if (!(reqInstance instanceof Ilingo)) {
         throw createError({
             statusCode: 500,
@@ -15,6 +16,7 @@ export function useTranslator(event: IAppEvent) : Translator {
     }
 
     const reqLocale = event.store[REQUEST_LOCALE_SYMBOL];
+
     if (typeof reqLocale !== 'undefined' && typeof reqLocale !== 'string') {
         throw createError({
             statusCode: 500,

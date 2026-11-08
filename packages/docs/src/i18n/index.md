@@ -18,14 +18,24 @@ npm install @routup/i18n ilingo
 
 ```typescript
 import { App, defineCoreHandler, serve } from 'routup';
-import { MemoryStore } from 'ilingo';
+import {
+    MemoryStore,
+    defineCatalog,
+    defineLocale,
+    defineNamespace,
+    defineTranslations,
+} from 'ilingo';
 import { i18n, useTranslator } from '@routup/i18n';
 
 const store = new MemoryStore({
-    data: {
-        en: { app: { greeting: 'Hello, my name is {{name}}' } },
-        de: { app: { greeting: 'Hallo, mein Name ist {{name}}' } },
-    },
+    data: defineCatalog([
+        defineLocale('en', [
+            defineNamespace('app', [defineTranslations({ greeting: 'Hello, my name is {{name}}' })]),
+        ]),
+        defineLocale('de', [
+            defineNamespace('app', [defineTranslations({ greeting: 'Hallo, mein Name ist {{name}}' })]),
+        ]),
+    ]),
 });
 
 const router = new App();
@@ -34,7 +44,7 @@ router.use(i18n({ store }));
 
 router.get('/', defineCoreHandler((event) => {
     const t = useTranslator(event);
-    return t({ group: 'app', key: 'greeting', data: { name: 'Peter' } });
+    return t({ namespace: 'app', key: 'greeting', data: { name: 'Peter' } });
 }));
 
 serve(router, { port: 3000 });
@@ -63,7 +73,7 @@ declare function useTranslator(event: IAppEvent): Translator;
 
 ```typescript
 const t = useTranslator(event);
-const greeting = t({ group: 'app', key: 'greeting', data: { name: 'Peter' } });
+const greeting = t({ namespace: 'app', key: 'greeting', data: { name: 'Peter' } });
 ```
 
 For ilingo's `Translator` API (interpolation, fallback chains, plurals), see the [ilingo documentation](https://github.com/tada5hi/ilingo).

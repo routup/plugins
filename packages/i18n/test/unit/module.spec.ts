@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { MemoryStore } from 'ilingo';
+import {
+    MemoryStore,
+    defineCatalog,
+    defineLocale,
+    defineNamespace,
+    defineTranslations,
+} from 'ilingo';
 import {
     App,
     defineCoreHandler,
@@ -8,24 +14,31 @@ import { i18n, useTranslator } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+
     return new Request(fullUrl, options);
+}
+
+function createStore(de: string, en: string): MemoryStore {
+    return new MemoryStore({
+        data: defineCatalog([
+            defineLocale('de', [defineNamespace('app', [defineTranslations({ key: de })])]),
+            defineLocale('en', [defineNamespace('app', [defineTranslations({ key: en })])]),
+        ]),
+    });
 }
 
 describe('src/module', () => {
     it('should translate text', async () => {
         const router = new App();
 
-        const store = new MemoryStore({
-            data: {
-                de: { app: { key: 'Hallo Welt!' } },
-                en: { app: { key: 'Hello world!' } },
-            },
-        });
+        const store = createStore('Hallo Welt!', 'Hello world!');
+
         router.use(i18n({ store }));
 
         router.get('/', defineCoreHandler(async (event) => {
             const translator = useTranslator(event);
-            return translator({ group: 'app', key: 'key' });
+
+            return translator({ namespace: 'app', key: 'key' });
         }));
 
         let response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
@@ -42,19 +55,15 @@ describe('src/module', () => {
     it('should translate text with params', async () => {
         const router = new App();
 
-        const store = new MemoryStore({
-            data: {
-                de: { app: { key: 'Hallo, mein Name ist {{name}}' } },
-                en: { app: { key: 'Hello, my name is {{name}}' } },
-            },
-        });
+        const store = createStore('Hallo, mein Name ist {{name}}', 'Hello, my name is {{name}}');
+
         router.use(i18n({ store }));
 
         router.get('/', defineCoreHandler(async (event) => {
             const translator = useTranslator(event);
 
             return translator({
-                group: 'app',
+                namespace: 'app',
                 key: 'key',
                 data: { name: 'Peter' },
             });
@@ -74,12 +83,7 @@ describe('src/module', () => {
     it('should work with custom locale fn', async () => {
         const router = new App();
 
-        const store = new MemoryStore({
-            data: {
-                de: { app: { key: 'Hallo Welt!' } },
-                en: { app: { key: 'Hello world!' } },
-            },
-        });
+        const store = createStore('Hallo Welt!', 'Hello world!');
 
         router.use(i18n({
             locale: () => 'en',
@@ -88,7 +92,8 @@ describe('src/module', () => {
 
         router.get('/', defineCoreHandler(async (event) => {
             const translator = useTranslator(event);
-            return translator({ group: 'app', key: 'key' });
+
+            return translator({ namespace: 'app', key: 'key' });
         }));
 
         const response = await router.fetch(createTestRequest('/', { headers: { 'accept-language': 'de-CH,de-DE;q=0.9,de;q=0.8,en-US;q=0.7,en;q=0.6' } }));
