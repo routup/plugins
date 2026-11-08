@@ -132,6 +132,29 @@ describe('src/module', () => {
     describe('without a scan', () => {
         const options = buildOptions({ directoryPath: path.join(directoryPath, 'html'), scan: false });
 
+        it('should only serve dotfiles from .well-known unless enabled', async () => {
+            const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'routup-assets-'));
+
+            try {
+                await fs.promises.mkdir(path.join(directory, '.well-known'));
+                await fs.promises.writeFile(path.join(directory, '.env'), 'foo');
+                await fs.promises.writeFile(path.join(directory, '.well-known', 'file.txt'), 'foo');
+
+                const hidden = buildOptions({ directoryPath: directory, scan: false });
+                const visible = buildOptions({
+                    directoryPath: directory, 
+                    scan: false, 
+                    dotFiles: true, 
+                });
+
+                expect(await lookup('/.env', hidden)).toBeUndefined();
+                expect(await lookup('/.well-known/file.txt', hidden)).toBeDefined();
+                expect(await lookup('/.env', visible)).toBeDefined();
+            } finally {
+                await fs.promises.rm(directory, { recursive: true, force: true });
+            }
+        });
+
         it('should find a file inside the directory', async () => {
             const fileInfo = await lookup('/index.html', options);
 
