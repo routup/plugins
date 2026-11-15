@@ -2,7 +2,7 @@
     "name": "@routup/swagger-ui",
     "version": "4.0.2",
     "type": "module",
-    "description": "Swagger UI plugin for routup — mount swagger-ui-dist on any path.",
+    "description": "Serve Swagger UI for an OpenAPI document (file, object or URL) under any path of a routup app.",
     "exports": {
         "./package.json": "./package.json",
         ".": {

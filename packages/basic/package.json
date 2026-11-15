@@ -2,7 +2,7 @@
     "name": "@routup/basic",
     "version": "3.0.2",
     "type": "module",
-    "description": "A basic plugin, which includes the body, cookie & query plugin.",
+    "description": "Install body, cookie and query parsing in a routup app with one plugin and one dependency.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -24,6 +24,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist"
     ],
     "scripts": {

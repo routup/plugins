@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>@routup/cors: two browser origins and a preflight handshake</title>
+  <rect x="18" y="72" width="100" height="84" rx="14" fill="#8b5cf6" fill-opacity=".18" stroke="#8b5cf6" stroke-width="6"/>
+  <path d="M18 96 H118" stroke="#8b5cf6" stroke-width="6"/>
+  <g fill="#8b5cf6"><circle cx="34" cy="84" r="4"/><circle cx="46" cy="84" r="4"/><circle cx="58" cy="84" r="4"/></g>
+  <rect x="34" y="112" width="44" height="10" rx="5" fill="#8b5cf6"/><rect x="34" y="130" width="64" height="10" rx="5" fill="#8b5cf6" fill-opacity=".55"/>
+  <rect x="138" y="112" width="100" height="84" rx="14" fill="#06b6d4" fill-opacity=".18" stroke="#06b6d4" stroke-width="6"/>
+  <path d="M138 136 H238" stroke="#06b6d4" stroke-width="6"/>
+  <g fill="#06b6d4"><circle cx="154" cy="124" r="4"/><circle cx="166" cy="124" r="4"/><circle cx="178" cy="124" r="4"/></g>
+  <rect x="154" y="152" width="60" height="10" rx="5" fill="#0891b2"/><rect x="154" y="170" width="40" height="10" rx="5" fill="#0891b2" fill-opacity=".55"/>
+  <path d="M74 60 Q120 18 176 92" fill="none" stroke="#a78bfa" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 14"/>
+  <path d="M166 86 L183 102 L188 80 Z" fill="#a78bfa" stroke="#a78bfa" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M182 210 Q132 246 82 170" fill="none" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+  <path d="M74 182 L77 160 L94 172 Z" fill="#10b981" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/>
+</svg>

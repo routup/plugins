@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<title>@routup/logger: printed log strip</title>
+<defs><linearGradient id="logger-05-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="0.45" stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+<path d="M58 44 H198 V214 l-14 12 l-14 -12 l-14 12 l-14 -12 l-14 12 l-14 -12 l-14 12 l-14 -12 l-14 12 l-14 -12 l-14 12 Z" fill="url(#logger-05-grad)" stroke="url(#logger-05-grad)" stroke-width="4" stroke-linejoin="round"/>
+<rect x="36" y="26" width="184" height="32" rx="16" fill="#6d28d9"/>
+<rect x="48" y="38" width="160" height="8" rx="4" fill="#a78bfa"/>
+<circle cx="80" cy="86" r="8" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+<rect x="96" y="80" width="88" height="12" rx="6" fill="#ffffff" fill-opacity="0.9"/>
+<circle cx="80" cy="118" r="8" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+<rect x="96" y="112" width="64" height="12" rx="6" fill="#ffffff" fill-opacity="0.9"/>
+<circle cx="80" cy="150" r="8" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+<rect x="96" y="144" width="80" height="12" rx="6" fill="#ffffff" fill-opacity="0.9"/>
+<circle cx="80" cy="182" r="8" fill="#22d3ee" stroke="#ffffff" stroke-width="3"/>
+<rect x="96" y="176" width="54" height="12" rx="6" fill="#ffffff" fill-opacity="0.9"/>
+</svg>

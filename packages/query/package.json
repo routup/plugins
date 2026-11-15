@@ -2,7 +2,7 @@
     "name": "@routup/query",
     "version": "4.0.2",
     "type": "module",
-    "description": "Query plugin for routup.",
+    "description": "Parse the query string of a routup request into an object, nested keys and arrays included.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

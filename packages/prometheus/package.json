@@ -2,7 +2,7 @@
     "name": "@routup/prometheus",
     "version": "4.0.1",
     "type": "module",
-    "description": "Prometheus metrics plugin for routup.",
+    "description": "Record request durations and uptime with prom-client and serve them on a Prometheus scrape endpoint.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

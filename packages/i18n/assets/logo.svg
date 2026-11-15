@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<title>@routup/i18n: one message, two languages</title>
+<defs><linearGradient id="i18n-01-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="0.45" stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+<rect x="16" y="16" width="224" height="224" rx="50" fill="url(#i18n-01-grad)"/>
+<path d="M118 56 H190 a18 18 0 0 1 18 18 V122 a18 18 0 0 1 -18 18 H186 V158 L166 140 H118 a18 18 0 0 1 -18 -18 V74 a18 18 0 0 1 18 -18 Z" fill="#ffffff" fill-opacity="0.22" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+<g transform="translate(160 66) scale(0.78)" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M24 0 V7 M2 13 H46 M12 15 Q22 40 48 50 M36 15 Q26 40 0 50"/></g>
+<path d="M66 104 H140 a18 18 0 0 1 18 18 V176 a18 18 0 0 1 -18 18 H92 L70 212 V194 H66 a18 18 0 0 1 -18 -18 V122 a18 18 0 0 1 18 -18 Z" fill="#ffffff"/>
+<g transform="translate(79 125)" fill="none" stroke="#6d28d9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M0 52 L24 0 L48 52 M9 36 H39"/></g>
+</svg>

@@ -2,7 +2,7 @@
     "name": "@routup/i18n",
     "version": "5.0.0",
     "type": "module",
-    "description": "Translation and internationalization plugin for routup.",
+    "description": "Pick each request's locale and translate messages with ilingo inside routup handlers.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>@routup/cookie: bitten cookie on the routup tile</title>
+  <defs>
+    <linearGradient id="cookie-01-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/><stop offset=".45" stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <mask id="cookie-01-bite">
+      <rect width="256" height="256" fill="#fff"/>
+      <circle cx="190" cy="72" r="24" fill="#000"/>
+      <circle cx="202" cy="104" r="17" fill="#000"/>
+      <circle cx="160" cy="54" r="16" fill="#000"/>
+    </mask>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="50" fill="url(#cookie-01-grad)"/>
+  <circle cx="126" cy="134" r="76" fill="#fff" mask="url(#cookie-01-bite)"/>
+  <g fill="#6d28d9">
+    <ellipse cx="98" cy="104" rx="11" ry="9" transform="rotate(-20 98 104)"/>
+    <ellipse cx="140" cy="128" rx="10" ry="8" transform="rotate(30 140 128)"/>
+    <ellipse cx="92" cy="160" rx="9" ry="8"/>
+    <ellipse cx="130" cy="178" rx="11" ry="8" transform="rotate(15 130 178)"/>
+    <ellipse cx="170" cy="158" rx="8" ry="7"/>
+  </g>
+  <g fill="#0891b2">
+    <circle cx="120" cy="90" r="5"/><circle cx="110" cy="134" r="5"/><circle cx="160" cy="190" r="4"/>
+  </g>
+</svg>

@@ -2,7 +2,7 @@
     "name": "@routup/cookie",
     "version": "4.0.1",
     "type": "module",
-    "description": "Cookie plugin for routup.",
+    "description": "Read request cookies and write Set-Cookie headers in a routup app.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

@@ -2,7 +2,7 @@
     "name": "@routup/cors",
     "version": "2.0.1",
     "type": "module",
-    "description": "CORS plugin for routup.",
+    "description": "Answer CORS preflight requests and add Access-Control-* headers to routup responses.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

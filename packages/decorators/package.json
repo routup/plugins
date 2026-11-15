@@ -2,7 +2,7 @@
     "name": "@routup/decorators",
     "version": "5.0.2",
     "type": "module",
-    "description": "Decorators plugin for routup.",
+    "description": "Write routup routes as TypeScript classes with method and parameter decorators, and generate OpenAPI from them.",
     "exports": {
         "./package.json": "./package.json",
         ".": {

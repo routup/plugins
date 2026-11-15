@@ -2,7 +2,7 @@
     "name": "@routup/rate-limit-redis",
     "version": "5.0.2",
     "type": "module",
-    "description": "Redis adapter for the routup rate-limit plugin.",
+    "description": "Share @routup/rate-limit hit counters across processes and instances by storing them in Redis.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

@@ -2,7 +2,7 @@
     "name": "@routup/body",
     "version": "4.0.1",
     "type": "module",
-    "description": "Body plugin for routup.",
+    "description": "Read the request body of a routup app as parsed JSON or form data, text, bytes, a Blob or a stream.",
     "exports": {
         "./package.json": "./package.json",
         ".": {
@@ -12,6 +12,7 @@
     },
     "types": "./dist/index.d.mts",
     "files": [
+        "assets/",
         "dist/"
     ],
     "scripts": {

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>@routup/assets: a fan of static files on the routup tile</title>
+  <defs>
+    <linearGradient id="assets-02-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset=".45" stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
+    <path id="assets-02-sheet" d="M-38 -56 H16 L38 -34 V56 Q38 62 32 62 H-32 Q-38 62 -38 56 Z"/>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="50" fill="url(#assets-02-grad)"/>
+  <g transform="translate(128 132)">
+    <use href="#assets-02-sheet" transform="rotate(-18 0 90)" fill="#fff" fill-opacity=".45"/>
+    <use href="#assets-02-sheet" transform="rotate(18 0 90)" fill="#fff" fill-opacity=".7"/>
+    <use href="#assets-02-sheet" fill="#fff"/>
+    <path d="M16 -56 V-34 H38" fill="#c4b5fd" stroke="#c4b5fd" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M-24 -26 H6 M-24 -8 H22 M-24 10 H14 M-24 28 H22" stroke="#8b5cf6" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-24 46 H-2" stroke="#06b6d4" stroke-width="7" stroke-linecap="round"/>
+  </g>
+</svg>
