@@ -174,4 +174,59 @@ describe('src/**', () => {
         expect(response.status).toEqual(200);
         expect(await response.json()).toEqual({ same: true, body: { foo: 'bar' } });
     });
+
+    it('should return undefined for a keyed read of a null body', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+        router.use(defineCoreHandler((event) => {
+            event.store[Symbol.for('@routup/body:ReqBody')] = null;
+
+            return event.next();
+        }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'foo') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: 'null',
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should return undefined for a keyed read of a non-object body', async () => {
+        const router = new App();
+
+        router.use(body({ json: { strict: false } }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'length') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify('foo'),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should not resolve inherited members in a keyed read', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'constructor') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
 });

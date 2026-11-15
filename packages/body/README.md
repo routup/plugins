@@ -291,6 +291,8 @@ The [helpers page](https://plugins.routup.dev/body/helpers) and the [configurati
 
 Returns the parsed request body (JSON or URL-encoded). The result is cached after the first call. Needs the `body()` plugin: without it no parser is enabled and the result is `{}`.
 
+With a `key`, it returns a single property of the body. A keyed read resolves to `undefined` when the body is not an object (`null`, a primitive or an array, e.g. with `json: { strict: false }`) or has no own property of that name.
+
 ```typescript
 declare function readRequestBody(
     event: IAppEvent,

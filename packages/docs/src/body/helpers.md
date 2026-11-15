@@ -10,7 +10,7 @@ Each helper takes the routup event as its first argument. All buffered helpers c
 
 ## `readRequestBody`
 
-Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single field.
+Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single field: a keyed read resolves to `undefined` when the body is not an object (`null`, a primitive or an array, e.g. with `json: { strict: false }`) or has no own property of that name.
 
 ```typescript
 declare function readRequestBody(

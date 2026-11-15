@@ -1,9 +1,24 @@
 import type { IAppEvent } from 'routup';
 import { BodySymbol } from '../constants';
-import { boolToObject } from '../utils';
+import { boolToObject, isObject } from '../utils';
 import { getBodyOptions } from './options';
 import { parseJsonBody } from './parse-json';
 import { parseUrlEncodedBody } from './parse-url-encoded';
+
+function pick(body: unknown, key?: string) {
+    if (typeof key !== 'string') {
+        return body;
+    }
+
+    // A keyed read only resolves own properties of an object body: `null`,
+    // a primitive or an array (non-strict JSON, a consumer-set body) has no
+    // fields, and inherited members such as `constructor` are not fields.
+    if (!isObject(body) || !Object.hasOwn(body, key)) {
+        return undefined;
+    }
+
+    return body[key];
+}
 
 /**
  * Returns the parsed request body (JSON or URL-encoded).
@@ -22,15 +37,15 @@ export async function readRequestBody(event: IAppEvent): Promise<Record<string, 
  * Requires the `body()` plugin to be installed for content-type matching and options.
  *
  * @param event - The routup event.
- * @param key - Optional key to retrieve a single property from the parsed body.
+ * @param key - Key of a single property of the parsed body. Resolves to
+ * `undefined` when the body is not an object (e.g. `null`, a primitive or an
+ * array) or has no own property of that name.
  */
 export async function readRequestBody(event: IAppEvent, key: string): Promise<any | undefined>;
 
 export async function readRequestBody(event: IAppEvent, key?: string) {
     if (BodySymbol in event.store) {
-        const cached = event.store[BodySymbol] as Record<string, any>;
-
-        return typeof key === 'string' ? cached[key] : cached;
+        return pick(event.store[BodySymbol], key);
     }
 
     const options = getBodyOptions(event);
@@ -48,5 +63,5 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
 
     event.store[BodySymbol] = body;
 
-    return typeof key === 'string' ? body[key] : body;
+    return pick(body, key);
 }
