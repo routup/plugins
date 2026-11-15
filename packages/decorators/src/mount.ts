@@ -46,6 +46,12 @@ function buildControllerApp(
                     meta.parameters[propertyKey] ?? [],
                 );
 
+                const response = meta.responses[propertyKey];
+
+                if (response?.status !== undefined) {
+                    event.response.status = response.status;
+                }
+
                 return controller[propertyKey](...args);
             },
         });

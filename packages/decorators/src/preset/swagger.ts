@@ -142,6 +142,16 @@ const methodSecurityHandler = method({
     apply: (ctx, draft) => applySecurity(ctx, draft),
 });
 
+// The argument must be a numeric literal: trapi cannot fold an imported
+// constant, and an unresolved argument becomes `'undefined'`, which trapi
+// rejects as an invalid success status instead of silently documenting 200.
+const methodStatusHandler = method({
+    match: { name: 'DStatus', on: 'method' },
+    apply: (ctx, draft) => {
+        draft.successStatus = String(readNumber(ctx.argument(0)));
+    },
+});
+
 const methodTagsHandler = method({
     match: { name: 'DTags', on: 'method' },
     apply: appendTags,
@@ -166,6 +176,7 @@ export function buildSwaggerMethodHandlers(): MethodHandler[] {
         methodExampleHandler,
         methodHiddenHandler,
         methodSecurityHandler,
+        methodStatusHandler,
         methodTagsHandler,
     ];
 }

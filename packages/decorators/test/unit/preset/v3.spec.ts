@@ -140,4 +140,18 @@ describe('src/preset (V3)', () => {
         expression = jsonata('parameters[1].name');
         expect(await expression.evaluate(pathContent)).toEqual('id');
     });
+
+    it('should document the return type under the @DStatus code', async () => {
+        const operation = spec.paths['/status/accepted']!.post!;
+
+        expect(Object.keys(operation.responses)).toEqual(['202']);
+        expect(operation.responses['202']!.content!['application/json']!.schema)
+            .toEqual({ $ref: '#/components/schemas/StatusAcceptedResponse' });
+    });
+
+    it('should read @DStatus regardless of decorator order', async () => {
+        const operation = spec.paths['/status/created']!.get!;
+
+        expect(Object.keys(operation.responses)).toEqual(['201']);
+    });
 });

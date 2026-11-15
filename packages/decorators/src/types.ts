@@ -7,6 +7,18 @@ export interface ClassType extends Function {
     new(...args: any[]): any;
 }
 
+export type DecoratorResponseOptions = {
+    /**
+     * Status set by `@DStatus()`.
+     */
+    status?: number,
+
+    /**
+     * Media types declared with a method-level `@DProduces()`.
+     */
+    produces?: string[],
+};
+
 export type DecoratorMeta = {
     url: string | string[],
 
@@ -15,6 +27,20 @@ export type DecoratorMeta = {
     },
 
     middlewares: ClassType[],
+
+    /**
+     * Media types declared with a class-level `@DProduces()`.
+     */
+    produces: string[],
+
+    /**
+     * Response options (`@DStatus()`, method-level `@DProduces()`) per
+     * method. Kept apart from `methods`, since these decorators may be
+     * applied before the verb decorator.
+     */
+    responses: {
+        [key: string]: DecoratorResponseOptions
+    },
 
     parameters: {
         [key: string]: DecoratorParameterOptions[]

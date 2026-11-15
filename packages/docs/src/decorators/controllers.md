@@ -68,6 +68,31 @@ async file() {
 }
 ```
 
+## Success status
+
+`@DStatus(code)` declares the status a method answers with on success:
+
+```typescript
+import { DBody, DController, DPost, DStatus } from '@routup/decorators';
+
+@DController('/jobs')
+export class JobController {
+    @DStatus(202)
+    @DPost('')
+    async enqueue(@DBody() body: JobInput): Promise<Job> {
+        return queue.add(body);       // → 202 application/json
+    }
+}
+```
+
+The status is written to `event.response.status` after the arguments are resolved and before the method runs, so:
+
+- a status the method sets itself (`event.response.status = 200`) still wins,
+- a returned `Response` keeps its own status (routup ignores `event.response` for it),
+- a parameter error (e.g. a malformed JSON body) still answers with its own status.
+
+The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
+
 ## Accessing the event
 
 Use `@DContext()` when you need the full `IAppEvent` (e.g. to set `event.response.status`, read `event.headers`, mutate `event.store`):
