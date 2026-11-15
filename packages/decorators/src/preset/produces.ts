@@ -77,13 +77,28 @@ function describeStatus(status: string): string {
 /**
  * Move a response created by `@DProduces` at the implicit `200` to the
  * `@DStatus` code, for a `@DStatus` that is applied after `@DProduces`.
+ * A response another decorator (e.g. `@DReturns`) declared at that code
+ * keeps its description and schema and receives the produced media types.
  */
 export function moveProducedResponse(draft: MethodDraft, status: string): void {
+    if (status === '200') {
+        return;
+    }
+
     const response = draft.responses.find((r) => r.status === '200' && createdResponses.has(r));
 
-    const occupied = draft.responses.some((r) => r.status === status);
+    if (!response) {
+        return;
+    }
 
-    if (!response || occupied) {
+    const destination = draft.responses.find((r) => r.status === status);
+
+    if (destination) {
+        destination.schema ??= response.schema;
+        destination.produces = [...(destination.produces ?? []), ...(response.produces ?? [])];
+
+        draft.responses.splice(draft.responses.indexOf(response), 1);
+
         return;
     }
 

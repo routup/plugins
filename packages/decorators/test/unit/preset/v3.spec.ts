@@ -195,6 +195,26 @@ describe('src/preset (V3)', () => {
         }
     });
 
+    it('should merge a @DProduces response into a @DReturns response regardless of decorator order', async () => {
+        for (const order of ['spr', 'srp', 'psr', 'prs', 'rsp', 'rps']) {
+            const operation = spec.paths[`/produces/returns-${order}`]!.post!;
+
+            expect(Object.keys(operation.responses), order).toEqual(['201']);
+            expect(operation.responses['201']!.description, order).toEqual('Created');
+            expect(operation.responses['201']!.content, order).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
+        }
+    });
+
+    it('should keep a @DReturns schema when merging a @DProduces response', async () => {
+        for (const order of ['prs', 'srp']) {
+            const operation = spec.paths[`/produces/returns-typed-${order}`]!.post!;
+
+            expect(Object.keys(operation.responses), order).toEqual(['201']);
+            expect(operation.responses['201']!.description, order).toEqual('Created');
+            expect(operation.responses['201']!.content, order).toEqual({ 'application/pdf': { schema: { $ref: '#/components/schemas/ProducedFile' } } });
+        }
+    });
+
     it('should keep the return type for other @DProduces types', async () => {
         const operation = spec.paths['/produces/json']!.get!;
         const content = operation.responses['200']!.content!;

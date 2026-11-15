@@ -7,8 +7,13 @@ import {
     DGet,
     DPost,
     DProduces,
+    DReturns,
     DStatus,
 } from '../../src';
+
+type ProducedFile = {
+    name: string
+};
 
 @DController('/produces')
 export class ProducesController {
@@ -84,6 +89,70 @@ export class ProducesController {
     @DProduces('image/png')
     @DStatus(201)
     statusLast(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-srp')
+    @DStatus(201)
+    @DReturns(201, 'Created')
+    @DProduces('application/pdf')
+    returnsSRP(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-spr')
+    @DStatus(201)
+    @DProduces('application/pdf')
+    @DReturns(201, 'Created')
+    returnsSPR(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-rsp')
+    @DReturns(201, 'Created')
+    @DStatus(201)
+    @DProduces('application/pdf')
+    returnsRSP(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-rps')
+    @DReturns(201, 'Created')
+    @DProduces('application/pdf')
+    @DStatus(201)
+    returnsRPS(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-psr')
+    @DProduces('application/pdf')
+    @DStatus(201)
+    @DReturns(201, 'Created')
+    returnsPSR(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-prs')
+    @DProduces('application/pdf')
+    @DReturns(201, 'Created')
+    @DStatus(201)
+    returnsPRS(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-typed-prs')
+    @DProduces('application/pdf')
+    @DReturns<ProducedFile>(201, 'Created')
+    @DStatus(201)
+    returnsTypedPRS(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('returns-typed-srp')
+    @DStatus(201)
+    @DReturns<ProducedFile>(201, 'Created')
+    @DProduces('application/pdf')
+    returnsTypedSRP(): Uint8Array {
         return new Uint8Array([1]);
     }
 
