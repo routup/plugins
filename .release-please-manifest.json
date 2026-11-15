@@ -11,5 +11,5 @@
     "packages/query": "4.0.3",
     "packages/rate-limit": "4.0.3",
     "packages/rate-limit-redis": "6.0.0",
-    "packages/swagger-ui": "5.1.0"
+    "packages/swagger-ui": "5.1.1"
 }

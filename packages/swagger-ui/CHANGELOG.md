@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/routup/plugins/compare/swagger-ui-v5.1.0...swagger-ui-v5.1.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* **swagger-ui:** close worker-src in the recommended policy ([#867](https://github.com/routup/plugins/issues/867)) ([d22e5f3](https://github.com/routup/plugins/commit/d22e5f30dec2f59209c8564cabb3be9988cd2548))
+
 ## [5.1.0](https://github.com/routup/plugins/compare/swagger-ui-v5.0.0...swagger-ui-v5.1.0) (2026-11-15)
 
 
