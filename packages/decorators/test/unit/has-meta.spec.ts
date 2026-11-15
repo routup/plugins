@@ -40,6 +40,14 @@ describe('hasDecoratorMeta', () => {
         expect(Object.getOwnPropertySymbols(PlainClass.prototype)).toEqual([]);
     });
 
+    it('should be false for an arrow function', () => {
+        expect(hasDecoratorMeta(() => {})).toBe(false);
+    });
+
+    it('should be false for a bound function', () => {
+        expect(hasDecoratorMeta(PlainClass.prototype.index.bind(null))).toBe(false);
+    });
+
     it('should be false for an undecorated class without writing an entry', () => {
         expect(hasDecoratorMeta(PlainClass)).toBe(false);
         expect(Object.getOwnPropertySymbols(PlainClass)).toEqual([]);

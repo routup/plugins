@@ -1,4 +1,5 @@
 import type { DecoratorMeta, DecoratorResponseOptions } from '../types';
+import { isObject } from './object';
 
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 
@@ -8,7 +9,8 @@ const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
  */
 export function hasDecoratorMeta(target: Record<string, any>) : boolean {
     if (typeof target === 'function') {
-        return symbol in target.prototype;
+        // Arrow, bound and method shorthand functions have no prototype.
+        return isObject(target.prototype) && symbol in target.prototype;
     }
 
     return symbol in target;
