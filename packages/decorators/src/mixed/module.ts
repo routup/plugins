@@ -3,6 +3,7 @@ import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
 export function DDeprecated() : any {
     return () => {};
 }
+
 /**
  * @deprecated Use DReturns
  */

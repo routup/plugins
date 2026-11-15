@@ -158,6 +158,7 @@ describe('src/preset (V2)', () => {
         expect(operation.produces).toEqual(['application/octet-stream']);
         expect(operation.responses['200']!.schema).toEqual({ type: 'string', format: 'binary' });
     });
+
     it('should document a @DReturns payload', async () => {
         const operation = spec.paths['/returns']!.post!;
 

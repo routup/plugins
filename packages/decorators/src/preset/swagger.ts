@@ -105,6 +105,11 @@ const classHiddenHandler = controller({
     marker: MarkerName.Hidden,
 });
 
+const classReturnsHandler = controller({
+    match: { name: 'DReturns', on: 'class' },
+    apply: (ctx, draft) => applyDescription(ctx, draft),
+});
+
 const classSecurityHandler = controller({
     match: { name: 'DSecurity', on: 'class' },
     apply: (ctx, draft) => applySecurity(ctx, draft),
@@ -191,6 +196,7 @@ export function buildSwaggerControllerHandlers(): ControllerHandler[] {
         classDeprecatedHandler,
         classDescriptionHandler,
         classHiddenHandler,
+        classReturnsHandler,
         classSecurityHandler,
         classTagsHandler,
     ];

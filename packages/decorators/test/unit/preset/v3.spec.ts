@@ -216,13 +216,14 @@ describe('src/preset (V3)', () => {
         expect(Object.keys(operation.responses['200']!.content!)).toEqual(['application/octet-stream']);
         expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
     });
+
     describe('DReturns', () => {
         const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` });
 
         it('should add error responses next to the success response', async () => {
             const { responses } = spec.paths['/returns']!.post!;
 
-            expect(Object.keys(responses).sort()).toEqual(['200', '400', '409']);
+            expect(Object.keys(responses).sort()).toEqual(['200', '400', '401', '409']);
             expect(responses['409']!.description).toEqual('User exists');
             expect(responses['400']!.description).toEqual('Bad Request');
             expect(responses['409']!.content!['application/json']!.schema).toEqual(ref('ConflictPayload'));
@@ -233,8 +234,11 @@ describe('src/preset (V3)', () => {
         it('should describe the @DStatus response and add another success response', async () => {
             const { responses } = spec.paths['/returns/{name}']!.put!;
 
-            expect(Object.keys(responses).sort()).toEqual(['201', '202']);
+            expect(responses['201']).toBeDefined();
+            expect(responses['202']).toBeDefined();
+            expect(responses['200']).toBeUndefined();
             expect(responses['201']!.description).toEqual('Created');
+            expect(responses['202']!.description).toEqual('Accepted');
             expect(responses['201']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
             expect(responses['202']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
         });
@@ -244,6 +248,7 @@ describe('src/preset (V3)', () => {
 
             expect(responses['204']!.description).toEqual('No Content');
             expect(responses['204']!.content).toBeUndefined();
+            expect(responses['200']).toBeUndefined();
         });
 
         it('should accept a string status', async () => {
@@ -251,6 +256,26 @@ describe('src/preset (V3)', () => {
 
             expect(responses['404']!.description).toEqual('Missing');
             expect(responses['404']!.content!['application/json']!.schema).toEqual(ref('NotFoundPayload'));
+        });
+
+        it('should add a class-level response to every operation', async () => {
+            const operations = spec.paths['/returns']!;
+            const itemOperations = spec.paths['/returns/{name}']!;
+
+            for (const operation of [operations.post!, itemOperations.put!, itemOperations.delete!, itemOperations.get!]) {
+                expect(operation.responses['401']!.description).toEqual('Unauthorized');
+                expect(operation.responses['401']!.content!['application/json']!.schema).toEqual(ref('UnauthorizedPayload'));
+            }
+        });
+
+        it('should let a method-level response win over a class-level one at the same status', async () => {
+            const post = spec.paths['/returns']!.post!;
+            const put = spec.paths['/returns/{name}']!.put!;
+
+            expect(post.responses['400']!.description).toEqual('Bad Request');
+            expect(post.responses['400']!.content!['application/json']!.schema).toEqual(ref('ValidationPayload'));
+            expect(put.responses['400']!.description).toEqual('Class level');
+            expect(put.responses['400']!.content!['application/json']!.schema).toEqual(ref('ValidationPayload'));
         });
     });
 });

@@ -30,7 +30,13 @@ type NotFoundPayload = {
     missing: string
 };
 
+type UnauthorizedPayload = {
+    reason: string
+};
+
 @DController('/returns')
+@DReturns<UnauthorizedPayload>(401)
+@DReturns<ValidationPayload>(400, 'Class level')
 export class ReturnsController {
     @DPost('')
     @DReturns<ConflictPayload>(409, 'User exists')
