@@ -6,6 +6,13 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.2.0](https://github.com/routup/plugins/compare/decorators-v5.1.0...decorators-v5.2.0) (2026-11-15)
+
+
+### Features
+
+* **decorators:** add hasDecoratorMeta ([#869](https://github.com/routup/plugins/issues/869)) ([3bc4387](https://github.com/routup/plugins/commit/3bc4387f1881b8e4e36ac0364e77874fddfabbde))
+
 ## [5.1.0](https://github.com/routup/plugins/compare/decorators-v5.0.2...decorators-v5.1.0) (2026-11-15)
 
 
