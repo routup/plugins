@@ -1,6 +1,6 @@
 ---
 title: Decorators — Controllers
-description: "@DController and method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete)."
+description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DStatus, @DReturns and @DProduces."
 relatedPlugins: [swagger]
 ---
 
@@ -67,6 +67,129 @@ async file() {
     return new Response(buffer, { headers: { 'content-type': 'image/png' } });
 }
 ```
+
+## Success status
+
+`@DStatus(code)` declares the status a method answers with on success:
+
+```typescript
+import { DBody, DController, DPost, DStatus } from '@routup/decorators';
+
+@DController('/jobs')
+export class JobController {
+    @DStatus(202)
+    @DPost('')
+    async enqueue(@DBody() body: JobInput): Promise<Job> {
+        return queue.add(body);       // → 202 application/json
+    }
+}
+```
+
+The status is written to `event.response.status` after the method returned a value other than `undefined` or a `Response`, and only when the method left the status as it was. So:
+
+- a status the method sets itself (`event.response.status = 201`) still wins; setting the status it already had (`200`) cannot be told apart from leaving it,
+- a returned `Response` keeps its own status (routup ignores `event.response` for it),
+- the method cannot read the declared status from `event.response` while it runs,
+- a parameter error (e.g. a malformed JSON body) still answers with its own status,
+- neither an error thrown by the method nor a handler it hands over to with `event.next()` inherits it (nor the `@DProduces` media type), also with a custom error handler,
+- a returned value routup fails to serialize (e.g. an object holding a `BigInt`) fails after the status and media type were applied, so a custom error handler that answers with a value gets them.
+
+`@DStatus(204)` needs a method that returns `null`: a method that returns nothing (`undefined`) hands the request over to the next handler in routup. The OpenAPI preset documents that `null` return type as a JSON body of the `204` response.
+
+The OpenAPI preset documents the return type under this status instead of `200`, described by its reason phrase (`202` → `Accepted`). Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
+
+## Declared responses
+
+`@DReturns<T>(status, description?, example?)` documents a response of a method: the type argument is the payload schema, the description defaults to the HTTP reason phrase of the status (`409` → `Conflict`, `200` → `OK`, `Ok` for an unknown code). It only affects the OpenAPI document; at runtime it does nothing.
+
+```typescript
+import { DBody, DController, DPost, DReturns } from '@routup/decorators';
+
+@DController('/users')
+export class UserController {
+    @DPost('')
+    @DReturns<ConflictPayload>(409, 'User exists')
+    @DReturns<ValidationPayload>(400)
+    async create(@DBody() data: UserInput): Promise<UserPayload> {
+        return users.create(data);    // → 200 UserPayload
+    }
+}
+```
+
+The return type stays the success response (`200 UserPayload`); `409` and `400` are added next to it. Further success statuses can be listed next to the `@DStatus` one:
+
+```typescript
+@DPut('/:name')
+@DStatus(200)
+@DReturns<UserPayload>(201, 'Created')
+async upsert(
+    @DPath('name') name: string,
+    @DContext() event: IAppEvent,
+): Promise<UserPayload> {
+    const { user, created } = await users.upsert(name);
+
+    if (created) {
+        event.response.status = 201;   // the method sets the status at runtime
+    }
+
+    return user;                       // → 200 or 201 UserPayload
+}
+```
+
+`@DReturns` only documents the `201`; the method sets it itself.
+
+A `@DReturns` at the `@DStatus` code (or at `200` without one) describes that success response instead of adding a second one; without a type argument the return type stays its schema.
+
+Pass the status as a literal (`409` or `'409'`), as for `@DStatus`: trapi cannot resolve an imported constant, so generation fails with an error naming `@DReturns` instead of documenting the response at `200`.
+
+On a class, `@DReturns` applies to every operation of the controller; a method-level declaration at the same status wins:
+
+```typescript
+@DController('/users')
+@DReturns<UnauthorizedPayload>(401)
+export class UserController { /* ... */ }
+```
+
+For responses shared by every controller, pass them to `generateSwagger`'s `data.responses` (an operation's own response at the same status wins): `responses: [{ name: '401', status: '401', description: 'Unauthorized' }]`.
+
+`@DDescription` is a deprecated alias of `@DReturns`.
+
+## Response media types
+
+`@DConsumes(...mediaTypes)` (on a method or a class) declares the request body media types for the OpenAPI document; at runtime it does nothing.
+
+`@DProduces(...mediaTypes)` declares what a method answers with. Put it on a class to apply it to every method; a method-level `@DProduces` replaces the class-level one at runtime.
+
+```typescript
+import { DController, DGet, DProduces } from '@routup/decorators';
+
+@DController('/exports')
+export class ExportController {
+    @DProduces('text/csv')
+    @DGet('/users.csv')
+    async users(): Promise<string> {
+        return 'id,name\n1,Ada';          // → text/csv
+    }
+
+    @DProduces('application/octet-stream')
+    @DGet('/archive')
+    async archive(): Promise<Response> {
+        return new Response(stream);      // headers left untouched
+    }
+}
+```
+
+At runtime the first media type becomes the `content-type` of a returned plain value (string, object, `Uint8Array`, …), unless a header is already set or the method sets its own. It is set after the method returned, like the `@DStatus` code, so the method cannot read it from `event.response.headers`. A returned `Response` is left untouched, so set its `content-type` yourself.
+
+In the OpenAPI preset the media types of a method-level `@DProduces` document the success response (the `@DStatus` code, or `200`) only, with a schema derived from them that replaces the return type (which for a `Response` would document the Fetch `Response` object). Error responses such as `@DReturns(404)` keep `application/json`:
+
+| Media types | Schema | Applies to |
+|---|---|---|
+| all binary: `application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*` | `type: string, format: binary` | the success response |
+| all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` | the success response |
+| anything else, `*+json` / `*+xml` (e.g. `image/svg+xml`) or a mix | the method's return type | every response of the operation |
+
+The last row, and a class-level `@DProduces`, go to the operation-wide `produces`: trapi cannot yet attach media types to the implicit success response that carries the return type. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence.
 
 ## Accessing the event
 

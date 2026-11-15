@@ -8,6 +8,7 @@ import {
     readRequestBody,
     readRequestBodyBytes,
     readRequestBodyText,
+    setRequestBody,
 } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
@@ -173,5 +174,199 @@ describe('src/**', () => {
 
         expect(response.status).toEqual(200);
         expect(await response.json()).toEqual({ same: true, body: { foo: 'bar' } });
+    });
+
+    it('should return undefined for a keyed read of a null body', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+        router.use(defineCoreHandler((event) => {
+            event.store[Symbol.for('@routup/body:ReqBody')] = null;
+
+            return event.next();
+        }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'foo') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: 'null',
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should return undefined for a keyed read of a non-object body', async () => {
+        const router = new App();
+
+        router.use(body({ json: { strict: false } }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'length') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify('foo'),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should not resolve inherited members in a keyed read', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => ({ isUndefined: await readRequestBody(event, 'constructor') === undefined })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should return a body provided with setRequestBody without reading the stream', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+        router.use(defineCoreHandler((event) => {
+            setRequestBody(event, { foo: 'baz' });
+
+            return event.next();
+        }));
+
+        router.post('/', defineCoreHandler(async (event) => ({
+            body: await readRequestBody(event),
+            foo: await readRequestBody(event, 'foo'),
+            bodyUsed: event.request.bodyUsed,
+        })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({
+            body: { foo: 'baz' },
+            foo: 'baz',
+            bodyUsed: false,
+        });
+    });
+
+    it('should let setRequestBody replace an already parsed body', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            await readRequestBody(event);
+            setRequestBody(event, { foo: 'baz' });
+
+            return readRequestBody(event);
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({ foo: 'baz' });
+    });
+    it('should keep a body set with setRequestBody while a read is parsing', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            const pending = readRequestBody(event);
+
+            setRequestBody(event, { foo: 'baz' });
+
+            return {
+                body: await pending,
+                after: await readRequestBody(event),
+            };
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({
+            body: { foo: 'baz' },
+            after: { foo: 'baz' },
+        });
+    });
+
+    it('should resolve a pending keyed read from a body set with setRequestBody', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            const pending = readRequestBody(event, 'foo');
+
+            setRequestBody(event, { foo: 'baz' });
+
+            return { key: await pending };
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({ key: 'baz' });
+    });
+
+    it('should resolve a pending read from a body set with setRequestBody when parsing fails', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            const pending = readRequestBody(event);
+
+            setRequestBody(event, { foo: 'baz' });
+
+            return { body: await pending };
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{bad',
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ body: { foo: 'baz' } });
+    });
+
+    it('should reject a read when parsing fails without a body set with setRequestBody', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => readRequestBody(event)));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{bad',
+        }));
+
+        expect(response.status).toEqual(400);
     });
 });

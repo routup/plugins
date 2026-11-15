@@ -50,4 +50,4 @@ If you only ever consume `application/json` you don't need the plugin — `await
 ## See also
 
 - [Configuration reference](./configuration) — limits, content-type whitelists, JSON reviver hooks
-- [Helpers](./helpers) — `readRequestBody`, `readRequestBodyText`, `readRequestBodyBytes`, `readRequestBodyStream`
+- [Helpers](./helpers) — `readRequestBody`, `setRequestBody`, `readRequestBodyText`, `readRequestBodyBytes`, `readRequestBodyStream`

@@ -1,5 +1,5 @@
 import type { ClassType } from '../types';
-import { useDecoratorMeta } from '../utils';
+import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
 
 export function createMethodDecorator(
     method: string,
@@ -44,4 +44,29 @@ export function DPut(url: string, handlers?: ClassType[]) : MethodDecorator {
 
 export function DPatch(url: string, handlers?: ClassType[]) : MethodDecorator {
     return createMethodDecorator('patch', url, handlers);
+}
+
+/**
+ * Declare the status a method answers with on success.
+ *
+ * The status is applied to `event.response` before the method runs, so a
+ * status the method sets itself, or a returned `Response`, still wins.
+ * The `@routup/decorators/preset` documents the return type under this
+ * status; pass a three-digit numeric literal, since trapi cannot resolve
+ * imported constants.
+ *
+ * @param status - HTTP status code, e.g. `201` or `202`.
+ */
+export function DStatus(status: number) : MethodDecorator {
+    return (
+        target: any,
+        propertyKey: string | symbol,
+    ) : void => {
+        /* istanbul ignore next */
+        if (typeof propertyKey !== 'string') {
+            return;
+        }
+
+        useDecoratorResponseOptions(target, propertyKey).status = status;
+    };
 }

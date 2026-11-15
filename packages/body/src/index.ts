@@ -13,6 +13,7 @@ export {
     readRequestBodyBytes,
     readRequestBodyText,
     readRequestBody,
+    setRequestBody,
 } from './helpers';
 
 export default body;

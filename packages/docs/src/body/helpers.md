@@ -10,7 +10,7 @@ Each helper takes the routup event as its first argument. All buffered helpers c
 
 ## `readRequestBody`
 
-Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single field.
+Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single field. A keyed read returns the value only for an own property of an object body (e.g. a parsed JSON object). It resolves to `undefined` for an array (`readRequestBody(event, '0')`), a primitive or `null` (e.g. with `json: { strict: false }`), and for an inherited member such as `constructor`.
 
 ```typescript
 declare function readRequestBody(
@@ -26,6 +26,25 @@ declare function readRequestBody(
 ```typescript
 const body = await readRequestBody(event);
 const email = await readRequestBody(event, 'email');
+```
+
+## `setRequestBody`
+
+Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and [`@DBody()`](/decorators/parameters) return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body, and a read that is still parsing when it is set resolves to the provided value, even when the request body fails to parse.
+
+```typescript
+declare function setRequestBody(
+    event: IAppEvent,
+    value: unknown,
+): void;
+```
+
+```typescript
+router.use(defineCoreHandler(async (event) => {
+    setRequestBody(event, await myBodyReader(event));
+
+    return event.next();
+}));
 ```
 
 ## `readRequestBodyText`

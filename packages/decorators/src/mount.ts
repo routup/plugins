@@ -46,7 +46,32 @@ function buildControllerApp(
                     meta.parameters[propertyKey] ?? [],
                 );
 
-                return controller[propertyKey](...args);
+                const response = meta.responses[propertyKey];
+                const contentType = response?.produces?.[0] ?? meta.produces[0];
+                const previousStatus = event.response.status;
+
+                const result = await controller[propertyKey](...args);
+
+                // Applied once the method answered with a value routup
+                // builds the response from, so that neither an error nor a
+                // handler the method handed over to with `event.next()`
+                // inherits them.
+                if (result === undefined || result instanceof Response) {
+                    return result;
+                }
+
+                if (
+                    response?.status !== undefined &&
+                    event.response.status === previousStatus
+                ) {
+                    event.response.status = response.status;
+                }
+
+                if (contentType && !event.response.headers.has('content-type')) {
+                    event.response.headers.set('content-type', contentType);
+                }
+
+                return result;
             },
         });
 
