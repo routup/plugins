@@ -1,0 +1,57 @@
+{
+    "name": "@routup/docs-theme",
+    "version": "0.0.0",
+    "type": "module",
+    "description": "Shared VitePress theme for the routup documentation sites.",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": "./src/index.ts",
+        "./config": {
+            "types": "./src/config.d.mts",
+            "import": "./src/config.mjs"
+        },
+        "./components/*": "./src/components/*",
+        "./style.css": "./src/styles/index.css"
+    },
+    "files": [
+        "src/"
+    ],
+    "scripts": {
+        "test": "vitest run --config ./test/vitest.config.ts",
+        "lint": "eslint ./src",
+        "lint:fix": "npm run lint -- --fix"
+    },
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "keywords": [
+        "routup",
+        "vitepress",
+        "vitepress-theme",
+        "theme",
+        "docs"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/routup/plugins.git",
+        "directory": "packages/docs-theme"
+    },
+    "bugs": {
+        "url": "https://github.com/routup/plugins/issues"
+    },
+    "homepage": "https://github.com/routup/plugins#readme",
+    "dependencies": {
+        "@fontsource-variable/geist": "^5.3.0",
+        "@fontsource-variable/geist-mono": "^5.3.0"
+    },
+    "peerDependencies": {
+        "vitepress": "^1.6.0",
+        "vue": "^3.5.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

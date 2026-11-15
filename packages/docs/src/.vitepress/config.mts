@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitepress';
+import { defineRoutupConfig } from '@routup/docs-theme/config';
 
-export default defineConfig({
+export default defineRoutupConfig({
     title: 'Routup Plugins',
     description: 'Plugins for the routup HTTP routing framework — body, cookie, query, decorators, swagger-ui, rate-limit, prometheus, i18n, and more.',
     base: '/',
