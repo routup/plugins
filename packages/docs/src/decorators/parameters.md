@@ -25,7 +25,7 @@ Parameter decorators inject typed values into a controller method. The helpers b
 | `@DCookie(name)` | `useRequestCookie(event, name)` |
 | `@DCookies()` | `useRequestCookies(event)` |
 
-`@DBody()` returns a body provided with [`setRequestBody()`](/body/helpers#setrequestbody) without reading the stream, so a custom body reader can feed it. `@DBody('prop')` resolves to `undefined` when the body is not an object.
+`@DBody()` returns a body provided with [`setRequestBody()`](/body/helpers#setrequestbody) without reading the stream, so a custom body reader can feed it. `@DBody('prop')` returns the value only for an own property of an object body (e.g. a parsed JSON object). It resolves to `undefined` for an array (`@DBody('0')`), a primitive, `null` and an inherited member such as `@DBody('constructor')`.
 
 ## Setup
 

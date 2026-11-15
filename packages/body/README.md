@@ -116,7 +116,7 @@ serve(app, { port: 3000 });
 
 - `body()` with no options enables `json` and `urlEncoded`. It only stores the options on the event; nothing is read until a helper is called.
 - `readRequestBody(event)` tries the JSON parser first, then the URL-encoded one, and returns `{}` when neither matches the request's `content-type`.
-- `readRequestBody(event, 'email')` returns a single property of the parsed body.
+- `readRequestBody(event, 'email')` returns a single own property of the parsed body, and `undefined` when the body is an array, a primitive or `null`.
 - The parsed result is cached for the rest of the request: a second call returns the same object.
 
 ### Limit the body size
@@ -293,7 +293,7 @@ The [helpers page](https://plugins.routup.dev/body/helpers) and the [configurati
 
 Returns the parsed request body (JSON or URL-encoded). The result is cached after the first call. Needs the `body()` plugin: without it no parser is enabled and the result is `{}`.
 
-With a `key`, it returns a single property of the body. A keyed read resolves to `undefined` when the body is not an object (`null`, a primitive or an array, e.g. with `json: { strict: false }`) or has no own property of that name.
+With a `key`, it returns a single property of the body, but only an own property of an object body (e.g. a parsed JSON object). A keyed read resolves to `undefined` for an array (`readRequestBody(event, '0')`), a primitive or `null` (e.g. with `json: { strict: false }`), and for an inherited member such as `constructor`.
 
 ```typescript
 declare function readRequestBody(
@@ -310,7 +310,7 @@ URL-encoded fields that appear more than once become arrays (`tag=a&tag=b` gives
 
 ### `setRequestBody`
 
-Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and `@DBody()` of `@routup/decorators` return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body.
+Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and `@DBody()` of `@routup/decorators` return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body, and a read that is still parsing when it is set resolves to the provided value.
 
 ```typescript
 declare function setRequestBody(

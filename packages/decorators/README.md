@@ -266,7 +266,7 @@ export class EventController {
 | `@DPaths()` | All route parameters (`event.params`) |
 | `@DHeader(name)` | One request header (`event.headers.get(name)`, name lower-cased) |
 | `@DHeaders()` | All request headers (the `Headers` object) |
-| `@DBody(prop?)` | The parsed body, or one property of it (`readRequestBody` from `@routup/body`) |
+| `@DBody(prop?)` | The parsed body, or one own property of an object body; `undefined` for arrays, primitives, `null` and inherited members (`readRequestBody` from `@routup/body`) |
 | `@DQuery(prop?)` | The parsed query, or one key of it (`useRequestQuery` from `@routup/query`) |
 | `@DCookie(name)` | One cookie (`useRequestCookie` from `@routup/cookie`) |
 | `@DCookies()` | All cookies (`useRequestCookies` from `@routup/cookie`) |
