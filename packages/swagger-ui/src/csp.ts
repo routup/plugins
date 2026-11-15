@@ -59,8 +59,9 @@ function assertSources(name: string, sources: string[] = []) : string[] {
 /**
  * Build the recommended content security policy for the Swagger UI shell.
  *
- * Fetch directives not named fall back to `default-src 'none'`, workers
- * are closed by `worker-src 'none'`, framing by
+ * Fetch directives without a named fallback (objects, frames, manifests)
+ * are closed by `default-src 'none'`, workers by `worker-src 'none'`
+ * (they would follow `script-src`), framing by
  * `frame-ancestors 'none'` unless `frameAncestors` is given. The shell
  * loads only same-origin scripts and styles, so no hash or
  * `'unsafe-inline'` is needed. `data:` images are used by swagger-ui.css,
