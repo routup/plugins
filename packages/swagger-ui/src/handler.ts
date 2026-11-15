@@ -1,42 +1,82 @@
 import { createCoreHandler } from '@routup/assets';
 import {
+    MethodName,
     defineCoreHandler,
 } from 'routup';
-import type { Handler } from 'routup';
+import type { Handler, IAppEvent } from 'routup';
 import fs from 'node:fs';
 import path from 'node:path';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
 import { ASSETS_PATH } from './constants';
+import { buildContentSecurityPolicy, buildContentSecurityPolicyInput, hasOAuthScheme } from './csp';
 import { isObject } from './object';
+import { escapeHTML, serializeOptions } from './serialize';
 import type { UIOptions } from './types';
 import {
     cleanDoubleSlashes,
     withLeadingSlash,
     withTrailingSlash,
-    withoutLeadingSlash,
 } from './url';
 import { isFileURL } from './utils';
 
-/* istanbul ignore next */
-const stringify = (obj: Record<string, any>) => {
-    const placeholder = '____FUNCTION_PLACEHOLDER____';
-    const fns : CallableFunction[] = [];
+/**
+ * Files of swagger-ui-dist the shell references.
+ * Everything else in the package (README, LICENSE, source maps,
+ * the petstore index.html/swagger-initializer.js, ...) is not served.
+ */
+const DIST_FILES = [
+    '/swagger-ui.css',
+    '/swagger-ui-bundle.js',
+    '/swagger-ui-standalone-preset.js',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
+];
 
-    let json = JSON.stringify(obj, (key, value) => {
-        if (typeof value === 'function') {
-            fns.push(value);
+const DIST_OAUTH_FILES = [
+    '/oauth2-redirect.html',
+    '/oauth2-redirect.js',
+];
 
-            return placeholder;
-        }
+const SHELL_PATHS = ['/', '/index.html'];
 
-        return value;
-    }, 2);
+function readAsset(name: string) : string {
+    return fs.readFileSync(path.join(ASSETS_PATH, name), { encoding: 'utf-8' });
+}
 
-    json = json.replace(new RegExp(`"${placeholder}"`, 'g'), (_) => fns.shift() as any);
+function getRelativePath(event: IAppEvent) : string {
+    let requestPath = event.path;
 
-    return `var options = ${json};`;
-};
+    if (requestPath.startsWith(event.mountPath)) {
+        requestPath = requestPath.substring(event.mountPath.length);
+    }
+
+    return withLeadingSlash(requestPath);
+}
+
+/**
+ * Parse baseURL once; a path prefix without trailing slash
+ * (`https://x/prefix`) is kept as a directory (`https://x/prefix/`).
+ */
+function normalizeBaseURL(input: string) : string {
+    let url : URL;
+
+    try {
+        url = new URL(input);
+    } catch {
+        throw new Error(`The swagger-ui baseURL option must be an absolute http(s) URL, got ${JSON.stringify(input)}.`);
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        throw new Error(`The swagger-ui baseURL option must be an absolute http(s) URL, got ${JSON.stringify(input)}.`);
+    }
+
+    url.pathname = withTrailingSlash(url.pathname);
+    url.search = '';
+    url.hash = '';
+
+    return url.href;
+}
 
 /**
  * Create a swagger UI handler by swagger document or web url.
@@ -48,57 +88,113 @@ export function createUIHandler(
     document: Spec | string,
     options: UIOptions = {},
 ) : Handler {
+    const {
+        baseURL: baseURLInput,
+        basePath,
+        csp,
+        ...swaggerOptions
+    } = options;
+
+    const baseURL = typeof baseURLInput === 'string' ?
+        normalizeBaseURL(baseURLInput) :
+        undefined;
+
     if (isObject(document)) {
-        options.spec = document;
+        swaggerOptions.spec = document;
     } else if (isFileURL(document)) {
         const documentFile = fs.readFileSync(document, { encoding: 'utf-8' });
 
-        options.spec = JSON.parse(documentFile);
+        swaggerOptions.spec = JSON.parse(documentFile);
     } else {
-        options.url = document;
+        swaggerOptions.url = document;
     }
 
-    let template : string | undefined;
-    const templateRaw = fs.readFileSync(path.join(ASSETS_PATH, 'template.tpl'), { encoding: 'utf-8' });
+    let policy : string | undefined;
 
-    const compileTemplate = (mountPath: string) : void => {
-        let href = withTrailingSlash(mountPath || '/');
+    if (typeof csp === 'string') {
+        policy = csp;
+    } else if (csp) {
+        policy = buildContentSecurityPolicy(buildContentSecurityPolicyInput({ ...swaggerOptions, baseURL }));
+    }
 
-        if (options.baseURL) {
-            href = withTrailingSlash(new URL(withoutLeadingSlash(href), options.baseURL).href);
-        } else if (options.basePath) {
-            href = withTrailingSlash(withLeadingSlash(cleanDoubleSlashes(`${options.basePath}/${href}`)));
+    const distFiles = new Set(DIST_FILES);
+
+    if (
+        swaggerOptions.oauth ||
+        swaggerOptions.oauth2RedirectUrl ||
+        hasOAuthScheme(swaggerOptions.spec)
+    ) {
+        DIST_OAUTH_FILES.forEach((file) => distFiles.add(file));
+    }
+
+    const shell = readAsset('template.tpl')
+        .replace('<% title %>', () => 'Swagger UI');
+    const initializer = readAsset('swagger-initializer.tpl')
+        .replace('<% swaggerOptions %>', () => serializeOptions(swaggerOptions));
+    const stylesheet = readAsset('index.css');
+
+    const buildBaseHref = (mountPath: string) : string => {
+        const href = withTrailingSlash(mountPath || '/');
+
+        if (baseURL) {
+            // relative to baseURL, so its path prefix is kept (also for the root mount).
+            return withTrailingSlash(new URL(href.substring(1), baseURL).href);
         }
 
-        template = templateRaw
-            .replace('<% title %>', 'Swagger UI')
-            .replace('<% swaggerOptions %>', stringify(options))
-            .replace('<% baseHref %>', href);
+        if (basePath) {
+            return withTrailingSlash(withLeadingSlash(cleanDoubleSlashes(`${basePath}/${href}`)));
+        }
+
+        return href;
     };
 
-    const handler = createCoreHandler(
+    const distHandler = createCoreHandler(
         path.dirname(require.resolve('swagger-ui-dist')),
         {
             extensions: [],
             scan: false,
-            ignores: [/package\.json/],
-            resolve: async (event) => {
-                if (event.path.includes('/package.json')) {
-                    event.response.status = 404;
-
-                    return null;
-                }
-
-                if (typeof template === 'undefined') {
-                    compileTemplate(event.mountPath);
-                }
-
-                event.response.headers.set('content-type', 'text/html; charset=utf-8');
-
-                return template;
-            },
+            fallthrough: true,
         },
     );
 
-    return defineCoreHandler(handler);
+    return defineCoreHandler(async (event) => {
+        if (
+            event.method !== MethodName.GET &&
+            event.method !== MethodName.HEAD
+        ) {
+            return event.next();
+        }
+
+        const relativePath = getRelativePath(event);
+
+        let output : string | undefined;
+        let contentType : string | undefined;
+
+        if (SHELL_PATHS.includes(relativePath)) {
+            // Computed per request: the mount path may differ in casing or params.
+            output = shell.replace('<% baseHref %>', () => escapeHTML(buildBaseHref(event.mountPath)));
+            contentType = 'text/html; charset=utf-8';
+        } else if (relativePath === '/swagger-initializer.js') {
+            output = initializer;
+            contentType = 'text/javascript; charset=utf-8';
+        } else if (relativePath === '/index.css') {
+            output = stylesheet;
+            contentType = 'text/css; charset=utf-8';
+        } else if (!distFiles.has(relativePath)) {
+            return event.next();
+        }
+
+        // Set before the response is built, so a 304 carries it as well.
+        if (policy) {
+            event.response.headers.set('content-security-policy', policy);
+        }
+
+        if (typeof output === 'undefined') {
+            return distHandler(event);
+        }
+
+        event.response.headers.set('content-type', contentType!);
+
+        return output;
+    });
 }

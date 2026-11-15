@@ -33,7 +33,7 @@ Open `http://localhost:3000/docs/` to interact with the document.
 
 `swaggerUI(source)` accepts:
 
-- A **filesystem path** to a JSON or YAML file: `'./writable/swagger.json'`
+- A **filesystem path** to a JSON file: `'./writable/swagger.json'`
 - A **URL** the UI fetches at runtime: `'https://api.example.com/openapi.json'`
 - A **plain object** — useful when you want to merge runtime values (auth servers, environment-specific URLs) before handing the document to the UI
 
@@ -47,7 +47,31 @@ router.use('/docs', swaggerUI({
 
 ## Mounting
 
-The UI is mounted under whatever path you pass to `router.use()`. Trailing slashes matter for static-asset resolution — visit `/docs/` not `/docs`.
+The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both work: the page sets `<base href="/docs/">`, so assets and the default OAuth redirect URL (`oauth2-redirect.html`) resolve inside the mount either way.
+
+Behind a reverse proxy, `basePath` (`'/api'`) or `baseURL` (`'https://example.com/api'`) prefixes the `<base href>`. `baseURL` must be an absolute `http(s)` URL (anything else throws at setup) and its path is treated as a directory, with or without trailing slash.
+
+## Served files
+
+Only `GET` and `HEAD` are answered. The handler serves the HTML shell (at `/` and `/index.html`), its generated `swagger-initializer.js` and `index.css`, and from `swagger-ui-dist` only `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js` and the two favicons. `oauth2-redirect.html` (with `oauth2-redirect.js`) is served when `oauth` or `oauth2RedirectUrl` is set, or when a document passed as object or file declares an `oauth2`/`openIdConnect` scheme. Any other path or method is passed to the next handler and the router decides the response: `404` when nothing else handles it, while routup answers `OPTIONS` itself (`200` with an empty `Allow` header when only the plugin is mounted).
+
+Document values are serialized with `<`, `>`, `&`, U+2028 and U+2029 escaped, so they cannot break out of the bootstrap.
+
+## Content security policy
+
+The shell has no inline script or style, so it works under `script-src 'self'; style-src 'self'`. Set `csp: true` to send the recommended policy on every response (including `304`s), or a string to send that policy:
+
+```typescript
+router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
+```
+
+The recommended policy allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, `urls[]`, root, path and operation `servers`, OAuth token URLs) to `connect-src`. Templated servers are expanded with the `default` and every `enum` value of their variables (up to 64 combinations per server, beyond that only the defaults), and a protocol-relative server (`//api.example.com`) adds its `https:` and `http:` origin. Server values that are not a plain `scheme://host[:port]` origin are dropped. Origins it cannot know (servers of a document loaded by URL, values a visitor types freely into a server variable, an OpenID Connect `token_endpoint` on another origin) need a string policy. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header; it throws for a source containing whitespace, `;` or `,`. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
+
+The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back, including its field to load any document by URL (earlier versions hid it with CSS for every layout). The `?url=` query parameter is ignored.
+
+## Install analytics
+
+`swagger-ui-dist` depends on `@scarf/scarf`, whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` to disable it.
 
 ## Producing the document
 

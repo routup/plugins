@@ -34,4 +34,41 @@ export type UIOptions = SwaggerConfigs & {
      * on which the application is run.
      */
     basePath?: string,
+
+    /**
+     * OAuth2 redirect url passed to Swagger UI.
+     * Setting it (or `oauth`) also serves `oauth2-redirect.html`.
+     */
+    oauth2RedirectUrl?: string,
+
+    /**
+     * Validator url for the badge of url documents ('none' or null disables it).
+     */
+    validatorUrl?: string | null,
+
+    /**
+     * Set a `content-security-policy` header on every response.
+     * `true` sets the recommended policy (see `buildContentSecurityPolicy`),
+     * a string sets that exact policy.
+     *
+     * default: false
+     */
+    csp?: boolean | string,
+};
+
+export type ContentSecurityPolicyInput = {
+    /**
+     * Additional origins the UI itself is served from.
+     */
+    origins?: string[],
+
+    /**
+     * Additional sources for `connect-src` (spec url, API servers, token endpoints).
+     */
+    connectSrc?: string[],
+
+    /**
+     * Additional sources for `img-src`.
+     */
+    imgSrc?: string[],
 };
