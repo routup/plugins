@@ -171,6 +171,7 @@ describe('src/preset (V3)', () => {
         const operation = spec.paths['/produces/download']!.get!;
 
         expect(Object.keys(operation.responses)).toEqual(['200']);
+        expect(operation.responses['200']!.description).toEqual('OK');
         expect(operation.responses['200']!.content).toEqual({ 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } });
     });
 
@@ -189,6 +190,7 @@ describe('src/preset (V3)', () => {
             const operation = spec.paths[url]!.post!;
 
             expect(Object.keys(operation.responses)).toEqual(['201']);
+            expect(operation.responses['201']!.description).toEqual('Created');
             expect(operation.responses['201']!.content).toEqual({ 'image/png': { schema: { type: 'string', format: 'binary' } } });
         }
     });

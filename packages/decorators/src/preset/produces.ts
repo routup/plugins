@@ -9,6 +9,7 @@ import {
     method,
     readString,
 } from '@trapi/core';
+import { STATUS_CODES } from 'node:http';
 
 const BINARY_TOP_LEVEL_TYPES = new Set(['image', 'audio', 'video', 'font']);
 const BINARY_APPLICATION_TYPES = new Set([
@@ -69,6 +70,10 @@ function readMediaTypes(ctx: HandlerContext): string[] {
  */
 const createdResponses = new WeakSet<ResponseDraft>();
 
+function describeStatus(status: string): string {
+    return STATUS_CODES[status] ?? 'Ok';
+}
+
 /**
  * Move a response created by `@DProduces` at the implicit `200` to the
  * `@DStatus` code, for a `@DStatus` that is applied after `@DProduces`.
@@ -80,6 +85,11 @@ export function moveProducedResponse(draft: MethodDraft, status: string): void {
 
     if (!response || occupied) {
         return;
+    }
+
+    // Keep a description another decorator (e.g. `@DDescription`) set.
+    if (response.description === describeStatus(response.status)) {
+        response.description = describeStatus(status);
     }
 
     response.status = status;
@@ -110,7 +120,7 @@ function applyMethodProduces(ctx: HandlerContext, draft: MethodDraft): void {
         response = {
             name: status,
             status,
-            description: 'Ok',
+            description: describeStatus(status),
             examples: [],
         };
 
