@@ -3,6 +3,7 @@ import { computed } from 'vue';
 
 export type RtHeadingProps = {
     title: string;
+    highlight?: string;
     eyebrow?: string;
     lede?: string;
     align?: 'start' | 'center';
@@ -10,6 +11,7 @@ export type RtHeadingProps = {
 };
 
 const props = withDefaults(defineProps<RtHeadingProps>(), {
+    highlight: undefined,
     eyebrow: undefined,
     lede: undefined,
     align: 'start',
@@ -30,7 +32,9 @@ const tag = computed(() => `h${props.level}`);
             :is="tag"
             :class="`rt-heading__title rt-heading__title--h${level}`"
         >
-            {{ title }}
+            {{ title }}<template v-if="highlight">
+                {{ ' ' }}<span class="rt-heading__highlight">{{ highlight }}</span>
+            </template>
         </component>
         <p
             v-if="lede"

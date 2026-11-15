@@ -175,6 +175,13 @@
     letter-spacing: -0.03em;
 }
 
+.rt-heading .rt-heading__highlight {
+    background: var(--rt-gradient-brand);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
 .rt-heading .rt-heading__lede {
     margin: 0;
     font-size: 17px;

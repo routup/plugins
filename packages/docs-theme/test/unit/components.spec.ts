@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import RtButton from '../../src/components/RtButton.vue';
 import RtCard from '../../src/components/RtCard.vue';
 import RtCodePanel from '../../src/components/RtCodePanel.vue';
+import RtHeading from '../../src/components/RtHeading.vue';
 import RtLogo from '../../src/components/RtLogo.vue';
 import RtMethodBadge from '../../src/components/RtMethodBadge.vue';
 import RtSection from '../../src/components/RtSection.vue';
@@ -23,6 +24,29 @@ describe('RtSection', () => {
         expect(html).toContain('rt-section--aurora');
         expect(html).toContain('rt-container');
         expect(html).toContain('body');
+    });
+});
+
+describe('RtHeading', () => {
+    it('renders the highlight after the title, inside the heading, in the gradient', async () => {
+        const html = await render(RtHeading, { title: 'Write it once.', highlight: 'Run it anywhere.' });
+        // Drop Vue's SSR fragment markers.
+        const markup = html.replace(/<!--[^>]*-->/g, '');
+
+        expect(markup).toMatch(/<h2[^>]*>Write it once\. <span class="rt-heading__highlight">Run it anywhere\.<\/span><\/h2>/);
+    });
+
+    it('renders no highlight span without a highlight', async () => {
+        const html = await render(RtHeading, { title: 'Routing' });
+
+        expect(html).toContain('Routing');
+        expect(html).not.toContain('rt-heading__highlight');
+    });
+
+    it('renders the highlight as text, not markup', async () => {
+        const html = await render(RtHeading, { title: 'A', highlight: '<b>x</b>' });
+
+        expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
     });
 });
 

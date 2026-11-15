@@ -74,7 +74,7 @@ same on landing pages and inside markdown pages (`.vp-doc`).
 | Component | Props | Purpose |
 |-----------|-------|---------|
 | `RtSection` | `surface` (`default`, `tinted`, `dark`, `aurora`), `id` | Page section with the shared rhythm and surface |
-| `RtHeading` | `title`, `eyebrow`, `lede`, `align` (`start`, `center`), `level` (`1`, `2`) | Section heading |
+| `RtHeading` | `title`, `highlight`, `eyebrow`, `lede`, `align` (`start`, `center`), `level` (`1`, `2`) | Section heading; `highlight` follows the title in the brand gradient |
 | `RtCard` | `href` | Card; a link when `href` is set |
 | `RtCodePanel` | `title`, `code`, `tabs` (`{ label, code }[]`), `active`; `footer` slot | Code panel with title bar and optional tabs |
 | `RtButton` | `href`, `variant` (`primary`, `ghost`) | Link styled as a button |
