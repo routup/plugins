@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0](https://github.com/routup/plugins/compare/swagger-ui-v5.0.0...swagger-ui-v5.1.0) (2026-11-15)
+
+
+### Features
+
+* **swagger-ui:** tighten the recommended content security policy ([#865](https://github.com/routup/plugins/issues/865)) ([aa49d45](https://github.com/routup/plugins/commit/aa49d457b0f227bcbb24b9c44db6455e3d1d0876))
+
 ## [5.0.0](https://github.com/routup/plugins/compare/swagger-ui-v4.0.2...swagger-ui-v5.0.0) (2026-11-15)
 
 
