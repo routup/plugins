@@ -83,7 +83,7 @@ describe('src/ui', () => {
         const response = await router.fetch(createTestRequest('/docs/swagger-ui-bundle.js'));
 
         expect(response.status).toEqual(200);
-        expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
+        expect(response.headers.get('content-type')).toEqual('text/javascript; charset=utf-8');
     });
 
     it('should not serve package.json', async () => {

@@ -58,8 +58,8 @@ app.use('/api', rateLimit({
     // per `window` (here, per 15 minutes)
     max: 100,
 
-    // uses redis-extension's default client,
-    // or pass a connection string: new RedisStore('redis://...')
+    // connects to localhost:6379; pass a connection string
+    // (new RedisStore('redis://...')) or an existing client instead
     store: new RedisStore(),
 }));
 
@@ -69,10 +69,10 @@ serve(app, { port: 3000 });
 ## Installation
 
 ```bash
-npm install @routup/rate-limit-redis @routup/rate-limit redis-extension
+npm install @routup/rate-limit-redis @routup/rate-limit redis-extension ioredis
 ```
 
-ESM only, Node.js >=22. Peer dependencies: `routup@^6.1.0`, `@routup/rate-limit@^4.0.2` and `redis-extension@^2.0.4` (marked optional in `package.json`, but the store imports it, so install it). `redis-extension` brings `ioredis`.
+ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `routup@^6.1.0`, `@routup/rate-limit@^4.0.2` and `redis-extension@^3.0.0` (marked optional in `package.json`, but the store imports it, so install it). Install `ioredis@^6` as well; it is a peer dependency of `redis-extension`.
 
 ## Usage
 
@@ -89,30 +89,27 @@ const limiter = rateLimit({
 });
 ```
 
-With a connection string, the store creates its own ioredis client (`new Redis(connectionString)`).
+With a connection string, the store creates its own ioredis client through redis-extension's `createClient({ url })`.
 
-### Share the default redis-extension client
+### Share an existing client
 
 ```typescript
-import { Redis } from 'ioredis';
-import { setClient } from 'redis-extension';
+import { createClient } from 'redis-extension';
 import { rateLimit } from '@routup/rate-limit';
 import { RedisStore } from '@routup/rate-limit-redis';
 
 declare const redisUrl: string;
 
-// register the client your app already uses
-setClient(new Redis(redisUrl));
+// the client your app already uses
+const client = createClient({ url: redisUrl });
 
 const limiter = rateLimit({
-    // must be created after setClient()
-    store: new RedisStore(),
+    store: new RedisStore(client),
 });
 ```
 
-- Without an argument, the constructor calls redis-extension's `useClient()`: it returns the client registered with `setClient()`, or creates one from the config set with `setConfig()`, or, with neither, connects to `localhost:6379`.
-- The client is resolved in the constructor, so call `setClient()` or `setConfig()` before `new RedisStore()`.
-- The constructor does not accept an ioredis instance; share one through `setClient()` as above.
+- The constructor accepts any ioredis client (`Client` from redis-extension, or `new Redis(...)` from `ioredis`).
+- Without an argument, the store creates a client for `localhost:6379`.
 
 ### Change the key prefix
 
@@ -130,11 +127,11 @@ Keys are `rate-limit:<key>` by default, where `<key>` is the result of the limit
 
 ## Options
 
-`new RedisStore(connectionString?)`
+`new RedisStore(input?)`
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `connectionString` | `string` | `undefined` | Redis URL for a dedicated client. When omitted, redis-extension's `useClient()` supplies the client |
+| `input` | `string \| Client` | `undefined` | Redis URL for a dedicated client, or an existing ioredis client to share. When omitted, the store creates a client for `localhost:6379` |
 
 The window length comes from the limiter: `init()` receives the `@routup/rate-limit` options and the store uses their `windowMs` as the key TTL.
 
@@ -162,7 +159,7 @@ The window length comes from the limiter: `init()` receives the `@routup/rate-li
 - **Increments are not atomic.** The store does `GET` then `SET`, not `INCR`. Concurrent requests for the same key, from one instance or several, can read the same value and undercount.
 - **`decrement()` does not wait for Redis.** The `SET` is not awaited, so a Redis error there is not reported to the limiter.
 - **Redis errors reject the request.** When `increment()` fails (for example Redis is down), the error propagates out of the middleware; the request is not let through.
-- **Connection lifetime is yours.** The store never closes its client. Call `quit()` on `store.client` (or redis-extension's `unsetClient()`) on shutdown.
+- **Connection lifetime is yours.** The store never closes its client. Call `quit()` on `store.client` on shutdown.
 
 ## License
 

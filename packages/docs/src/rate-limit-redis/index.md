@@ -11,8 +11,10 @@ Redis adapter for [`@routup/rate-limit`](/rate-limit/). Replace the default in-m
 ## Installation
 
 ```bash
-npm install @routup/rate-limit-redis @routup/rate-limit
+npm install @routup/rate-limit-redis @routup/rate-limit redis-extension ioredis
 ```
+
+Requires Node.js >=24, `redis-extension@^3` and `ioredis@^6`.
 
 ## Quick start
 
@@ -40,7 +42,7 @@ serve(router, { port: 3000 });
 new RedisStore('redis://user:pass@host:6379/0');
 
 // or share a connection with the rest of your app
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 const redis = new Redis(process.env.REDIS_URL!);
 new RedisStore(redis);
 ```

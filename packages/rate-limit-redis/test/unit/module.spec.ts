@@ -33,8 +33,7 @@ describe('src/module', () => {
 
     beforeEach(() => {
         mockClient = createMockClient();
-        store = new (RedisStore as any)();
-        (store as any).client = mockClient;
+        store = new RedisStore(mockClient as any);
         store.init({ windowMs: 60000 } as Options);
     });
 

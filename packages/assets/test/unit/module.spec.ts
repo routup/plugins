@@ -35,7 +35,7 @@ describe('src/module', () => {
 
         const response = await router.fetch(createTestRequest('/docs/swagger-ui-bundle.js'));
 
-        expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
+        expect(response.headers.get('content-type')).toEqual('text/javascript; charset=utf-8');
     });
 
     it('should serve non preloaded text file', async () => {
@@ -58,7 +58,7 @@ describe('src/module', () => {
         const response = await router.fetch(createTestRequest('/file.js'));
 
         expect(await response.text()).toEqual('console.log(\'foo\');\n');
-        expect(response.headers.get('content-type')).toEqual('application/javascript; charset=utf-8');
+        expect(response.headers.get('content-type')).toEqual('text/javascript; charset=utf-8');
         expect(response.headers.get('content-length')).toEqual('20');
     });
 

@@ -1,5 +1,5 @@
 import type { Client } from 'redis-extension';
-import { createClient, useClient } from 'redis-extension';
+import { createClient } from 'redis-extension';
 import type {
     IncrementResponse,
     Options,
@@ -14,11 +14,17 @@ export class RedisStore implements Store {
 
     client : Client;
 
-    constructor(connectionString?: string) {
-        if (typeof connectionString === 'undefined') {
-            this.client = useClient();
+    /**
+     * @param input - A redis url for a dedicated client, or an existing client.
+     * Without it, a client for localhost:6379 is created.
+     */
+    constructor(input?: string | Client) {
+        if (typeof input === 'undefined') {
+            this.client = createClient();
+        } else if (typeof input === 'string') {
+            this.client = createClient({ url: input });
         } else {
-            this.client = createClient({ connectionString });
+            this.client = input;
         }
     }
 
