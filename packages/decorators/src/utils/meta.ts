@@ -4,7 +4,18 @@ const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 
 export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
     if (symbol in target) {
-        return (target as any)[symbol];
+        const meta = (target as any)[symbol] as Partial<DecoratorMeta>;
+
+        // The symbol is global: an older copy of the package may have
+        // created the object without the fields added since.
+        meta.url ??= '';
+        meta.middlewares ??= [];
+        meta.methods ??= Object.create(null);
+        meta.produces ??= [];
+        meta.responses ??= Object.create(null);
+        meta.parameters ??= Object.create(null);
+
+        return meta as DecoratorMeta;
     }
 
     // Maps keyed by method name have no prototype, so that a method named
