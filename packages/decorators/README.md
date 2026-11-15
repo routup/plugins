@@ -230,9 +230,10 @@ export class JobController {
 }
 ```
 
-- `@DStatus(code)` sets the status a method answers with on success. It is written to `event.response` before the method runs, so a status the method sets itself, or a returned `Response`, still wins.
-- An error thrown by the method does not inherit the status (nor the `@DProduces` media type), also with a custom error handler.
-- The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal (e.g. `@DStatus(202)`), since trapi cannot resolve imported constants.
+- `@DStatus(code)` sets the status a method answers with on success. It is applied after the method returned a value (not `undefined`, not a `Response`) and only when the method left `event.response.status` as it was, so a status the method sets itself, or a returned `Response`, still wins. The method cannot read it from `event.response` while it runs, and setting the status it already had (`200`) cannot be told apart from leaving it.
+- Neither an error thrown by the method nor a handler it hands over to with `event.next()` inherits the status (nor the `@DProduces` media type), also with a custom error handler. A returned value routup fails to serialize (e.g. an object holding a `BigInt`) fails after both were applied, so a custom error handler that answers with a value gets them.
+- `@DStatus(204)` needs a method that returns `null`: a method that returns nothing hands the request over to the next handler in routup. The OpenAPI preset documents that `null` return type as a JSON body of the `204` response.
+- The OpenAPI preset documents the return type under this status instead of `200`, described by its reason phrase (`202` → `Accepted`). Pass a numeric literal (e.g. `@DStatus(202)`), since trapi cannot resolve imported constants.
 
 ### Response media types
 
@@ -249,7 +250,7 @@ export class EventController {
 }
 ```
 
-- `@DProduces(...mediaTypes)` (on a method or a class) declares the media types a method answers with. At runtime the first one becomes the `content-type` of a returned plain value unless a header is already set or the method sets its own; a returned `Response` is left untouched.
+- `@DProduces(...mediaTypes)` (on a method or a class) declares the media types a method answers with. At runtime the first one becomes the `content-type` of a returned plain value unless a header is already set or the method sets its own; a returned `Response` is left untouched. Like `@DStatus`, it is applied after the method returned, so the method cannot read it from `event.response.headers`.
 - In the OpenAPI preset, a method-level `@DProduces` documents only the success response (the `@DStatus` code, or `200`) with these media types: as `type: string, format: binary` when all of them are binary (`application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*`, but not `*+xml` / `*+json`), or as `type: string` when all of them are `text/*`. Error responses (e.g. `@DReturns(404)`) keep `application/json`.
 - Other media types, a mix, and a class-level `@DProduces` keep the return type and go to the operation-wide `produces`, since trapi cannot attach media types to the implicit return-type response.
 - `@DConsumes(...mediaTypes)` (on a method or a class) declares the request body media types for the OpenAPI document; at runtime it does nothing.
@@ -481,7 +482,8 @@ export class DocumentedUserController {
 `@DReturns<T>(status, description?, example?)` documents a response; the type argument is the payload schema and the description defaults to the HTTP reason phrase (`409` → `Conflict`, `200` → `OK`, `Ok` for an unknown code).
 
 - A class-level declaration applies to every operation of the controller; a method-level one at the same status wins.
-- A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one.
+- A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one. Without a type argument it keeps the return type as the schema (e.g. `@DReturns(200, 'The user')`).
+- Pass the status as a literal (`409` or `'409'`): trapi cannot resolve an imported constant, so generation fails with an error naming `@DReturns` instead of documenting the response at `200`.
 - It only documents: when a method answers with another status, it sets that status itself.
 
 ```typescript
