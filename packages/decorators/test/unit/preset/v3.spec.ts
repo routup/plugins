@@ -154,4 +154,59 @@ describe('src/preset (V3)', () => {
 
         expect(Object.keys(operation.responses)).toEqual(['201']);
     });
+
+    it('should document a @DProduces text type as string', async () => {
+        const operation = spec.paths['/produces/events']!.get!;
+
+        expect(operation.responses['200']!.content).toEqual({ 'text/event-stream': { schema: { type: 'string' } } });
+    });
+
+    it('should document every @DProduces media type', async () => {
+        const operation = spec.paths['/produces/csv']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/csv', 'text/plain']);
+    });
+
+    it('should document a binary @DProduces type as string/binary', async () => {
+        const operation = spec.paths['/produces/download']!.get!;
+
+        expect(Object.keys(operation.responses)).toEqual(['200']);
+        expect(operation.responses['200']!.content).toEqual({ 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } });
+    });
+
+    it('should keep a @DDescription at the same status', async () => {
+        for (const url of ['/produces/described', '/produces/described-last']) {
+            const operation = spec.paths[url]!.get!;
+
+            expect(Object.keys(operation.responses)).toEqual(['200']);
+            expect(operation.responses['200']!.description).toEqual('The file');
+            expect(operation.responses['200']!.content).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
+        }
+    });
+
+    it('should document a binary @DProduces type under the @DStatus code', async () => {
+        for (const url of ['/produces/status-first', '/produces/status-last']) {
+            const operation = spec.paths[url]!.post!;
+
+            expect(Object.keys(operation.responses)).toEqual(['201']);
+            expect(operation.responses['201']!.content).toEqual({ 'image/png': { schema: { type: 'string', format: 'binary' } } });
+        }
+    });
+
+    it('should keep the return type for other @DProduces types', async () => {
+        const operation = spec.paths['/produces/json']!.get!;
+        const content = operation.responses['200']!.content!;
+
+        expect(Object.keys(content)).toEqual(['application/xml']);
+        expect((content['application/xml']!.schema as Record<string, any>).type).toEqual('object');
+    });
+
+    it('should apply a class-level @DProduces to its methods', async () => {
+        let operation = spec.paths['/produces-class']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/html']);
+
+        operation = spec.paths['/produces-class/method']!.get!;
+        expect(Object.keys(operation.responses['200']!.content!)).toContain('text/plain');
+    });
 });

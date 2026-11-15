@@ -1,6 +1,7 @@
 import type { IAppEvent } from 'routup';
 import {
     DBody,
+    DConsumes,
     DContext,
     DController,
     DGet,
@@ -15,6 +16,7 @@ type StatusAcceptedResponse = {
 @DController('/status')
 export class StatusController {
     @DStatus(202)
+    @DConsumes('application/json')
     @DPost('accepted')
     accept(
         @DBody() body: { foo: string },

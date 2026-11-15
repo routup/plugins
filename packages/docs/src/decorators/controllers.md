@@ -1,6 +1,6 @@
 ---
 title: Decorators — Controllers
-description: "@DController and method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete)."
+description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DStatus and @DProduces."
 relatedPlugins: [swagger]
 ---
 
@@ -92,6 +92,41 @@ The status is written to `event.response.status` after the arguments are resolve
 - a parameter error (e.g. a malformed JSON body) still answers with its own status.
 
 The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
+
+## Response media types
+
+`@DProduces(...mediaTypes)` declares what a method answers with. Put it on a class to apply it to every method; a method-level `@DProduces` replaces the class-level one at runtime.
+
+```typescript
+import { DController, DGet, DProduces } from '@routup/decorators';
+
+@DController('/exports')
+export class ExportController {
+    @DProduces('text/csv')
+    @DGet('/users.csv')
+    async users(): Promise<string> {
+        return 'id,name\n1,Ada';          // → text/csv
+    }
+
+    @DProduces('application/octet-stream')
+    @DGet('/archive')
+    async archive(): Promise<Response> {
+        return new Response(stream);      // headers left untouched
+    }
+}
+```
+
+At runtime the first media type becomes the `content-type` of a returned plain value (string, object, `Uint8Array`, …), unless a header is already set or the method sets its own. A returned `Response` is left untouched, so set its `content-type` yourself.
+
+In the OpenAPI preset the media types are added to the operation's `produces` (OpenAPI applies them to every response of the operation, error responses included). The success response (the `@DStatus` code, or `200`) also gets a schema derived from the media types, replacing the return type, which for a `Response` would document the Fetch `Response` object:
+
+| Media types | Schema |
+|---|---|
+| all binary: `application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*` | `type: string, format: binary` |
+| all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` |
+| anything else, `*+json` / `*+xml` (e.g. `image/svg+xml`) or a mix | the method's return type |
+
+A schema declared with `@DDescription<T>(status, …)` at the same status takes precedence.
 
 ## Accessing the event
 

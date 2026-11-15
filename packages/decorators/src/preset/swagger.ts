@@ -11,6 +11,7 @@ import {
     readNumber,
     readString,
 } from '@trapi/core';
+import { moveProducedResponse } from './produces';
 
 const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();
@@ -24,13 +25,32 @@ function applyDescription(ctx: HandlerContext, draft: ControllerDraft | MethodDr
         [{ value: payload.raw }] :
         [];
     const typeArg = ctx.typeArgument(0);
+    const schema = typeArg ? typeArg.resolve() : undefined;
+
+    // A response at this status may already exist, e.g. one `@DProduces`
+    // created for a binary media type: describe it instead of shadowing it.
+    const existing = draft.responses.find((r) => r.status === status);
+
+    if (existing) {
+        existing.description = description;
+
+        if (examples.length > 0) {
+            existing.examples = examples;
+        }
+
+        if (schema) {
+            existing.schema = schema;
+        }
+
+        return;
+    }
 
     draft.responses.push({
         name: status,
         status,
         description,
         examples,
-        schema: typeArg ? typeArg.resolve() : undefined,
+        schema,
     });
 }
 
@@ -149,6 +169,8 @@ const methodStatusHandler = method({
     match: { name: 'DStatus', on: 'method' },
     apply: (ctx, draft) => {
         draft.successStatus = String(readNumber(ctx.argument(0)));
+
+        moveProducedResponse(draft, draft.successStatus);
     },
 });
 

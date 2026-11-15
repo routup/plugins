@@ -151,4 +151,11 @@ describe('src/preset (V2)', () => {
         expect(operation.responses['202']!.schema)
             .toEqual({ $ref: '#/definitions/StatusAcceptedResponse' });
     });
+
+    it('should document a binary @DProduces type as file', async () => {
+        const operation = spec.paths['/produces/download']!.get!;
+
+        expect(operation.produces).toEqual(['application/octet-stream']);
+        expect(operation.responses['200']!.schema).toEqual({ type: 'string', format: 'binary' });
+    });
 });

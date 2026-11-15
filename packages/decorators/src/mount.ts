@@ -52,6 +52,12 @@ function buildControllerApp(
                     event.response.status = response.status;
                 }
 
+                const contentType = response?.produces?.[0] ?? meta.produces[0];
+
+                if (contentType && !event.response.headers.has('content-type')) {
+                    event.response.headers.set('content-type', contentType);
+                }
+
                 return controller[propertyKey](...args);
             },
         });
