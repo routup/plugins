@@ -59,7 +59,9 @@ function assertSources(name: string, sources: string[] = []) : string[] {
 /**
  * Build the recommended content security policy for the Swagger UI shell.
  *
- * The shell loads only same-origin scripts and styles, so no hash or
+ * Everything not named is closed by `default-src 'none'`, framing by
+ * `frame-ancestors 'none'` unless `frameAncestors` is given. The shell
+ * loads only same-origin scripts and styles, so no hash or
  * `'unsafe-inline'` is needed. `data:` images are used by swagger-ui.css,
  * `blob:` images and media by binary responses.
  */
@@ -67,24 +69,47 @@ export function buildContentSecurityPolicy(input: ContentSecurityPolicyInput = {
     const origins = assertSources('origins', input.origins);
     const imgSrc = assertSources('imgSrc', input.imgSrc);
     const connectSrc = assertSources('connectSrc', input.connectSrc);
+    const frameAncestors = assertSources('frameAncestors', input.frameAncestors);
 
     const self = unique(["'self'", ...origins]).join(' ');
     // blob: urls render binary "Try it out" responses (images, audio, video).
     const img = unique(["'self'", ...origins, 'data:', 'blob:', ...imgSrc]).join(' ');
     const connect = unique(["'self'", ...origins, ...connectSrc]).join(' ');
+    const ancestors = frameAncestors.length > 0 ?
+        unique(frameAncestors).join(' ') :
+        "'none'";
 
     return [
-        `default-src ${self}`,
+        "default-src 'none'",
         `script-src ${self}`,
         `style-src ${self}`,
         `img-src ${img}`,
         `media-src ${self} blob:`,
-        `font-src ${self} data:`,
+        `font-src ${self}`,
         `connect-src ${connect}`,
-        "object-src 'none'",
         `base-uri ${self}`,
-        `form-action ${self}`,
+        "form-action 'self'",
+        `frame-ancestors ${ancestors}`,
     ].join('; ');
+}
+
+/**
+ * The `x-frame-options` value matching the `frame-ancestors` sources:
+ * `DENY` for none (or only `'none'`), `SAMEORIGIN` for only `'self'`,
+ * undefined (no header) for any other set, which the header cannot express.
+ */
+export function buildFrameOptions(frameAncestors: string[] = []) : 'DENY' | 'SAMEORIGIN' | undefined {
+    const sources = unique(frameAncestors);
+
+    if (sources.length === 0 || (sources.length === 1 && sources[0] === "'none'")) {
+        return 'DENY';
+    }
+
+    if (sources.length === 1 && sources[0] === "'self'") {
+        return 'SAMEORIGIN';
+    }
+
+    return undefined;
 }
 
 function collectSecuritySchemes(spec: Spec) : Record<string, any>[] {

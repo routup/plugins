@@ -150,13 +150,18 @@ describe('src/ui hardening', () => {
         });
 
         it('should not serialize plugin-only options', async () => {
-            const router = createRouter('test/data/swagger.json', { basePath: '/api', csp: true });
+            const router = createRouter('test/data/swagger.json', {
+                basePath: '/api',
+                csp: true,
+                securityHeaders: true,
+            });
 
             const response = await router.fetch(createTestRequest('/docs/swagger-initializer.js'));
             const { config } = runInitializer(await response.text());
 
             expect(config.basePath).toBeUndefined();
             expect(config.csp).toBeUndefined();
+            expect(config.securityHeaders).toBeUndefined();
         });
 
         it('should escape the base href', async () => {
@@ -359,6 +364,45 @@ describe('src/ui hardening', () => {
             expect(policy).toContain("media-src 'self' blob:");
             expect(policy).not.toContain('unsafe-inline');
             expect(policy).not.toContain('unsafe-eval');
+            // the document adds remote origins (host, tokenUrl) to connect-src
+            expect(policy).toMatch(/^default-src 'none'; /);
+            expect(policy).toMatch(/; frame-ancestors 'none'$/);
+            expect(policy).toContain("font-src 'self';");
+            expect(policy).toContain("form-action 'self';");
+            expect(policy).not.toContain('object-src');
+        });
+
+        it('should treat an empty policy object like true', async () => {
+            const expected = await createRouter('test/data/swagger.json', { csp: true })
+                .fetch(createTestRequest('/docs/'));
+
+            for (const csp of [{}, { frameAncestors: [] }]) {
+                const response = await createRouter('test/data/swagger.json', { csp })
+                    .fetch(createTestRequest('/docs/'));
+
+                expect(response.headers.get('content-security-policy'))
+                    .toEqual(expected.headers.get('content-security-policy'));
+            }
+        });
+
+        it('should relax the recommended policy with a policy object', async () => {
+            const router = createRouter({
+                openapi: '3.0.0',
+                info: { title: 'x', version: '1' },
+                servers: [{ url: 'https://api.example.com' }],
+            }, { csp: { frameAncestors: ["'self'"], connectSrc: ['https://extra.example.com'] } });
+
+            const response = await router.fetch(createTestRequest('/docs/'));
+            const policy = response.headers.get('content-security-policy')!;
+
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/api\.example\.com/);
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/extra\.example\.com/);
+            expect(policy).toMatch(/; frame-ancestors 'self'$/);
+        });
+
+        it('should reject unsafe policy object sources at setup', () => {
+            expect(() => createRouter('test/data/swagger.json', { csp: { connectSrc: ['x;y'] } })).toThrow();
+            expect(() => createUIHandler('test/data/swagger.json', { csp: { frameAncestors: ['a b'] } })).toThrow(/frameAncestors/);
         });
 
         it('should add remote origins of the document', async () => {
@@ -456,7 +500,7 @@ describe('src/ui hardening', () => {
         });
 
         it('should keep the policy on 304 responses', async () => {
-            const router = createRouter('test/data/swagger.json', { csp: true });
+            const router = createRouter('test/data/swagger.json', { csp: true, securityHeaders: true });
 
             for (const path of ['/docs/', '/docs/swagger-initializer.js', '/docs/swagger-ui.css']) {
                 const first = await router.fetch(createTestRequest(path));
@@ -469,6 +513,7 @@ describe('src/ui hardening', () => {
 
                 expect(second.status).toEqual(304);
                 expect(second.headers.get('content-security-policy')).toEqual(first.headers.get('content-security-policy'));
+                expect(second.headers.get('x-content-type-options')).toEqual('nosniff');
             }
         });
 
@@ -478,7 +523,83 @@ describe('src/ui hardening', () => {
             expect(policy).toContain("connect-src 'self' https://a.example.com");
             expect(policy).toContain("img-src 'self' data: blob: https://b.example.com");
             expect(policy).toContain("media-src 'self' blob:");
-            expect(policy).toContain("object-src 'none'");
+            expect(policy).not.toContain('object-src');
+        });
+
+        it('should build the recommended policy', () => {
+            expect(buildContentSecurityPolicy()).toEqual(
+                "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; " +
+                "media-src 'self' blob:; font-src 'self'; connect-src 'self'; base-uri 'self'; " +
+                "form-action 'self'; frame-ancestors 'none'",
+            );
+        });
+
+        it('should add the ui origins to the directives loading its files', () => {
+            const policy = buildContentSecurityPolicy({ origins: ['https://ui.example.com'] });
+
+            expect(policy).toContain("default-src 'none';");
+            expect(policy).toContain("form-action 'self';");
+            expect(policy).toContain("script-src 'self' https://ui.example.com;");
+            expect(policy).toContain("style-src 'self' https://ui.example.com;");
+            expect(policy).toContain("base-uri 'self' https://ui.example.com;");
+            expect(policy).toMatch(/; frame-ancestors 'none'$/);
+        });
+
+        it('should build frame-ancestors', () => {
+            expect(buildContentSecurityPolicy({ frameAncestors: ["'self'", 'https://portal.example.com'] }))
+                .toMatch(/; frame-ancestors 'self' https:\/\/portal\.example\.com$/);
+            expect(buildContentSecurityPolicy({ frameAncestors: [] }))
+                .toMatch(/; frame-ancestors 'none'$/);
+            expect(() => buildContentSecurityPolicy({ frameAncestors: ['https://a.example;sandbox'] }))
+                .toThrow(/frameAncestors/);
+        });
+    });
+
+    describe('security headers', () => {
+        const fetchHeaders = async (options: UIOptions) => {
+            const response = await createRouter('test/data/swagger.json', options)
+                .fetch(createTestRequest('/docs/'));
+
+            return response.headers;
+        };
+
+        it('should not set security headers by default', async () => {
+            const headers = await fetchHeaders({ csp: true });
+
+            expect(headers.get('x-content-type-options')).toBeNull();
+            expect(headers.get('referrer-policy')).toBeNull();
+            expect(headers.get('x-frame-options')).toBeNull();
+        });
+
+        it('should set security headers without a policy', async () => {
+            const headers = await fetchHeaders({ securityHeaders: true });
+
+            expect(headers.get('x-content-type-options')).toEqual('nosniff');
+            expect(headers.get('referrer-policy')).toEqual('no-referrer');
+            expect(headers.get('x-frame-options')).toEqual('DENY');
+            expect(headers.get('content-security-policy')).toBeNull();
+        });
+
+        it('should set security headers on served dist files', async () => {
+            const response = await createRouter('test/data/swagger.json', { securityHeaders: true })
+                .fetch(createTestRequest('/docs/swagger-ui.css'));
+
+            expect(response.status).toEqual(200);
+            expect(response.headers.get('x-content-type-options')).toEqual('nosniff');
+        });
+
+        it('should derive x-frame-options from frame-ancestors', async () => {
+            expect((await fetchHeaders({ securityHeaders: true, csp: true })).get('x-frame-options')).toEqual('DENY');
+            expect((await fetchHeaders({ securityHeaders: true, csp: "default-src 'none'" })).get('x-frame-options')).toEqual('DENY');
+            expect((await fetchHeaders({ securityHeaders: true, csp: { frameAncestors: [] } })).get('x-frame-options')).toEqual('DENY');
+            expect((await fetchHeaders({ securityHeaders: true, csp: { frameAncestors: ["'none'"] } })).get('x-frame-options')).toEqual('DENY');
+            expect((await fetchHeaders({ securityHeaders: true, csp: { frameAncestors: ["'self'"] } })).get('x-frame-options')).toEqual('SAMEORIGIN');
+
+            const headers = await fetchHeaders({ securityHeaders: true, csp: { frameAncestors: ['https://portal.example.com'] } });
+
+            expect(headers.get('x-frame-options')).toBeNull();
+            expect(headers.get('x-content-type-options')).toEqual('nosniff');
+            expect(headers.get('referrer-policy')).toEqual('no-referrer');
         });
     });
 
@@ -516,9 +637,9 @@ describe('src/ui hardening', () => {
                 'media-src',
                 'font-src',
                 'connect-src',
-                'object-src',
                 'base-uri',
                 'form-action',
+                'frame-ancestors',
             ]);
             expect(policy).not.toContain('sandbox');
             expect(policy).not.toContain(',');

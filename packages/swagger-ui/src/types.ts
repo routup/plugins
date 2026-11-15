@@ -49,16 +49,28 @@ export type UIOptions = SwaggerConfigs & {
     /**
      * Set a `content-security-policy` header on every response.
      * `true` sets the recommended policy (see `buildContentSecurityPolicy`),
-     * a string sets that exact policy.
+     * an object sets the recommended policy with its sources added
+     * (e.g. `frameAncestors` to allow framing), a string sets that exact policy.
      *
      * default: false
      */
-    csp?: boolean | string,
+    csp?: boolean | string | ContentSecurityPolicyInput,
+
+    /**
+     * Set `x-content-type-options: nosniff`, `referrer-policy: no-referrer`
+     * and `x-frame-options` on every response. `x-frame-options` is `DENY`,
+     * `SAMEORIGIN` when the `csp` object allows only `'self'` as frame ancestor,
+     * and omitted when it allows other frame ancestors.
+     *
+     * default: false
+     */
+    securityHeaders?: boolean,
 };
 
 export type ContentSecurityPolicyInput = {
     /**
-     * Additional origins the UI itself is served from.
+     * Additional origins the UI itself is served from
+     * (added to every fetch directive and `base-uri`, not to `form-action`).
      */
     origins?: string[],
 
@@ -71,4 +83,9 @@ export type ContentSecurityPolicyInput = {
      * Additional sources for `img-src`.
      */
     imgSrc?: string[],
+
+    /**
+     * Sources for `frame-ancestors`; absent or empty: `'none'` (no framing).
+     */
+    frameAncestors?: string[],
 };
