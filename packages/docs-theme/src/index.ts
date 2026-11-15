@@ -1,5 +1,5 @@
 import type { Theme } from 'vitepress';
-import DefaultTheme from 'vitepress/theme';
+import DefaultTheme from 'vitepress/theme-without-fonts';
 
 import RtButton from './components/RtButton.vue';
 import RtCard from './components/RtCard.vue';
