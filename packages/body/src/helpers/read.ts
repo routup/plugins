@@ -51,12 +51,22 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
     const options = getBodyOptions(event);
     let body: Record<string, any> | undefined;
 
-    if (options.json) {
-        body = await parseJsonBody(event, boolToObject(options.json));
-    }
+    try {
+        if (options.json) {
+            body = await parseJsonBody(event, boolToObject(options.json));
+        }
 
-    if (body === undefined && options.urlEncoded) {
-        body = await parseUrlEncodedBody(event, boolToObject(options.urlEncoded));
+        if (body === undefined && options.urlEncoded) {
+            body = await parseUrlEncodedBody(event, boolToObject(options.urlEncoded));
+        }
+    } catch (e) {
+        // A body provided while this read was parsing is the result, also
+        // when the request body itself is malformed.
+        if (BodySymbol in event.store) {
+            return pick(event.store[BodySymbol], key);
+        }
+
+        throw e;
     }
 
     body ??= {};
@@ -79,7 +89,7 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
  * value from then on, without reading the request stream. A value set before
  * the first read means the stream is never touched; a value set afterwards
  * replaces the parsed body. A value set while a read is still parsing is
- * what that read resolves to.
+ * what that read resolves to, even when the request body fails to parse.
  *
  * @param event - The routup event.
  * @param value - The parsed body, usually an object.

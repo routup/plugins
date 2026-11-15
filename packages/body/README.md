@@ -310,7 +310,7 @@ URL-encoded fields that appear more than once become arrays (`tag=a&tag=b` gives
 
 ### `setRequestBody`
 
-Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and `@DBody()` of `@routup/decorators` return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body, and a read that is still parsing when it is set resolves to the provided value.
+Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and `@DBody()` of `@routup/decorators` return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body, and a read that is still parsing when it is set resolves to the provided value, even when the request body fails to parse.
 
 ```typescript
 declare function setRequestBody(
