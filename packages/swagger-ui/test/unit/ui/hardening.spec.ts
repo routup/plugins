@@ -529,7 +529,7 @@ describe('src/ui hardening', () => {
         it('should build the recommended policy', () => {
             expect(buildContentSecurityPolicy()).toEqual(
                 "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; " +
-                "media-src 'self' blob:; font-src 'self'; connect-src 'self'; base-uri 'self'; " +
+                "media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'none'; base-uri 'self'; " +
                 "form-action 'self'; frame-ancestors 'none'",
             );
         });
@@ -637,6 +637,7 @@ describe('src/ui hardening', () => {
                 'media-src',
                 'font-src',
                 'connect-src',
+                'worker-src',
                 'base-uri',
                 'form-action',
                 'frame-ancestors',
