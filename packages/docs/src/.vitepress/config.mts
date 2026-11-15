@@ -8,7 +8,6 @@ export default defineRoutupConfig({
     lastUpdated: true,
 
     head: [
-        ['meta', { name: 'theme-color', content: '#7c3aed' }],
         ['meta', { property: 'og:type', content: 'website' }],
         ['meta', { property: 'og:title', content: 'Routup Plugins' }],
         ['meta', {

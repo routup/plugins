@@ -2,6 +2,11 @@
 title: i18n
 description: Locale-aware translation for routup, built on top of ilingo.
 relatedPlugins: []
+plugin:
+    package: '@routup/i18n'
+    summary: 'Per-request translations.'
+    group: 'Operations'
+    order: 6
 ---
 
 # @routup/i18n

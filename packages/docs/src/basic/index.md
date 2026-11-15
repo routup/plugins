@@ -2,6 +2,11 @@
 title: Basic
 description: Bundle plugin — installs body, cookie, and query in one call.
 relatedPlugins: [body, cookie, query, decorators]
+plugin:
+    package: '@routup/basic'
+    summary: 'Body, cookie and query in one.'
+    group: 'Bundles'
+    order: 1
 ---
 
 # @routup/basic

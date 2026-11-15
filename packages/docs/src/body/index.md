@@ -2,6 +2,11 @@
 title: Body
 description: Read and parse the request payload — JSON, URL-encoded, raw bytes, text, blobs, or streams.
 relatedPlugins: [basic, decorators]
+plugin:
+    package: '@routup/body'
+    summary: 'Parse JSON, form and raw bodies.'
+    group: 'Request & response'
+    order: 1
 ---
 
 # @routup/body

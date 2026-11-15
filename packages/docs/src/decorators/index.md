@@ -2,6 +2,11 @@
 title: Decorators
 description: Class-, method-, and parameter-decorators for routup — define controllers in TypeScript and mount them on a router.
 relatedPlugins: [basic, body, cookie, query, swagger-ui]
+plugin:
+    package: '@routup/decorators'
+    summary: 'Class controllers with decorators.'
+    group: 'Routing patterns'
+    order: 1
 ---
 
 # @routup/decorators

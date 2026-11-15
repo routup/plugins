@@ -2,6 +2,11 @@
 title: Rate-limit — Redis store
 description: Distributed Redis-backed counter store for @routup/rate-limit.
 relatedPlugins: [rate-limit]
+plugin:
+    package: '@routup/rate-limit-redis'
+    summary: 'Redis store for rate-limit.'
+    group: 'Operations'
+    order: 4
 ---
 
 # @routup/rate-limit-redis

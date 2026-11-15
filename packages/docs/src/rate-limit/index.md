@@ -2,6 +2,11 @@
 title: Rate-limit
 description: Per-client request quotas with pluggable stores.
 relatedPlugins: [rate-limit-redis]
+plugin:
+    package: '@routup/rate-limit'
+    summary: 'Limit requests per client.'
+    group: 'Operations'
+    order: 3
 ---
 
 # @routup/rate-limit
