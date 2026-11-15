@@ -89,7 +89,8 @@ The status is written to `event.response.status` after the arguments are resolve
 
 - a status the method sets itself (`event.response.status = 200`) still wins,
 - a returned `Response` keeps its own status (routup ignores `event.response` for it),
-- a parameter error (e.g. a malformed JSON body) still answers with its own status.
+- a parameter error (e.g. a malformed JSON body) still answers with its own status,
+- an error thrown by the method does not inherit it (nor the `@DProduces` media type), also with a custom error handler.
 
 The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
 
@@ -117,11 +118,21 @@ The return type stays the success response (`200 UserPayload`); `409` and `400` 
 @DPut('/:name')
 @DStatus(200)
 @DReturns<UserPayload>(201, 'Created')
-@DReturns<UserPayload>(202, 'Accepted')
-async upsert(@DPath('name') name: string): Promise<UserPayload> {
-    return users.upsert(name);    // → 200, 201 or 202 UserPayload
+async upsert(
+    @DPath('name') name: string,
+    @DContext() event: IAppEvent,
+): Promise<UserPayload> {
+    const { user, created } = await users.upsert(name);
+
+    if (created) {
+        event.response.status = 201;   // the method sets the status at runtime
+    }
+
+    return user;                       // → 200 or 201 UserPayload
 }
 ```
+
+`@DReturns` only documents the `201`; the method sets it itself.
 
 A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one.
 
@@ -138,6 +149,8 @@ For responses shared by every controller, pass them to `generateSwagger`'s `data
 `@DDescription` is a deprecated alias of `@DReturns`.
 
 ## Response media types
+
+`@DConsumes(...mediaTypes)` (on a method or a class) declares the request body media types for the OpenAPI document; at runtime it does nothing.
 
 `@DProduces(...mediaTypes)` declares what a method answers with. Put it on a class to apply it to every method; a method-level `@DProduces` replaces the class-level one at runtime.
 
