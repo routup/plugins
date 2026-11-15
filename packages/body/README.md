@@ -72,6 +72,7 @@ serve(app, { port: 3000 });
 - [Options](#options)
 - [API](#api)
   - [readRequestBody](#readrequestbody)
+  - [setRequestBody](#setrequestbody)
   - [readRequestBodyText](#readrequestbodytext)
   - [readRequestBodyBytes](#readrequestbodybytes)
   - [readRequestBodyArrayBuffer](#readrequestbodyarraybuffer)
@@ -277,6 +278,7 @@ Every options object accepts the base options:
 |--------|------|---------|
 | `body` (also the default export) | function | Create the plugin |
 | `readRequestBody` | function | Parsed JSON or URL-encoded body, cached per request |
+| `setRequestBody` | function | Provide the parsed body yourself; `readRequestBody` returns it from then on |
 | `readRequestBodyText` | function | Body as a string |
 | `readRequestBodyBytes` | function | Body as a `Uint8Array` |
 | `readRequestBodyArrayBuffer` | function | Body as an `ArrayBuffer` |
@@ -305,6 +307,28 @@ declare function readRequestBody(
 ```
 
 URL-encoded fields that appear more than once become arrays (`tag=a&tag=b` gives `{ tag: ['a', 'b'] }`); keys are not expanded into nested objects.
+
+### `setRequestBody`
+
+Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and `@DBody()` of `@routup/decorators` return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body.
+
+```typescript
+declare function setRequestBody(
+    event: IAppEvent,
+    value: unknown,
+): void;
+```
+
+```typescript
+import { setRequestBody } from '@routup/body';
+import { defineCoreHandler } from 'routup';
+
+app.use(defineCoreHandler(async (event) => {
+    setRequestBody(event, await myBodyReader(event));
+
+    return event.next();
+}));
+```
 
 ### `readRequestBodyText`
 

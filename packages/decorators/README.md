@@ -68,6 +68,8 @@ app.use(decorators({ controllers: [UserController] }));
   - [Controllers](#controllers)
   - [Mounting controllers](#mounting-controllers)
   - [Return values and the event](#return-values-and-the-event)
+  - [Success status](#success-status)
+  - [Response media types](#response-media-types)
   - [Parameter decorators](#parameter-decorators)
   - [Parsers for body, query and cookies](#parsers-for-body-query-and-cookies)
   - [Middleware](#middleware)
@@ -212,6 +214,45 @@ export class OrderController {
 
 - Return the value instead of sending it. routup turns objects into JSON, strings into text, and passes a `Response` through unchanged.
 - Use `@DContext()` when you need the whole event, for example to set `event.response.status`, read `event.headers` or use `event.store`.
+
+### Success status
+
+```typescript
+import { DBody, DController, DPost, DStatus } from '@routup/decorators';
+
+@DController('/jobs')
+export class JobController {
+    @DStatus(202)
+    @DPost('')
+    async enqueue(@DBody() body: JobInput): Promise<Job> {
+        return queue.add(body); // 202 application/json
+    }
+}
+```
+
+- `@DStatus(code)` sets the status a method answers with on success. It is written to `event.response` before the method runs, so a status the method sets itself, or a returned `Response`, still wins.
+- An error thrown by the method does not inherit the status (nor the `@DProduces` media type), also with a custom error handler.
+- The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal (e.g. `@DStatus(202)`), since trapi cannot resolve imported constants.
+
+### Response media types
+
+```typescript
+import { DController, DGet, DProduces } from '@routup/decorators';
+
+@DController('/events')
+export class EventController {
+    @DProduces('text/event-stream')
+    @DGet('')
+    async events(): Promise<Response> {
+        return new Response(stream, { headers: { 'content-type': 'text/event-stream' } });
+    }
+}
+```
+
+- `@DProduces(...mediaTypes)` (on a method or a class) declares the media types a method answers with. At runtime the first one becomes the `content-type` of a returned plain value unless a header is already set or the method sets its own; a returned `Response` is left untouched.
+- In the OpenAPI preset, a method-level `@DProduces` documents only the success response (the `@DStatus` code, or `200`) with these media types: as `type: string, format: binary` when all of them are binary (`application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*`, but not `*+xml` / `*+json`), or as `type: string` when all of them are `text/*`. Error responses (e.g. `@DReturns(404)`) keep `application/json`.
+- Other media types, a mix, and a class-level `@DProduces` keep the return type and go to the operation-wide `produces`, since trapi cannot attach media types to the implicit return-type response.
+- `@DConsumes(...mediaTypes)` (on a method or a class) declares the request body media types for the OpenAPI document; at runtime it does nothing.
 
 ### Parameter decorators
 
@@ -403,7 +444,9 @@ These decorators do nothing at runtime; the preset reads them into the generated
 | Decorator | Where | Effect in the document |
 |-----------|-------|------------------------|
 | `@DTags(...names)` | class, method | Adds tags |
-| `@DDescription<T>(status, description?, example?)` | class, method | Adds a response with that status (default `'200'`) and description (default `'Ok'`); the type argument becomes the schema |
+| `@DReturns<T>(status, description?, example?)` | class, method | Adds a response with that status; the type argument becomes the schema (see [Declared responses](#declared-responses)) |
+| `@DConsumes(...mediaTypes)` | class, method | Sets the request body media types |
+| `@DDescription<T>(status, description?, example?)` | class, method | Deprecated alias of `@DReturns` |
 | `@DExample(example)` | method | Adds an example to the default response |
 | `@DSecurity(scopes?, name?)` | class, method | Adds a security requirement (name defaults to `'default'`) |
 | `@DDeprecated()` | class, method | Marks the operation(s) deprecated |
@@ -412,9 +455,9 @@ These decorators do nothing at runtime; the preset reads them into the generated
 ```typescript
 import {
     DController,
-    DDescription,
     DGet,
     DPath,
+    DReturns,
     DSecurity,
     DTags,
 } from '@routup/decorators';
@@ -426,12 +469,64 @@ type User = { id: string, name: string };
 export class DocumentedUserController {
     @DGet('/:id')
     @DSecurity(['users:read'], 'bearer')
-    @DDescription<User>(200, 'The user')
+    @DReturns<User>(200, 'The user')
     async show(@DPath('id') id: string): Promise<User> {
         return { id, name: 'Ada' };
     }
 }
 ```
+
+#### Declared responses
+
+`@DReturns<T>(status, description?, example?)` documents a response; the type argument is the payload schema and the description defaults to the HTTP reason phrase (`409` → `Conflict`, `200` → `OK`, `Ok` for an unknown code).
+
+- A class-level declaration applies to every operation of the controller; a method-level one at the same status wins.
+- A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one.
+- It only documents: when a method answers with another status, it sets that status itself.
+
+```typescript
+import type { IAppEvent } from 'routup';
+import {
+    DBody,
+    DContext,
+    DController,
+    DPath,
+    DPost,
+    DPut,
+    DReturns,
+    DStatus,
+} from '@routup/decorators';
+
+@DController('/users')
+@DReturns<UnauthorizedPayload>(401)
+export class UserController {
+    @DPost('')
+    @DReturns<ConflictPayload>(409, 'User exists')
+    @DReturns<ValidationPayload>(400)
+    async create(@DBody() data: UserInput): Promise<UserPayload> {
+        return users.create(data); // 200 UserPayload
+    }
+
+    @DPut('/:name')
+    @DStatus(200)
+    @DReturns<UserPayload>(201, 'Created')
+    async upsert(
+        @DPath('name') name: string,
+        @DContext() event: IAppEvent,
+    ): Promise<UserPayload> {
+        const { user, created } = await users.upsert(name);
+
+        if (created) {
+            // the method sets the status; @DReturns only documents it
+            event.response.status = 201;
+        }
+
+        return user; // 200 or 201 UserPayload
+    }
+}
+```
+
+For responses shared by every controller, pass them to `generateSwagger` as `data.responses` (an operation's own response at the same status wins), e.g. `responses: [{ name: '401', status: '401', description: 'Unauthorized' }]`.
 
 ## Options
 
@@ -448,10 +543,13 @@ export class DocumentedUserController {
 | `decorators(options)` (also default export) | Plugin factory | Mounts the given controllers when installed |
 | `DController(path, middlewares?)` | Class decorator | Controller path (string or string array) and controller-wide middleware |
 | `DGet`, `DPost`, `DPut`, `DPatch`, `DDelete` | Method decorators | `(path, middlewares?)`: route a method for that HTTP verb |
+| `DStatus(code)` | Method decorator | Success status of the method (runtime and OpenAPI) |
+| `DProduces(...mediaTypes)` | Decorator | Response media types: `content-type` of a returned plain value, success response media types in OpenAPI |
 | `DContext`, `DRequest`, `DResponse`, `DNext` | Parameter decorators | Inject the event, request, response accumulator or next function |
 | `DPath`, `DPaths`, `DHeader`, `DHeaders` | Parameter decorators | Inject route params and request headers |
 | `DBody`, `DQuery`, `DCookie`, `DCookies` | Parameter decorators | Inject parsed body, query and cookies |
-| `DTags`, `DDescription`, `DExample`, `DSecurity`, `DDeprecated`, `DHidden` | Decorators | Documentation only, read by the preset |
+| `DTags`, `DReturns`, `DConsumes`, `DExample`, `DSecurity`, `DDeprecated`, `DHidden` | Decorators | Documentation only, read by the preset |
+| `DDescription` | Decorator | Deprecated alias of `DReturns` |
 | `mountController(app, controller)`, `mountControllers(app, controllers)` | Functions | Mount controllers without the plugin wrapper |
 | `createClassDecorator`, `createMethodDecorator`, `createParameterDecorator` | Functions | Build your own decorators on the same metadata |
 | `useDecoratorMeta(target)` | Function | Read or create the metadata stored on a controller prototype |
@@ -488,7 +586,7 @@ export function DOptions(path: string, middlewares?: ClassType[]): MethodDecorat
 }
 ```
 
-A custom decorator works at runtime right away. The preset only knows the names listed above (plus `DAll`, `DHead`, `DOptions` and `DConsumes`), so other names need their own handler in a preset built from `buildPreset()`.
+A custom decorator works at runtime right away. The preset only knows the names listed above (plus `DAll`, `DHead` and `DOptions`), so other names need their own handler in a preset built from `buildPreset()`.
 
 See the docs site for [controllers](https://plugins.routup.dev/decorators/controllers) and [parameters](https://plugins.routup.dev/decorators/parameters).
 
