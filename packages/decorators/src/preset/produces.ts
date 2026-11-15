@@ -1,15 +1,13 @@
 import {
-    type BaseType,
     type ControllerHandler,
     type HandlerContext,
     type MethodDraft,
     type MethodHandler,
-    type Response as ResponseDraft,
     controller,
     method,
     readString,
 } from '@trapi/core';
-import { STATUS_CODES } from 'node:http';
+import { addMethodProduces } from './response';
 
 const BINARY_TOP_LEVEL_TYPES = new Set(['image', 'audio', 'video', 'font']);
 const BINARY_APPLICATION_TYPES = new Set([
@@ -64,53 +62,6 @@ function readMediaTypes(ctx: HandlerContext): string[] {
     return output;
 }
 
-/**
- * Responses created by `@DProduces` (not ones it only gave a schema), so
- * that a `@DStatus` applied afterwards can move them to its status.
- */
-const createdResponses = new WeakSet<ResponseDraft>();
-
-function describeStatus(status: string): string {
-    return STATUS_CODES[status] ?? 'Ok';
-}
-
-/**
- * Move a response created by `@DProduces` at the implicit `200` to the
- * `@DStatus` code, for a `@DStatus` that is applied after `@DProduces`.
- * A response another decorator (e.g. `@DReturns`) declared at that code
- * keeps its description and schema and receives the produced media types.
- */
-export function moveProducedResponse(draft: MethodDraft, status: string): void {
-    if (status === '200') {
-        return;
-    }
-
-    const response = draft.responses.find((r) => r.status === '200' && createdResponses.has(r));
-
-    if (!response) {
-        return;
-    }
-
-    const destination = draft.responses.find((r) => r.status === status);
-
-    if (destination) {
-        destination.schema ??= response.schema;
-        destination.produces = [...(destination.produces ?? []), ...(response.produces ?? [])];
-
-        draft.responses.splice(draft.responses.indexOf(response), 1);
-
-        return;
-    }
-
-    // Keep a description another decorator (e.g. `@DDescription`) set.
-    if (response.description === describeStatus(response.status)) {
-        response.description = describeStatus(status);
-    }
-
-    response.status = status;
-    response.name = status;
-}
-
 function applyMethodProduces(ctx: HandlerContext, draft: MethodDraft): void {
     const mediaTypes = readMediaTypes(ctx);
     const kinds = new Set(mediaTypes.map((mediaType) => classifyMediaType(mediaType)));
@@ -126,25 +77,9 @@ function applyMethodProduces(ctx: HandlerContext, draft: MethodDraft): void {
         return;
     }
 
-    const schema: BaseType = { typeName: kind === 'binary' ? 'binary' : 'string' };
-    const status = draft.successStatus ?? '200';
-
-    let response = draft.responses.find((r) => r.status === status);
-
-    if (!response) {
-        response = {
-            name: status,
-            status,
-            description: describeStatus(status),
-            examples: [],
-        };
-
-        createdResponses.add(response);
-        draft.responses.push(response);
-    }
-
-    response.schema ??= schema;
-    response.produces = [...(response.produces ?? []), ...mediaTypes];
+    // Placed on the success response once the `@DStatus` code is known,
+    // whatever the decorator order.
+    addMethodProduces(draft, mediaTypes, { typeName: kind === 'binary' ? 'binary' : 'string' });
 }
 
 const classProducesHandler = controller({

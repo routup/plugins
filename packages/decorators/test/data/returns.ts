@@ -3,6 +3,7 @@ import {
     DController,
     DDelete,
     DGet,
+    DPatch,
     DPath,
     DPost,
     DPut,
@@ -63,6 +64,14 @@ export class ReturnsController {
         @DPath('name') _name: string,
     ): Promise<void> {
         // no content
+    }
+
+    @DPatch('/:name')
+    @DReturns(200, 'Patched')
+    async patch(
+        @DPath('name') name: string,
+    ): Promise<UserPayload> {
+        return { id: name };
     }
 
     @DGet('/:name')

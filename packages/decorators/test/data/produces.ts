@@ -15,6 +15,10 @@ type ProducedFile = {
     name: string
 };
 
+type ExplicitOk = {
+    ok: boolean
+};
+
 @DController('/produces')
 export class ProducesController {
     @DGet('events')
@@ -153,6 +157,54 @@ export class ProducesController {
     @DReturns<ProducedFile>(201, 'Created')
     @DProduces('application/pdf')
     returnsTypedSRP(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-spr')
+    @DStatus(201)
+    @DProduces('application/pdf')
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    explicitOkSPR(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-srp')
+    @DStatus(201)
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    @DProduces('application/pdf')
+    explicitOkSRP(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-psr')
+    @DProduces('application/pdf')
+    @DStatus(201)
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    explicitOkPSR(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-prs')
+    @DProduces('application/pdf')
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    @DStatus(201)
+    explicitOkPRS(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-rsp')
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    @DStatus(201)
+    @DProduces('application/pdf')
+    explicitOkRSP(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
+    @DPost('explicit-ok-rps')
+    @DReturns<ExplicitOk>(200, 'Explicit 200')
+    @DProduces('application/pdf')
+    @DStatus(201)
+    explicitOkRPS(): Uint8Array {
         return new Uint8Array([1]);
     }
 

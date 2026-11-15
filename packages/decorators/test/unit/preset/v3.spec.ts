@@ -145,6 +145,7 @@ describe('src/preset (V3)', () => {
         const operation = spec.paths['/status/accepted']!.post!;
 
         expect(Object.keys(operation.responses)).toEqual(['202']);
+        expect(operation.responses['202']!.description).toEqual('Accepted');
         expect(operation.responses['202']!.content!['application/json']!.schema)
             .toEqual({ $ref: '#/components/schemas/StatusAcceptedResponse' });
     });
@@ -153,6 +154,8 @@ describe('src/preset (V3)', () => {
         const operation = spec.paths['/status/created']!.get!;
 
         expect(Object.keys(operation.responses)).toEqual(['201']);
+        expect(operation.responses['201']!.description).toEqual('Created');
+        expect(operation.responses['201']!.content!['application/json']!.schema).toEqual({ type: 'string' });
     });
 
     it('should document a @DProduces text type as string', async () => {
@@ -200,6 +203,18 @@ describe('src/preset (V3)', () => {
             const operation = spec.paths[`/produces/returns-${order}`]!.post!;
 
             expect(Object.keys(operation.responses), order).toEqual(['201']);
+            expect(operation.responses['201']!.description, order).toEqual('Created');
+            expect(operation.responses['201']!.content, order).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
+        }
+    });
+
+    it('should place @DProduces on the @DStatus response next to a @DReturns(200) regardless of decorator order', async () => {
+        for (const order of ['spr', 'srp', 'psr', 'prs', 'rsp', 'rps']) {
+            const operation = spec.paths[`/produces/explicit-ok-${order}`]!.post!;
+
+            expect(Object.keys(operation.responses).sort(), order).toEqual(['200', '201']);
+            expect(operation.responses['200']!.description, order).toEqual('Explicit 200');
+            expect(operation.responses['200']!.content, order).toEqual({ 'application/json': { schema: { $ref: '#/components/schemas/ExplicitOk' } } });
             expect(operation.responses['201']!.description, order).toEqual('Created');
             expect(operation.responses['201']!.content, order).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
         }
@@ -271,6 +286,13 @@ describe('src/preset (V3)', () => {
             expect(responses['204']!.description).toEqual('No Content');
             expect(responses['204']!.content).toBeUndefined();
             expect(responses['200']).toBeUndefined();
+        });
+
+        it('should keep the return type for a @DReturns(200) without a type', async () => {
+            const { responses } = spec.paths['/returns/{name}']!.patch!;
+
+            expect(responses['200']!.description).toEqual('Patched');
+            expect(responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
         });
 
         it('should accept a string status', async () => {
