@@ -11,6 +11,8 @@ plugins/
 │   ├── cookie/         # Cookie read/write
 │   ├── cors/           # Native CORS — preflight + Access-Control-* headers
 │   ├── decorators/     # Class/method/parameter decorators (also exports ./preset for trapi)
+│   ├── docs/           # plugins.routup.dev VitePress site (private, not published)
+│   ├── docs-theme/     # @routup/docs-theme: VitePress theme shared with routup.dev
 │   ├── i18n/           # Request translation
 │   ├── logger/         # Morgan-compatible request logger (handler factory, not Plugin)
 │   ├── prometheus/     # Metrics collection (prom-client)
@@ -47,6 +49,8 @@ packages/[name]/
 └── tsdown.config.ts       # Build config
 ```
 
+`docs` and `docs-theme` do not follow this layout (see Docs below).
+
 ## Packages Overview
 
 | Package | Scope | Description | Key Deps |
@@ -57,6 +61,7 @@ packages/[name]/
 | `cookie` | `@routup/cookie` | Read/serialize cookies | `cookie` |
 | `cors` | `@routup/cors` | Native CORS handling (preflight + headers), ported from h3 | — |
 | `decorators` | `@routup/decorators` | Route decorators + `./preset` subpath (the `@trapi/metadata` preset for `@D*`) | `@routup/body`, `@routup/cookie`, `@routup/query`; optional peer `@trapi/metadata` |
+| `docs-theme` | `@routup/docs-theme` | Shared VitePress theme of routup.dev and plugins.routup.dev | `@fontsource-variable/geist`, `@fontsource-variable/geist-mono`; peers `vitepress`, `vue` |
 | `i18n` | `@routup/i18n` | Request translations | — |
 | `logger` | `@routup/logger` | Request logger ported from morgan; **handler factory**, not a Plugin | — |
 | `prometheus` | `@routup/prometheus` | Metrics + /metrics endpoint | `prom-client` |
@@ -75,4 +80,10 @@ Layer 2 (adapters):     rate-limit-redis, swagger-ui
 Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, prometheus, query, rate-limit
 ```
 
-All packages peer-depend on `routup@^6.3.0`.
+All plugin packages peer-depend on `routup@^6.3.0`; `docs-theme` does not.
+
+## Docs
+
+- `packages/docs-theme` ships source (`.vue`, `.ts`, `.css`) with no build target; the site's Vite compiles it. `./config` is plain `.mjs` with a hand-written `.d.mts`, because VitePress hands config imports from `node_modules` to Node, which does not strip TypeScript there. Check that entry from a packed tarball: a workspace link hides the failure.
+- `packages/docs` consumes the theme as a workspace dependency: `src/.vitepress/config.mts` calls `defineRoutupConfig`, `src/.vitepress/theme/index.ts` re-exports the theme. The landing page `src/index.md` is `layout: page`, `pageClass: rt-home`, with all copy in frontmatter; its sections live in `src/.vitepress/components/home/`. The plugin grid comes from the `plugin: { package, summary, group, order? }` frontmatter of each plugin's `index.md`, loaded by `src/.vitepress/data/plugins.data.ts`.
+- The docs workflow builds on changes under `packages/docs/**` and `packages/docs-theme/**`.

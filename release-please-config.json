@@ -11,6 +11,7 @@
         "packages/cookie": {"component": "cookie" },
         "packages/cors": {"component": "cors" },
         "packages/decorators": {"component": "decorators" },
+        "packages/docs-theme": { "component": "docs-theme", "release-as": "0.1.0" },
         "packages/i18n": {"component": "i18n" },
         "packages/logger": {"component": "logger" },
         "packages/prometheus": {"component": "prometheus" },
