@@ -187,10 +187,11 @@ With `csp: true` every response (including `304`s, so a reload keeps the policy)
 ```
 default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:;
 media-src 'self' blob:; font-src 'self'; connect-src 'self' <origins>;
-base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+worker-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
 ```
 
-- `default-src 'none'` closes every fetch directive the policy does not name (objects, frames, workers, manifests).
+- `default-src 'none'` closes the fetch directives without a named fallback in the policy (objects, frames, manifests). `script-src-elem`, `script-src-attr`, `style-src-elem` and `style-src-attr` follow `script-src` and `style-src`.
+- `worker-src 'none'` forbids workers; without it they would fall back to `script-src 'self'`, not to `default-src`.
 - `frame-ancestors 'none'` forbids embedding the UI in a frame on any site.
 - `blob:` lets "Try it out" render binary responses (images, audio, video).
 - `<origins>` are the absolute origins of the document URL, `configUrl`, the `urls[]` entries, the document's `servers` at root, path and operation level (or Swagger 2 `host`), and its OAuth token, refresh and OpenID URLs.

@@ -59,7 +59,9 @@ function assertSources(name: string, sources: string[] = []) : string[] {
 /**
  * Build the recommended content security policy for the Swagger UI shell.
  *
- * Everything not named is closed by `default-src 'none'`, framing by
+ * Fetch directives without a named fallback (objects, frames, manifests)
+ * are closed by `default-src 'none'`, workers by `worker-src 'none'`
+ * (they would follow `script-src`), framing by
  * `frame-ancestors 'none'` unless `frameAncestors` is given. The shell
  * loads only same-origin scripts and styles, so no hash or
  * `'unsafe-inline'` is needed. `data:` images are used by swagger-ui.css,
@@ -87,6 +89,8 @@ export function buildContentSecurityPolicy(input: ContentSecurityPolicyInput = {
         `media-src ${self} blob:`,
         `font-src ${self}`,
         `connect-src ${connect}`,
+        // would fall back to script-src, not to default-src.
+        "worker-src 'none'",
         `base-uri ${self}`,
         "form-action 'self'",
         `frame-ancestors ${ancestors}`,
