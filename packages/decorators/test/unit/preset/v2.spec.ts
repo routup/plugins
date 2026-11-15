@@ -159,6 +159,11 @@ describe('src/preset (V2)', () => {
         expect(operation.responses['200']!.schema).toEqual({ type: 'string', format: 'binary' });
     });
 
+    it('should let a method-level @DProduces replace the class-level one', async () => {
+        expect(spec.paths['/produces-class']!.get!.produces).toEqual(['text/html']);
+        expect(spec.paths['/produces-class/method']!.get!.produces).toEqual(['text/plain']);
+    });
+
     it('should document a @DReturns payload', async () => {
         const operation = spec.paths['/returns']!.post!;
 

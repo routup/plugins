@@ -14,6 +14,17 @@ import { buildPreset } from '../../../src/preset';
 
 const controllerDirectoryPath = path.resolve(process.cwd(), 'test', 'data');
 
+function generateFixture(name: string) {
+    return generateMetadata({
+        cache: false,
+        preset: buildPreset(),
+        entryPoint: {
+            cwd: path.resolve(process.cwd(), 'test', 'fixtures', name),
+            pattern: '**/*.ts',
+        },
+    });
+}
+
 describe('src/preset (V3)', () => {
     let spec : SpecV3;
 
@@ -174,7 +185,7 @@ describe('src/preset (V3)', () => {
         const operation = spec.paths['/produces/download']!.get!;
 
         expect(Object.keys(operation.responses)).toEqual(['200']);
-        expect(operation.responses['200']!.description).toEqual('OK');
+        expect(operation.responses['200']!.description).toEqual('Ok');
         expect(operation.responses['200']!.content).toEqual({ 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } });
     });
 
@@ -239,12 +250,42 @@ describe('src/preset (V3)', () => {
     });
 
     it('should apply a class-level @DProduces to its methods', async () => {
-        let operation = spec.paths['/produces-class']!.get!;
+        const operation = spec.paths['/produces-class']!.get!;
 
         expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/html']);
+    });
 
-        operation = spec.paths['/produces-class/method']!.get!;
-        expect(Object.keys(operation.responses['200']!.content!)).toContain('text/plain');
+    it('should let a method-level @DProduces replace the class-level one', async () => {
+        const operation = spec.paths['/produces-class/method']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/plain']);
+    });
+
+    it('should apply a class-level @DProduces to the success response only', async () => {
+        const operation = spec.paths['/produces-class/with-error']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/html']);
+        expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
+    });
+
+    it('should apply other @DProduces types to the success response only', async () => {
+        const operation = spec.paths['/produces/xml-with-error']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['application/xml']);
+        expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
+    });
+
+    it('should document no body for a @DStatus(204)', async () => {
+        const operation = spec.paths['/status/empty']!.get!;
+
+        expect(operation.responses).toEqual({ 204: { description: 'No content' } });
+    });
+
+    it('should document a binary @DProduces type for a method without a return value', async () => {
+        const operation = spec.paths['/status/next']!.get!;
+
+        expect(Object.keys(operation.responses)).toEqual(['201']);
+        expect(operation.responses['201']!.content).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
     });
 
     it('should apply @DProduces media types to the success response only', async () => {
@@ -283,7 +324,7 @@ describe('src/preset (V3)', () => {
         it('should default the description to the reason phrase', async () => {
             const { responses } = spec.paths['/returns/{name}']!.delete!;
 
-            expect(responses['204']!.description).toEqual('No Content');
+            expect(responses['204']!.description).toEqual('No content');
             expect(responses['204']!.content).toBeUndefined();
             expect(responses['200']).toBeUndefined();
         });
@@ -295,15 +336,26 @@ describe('src/preset (V3)', () => {
             expect(responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
         });
 
-        it('should reject a status that is not a literal', async () => {
-            await expect(generateMetadata({
-                cache: false,
-                preset: buildPreset(),
-                entryPoint: {
-                    cwd: path.resolve(process.cwd(), 'test', 'fixtures', 'returns-status-constant'),
-                    pattern: '**/*.ts',
-                },
-            })).rejects.toThrow(/@DReturns on 'ConstantController\.read': the status must be a numeric or string literal/);
+        it('should resolve a constant or enum member as status', async () => {
+            const metadata = await generateFixture('returns-status-constant');
+            const document = await generateSwagger({ version: Version.V3, metadata });
+            const { get, post } = document.paths['/constant']!;
+
+            expect(Object.keys(get!.responses).sort()).toEqual(['200', '404', '409']);
+            expect(get!.responses['409']!.description).toEqual('Conflict');
+            expect(get!.responses['409']!.content!['application/json']!.schema).toEqual(ref('ConflictPayload'));
+            expect(get!.responses['404']!.description).toEqual('Not Found');
+            expect(get!.responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+
+            expect(Object.keys(post!.responses)).toEqual(['201']);
+            expect(post!.responses['201']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+        });
+
+        it('should reject a status that cannot be resolved', async () => {
+            await expect(generateFixture('returns-status-unresolvable'))
+                .rejects.toThrow(/DReturns/);
+            await expect(generateFixture('status-unresolvable'))
+                .rejects.toThrow(/DStatus/);
         });
 
         it('should accept a string status', async () => {

@@ -213,4 +213,11 @@ export class ProducesController {
     json(): { foo: string } {
         return { foo: 'bar' };
     }
+
+    @DGet('xml-with-error')
+    @DProduces('application/xml')
+    @DReturns<{ message: string }>(404)
+    xmlWithError(): { foo: string } {
+        return { foo: 'bar' };
+    }
 }
