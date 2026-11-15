@@ -3,24 +3,24 @@ import type {
     MethodDraft,
     MethodFinalizer,
     Response as ResponseDraft,
+    Type,
 } from '@trapi/core';
 import { STATUS_CODES } from 'node:http';
 import type { ResponseIntent } from './types';
-
-const BINARY_TOP_LEVEL_TYPES = new Set(['image', 'audio', 'video', 'font']);
-const BINARY_APPLICATION_TYPES = new Set([
-    'application/octet-stream',
-    'application/pdf',
-    'application/zip',
-    'application/gzip',
-]);
 
 /**
  * Statuses that never carry a body: trapi documents no schema for them.
  */
 const NO_CONTENT_STATUSES = new Set(['204', '205', '304']);
 
-type MediaTypeKind = 'binary' | 'text';
+/**
+ * Return types that say nothing about the payload: trapi resolves
+ * `Uint8Array`, `ArrayBuffer` and `ReadableStream` to `any`.
+ */
+const OPAQUE_TYPE_NAMES = new Set(['any', 'buffer', 'binary', 'file', 'void', 'undefined']);
+const OPAQUE_REFERENCE_NAMES = new Set(['Response', 'Blob', 'File', 'ReadableStream']);
+
+type MediaTypeKind = 'binary' | 'text' | 'structured';
 
 /**
  * `200` and `204` use the spelling trapi gives the implicit success
@@ -36,32 +36,40 @@ export function describeStatus(status: string): string {
 }
 
 /**
- * Classify a media type for the response schema:
- * `binary` → `type: string, format: binary`, `text` → `type: string`,
- * `undefined` → the method's return type is kept.
+ * Classify a media type for the schema of a payload whose type is unknown:
+ * `text` → `type: string`, `structured` (JSON and XML) → no schema can be
+ * derived, anything else is `binary` → `type: string, format: binary`.
  */
-export function classifyMediaType(input: string): MediaTypeKind | undefined {
+export function classifyMediaType(input: string): MediaTypeKind {
     const mediaType = input.split(';')[0]!.trim().toLowerCase();
+    const [topLevelType, subType = ''] = mediaType.split('/');
 
-    if (mediaType.endsWith('+json') || mediaType.endsWith('+xml')) {
-        return undefined;
+    if (
+        subType === 'json' ||
+        subType === 'xml' ||
+        subType.endsWith('+json') ||
+        subType.endsWith('+xml')
+    ) {
+        return 'structured';
     }
 
-    if (BINARY_APPLICATION_TYPES.has(mediaType)) {
-        return 'binary';
+    return topLevelType === 'text' ? 'text' : 'binary';
+}
+
+/**
+ * Whether a return type says nothing about the payload, so the media types
+ * are the only hint.
+ */
+export function isOpaqueType(type: Type): boolean {
+    if (type.typeName === 'union') {
+        return type.members.every((member) => isOpaqueType(member));
     }
 
-    const topLevelType = mediaType.split('/')[0]!;
-
-    if (BINARY_TOP_LEVEL_TYPES.has(topLevelType)) {
-        return 'binary';
+    if (type.typeName === 'refObject') {
+        return OPAQUE_REFERENCE_NAMES.has(type.refName);
     }
 
-    if (topLevelType === 'text') {
-        return 'text';
-    }
-
-    return undefined;
+    return OPAQUE_TYPE_NAMES.has(type.typeName);
 }
 
 /**
@@ -72,7 +80,7 @@ function deriveSchema(mediaTypes: string[]): BaseType | undefined {
     const kinds = new Set(mediaTypes.map((mediaType) => classifyMediaType(mediaType)));
     const [kind] = kinds;
 
-    if (kinds.size !== 1 || !kind) {
+    if (kinds.size !== 1 || !kind || kind === 'structured') {
         return undefined;
     }
 
@@ -114,28 +122,36 @@ function findResponse(draft: MethodDraft, status: string): ResponseDraft | undef
  * Runs after every handler of a method, so the result does not depend on
  * the decorator order.
  */
-export const finalizeMethodResponses: MethodFinalizer = (_ctx, draft) => {
-    const schema = deriveSchema(draft.successProduces);
+export const finalizeMethodResponses: MethodFinalizer = (ctx, draft) => {
     const status = draft.successStatus ?? '200';
     const success = findResponse(draft, status);
 
-    if (schema && !NO_CONTENT_STATUSES.has(status)) {
-        if (success) {
-            // A schema `@DReturns<T>` declared at the status wins.
-            success.schema ??= schema;
-        } else {
-            draft.responses.push({
-                name: status,
-                status,
-                description: describeStatus(status),
-                examples: [],
-                schema,
-            });
+    // A schema `@DReturns<T>` declared at the status wins, and so does a
+    // return type that describes the payload.
+    if (
+        draft.successProduces.length > 0 &&
+        !success?.schema &&
+        !NO_CONTENT_STATUSES.has(status)
+    ) {
+        const schema = deriveSchema(draft.successProduces);
+
+        if (schema && isOpaqueType(ctx.returnType())) {
+            if (success) {
+                success.schema = schema;
+            } else {
+                draft.responses.push({
+                    name: status,
+                    status,
+                    description: describeStatus(status),
+                    examples: [],
+                    schema,
+                });
+            }
+
+            draft.successStatus = status;
+
+            return;
         }
-
-        draft.successStatus = status;
-
-        return;
     }
 
     // trapi only gives a handler response the return type at an explicit

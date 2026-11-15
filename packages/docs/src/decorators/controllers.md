@@ -181,15 +181,17 @@ export class ExportController {
 
 At runtime the first media type becomes the `content-type` of a returned plain value (string, object, `Uint8Array`, …), unless a header is already set or the method sets its own. It is set after the method returned, like the `@DStatus` code, so the method cannot read it from `event.response.headers`. A returned `Response` is left untouched, so set its `content-type` yourself.
 
-In the OpenAPI preset the media types of `@DProduces` document the success response (the `@DStatus` code, or `200`) only; error responses such as `@DReturns(404)` keep `application/json`. A method-level `@DProduces` replaces the class-level one, as at runtime. It also derives the schema of that response from the media types, replacing the return type (which for a `Response` would document the Fetch `Response` object):
+In the OpenAPI preset the media types of `@DProduces` document the success response (the `@DStatus` code, or `200`) only; error responses such as `@DReturns(404)` keep `application/json`. A method-level `@DProduces` replaces the class-level one, as at runtime.
+
+A return type such as `Response`, `Blob`, `Buffer`, `Uint8Array`, `ArrayBuffer` or `ReadableStream` (or no return value) says nothing about the payload. For such a method, a method-level `@DProduces` also sets the schema of the success response:
 
 | Media types of a method-level `@DProduces` | Schema of the success response |
 |---|---|
-| all binary: `application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*` | `type: string, format: binary` |
 | all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` |
-| anything else, `*+json` / `*+xml` (e.g. `image/svg+xml`) or a mix | the method's return type |
+| JSON or XML (`application/json`, `application/xml`, `*+json`, `*+xml` such as `image/svg+xml`), or a mix of kinds | the method's return type |
+| anything else (e.g. `application/pdf`, `application/zip`, `image/png`, `application/vnd.ms-excel`) | `type: string, format: binary` |
 
-A class-level `@DProduces` keeps the return type as the schema, whatever its media types. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
+A return type that describes the payload (an object type, `string`, …) is kept whatever the media types are, and so is the return type under a class-level `@DProduces`. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
 
 ## Accessing the event
 

@@ -249,6 +249,42 @@ describe('src/preset (V3)', () => {
         expect((content['application/xml']!.schema as Record<string, any>).type).toEqual('object');
     });
 
+    it('should document any other media type as binary when the return type is opaque', async () => {
+        const binary = { type: 'string', format: 'binary' };
+        const cases: Record<string, string> = {
+            sheet: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            archive: 'application/x-tar',
+            stream: 'application/wasm',
+            handover: 'application/zip',
+        };
+
+        for (const [name, mediaType] of Object.entries(cases)) {
+            const operation = spec.paths[`/produces-types/${name}`]!.get!;
+
+            expect(operation.responses['200']!.content, name).toEqual({ [mediaType]: { schema: binary } });
+        }
+    });
+
+    it('should keep a return type that describes the payload', async () => {
+        let operation = spec.paths['/produces-types/typed']!.get!;
+
+        expect(operation.responses['200']!.content).toEqual({ 'application/pdf': { schema: { $ref: '#/components/schemas/Report' } } });
+
+        operation = spec.paths['/produces-types/text']!.get!;
+        expect(operation.responses['200']!.content).toEqual({ 'application/pdf': { schema: { type: 'string' } } });
+    });
+
+    it('should derive no schema for a JSON media type or a mix of kinds', async () => {
+        for (const name of ['json-bytes', 'mixed']) {
+            const { content } = spec.paths[`/produces-types/${name}`]!.get!.responses['200']!;
+
+            for (const mediaType of Object.values(content!)) {
+                expect(mediaType.schema, name).not.toEqual({ type: 'string', format: 'binary' });
+                expect(mediaType.schema, name).not.toEqual({ type: 'string' });
+            }
+        }
+    });
+
     it('should apply a class-level @DProduces to its methods', async () => {
         const operation = spec.paths['/produces-class']!.get!;
 
