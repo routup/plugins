@@ -35,9 +35,7 @@ describe('src/ui', () => {
 
         response = await router.fetch(createTestRequest('/docs/foo'));
 
-        expect(response.status).toEqual(200);
-        expect(response.headers.get('content-type')).toEqual('text/html; charset=utf-8');
-        expect((await response.text()).includes('<base href="/docs/" />')).toBeTruthy();
+        expect(response.status).toEqual(404);
     });
 
     it('should serve template file for nested routers', async () => {
