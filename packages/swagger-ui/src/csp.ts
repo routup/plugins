@@ -8,22 +8,52 @@ function unique(items: (string | undefined)[]) : string[] {
     return [...new Set(items.filter((item): item is string => !!item))];
 }
 
-function toOrigin(input: unknown) : string | undefined {
+/**
+ * scheme, host (letters, digits, `.`, `-` or a bracketed IPv6 address)
+ * and optional port: nothing that could end a directive (`;`) or a
+ * policy (`,`) in the header.
+ */
+const HOST_SOURCE_RE = /^https?:\/\/(?:[a-z0-9.-]+|\[[0-9a-f:.]+\])(?::\d+)?$/i;
+
+function toOrigins(input: unknown) : string[] {
     if (typeof input !== 'string') {
-        return undefined;
+        return [];
+    }
+
+    // protocol-relative: the scheme of the page decides.
+    if (input.startsWith('//')) {
+        return [...toOrigins(`https:${input}`), ...toOrigins(`http:${input}`)];
     }
 
     try {
-        const url = new URL(input);
+        const { origin } = new URL(input);
 
-        if (url.protocol === 'http:' || url.protocol === 'https:') {
-            return url.origin;
+        if (HOST_SOURCE_RE.test(origin)) {
+            return [origin];
         }
     } catch {
         // relative url, covered by 'self'
     }
 
-    return undefined;
+    return [];
+}
+
+// Characters that end a source (whitespace), a directive (`;`) or a policy (`,`).
+const UNSAFE_SOURCE_RE = /[\s;,]/;
+
+function isUnsafeSource(source: string) : boolean {
+    return UNSAFE_SOURCE_RE.test(source) ||
+        [...source].some((char) => char.charCodeAt(0) < 0x20 || char.charCodeAt(0) === 0x7f);
+}
+
+function assertSources(name: string, sources: string[] = []) : string[] {
+    for (const source of sources) {
+        if (typeof source !== 'string' || source.length === 0 || isUnsafeSource(source)) {
+            throw new Error(`Invalid content security policy source in ${name}: ${JSON.stringify(source)}`);
+        }
+    }
+
+    return sources;
 }
 
 /**
@@ -34,10 +64,14 @@ function toOrigin(input: unknown) : string | undefined {
  * `blob:` images and media by binary responses.
  */
 export function buildContentSecurityPolicy(input: ContentSecurityPolicyInput = {}) : string {
-    const self = unique(["'self'", ...(input.origins || [])]).join(' ');
+    const origins = assertSources('origins', input.origins);
+    const imgSrc = assertSources('imgSrc', input.imgSrc);
+    const connectSrc = assertSources('connectSrc', input.connectSrc);
+
+    const self = unique(["'self'", ...origins]).join(' ');
     // blob: urls render binary "Try it out" responses (images, audio, video).
-    const img = unique(["'self'", ...(input.origins || []), 'data:', 'blob:', ...(input.imgSrc || [])]).join(' ');
-    const connect = unique(["'self'", ...(input.origins || []), ...(input.connectSrc || [])]).join(' ');
+    const img = unique(["'self'", ...origins, 'data:', 'blob:', ...imgSrc]).join(' ');
+    const connect = unique(["'self'", ...origins, ...connectSrc]).join(' ');
 
     return [
         `default-src ${self}`,
@@ -85,30 +119,50 @@ export function hasOAuthScheme(spec: unknown) : boolean {
 }
 
 /**
- * Replace `{name}` placeholders of a server url with the variable defaults.
- * A placeholder without default leaves the server unresolved (undefined).
+ * Upper bound of urls a templated server expands to; beyond it the
+ * server is skipped and needs a string policy.
  */
-function expandServerURL(server: unknown) : string | undefined {
+const MAX_SERVER_URLS = 64;
+
+function toVariableValues(variable: unknown) : string[] {
+    if (!isObject(variable)) {
+        return [];
+    }
+
+    const values = [variable.default, ...(Array.isArray(variable.enum) ? variable.enum : [])]
+        .filter((value) => typeof value === 'string' || typeof value === 'number')
+        .map((value) => `${value}`);
+
+    return [...new Set(values)];
+}
+
+/**
+ * Expand the `{name}` placeholders of a server url with every value
+ * a visitor can pick (the default and the `enum` values).
+ * A placeholder without value or more than MAX_SERVER_URLS
+ * combinations leave the server unresolved (empty).
+ */
+function expandServerURLs(server: unknown) : string[] {
     if (!isObject(server) || typeof server.url !== 'string') {
-        return undefined;
+        return [];
     }
 
     const variables = isObject(server.variables) ? server.variables : {};
-    let unresolved = false;
+    const parts = server.url.split(/\{([^}]+)\}/g);
 
-    const url = server.url.replace(/\{([^}]+)\}/g, (_match, name: string) => {
-        const variable = variables[name];
+    let urls = [''];
 
-        if (isObject(variable) && typeof variable.default === 'string') {
-            return variable.default;
+    for (const [i, part] of parts.entries()) {
+        const values = i % 2 === 0 ? [part] : toVariableValues(variables[part]);
+
+        if (values.length === 0 || urls.length * values.length > MAX_SERVER_URLS) {
+            return [];
         }
 
-        unresolved = true;
+        urls = urls.flatMap((url) => values.map((value) => url + value));
+    }
 
-        return '';
-    });
-
-    return unresolved ? undefined : url;
+    return urls;
 }
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
@@ -149,24 +203,26 @@ function collectSpecOrigins(spec: Spec) : string[] {
     const output : (string | undefined)[] = [];
 
     for (const server of collectServers(spec)) {
-        output.push(toOrigin(expandServerURL(server)));
+        for (const url of expandServerURLs(server)) {
+            output.push(...toOrigins(url));
+        }
     }
 
     if (typeof spec.host === 'string' && spec.host.length > 0) {
         const schemes : unknown[] = Array.isArray(spec.schemes) ? spec.schemes : ['https', 'http'];
 
         for (const scheme of schemes) {
-            output.push(toOrigin(`${scheme}://${spec.host}`));
+            output.push(...toOrigins(`${scheme}://${spec.host}`));
         }
     }
 
     for (const scheme of collectSecuritySchemes(spec)) {
-        output.push(toOrigin(scheme.tokenUrl), toOrigin(scheme.openIdConnectUrl));
+        output.push(...toOrigins(scheme.tokenUrl), ...toOrigins(scheme.openIdConnectUrl));
 
         if (isObject(scheme.flows)) {
             for (const flow of Object.values(scheme.flows)) {
                 if (isObject(flow)) {
-                    output.push(toOrigin(flow.tokenUrl), toOrigin(flow.refreshUrl));
+                    output.push(...toOrigins(flow.tokenUrl), ...toOrigins(flow.refreshUrl));
                 }
             }
         }
@@ -180,7 +236,15 @@ function collectSpecOrigins(spec: Spec) : string[] {
  * from its options (spec url, servers, token endpoints, validator).
  */
 export function buildContentSecurityPolicyInput(options: UIOptions) : ContentSecurityPolicyInput {
-    const connectSrc = [toOrigin(options.url), toOrigin(options.configUrl)];
+    const connectSrc = [...toOrigins(options.url), ...toOrigins(options.configUrl)];
+
+    if (Array.isArray(options.urls)) {
+        for (const entry of options.urls) {
+            if (isObject(entry)) {
+                connectSrc.push(...toOrigins(entry.url));
+            }
+        }
+    }
 
     if (isObject(options.spec)) {
         connectSrc.push(...collectSpecOrigins(options.spec));
@@ -196,11 +260,11 @@ export function buildContentSecurityPolicyInput(options: UIOptions) : ContentSec
         options.validatorUrl !== null &&
         options.validatorUrl !== 'none'
     ) {
-        imgSrc.push(toOrigin(options.validatorUrl || DEFAULT_VALIDATOR_URL));
+        imgSrc.push(...toOrigins(options.validatorUrl || DEFAULT_VALIDATOR_URL));
     }
 
     return {
-        origins: unique([toOrigin(options.baseURL)]),
+        origins: unique(toOrigins(options.baseURL)),
         connectSrc: unique(connectSrc),
         imgSrc: unique(imgSrc),
     };

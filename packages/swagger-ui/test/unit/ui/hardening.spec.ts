@@ -25,7 +25,7 @@ type Captured = { config: Record<string, any>, oauth?: unknown };
  * Execute the generated initializer in a sandbox with a stub
  * SwaggerUIBundle and return the configuration it was called with.
  */
-function runInitializer(source: string) : Captured {
+function runInitializer(source: string, baseURI = 'http://localhost/docs/') : Captured {
     const captured : Captured = { config: {} };
     const ui = {
         initOAuth: (input: unknown) => {
@@ -43,6 +43,8 @@ function runInitializer(source: string) : Captured {
 
     vm.runInNewContext(source, {
         window,
+        document: { baseURI },
+        URL,
         SwaggerUIBundle,
         SwaggerUIStandalonePreset: {},
     });
@@ -476,6 +478,124 @@ describe('src/ui hardening', () => {
             expect(policy).toContain("img-src 'self' data: blob: https://b.example.com");
             expect(policy).toContain("media-src 'self' blob:");
             expect(policy).toContain("object-src 'none'");
+        });
+    });
+
+    describe('csp sources', () => {
+        const fetchPolicy = async (spec: Record<string, any>, options: UIOptions = {}) => {
+            const router = createRouter({
+                openapi: '3.0.0',
+                info: { title: 'x', version: '1' },
+                ...spec,
+            }, { csp: true, ...options });
+
+            const response = await router.fetch(createTestRequest('/docs/'));
+
+            return response.headers.get('content-security-policy')!;
+        };
+
+        const directives = (policy: string) => policy.split('; ').map((directive) => directive.split(' ')[0]);
+
+        it('should drop server origins that are not plain host sources', async () => {
+            const policy = await fetchPolicy({
+                servers: [
+                    { url: 'https://api.example;sandbox' },
+                    { url: 'https://api.example,default-src' },
+                    { url: 'https://api.example sandbox' },
+                    { url: 'https://ok.example.com:8443/v1' },
+                    { url: 'http://[::1]:3000/api' },
+                ],
+            });
+
+            expect(directives(policy)).toEqual([
+                'default-src',
+                'script-src',
+                'style-src',
+                'img-src',
+                'media-src',
+                'font-src',
+                'connect-src',
+                'object-src',
+                'base-uri',
+                'form-action',
+            ]);
+            expect(policy).not.toContain('sandbox');
+            expect(policy).not.toContain(',');
+            expect(policy).not.toContain('api.example');
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/ok\.example\.com:8443/);
+            expect(policy).toMatch(/connect-src 'self' [^;]*http:\/\/\[::1\]:3000/);
+        });
+
+        it('should reject consumer sources that would inject directives', () => {
+            expect(() => buildContentSecurityPolicy({ connectSrc: ['https://a.example;sandbox'] })).toThrow(/connectSrc/);
+            expect(() => buildContentSecurityPolicy({ imgSrc: ['https://a.example,script-src *'] })).toThrow(/imgSrc/);
+            expect(() => buildContentSecurityPolicy({ origins: ['https://a.example sandbox'] })).toThrow(/origins/);
+            expect(() => buildContentSecurityPolicy({ connectSrc: ['https://a.example\n'] })).toThrow();
+        });
+
+        it('should keep legitimate consumer source expressions', () => {
+            const policy = buildContentSecurityPolicy({
+                connectSrc: ['https://a.example.com', '*.example.com', 'https:', "'self'"],
+                imgSrc: ['data:', 'blob:'],
+                origins: ['https://ui.example.com'],
+            });
+
+            expect(policy).toContain("connect-src 'self' https://ui.example.com https://a.example.com *.example.com https:");
+            expect(policy).toContain("img-src 'self' https://ui.example.com data: blob:;");
+        });
+
+        it('should allow every enum value of server variables', async () => {
+            const policy = await fetchPolicy({
+                servers: [
+                    {
+                        url: 'https://{env}.example.com:{port}',
+                        variables: {
+                            env: { default: 'prod', enum: ['prod', 'stage'] },
+                            port: { default: '443', enum: ['443', '8443'] },
+                        },
+                    },
+                ],
+            });
+
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/prod\.example\.com[ ;]/);
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/stage\.example\.com[ ;]/);
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/prod\.example\.com:8443/);
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/stage\.example\.com:8443/);
+        });
+
+        it('should skip a server with too many variable combinations', async () => {
+            const values = Array.from({ length: 9 }, (_, i) => `v${i}`);
+            const policy = await fetchPolicy({
+                servers: [
+                    {
+                        url: 'https://{a}.{b}.huge.example.com',
+                        variables: { a: { default: 'v0', enum: values }, b: { default: 'v0', enum: values } },
+                    },
+                    { url: 'https://small.example.com' },
+                ],
+            });
+
+            expect(policy).not.toContain('huge.example.com');
+            expect(policy).toContain('https://small.example.com');
+        });
+
+        it('should add both schemes for protocol-relative server urls', async () => {
+            const policy = await fetchPolicy({ servers: [{ url: '//rel.example.com:8080/api' }] });
+
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/rel\.example\.com:8080/);
+            expect(policy).toMatch(/connect-src [^;]*http:\/\/rel\.example\.com:8080/);
+        });
+
+        it('should add the origins of urls[]', async () => {
+            const policy = await fetchPolicy({}, {
+                layout: 'StandaloneLayout',
+                urls: [
+                    { url: 'https://other.example.com/openapi.json', name: 'other' },
+                    { url: '/local.json', name: 'local' },
+                ],
+            });
+
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/other\.example\.com/);
         });
     });
 });
