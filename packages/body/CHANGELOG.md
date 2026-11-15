@@ -1,5 +1,18 @@
 # Change Log
 
+## [4.1.0](https://github.com/routup/plugins/compare/body-v4.0.1...body-v4.1.0) (2026-11-15)
+
+
+### Features
+
+* **decorators:** add DStatus, DProduces and DReturns, export setRequestBody ([#859](https://github.com/routup/plugins/issues/859)) ([72560e5](https://github.com/routup/plugins/commit/72560e58d5ce596c940092fc829df4816f4927e0)), closes [#855](https://github.com/routup/plugins/issues/855)
+
+
+### Bug Fixes
+
+* require routup ^6.3.0 and node &gt;=24 ([e3339a1](https://github.com/routup/plugins/commit/e3339a107396829e9cb32040d9b4367dd1be8b5f))
+* ship README logo in package assets ([76aae10](https://github.com/routup/plugins/commit/76aae10d8636b92665e10ab84f3604343320754d))
+
 ## [4.0.1](https://github.com/routup/plugins/compare/body-v4.0.0...body-v4.0.1) (2026-11-08)
 
 

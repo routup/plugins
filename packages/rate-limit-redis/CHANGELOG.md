@@ -1,5 +1,31 @@
 # Change Log
 
+## [6.0.0](https://github.com/routup/plugins/compare/rate-limit-redis-v5.0.2...rate-limit-redis-v6.0.0) (2026-11-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **rate-limit-redis:** @routup/rate-limit-redis requires redis-extension ^3 (ioredis ^6, Node.js >=24). redis-extension dropped its shared default client (setClient/useClient); pass the client to the RedisStore constructor instead.
+
+### Features
+
+* **rate-limit-redis:** adopt redis-extension 3 and bump dependencies ([4112fa6](https://github.com/routup/plugins/commit/4112fa6a1ab0227faded0abd81eb69d9e99926a3))
+
+
+### Bug Fixes
+
+* require routup ^6.3.0 and node &gt;=24 ([e3339a1](https://github.com/routup/plugins/commit/e3339a107396829e9cb32040d9b4367dd1be8b5f))
+* ship README logo in package assets ([76aae10](https://github.com/routup/plugins/commit/76aae10d8636b92665e10ab84f3604343320754d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^4.0.2 to ^4.0.3
+  * peerDependencies
+    * @routup/rate-limit bumped from ^4.0.2 to ^4.0.3
+
 ## [5.0.2](https://github.com/routup/plugins/compare/rate-limit-redis-v5.0.1...rate-limit-redis-v5.0.2) (2026-11-08)
 
 

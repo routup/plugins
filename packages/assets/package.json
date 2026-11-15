@@ -1,6 +1,6 @@
 {
     "name": "@routup/assets",
-    "version": "5.0.1",
+    "version": "6.0.0",
     "type": "module",
     "description": "Serve static files from a directory, with cache headers, SPA fallback and pass-through to the next handler.",
     "exports": {

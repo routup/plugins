@@ -6,6 +6,23 @@
   * dependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [3.0.3](https://github.com/routup/plugins/compare/basic-v3.0.2...basic-v3.0.3) (2026-11-15)
+
+
+### Bug Fixes
+
+* require routup ^6.3.0 and node &gt;=24 ([e3339a1](https://github.com/routup/plugins/commit/e3339a107396829e9cb32040d9b4367dd1be8b5f))
+* ship README logo in package assets ([76aae10](https://github.com/routup/plugins/commit/76aae10d8636b92665e10ab84f3604343320754d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^4.0.1 to ^4.1.0
+    * @routup/cookie bumped from ^4.0.1 to ^4.0.2
+    * @routup/query bumped from ^4.0.2 to ^4.0.3
+
 ## [3.0.2](https://github.com/routup/plugins/compare/basic-v3.0.1...basic-v3.0.2) (2026-11-08)
 
 

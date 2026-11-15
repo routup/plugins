@@ -1,15 +1,15 @@
 {
-    "packages/assets": "5.0.1",
-    "packages/basic": "3.0.2",
-    "packages/body": "4.0.1",
-    "packages/cookie": "4.0.1",
-    "packages/cors": "2.0.1",
-    "packages/decorators": "5.0.2",
-    "packages/i18n": "5.0.0",
-    "packages/logger": "2.0.1",
-    "packages/prometheus": "4.0.1",
-    "packages/query": "4.0.2",
-    "packages/rate-limit": "4.0.2",
-    "packages/rate-limit-redis": "5.0.2",
-    "packages/swagger-ui": "4.0.2"
+    "packages/assets": "6.0.0",
+    "packages/basic": "3.0.3",
+    "packages/body": "4.1.0",
+    "packages/cookie": "4.0.2",
+    "packages/cors": "2.0.2",
+    "packages/decorators": "5.1.0",
+    "packages/i18n": "5.0.1",
+    "packages/logger": "2.0.2",
+    "packages/prometheus": "4.0.2",
+    "packages/query": "4.0.3",
+    "packages/rate-limit": "4.0.3",
+    "packages/rate-limit-redis": "6.0.0",
+    "packages/swagger-ui": "5.0.0"
 }

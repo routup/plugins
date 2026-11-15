@@ -1,6 +1,6 @@
 {
     "name": "@routup/body",
-    "version": "4.0.1",
+    "version": "4.1.0",
     "type": "module",
     "description": "Read the request body of a routup app as parsed JSON or form data, text, bytes, a Blob or a stream.",
     "exports": {
