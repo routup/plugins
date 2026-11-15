@@ -111,17 +111,19 @@ export class UserController {
 }
 ```
 
-The return type stays the success response (`200 UserPayload`); `409` and `400` are added next to it. Combined with `@DStatus`, a declaration at the same status merges into the success response, and further success statuses can be listed alongside:
+The return type stays the success response (`200 UserPayload`); `409` and `400` are added next to it. Further success statuses can be listed next to the `@DStatus` one:
 
 ```typescript
 @DPut('/:name')
-@DStatus(201)
+@DStatus(200)
 @DReturns<UserPayload>(201, 'Created')
 @DReturns<UserPayload>(202, 'Accepted')
 async upsert(@DPath('name') name: string): Promise<UserPayload> {
-    return users.upsert(name);
+    return users.upsert(name);    // → 200, 201 or 202 UserPayload
 }
 ```
+
+A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one.
 
 On a class, `@DReturns` applies to every operation of the controller; a method-level declaration at the same status wins:
 
