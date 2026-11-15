@@ -7,6 +7,7 @@ import {
     DController,
     DGet,
     DPost,
+    DProduces,
     DStatus,
 } from '../../src';
 
@@ -36,7 +37,7 @@ export class StatusController {
     override(
         @DContext() event: IAppEvent,
     ): string {
-        event.response.status = 200;
+        event.response.status = 202;
 
         return 'override';
     }
@@ -51,5 +52,29 @@ export class StatusController {
     @DGet('error')
     error(): string {
         throw createError({ status: 404, message: 'Not found' });
+    }
+
+    @DStatus(201)
+    @DProduces('application/pdf')
+    @DGet('next')
+    async next(
+        @DContext() event: IAppEvent,
+    ): Promise<void> {
+        await event.next();
+    }
+
+    @DStatus(201)
+    @DProduces('application/pdf')
+    @DGet('next-returned')
+    next2(
+        @DContext() event: IAppEvent,
+    ): Promise<Response | undefined> {
+        return event.next();
+    }
+
+    @DStatus(204)
+    @DGet('empty')
+    empty(): null {
+        return null;
     }
 }

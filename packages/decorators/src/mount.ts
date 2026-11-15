@@ -47,36 +47,31 @@ function buildControllerApp(
                 );
 
                 const response = meta.responses[propertyKey];
+                const contentType = response?.produces?.[0] ?? meta.produces[0];
                 const previousStatus = event.response.status;
 
-                if (response?.status !== undefined) {
+                const result = await controller[propertyKey](...args);
+
+                // Applied once the method answered with a value routup
+                // builds the response from, so that neither an error nor a
+                // handler the method handed over to with `event.next()`
+                // inherits them.
+                if (result === undefined || result instanceof Response) {
+                    return result;
+                }
+
+                if (
+                    response?.status !== undefined &&
+                    event.response.status === previousStatus
+                ) {
                     event.response.status = response.status;
                 }
 
-                const contentType = response?.produces?.[0] ?? meta.produces[0];
-                let contentTypeSet = false;
-
                 if (contentType && !event.response.headers.has('content-type')) {
                     event.response.headers.set('content-type', contentType);
-                    contentTypeSet = true;
                 }
 
-                try {
-                    return await controller[propertyKey](...args);
-                } catch (e) {
-                    // routup hands the same `event.response` to error
-                    // handlers: an error response must not inherit the
-                    // success status or media type declared above.
-                    if (response?.status !== undefined) {
-                        event.response.status = previousStatus;
-                    }
-
-                    if (contentTypeSet) {
-                        event.response.headers.delete('content-type');
-                    }
-
-                    throw e;
-                }
+                return result;
             },
         });
 
