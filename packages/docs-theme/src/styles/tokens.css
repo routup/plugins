@@ -45,7 +45,7 @@
     --rt-surface-dark-elevated: #111830;
     --rt-on-dark: #e7eaf6;
     --rt-on-dark-muted: #8e97b8;
-    --rt-on-dark-faint: #5a6385;
+    --rt-on-dark-faint: #7781a6;
     --rt-border-on-dark: rgba(148, 163, 255, 0.13);
     --rt-border-on-dark-strong: rgba(148, 163, 255, 0.24);
 
@@ -89,4 +89,21 @@
     --vp-c-brand-2: var(--rt-color-primary-300);
     --vp-c-brand-3: var(--rt-color-primary-500);
     --vp-c-brand-soft: color-mix(in oklab, var(--rt-color-primary-400) 18%, transparent);
+
+    /* One navy palette: VitePress's page, nav, sidebar, flyout, search and
+     * code backgrounds, lines and text all derive from these. */
+    --vp-c-bg: var(--rt-color-bg);
+    --vp-c-bg-alt: var(--rt-color-bg-muted);
+    --vp-c-bg-elv: var(--rt-color-bg-elevated);
+    --vp-c-bg-soft: var(--rt-color-bg-elevated);
+
+    --vp-c-border: var(--rt-border-on-dark-strong);
+    --vp-c-divider: var(--rt-color-border);
+    --vp-c-gutter: var(--rt-color-border-muted);
+
+    --vp-c-gray-soft: rgb(148 163 255 / 0.1);
+
+    --vp-c-text-1: var(--rt-color-fg);
+    --vp-c-text-2: var(--rt-color-fg-muted);
+    --vp-c-text-3: var(--rt-on-dark-faint);
 }

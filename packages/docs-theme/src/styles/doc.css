@@ -84,7 +84,12 @@
 }
 
 /* ---------- tables ---------- */
+
+/* VitePress makes the table a scrolling block. The frame hugs a narrow
+ * table and stops at the content width, where a wide one scrolls. */
 .vp-doc table {
+    width: fit-content;
+    max-width: 100%;
     border: 1px solid var(--rt-color-border);
     border-radius: 12px;
     border-collapse: separate;
