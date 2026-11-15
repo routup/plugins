@@ -3,6 +3,7 @@ import { buildClassHandlers } from './class';
 import { buildMethodHandlers } from './method';
 import { buildParameterHandlers } from './parameter';
 import { buildProducesControllerHandlers, buildProducesMethodHandlers } from './produces';
+import { finalizeMethodResponses } from './response';
 import { buildSwaggerControllerHandlers, buildSwaggerMethodHandlers } from './swagger';
 
 export function buildPreset(): Preset {
@@ -19,5 +20,6 @@ export function buildPreset(): Preset {
             ...buildProducesMethodHandlers(),
         ],
         parameters: buildParameterHandlers(),
+        finalizeMethod: finalizeMethodResponses,
     };
 }

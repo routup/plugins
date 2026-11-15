@@ -2,6 +2,7 @@ import {
     DController,
     DGet,
     DProduces,
+    DReturns,
 } from '../../src';
 
 @DController('/produces-class')
@@ -16,5 +17,11 @@ export class ProducesClassController {
     @DProduces('text/plain')
     method(): string {
         return 'foo';
+    }
+
+    @DGet('with-error')
+    @DReturns<{ message: string }>(404)
+    withError(): string {
+        return '<p>foo</p>';
     }
 }

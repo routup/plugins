@@ -4,13 +4,13 @@
 
 The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever a routup-side change needs to know how the metadata pipeline interprets a decorator.
 
-## Version Snapshot (as of 2026-05-12)
+## Version Snapshot (as of 2026-11-15)
 
 | | Version | Notes |
 |---|---|---|
-| `@trapi/core` | 2.0.0 | Domain types + handler/preset primitives extracted from `@trapi/metadata` |
-| `@trapi/metadata` | 2.0.0 | Source-scan + metadata extraction; consumes presets |
-| `@trapi/swagger` | 2.0.0 | OpenAPI 2.0 / 3.0 / 3.1 / 3.2 emission |
+| `@trapi/core` | 2.3.0 | Domain types + handler/preset primitives extracted from `@trapi/metadata` |
+| `@trapi/metadata` | 2.3.0 | Source-scan + metadata extraction; consumes presets |
+| `@trapi/swagger` | 2.3.0 | OpenAPI 2.0 / 3.0 / 3.1 / 3.2 emission |
 | `@trapi/cli` | 2.0.0 | `trapi --preset @routup/decorators/preset` entry point |
 | `@trapi/decorators` | 2.0.0 | Reference decorator preset (canonical names: `@Controller`, `@Get`, ...) |
 
@@ -23,6 +23,10 @@ The local clone lives at `/opt/projects/tada5hi/trapi` — refer to it whenever 
 | `@trapi/metadata` `MarkerName` (`Hidden`, `Deprecated`, `Extension`) | Concept tags so the resolver can find renamed decorators | Set on `@DHidden`/`@DDeprecated` handlers |
 | `@trapi/metadata` `ParamKind` (`Body`, `BodyProp`, `Query`, `QueryProp`, `Path`, `Cookie`, `Header`, `FormData`, `Context`) | Parameter source enumeration | Mapped from `@D*` parameter decorators |
 | `@trapi/metadata` `generateMetadata()` | Public entry: scans source, returns `Metadata` | Called by `@trapi/swagger`'s `generateSwagger()` (transitively) |
+| `@trapi/core` `Preset.finalizeMethod` (`MethodFinalizer`), run by `MethodGenerator.generate()` in `@trapi/metadata` after all handlers and before `buildDefaultResponse()` | Reconciles a method draft whatever the decorator order | `finalizeMethodResponses` in `packages/decorators/src/preset/response.ts`: derives the binary/text schema of a method-level `@DProduces` when `ctx.returnType()` is opaque (trapi resolves `Uint8Array`, `ArrayBuffer` and `ReadableStream` to `any`, `Buffer` to `buffer`, `Response`/`Blob`/`File` to a `refObject`, an alias of them to a `refAlias`, `null` to an `enum` with the member `null`), opts a schema-less `@DReturns(200)` into the return type |
+| `@trapi/core` `successProduces` on controller and method drafts (`attachSuccessProduces()` in `@trapi/metadata`) | Media types of the response that carries the return type; a method list replaces the controller list; dropped for `204`/`205`/`304` | Filled by the `@DProduces` handlers in `packages/decorators/src/preset/produces.ts`. `draft.produces` (operation-wide) is not used. `@trapi/metadata` < 2.3 ignores the field without an error, hence the optional peer ranges on `@trapi/metadata` and `@trapi/swagger` |
+| `@trapi/core` `requireNumber`, `requireArgument` | Strict readers: `undefined` when absent, `CORE_DECORATOR_ARGUMENT_INVALID` when present but unresolvable; constants and enum members resolve | `@DStatus` and the status of `@DReturns`/`@DDescription` in `packages/decorators/src/preset/swagger.ts` |
+| `@trapi/metadata` `describeStatus()` (`SuccessStatusDescription`) | Description of the response at an explicit `successStatus` (`200` → `Ok`, `204` → `No content`, else the reason phrase) | `describeStatus()` in `packages/decorators/src/preset/response.ts` uses the same spelling for responses the preset creates. The `MethodFinalizeContext` has no controller draft, so a class-level `@DProduces` gets no derived schema |
 | `@trapi/swagger` `generateSwagger({ version, metadata, data })` | Produces OpenAPI spec | Called by consumers directly (with `buildPreset()` from `@routup/decorators/preset`) |
 | `@trapi/swagger` `saveSwagger(spec, options)` | Writes spec JSON/YAML to disk | Called by consumers after `generateSwagger()` |
 | `@trapi/swagger` `Version` enum | `V2 / V3 / V3_1 / V3_2` | Passed as `version` field |

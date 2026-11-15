@@ -1,63 +1,47 @@
 import {
     type ControllerDraft,
     type ControllerHandler,
+    type DecoratorArgument,
     type HandlerContext,
     MarkerName,
     type MethodDraft,
     type MethodHandler,
-    type Response as ResponseDraft,
     append,
     controller,
     method,
     readNumber,
     readString,
+    requireArgument,
+    requireNumber,
 } from '@trapi/core';
 import type { ResponseIntent } from './types';
-import {
-    addMethodResponse,
-    describeStatus,
-    mergeResponseIntent,
-    setMethodSuccessStatus,
-} from './response';
+import { describeStatus, mergeResponseIntent } from './response';
 
 const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();
 
-/**
- * Read the response a `@DReturns`/`@DDescription` declares. The status has
- * to be a literal: trapi cannot fold an imported constant, and documenting
- * such a response at 200 would overwrite the success response.
- */
-function readResponseIntent(ctx: HandlerContext, decorator: string): ResponseIntent {
-    const statusArg = ctx.argument(0);
+// A status code, a range (`4XX`) or `default`: the keys OpenAPI allows.
+const STATUS_PATTERN = /^([1-5]\d\d|[1-5]XX|default)$/;
 
-    let status: string | undefined;
+function readStatus(argument: DecoratorArgument): string | undefined {
+    const value = readString(argument) ?? readNumber(argument);
 
-    if (statusArg) {
-        status = readString(statusArg);
-
-        if (status === undefined) {
-            const value = readNumber(statusArg);
-
-            if (value !== undefined) {
-                status = String(value);
-            }
-        }
-
-        if (status === undefined) {
-            const host = ctx.host.parentName ?
-                `${ctx.host.parentName}.${ctx.host.name}` :
-                ctx.host.name;
-
-            throw new Error(
-                `@${decorator} on '${host}': the status must be a numeric or string literal, ` +
-                'an imported constant or other expression cannot be resolved.',
-            );
-        }
-    } else {
-        status = '200';
+    if (value === undefined) {
+        return undefined;
     }
 
+    const status = String(value);
+
+    return STATUS_PATTERN.test(status) ? status : undefined;
+}
+
+/**
+ * Read the response a `@DReturns`/`@DDescription` declares. A status that
+ * cannot be resolved fails generation: documenting such a response at 200
+ * would overwrite the success response.
+ */
+function readResponseIntent(ctx: HandlerContext): ResponseIntent {
+    const status = requireArgument(ctx, 0, readStatus, 'a status code (e.g. 409, a range such as \'4XX\', or \'default\')') ?? '200';
     const description = readString(ctx.argument(1)) ?? describeStatus(status);
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ?
@@ -74,14 +58,8 @@ function readResponseIntent(ctx: HandlerContext, decorator: string): ResponseInt
     };
 }
 
-function applyClassDescription(ctx: HandlerContext, draft: ControllerDraft, decorator: string): void {
-    const intent = readResponseIntent(ctx, decorator);
-
-    mergeResponseIntent(draft.responses as (ResponseDraft & ResponseIntent)[], { ...intent, name: intent.status });
-}
-
-function applyMethodDescription(ctx: HandlerContext, draft: MethodDraft, decorator: string): void {
-    addMethodResponse(draft, readResponseIntent(ctx, decorator));
+function applyDescription(ctx: HandlerContext, draft: ControllerDraft | MethodDraft): void {
+    mergeResponseIntent(draft.responses, readResponseIntent(ctx));
 }
 
 function applySecurity(ctx: HandlerContext, draft: ControllerDraft | MethodDraft): void {
@@ -123,7 +101,7 @@ const classDeprecatedHandler = controller({
 
 const classDescriptionHandler = controller({
     match: { name: 'DDescription', on: 'class' },
-    apply: (ctx, draft) => applyClassDescription(ctx, draft, 'DDescription'),
+    apply: applyDescription,
 });
 
 const classHiddenHandler = controller({
@@ -136,7 +114,7 @@ const classHiddenHandler = controller({
 
 const classReturnsHandler = controller({
     match: { name: 'DReturns', on: 'class' },
-    apply: (ctx, draft) => applyClassDescription(ctx, draft, 'DReturns'),
+    apply: applyDescription,
 });
 
 const classSecurityHandler = controller({
@@ -168,12 +146,12 @@ const methodDeprecatedHandler = method({
 
 const methodDescriptionHandler = method({
     match: { name: 'DDescription', on: 'method' },
-    apply: (ctx, draft) => applyMethodDescription(ctx, draft, 'DDescription'),
+    apply: applyDescription,
 });
 
 const methodReturnsHandler = method({
     match: { name: 'DReturns', on: 'method' },
-    apply: (ctx, draft) => applyMethodDescription(ctx, draft, 'DReturns'),
+    apply: applyDescription,
 });
 
 const methodExampleHandler = method({
@@ -202,13 +180,16 @@ const methodSecurityHandler = method({
     apply: (ctx, draft) => applySecurity(ctx, draft),
 });
 
-// The argument must be a numeric literal: trapi cannot fold an imported
-// constant, and an unresolved argument becomes `'undefined'`, which trapi
-// rejects as an invalid success status instead of silently documenting 200.
+// A code that cannot be resolved (e.g. a call expression) fails generation
+// instead of silently documenting 200.
 const methodStatusHandler = method({
     match: { name: 'DStatus', on: 'method' },
     apply: (ctx, draft) => {
-        setMethodSuccessStatus(draft, String(readNumber(ctx.argument(0))));
+        const status = requireNumber(ctx, 0);
+
+        if (status !== undefined) {
+            draft.successStatus = String(status);
+        }
     },
 });
 

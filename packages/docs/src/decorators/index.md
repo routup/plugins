@@ -117,7 +117,7 @@ Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at
 npx trapi --preset @routup/decorators/preset
 ```
 
-`@trapi/core` is declared as an *optional* peer dependency on `@routup/decorators`, so runtime-only consumers never pay for it. Install it (alongside `@trapi/metadata` and `@trapi/swagger`) only when you call into the generator.
+`@trapi/core`, `@trapi/metadata` and `@trapi/swagger` are declared as *optional* peer dependencies on `@routup/decorators` (version `2.3` or newer), so runtime-only consumers never pay for them. Install them only when you call into the generator. An older `@trapi/metadata` ignores `@DProduces` without an error.
 
 ## See also
 

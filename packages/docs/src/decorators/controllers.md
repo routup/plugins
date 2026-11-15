@@ -94,13 +94,13 @@ The status is written to `event.response.status` after the method returned a val
 - neither an error thrown by the method nor a handler it hands over to with `event.next()` inherits it (nor the `@DProduces` media type), also with a custom error handler,
 - a returned value routup fails to serialize (e.g. an object holding a `BigInt`) fails after the status and media type were applied, so a custom error handler that answers with a value gets them.
 
-`@DStatus(204)` needs a method that returns `null`: a method that returns nothing (`undefined`) hands the request over to the next handler in routup. The OpenAPI preset documents that `null` return type as a JSON body of the `204` response.
+`@DStatus(204)` needs a method that returns `null`: a method that returns nothing (`undefined`) hands the request over to the next handler in routup. The OpenAPI preset documents `204`, `205` and `304` as responses without a body, whatever the return type.
 
-The OpenAPI preset documents the return type under this status instead of `200`, described by its reason phrase (`202` → `Accepted`). Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
+The OpenAPI preset documents the return type under this status instead of `200`, described by its reason phrase (`202` → `Accepted`). The code can be a literal or a numeric constant or enum member (`@DStatus(HttpStatus.Created)`). Generation fails on a code it cannot resolve, such as a call, and on anything that is not a three-digit status code.
 
 ## Declared responses
 
-`@DReturns<T>(status, description?, example?)` documents a response of a method: the type argument is the payload schema, the description defaults to the HTTP reason phrase of the status (`409` → `Conflict`, `200` → `OK`, `Ok` for an unknown code). It only affects the OpenAPI document; at runtime it does nothing.
+`@DReturns<T>(status, description?, example?)` documents a response of a method: the type argument is the payload schema, the description defaults to the HTTP reason phrase of the status (`409` → `Conflict`, `200` → `Ok`, `Ok` for an unknown code). It only affects the OpenAPI document; at runtime it does nothing.
 
 ```typescript
 import { DBody, DController, DPost, DReturns } from '@routup/decorators';
@@ -140,7 +140,7 @@ async upsert(
 
 A `@DReturns` at the `@DStatus` code (or at `200` without one) describes that success response instead of adding a second one; without a type argument the return type stays its schema.
 
-Pass the status as a literal (`409` or `'409'`), as for `@DStatus`: trapi cannot resolve an imported constant, so generation fails with an error naming `@DReturns` instead of documenting the response at `200`.
+As for `@DStatus`, the status is a literal (`409` or `'409'`) or a constant or enum member (`HttpStatus.Conflict`); a range (`'4XX'`) and `'default'` work too. A status the generator cannot resolve, such as a call, or that is none of these, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
 
 On a class, `@DReturns` applies to every operation of the controller; a method-level declaration at the same status wins:
 
@@ -181,15 +181,17 @@ export class ExportController {
 
 At runtime the first media type becomes the `content-type` of a returned plain value (string, object, `Uint8Array`, …), unless a header is already set or the method sets its own. It is set after the method returned, like the `@DStatus` code, so the method cannot read it from `event.response.headers`. A returned `Response` is left untouched, so set its `content-type` yourself.
 
-In the OpenAPI preset the media types of a method-level `@DProduces` document the success response (the `@DStatus` code, or `200`) only, with a schema derived from them that replaces the return type (which for a `Response` would document the Fetch `Response` object). Error responses such as `@DReturns(404)` keep `application/json`:
+In the OpenAPI preset the media types of `@DProduces` document the success response (the `@DStatus` code, or `200`) only; error responses such as `@DReturns(404)` keep `application/json`. A method-level `@DProduces` replaces the class-level one, as at runtime.
 
-| Media types | Schema | Applies to |
-|---|---|---|
-| all binary: `application/octet-stream`, `application/pdf`, `application/zip`, `application/gzip`, `image/*`, `audio/*`, `video/*`, `font/*` | `type: string, format: binary` | the success response |
-| all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` | the success response |
-| anything else, `*+json` / `*+xml` (e.g. `image/svg+xml`) or a mix | the method's return type | every response of the operation |
+Some return types say nothing about the payload: `Response`, `Blob`, `File`, `Buffer`, `Uint8Array`, `ArrayBuffer`, `ReadableStream`, `any`, `unknown`, a union of them, also with `null` or `undefined`, or no return value. For such a method, a method-level `@DProduces` also sets the schema of the success response:
 
-The last row, and a class-level `@DProduces`, go to the operation-wide `produces`: trapi cannot yet attach media types to the implicit success response that carries the return type. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence.
+| Media types of a method-level `@DProduces` | Schema of the success response |
+|---|---|
+| all text: `text/*` (e.g. `text/event-stream`, `text/csv`, `text/xml`), YAML, JavaScript, NDJSON, `application/x-www-form-urlencoded` | `type: string` |
+| all other types except the ones below (e.g. `application/pdf`, `application/zip`, `image/png`, `application/vnd.ms-excel`) | `type: string, format: binary` |
+| JSON or XML (`application/json`, `application/xml`, `*+json`, `*+xml` such as `image/svg+xml`), `multipart/*`, a wildcard, or a mix of kinds | unspecified (any value) |
+
+A return type that describes the payload (an object type, `string`, …) is kept whatever the media types are, and so is the return type under a class-level `@DProduces`. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. `Response`, `Blob` and `File` are matched by name, so do not give an own payload type one of these names. A media type the generator cannot resolve, such as a call, fails generation. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
 
 ## Accessing the event
 

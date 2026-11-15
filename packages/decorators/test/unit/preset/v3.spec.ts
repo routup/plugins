@@ -14,6 +14,21 @@ import { buildPreset } from '../../../src/preset';
 
 const controllerDirectoryPath = path.resolve(process.cwd(), 'test', 'data');
 
+const BINARY = { type: 'string', format: 'binary' };
+// What `@trapi/swagger` emits for a schema of any type.
+const UNSPECIFIED = { additionalProperties: true };
+
+function generateFixture(name: string) {
+    return generateMetadata({
+        cache: false,
+        preset: buildPreset(),
+        entryPoint: {
+            cwd: path.resolve(process.cwd(), 'test', 'fixtures', name),
+            pattern: '**/*.ts',
+        },
+    });
+}
+
 describe('src/preset (V3)', () => {
     let spec : SpecV3;
 
@@ -174,7 +189,7 @@ describe('src/preset (V3)', () => {
         const operation = spec.paths['/produces/download']!.get!;
 
         expect(Object.keys(operation.responses)).toEqual(['200']);
-        expect(operation.responses['200']!.description).toEqual('OK');
+        expect(operation.responses['200']!.description).toEqual('Ok');
         expect(operation.responses['200']!.content).toEqual({ 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } });
     });
 
@@ -238,13 +253,147 @@ describe('src/preset (V3)', () => {
         expect((content['application/xml']!.schema as Record<string, any>).type).toEqual('object');
     });
 
+    it('should document any other media type as binary when the return type is opaque', async () => {
+        const binary = { type: 'string', format: 'binary' };
+        const cases: Record<string, string> = {
+            sheet: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            archive: 'application/x-tar',
+            stream: 'application/wasm',
+            handover: 'application/zip',
+        };
+
+        for (const [name, mediaType] of Object.entries(cases)) {
+            const operation = spec.paths[`/produces-types/${name}`]!.get!;
+
+            expect(operation.responses['200']!.content, name).toEqual({ [mediaType]: { schema: binary } });
+        }
+    });
+
+    it('should keep a return type that describes the payload', async () => {
+        let operation = spec.paths['/produces-types/typed']!.get!;
+
+        expect(operation.responses['200']!.content).toEqual({ 'application/pdf': { schema: { $ref: '#/components/schemas/Report' } } });
+
+        operation = spec.paths['/produces-types/text']!.get!;
+        expect(operation.responses['200']!.content).toEqual({ 'application/pdf': { schema: { type: 'string' } } });
+    });
+
+    it('should derive no schema for a JSON media type or a mix of kinds', async () => {
+        const cases: Record<string, string[]> = {
+            'json-bytes': ['application/vnd.api+json'],
+            mixed: ['application/pdf', 'text/plain'],
+        };
+
+        for (const [name, mediaTypes] of Object.entries(cases)) {
+            const { content } = spec.paths[`/produces-types/${name}`]!.get!.responses['200']!;
+
+            expect(Object.keys(content!), name).toEqual(mediaTypes);
+
+            for (const mediaType of mediaTypes) {
+                expect(content![mediaType]!.schema, name).toEqual(UNSPECIFIED);
+            }
+        }
+    });
+
+    describe('return types', () => {
+        let document : SpecV3;
+
+        const content = (name: string, status = '200') => document.paths[`/types/${name}`]!.get!.responses[status]!.content;
+
+        beforeAll(async () => {
+            document = await generateSwagger({
+                version: Version.V3,
+                metadata: await generateFixture('produces-return-types'),
+            });
+        });
+
+        it('should treat nullable, aliased and Web API return types as opaque', async () => {
+            for (const name of ['nullable', 'alias', 'bytes-or-text', 'blob', 'file']) {
+                expect(content(name), name).toEqual({ 'application/pdf': { schema: BINARY } });
+            }
+        });
+
+        it('should document a 200 for a method without a return value', async () => {
+            const { responses } = document.paths['/types/nothing']!.get!;
+
+            expect(Object.keys(responses)).toEqual(['200']);
+            expect(responses['200']!.content).toEqual({ 'application/pdf': { schema: BINARY } });
+        });
+
+        it('should keep a typed member of a union', async () => {
+            const { schema } = (content('typed-or-nothing')!['application/pdf']!);
+
+            expect(JSON.stringify(schema)).toContain('#/components/schemas/Report');
+        });
+
+        it('should not document the Response class as the payload', async () => {
+            expect(content('json')).toEqual({ 'application/json': { schema: UNSPECIFIED } });
+            expect(content('wildcard')).toEqual({ '*/*': { schema: UNSPECIFIED } });
+            expect(content('mixed')).toEqual({
+                'image/png': { schema: UNSPECIFIED },
+                'application/json': { schema: UNSPECIFIED },
+            });
+            expect(JSON.stringify(document.paths)).not.toContain('#/components/schemas/Response');
+        });
+
+        it('should document text-like media types as string', async () => {
+            expect(content('xml')).toEqual({ 'text/xml': { schema: { type: 'string' } } });
+            expect(content('yaml')).toEqual({ 'application/yaml': { schema: { type: 'string' } } });
+        });
+
+        it('should ignore an empty media type', async () => {
+            expect(Object.keys(content('empty')!)).toEqual(['application/json']);
+        });
+
+        it('should put the media types on a declared response of a method without a return value', async () => {
+            const { responses } = document.paths['/types/declared']!.get!;
+
+            expect(Object.keys(responses)).toEqual(['200']);
+            expect(responses['200']!.content).toEqual({ 'application/pdf': { schema: { $ref: '#/components/schemas/Report' } } });
+        });
+
+        it('should document no body for a no-content status', async () => {
+            expect(document.paths['/types/no-content']!.get!.responses).toEqual({ 204: { description: 'No content' } });
+        });
+    });
+
     it('should apply a class-level @DProduces to its methods', async () => {
-        let operation = spec.paths['/produces-class']!.get!;
+        const operation = spec.paths['/produces-class']!.get!;
 
         expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/html']);
+    });
 
-        operation = spec.paths['/produces-class/method']!.get!;
-        expect(Object.keys(operation.responses['200']!.content!)).toContain('text/plain');
+    it('should let a method-level @DProduces replace the class-level one', async () => {
+        const operation = spec.paths['/produces-class/method']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/plain']);
+    });
+
+    it('should apply a class-level @DProduces to the success response only', async () => {
+        const operation = spec.paths['/produces-class/with-error']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['text/html']);
+        expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
+    });
+
+    it('should apply other @DProduces types to the success response only', async () => {
+        const operation = spec.paths['/produces/xml-with-error']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['application/xml']);
+        expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
+    });
+
+    it('should document no body for a @DStatus(204)', async () => {
+        const operation = spec.paths['/status/empty']!.get!;
+
+        expect(operation.responses).toEqual({ 204: { description: 'No content' } });
+    });
+
+    it('should document a binary @DProduces type for a method without a return value', async () => {
+        const operation = spec.paths['/status/next']!.get!;
+
+        expect(Object.keys(operation.responses)).toEqual(['201']);
+        expect(operation.responses['201']!.content).toEqual({ 'application/pdf': { schema: { type: 'string', format: 'binary' } } });
     });
 
     it('should apply @DProduces media types to the success response only', async () => {
@@ -283,7 +432,7 @@ describe('src/preset (V3)', () => {
         it('should default the description to the reason phrase', async () => {
             const { responses } = spec.paths['/returns/{name}']!.delete!;
 
-            expect(responses['204']!.description).toEqual('No Content');
+            expect(responses['204']!.description).toEqual('No content');
             expect(responses['204']!.content).toBeUndefined();
             expect(responses['200']).toBeUndefined();
         });
@@ -295,15 +444,36 @@ describe('src/preset (V3)', () => {
             expect(responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
         });
 
-        it('should reject a status that is not a literal', async () => {
-            await expect(generateMetadata({
-                cache: false,
-                preset: buildPreset(),
-                entryPoint: {
-                    cwd: path.resolve(process.cwd(), 'test', 'fixtures', 'returns-status-constant'),
-                    pattern: '**/*.ts',
-                },
-            })).rejects.toThrow(/@DReturns on 'ConstantController\.read': the status must be a numeric or string literal/);
+        it('should resolve a constant or enum member as status', async () => {
+            const metadata = await generateFixture('returns-status-constant');
+            const document = await generateSwagger({ version: Version.V3, metadata });
+            const { get, post } = document.paths['/constant']!;
+
+            expect(Object.keys(get!.responses).sort()).toEqual(['200', '404', '409']);
+            expect(get!.responses['409']!.description).toEqual('Conflict');
+            expect(get!.responses['409']!.content!['application/json']!.schema).toEqual(ref('ConflictPayload'));
+            expect(get!.responses['404']!.description).toEqual('Not Found');
+            expect(get!.responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+
+            expect(Object.keys(post!.responses)).toEqual(['201']);
+            expect(post!.responses['201']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+        });
+
+        it('should reject a status that cannot be resolved', async () => {
+            const cases: Record<string, RegExp> = {
+                'returns-status-unresolvable': /'@DReturns' on 'UnresolvableController\.read'/,
+                'returns-status-invalid': /'@DReturns' on 'InvalidStatusController\.read'/,
+                'status-unresolvable': /'@DStatus' on 'UnresolvableStatusController\.create'/,
+                'produces-unresolvable': /'@DProduces' on 'UnresolvableProducesController\.read'/,
+            };
+
+            for (const [name, message] of Object.entries(cases)) {
+                const error = await generateFixture(name).catch((e) => e);
+
+                expect(error, name).toBeInstanceOf(Error);
+                expect(error.code, name).toEqual('CORE_DECORATOR_ARGUMENT_INVALID');
+                expect(error.message, name).toMatch(message);
+            }
         });
 
         it('should accept a string status', async () => {
