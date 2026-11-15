@@ -65,3 +65,18 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
 
     return pick(body, key);
 }
+
+/**
+ * Provides the parsed request body, e.g. from a custom body reader.
+ *
+ * `readRequestBody()` (and `@DBody()` of `@routup/decorators`) return this
+ * value from then on, without reading the request stream. A value set before
+ * the first read means the stream is never touched; a value set afterwards
+ * replaces the parsed body.
+ *
+ * @param event - The routup event.
+ * @param value - The parsed body, usually an object.
+ */
+export function setRequestBody(event: IAppEvent, value: unknown): void {
+    event.store[BodySymbol] = value;
+}

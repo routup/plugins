@@ -8,6 +8,7 @@ import {
     readRequestBody,
     readRequestBodyBytes,
     readRequestBodyText,
+    setRequestBody,
 } from '../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
@@ -228,5 +229,56 @@ describe('src/**', () => {
         }));
 
         expect(await response.json()).toEqual({ isUndefined: true });
+    });
+
+    it('should return a body provided with setRequestBody without reading the stream', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+        router.use(defineCoreHandler((event) => {
+            setRequestBody(event, { foo: 'baz' });
+
+            return event.next();
+        }));
+
+        router.post('/', defineCoreHandler(async (event) => ({
+            body: await readRequestBody(event),
+            foo: await readRequestBody(event, 'foo'),
+            bodyUsed: event.request.bodyUsed,
+        })));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({
+            body: { foo: 'baz' },
+            foo: 'baz',
+            bodyUsed: false,
+        });
+    });
+
+    it('should let setRequestBody replace an already parsed body', async () => {
+        const router = new App();
+
+        router.use(body({ json: true }));
+
+        router.post('/', defineCoreHandler(async (event) => {
+            await readRequestBody(event);
+            setRequestBody(event, { foo: 'baz' });
+
+            return readRequestBody(event);
+        }));
+
+        const response = await router.fetch(createTestRequest('/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
+
+        expect(await response.json()).toEqual({ foo: 'baz' });
     });
 });

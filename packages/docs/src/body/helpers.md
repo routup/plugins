@@ -28,6 +28,25 @@ const body = await readRequestBody(event);
 const email = await readRequestBody(event, 'email');
 ```
 
+## `setRequestBody`
+
+Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and [`@DBody()`](/decorators/parameters) return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body.
+
+```typescript
+declare function setRequestBody(
+    event: IAppEvent,
+    value: unknown,
+): void;
+```
+
+```typescript
+router.use(defineCoreHandler(async (event) => {
+    setRequestBody(event, await myBodyReader(event));
+
+    return event.next();
+}));
+```
+
 ## `readRequestBodyText`
 
 Returns the body decoded as a string.

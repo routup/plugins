@@ -25,6 +25,8 @@ Parameter decorators inject typed values into a controller method. The helpers b
 | `@DCookie(name)` | `useRequestCookie(event, name)` |
 | `@DCookies()` | `useRequestCookies(event)` |
 
+`@DBody()` returns a body provided with [`setRequestBody()`](/body/helpers#setrequestbody) without reading the stream, so a custom body reader can feed it. `@DBody('prop')` resolves to `undefined` when the body is not an object.
+
 ## Setup
 
 Install whichever parsers your controllers actually use, then mount decorators. The simplest setup uses [`@routup/basic`](/basic/), which bundles all three:
