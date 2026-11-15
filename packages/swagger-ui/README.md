@@ -80,7 +80,7 @@ serve(router, { port: 3000 });
 Open `http://localhost:3000/docs/` in a browser.
 
 - The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both return the page with `<base href="/docs/">`, so the bundle's relative asset links resolve either way. The OAuth redirect URL defaults to `oauth2-redirect.html` next to that `<base href>`, so OAuth works from both as well.
-- Only `GET` and `HEAD` are answered, and only for the files listed in [Served files](#served-files). Other paths and methods under the mount go to the next handler, which answers `404` when there is none.
+- Only `GET` and `HEAD` are answered, and only for the files listed in [Served files](#served-files). Other paths and methods under the mount go to the next handler, and the router decides the response: `404` when nothing else handles the request, while routup answers `OPTIONS` itself (`200` with an empty `Allow` header when only the plugin is mounted).
 
 ### Served files
 
@@ -91,7 +91,7 @@ Under the mount path the handler serves:
 - `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js`, `favicon-16x16.png` and `favicon-32x32.png` from `swagger-ui-dist`,
 - `oauth2-redirect.html` and `oauth2-redirect.js` only when an OAuth flow is configured: `oauth` or `oauth2RedirectUrl` is set, or the document passed as object or file declares an `oauth2` or `openIdConnect` security scheme. For a document loaded by URL, set one of the two options.
 
-Every other path (`README.md`, `LICENSE`, source maps, ES bundles, `package.json`, …) and every other method is passed on to the next handler.
+Every other path (`README.md`, `LICENSE`, source maps, ES bundles, `package.json`, …) and every other method is passed on to the next handler; see [Mount the UI](#mount-the-ui) for what the router then answers.
 
 ### Document sources
 

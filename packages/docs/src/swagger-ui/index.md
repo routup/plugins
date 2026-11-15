@@ -53,7 +53,7 @@ Behind a reverse proxy, `basePath` (`'/api'`) or `baseURL` (`'https://example.co
 
 ## Served files
 
-Only `GET` and `HEAD` are answered. The handler serves the HTML shell (at `/` and `/index.html`), its generated `swagger-initializer.js` and `index.css`, and from `swagger-ui-dist` only `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js` and the two favicons. `oauth2-redirect.html` (with `oauth2-redirect.js`) is served when `oauth` or `oauth2RedirectUrl` is set, or when a document passed as object or file declares an `oauth2`/`openIdConnect` scheme. Any other path or method is passed to the next handler (`404` when there is none).
+Only `GET` and `HEAD` are answered. The handler serves the HTML shell (at `/` and `/index.html`), its generated `swagger-initializer.js` and `index.css`, and from `swagger-ui-dist` only `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js` and the two favicons. `oauth2-redirect.html` (with `oauth2-redirect.js`) is served when `oauth` or `oauth2RedirectUrl` is set, or when a document passed as object or file declares an `oauth2`/`openIdConnect` scheme. Any other path or method is passed to the next handler and the router decides the response: `404` when nothing else handles it, while routup answers `OPTIONS` itself (`200` with an empty `Allow` header when only the plugin is mounted).
 
 Document values are serialized with `<`, `>`, `&`, U+2028 and U+2029 escaped, so they cannot break out of the bootstrap.
 
