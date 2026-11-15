@@ -151,40 +151,84 @@
     }
 }
 
-.Layout.rt-home .VPNavBar.top:not(.screen-open) {
-    --vp-nav-bg-color: transparent;
-    --vp-c-gutter: transparent;
-}
-
-/* Re-scope the text variables on the bar's own items only. On .VPNavBar,
- * or on .VPNavBarMenu (which contains the flyout roots), they would reach
- * the open dropdown menus and paint light text on their light background. */
-.Layout.rt-home .VPNavBar.top:not(.screen-open) :is(
-    .VPNavBarTitle,
-    .VPNavBarMenuLink,
-    .VPNavBarSearch,
-    .VPNavBarAppearance,
-    .VPNavBarSocialLinks,
-    .VPNavBarHamburger
-),
-.Layout.rt-home .VPNavBar.top:not(.screen-open) :is(.VPNavBarMenuGroup, .VPNavBarExtra) > .button {
-    --vp-c-text-1: var(--rt-on-dark);
-    --vp-c-text-2: var(--rt-on-dark-muted);
-    --vp-c-text-3: var(--rt-on-dark-faint);
-    --vp-c-brand-1: var(--rt-color-accent-400);
-    --vp-c-brand-2: var(--rt-color-accent-400);
-    --vp-c-divider: var(--rt-border-on-dark-strong);
-    --vp-c-bg-alt: rgb(255 255 255 / 0.06);
-    --vp-input-border-color: var(--rt-border-on-dark-strong);
-    --vp-input-switch-bg-color: rgb(255 255 255 / 0.08);
-}
-
-/* `themeConfig.logo` as `{ light, dark }`: the dark variant wins on the
+/* The bar takes the hero's colours while it sits on the hero. From 960px
+ * the nav is fixed, so that is only at scrollY 0 (`.top`). Below 960px it
+ * scrolls away with the hero, so it keeps them while scrolling too. The
+ * open mobile menu (`.screen-open`) keeps VitePress's opaque bar.
+ *
+ * The text variables are re-scoped on the bar's own items only. On
+ * .VPNavBar, or on .VPNavBarMenu (which contains the flyout roots), they
+ * would reach the open dropdown menus and paint light text on their light
+ * background.
+ *
+ * `themeConfig.logo` as `{ light, dark }`: the dark variant wins on the
  * dark hero in light mode too. */
-.Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.light {
-    display: none;
+@media (min-width: 960px) {
+    .Layout.rt-home .VPNavBar.top:not(.screen-open) {
+        --vp-nav-bg-color: transparent;
+        --vp-c-gutter: transparent;
+    }
+
+    .Layout.rt-home .VPNavBar.top:not(.screen-open) :is(
+        .VPNavBarTitle,
+        .VPNavBarMenuLink,
+        .VPNavBarSearch,
+        .VPNavBarAppearance,
+        .VPNavBarSocialLinks,
+        .VPNavBarHamburger
+    ),
+    .Layout.rt-home .VPNavBar.top:not(.screen-open) :is(.VPNavBarMenuGroup, .VPNavBarExtra) > .button {
+        --vp-c-text-1: var(--rt-on-dark);
+        --vp-c-text-2: var(--rt-on-dark-muted);
+        --vp-c-text-3: var(--rt-on-dark-faint);
+        --vp-c-brand-1: var(--rt-color-accent-400);
+        --vp-c-brand-2: var(--rt-color-accent-400);
+        --vp-c-divider: var(--rt-border-on-dark-strong);
+        --vp-c-bg-alt: rgb(255 255 255 / 0.06);
+        --vp-input-border-color: var(--rt-border-on-dark-strong);
+        --vp-input-switch-bg-color: rgb(255 255 255 / 0.08);
+    }
+
+    .Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.light {
+        display: none;
+    }
+
+    html:not(.dark) .Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.dark {
+        display: inline;
+    }
 }
 
-html:not(.dark) .Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.dark {
-    display: inline;
+@media (max-width: 959px) {
+    .Layout.rt-home .VPNavBar:not(.screen-open) {
+        --vp-nav-bg-color: transparent;
+        --vp-c-gutter: transparent;
+    }
+
+    .Layout.rt-home .VPNavBar:not(.screen-open) :is(
+        .VPNavBarTitle,
+        .VPNavBarMenuLink,
+        .VPNavBarSearch,
+        .VPNavBarAppearance,
+        .VPNavBarSocialLinks,
+        .VPNavBarHamburger
+    ),
+    .Layout.rt-home .VPNavBar:not(.screen-open) :is(.VPNavBarMenuGroup, .VPNavBarExtra) > .button {
+        --vp-c-text-1: var(--rt-on-dark);
+        --vp-c-text-2: var(--rt-on-dark-muted);
+        --vp-c-text-3: var(--rt-on-dark-faint);
+        --vp-c-brand-1: var(--rt-color-accent-400);
+        --vp-c-brand-2: var(--rt-color-accent-400);
+        --vp-c-divider: var(--rt-border-on-dark-strong);
+        --vp-c-bg-alt: rgb(255 255 255 / 0.06);
+        --vp-input-border-color: var(--rt-border-on-dark-strong);
+        --vp-input-switch-bg-color: rgb(255 255 255 / 0.08);
+    }
+
+    .Layout.rt-home .VPNavBar:not(.screen-open) .VPNavBarTitle .VPImage.light {
+        display: none;
+    }
+
+    html:not(.dark) .Layout.rt-home .VPNavBar:not(.screen-open) .VPNavBarTitle .VPImage.dark {
+        display: inline;
+    }
 }
