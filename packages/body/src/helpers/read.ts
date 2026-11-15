@@ -61,6 +61,12 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
 
     body ??= {};
 
+    // `setRequestBody()` may have provided a body while this read was
+    // parsing: that value wins over the parsed one.
+    if (BodySymbol in event.store) {
+        return pick(event.store[BodySymbol], key);
+    }
+
     event.store[BodySymbol] = body;
 
     return pick(body, key);
@@ -72,7 +78,8 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
  * `readRequestBody()` (and `@DBody()` of `@routup/decorators`) return this
  * value from then on, without reading the request stream. A value set before
  * the first read means the stream is never touched; a value set afterwards
- * replaces the parsed body.
+ * replaces the parsed body. A value set while a read is still parsing is
+ * what that read resolves to.
  *
  * @param event - The routup event.
  * @param value - The parsed body, usually an object.
