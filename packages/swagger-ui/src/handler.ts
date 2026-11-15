@@ -17,7 +17,6 @@ import {
     cleanDoubleSlashes,
     withLeadingSlash,
     withTrailingSlash,
-    withoutLeadingSlash,
 } from './url';
 import { isFileURL } from './utils';
 
@@ -56,6 +55,30 @@ function getRelativePath(event: IAppEvent) : string {
 }
 
 /**
+ * Parse baseURL once; a path prefix without trailing slash
+ * (`https://x/prefix`) is kept as a directory (`https://x/prefix/`).
+ */
+function normalizeBaseURL(input: string) : string {
+    let url : URL;
+
+    try {
+        url = new URL(input);
+    } catch {
+        throw new Error(`The swagger-ui baseURL option must be an absolute http(s) URL, got ${JSON.stringify(input)}.`);
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        throw new Error(`The swagger-ui baseURL option must be an absolute http(s) URL, got ${JSON.stringify(input)}.`);
+    }
+
+    url.pathname = withTrailingSlash(url.pathname);
+    url.search = '';
+    url.hash = '';
+
+    return url.href;
+}
+
+/**
  * Create a swagger UI handler by swagger document or web url.
  *
  * @param document
@@ -66,11 +89,15 @@ export function createUIHandler(
     options: UIOptions = {},
 ) : Handler {
     const {
-        baseURL,
+        baseURL: baseURLInput,
         basePath,
         csp,
         ...swaggerOptions
     } = options;
+
+    const baseURL = typeof baseURLInput === 'string' ?
+        normalizeBaseURL(baseURLInput) :
+        undefined;
 
     if (isObject(document)) {
         swaggerOptions.spec = document;
@@ -110,7 +137,8 @@ export function createUIHandler(
         const href = withTrailingSlash(mountPath || '/');
 
         if (baseURL) {
-            return withTrailingSlash(new URL(withoutLeadingSlash(href), baseURL).href);
+            // relative to baseURL, so its path prefix is kept (also for the root mount).
+            return withTrailingSlash(new URL(href.substring(1), baseURL).href);
         }
 
         if (basePath) {

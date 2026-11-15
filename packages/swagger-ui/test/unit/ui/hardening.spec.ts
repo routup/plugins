@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { App, defineCoreHandler } from 'routup';
 import type { Spec } from 'swagger-ui-dist';
 import type { UIOptions } from '../../../src';
-import { buildContentSecurityPolicy, swaggerUI } from '../../../src';
+import { buildContentSecurityPolicy, createUIHandler, swaggerUI } from '../../../src';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
@@ -596,6 +596,66 @@ describe('src/ui hardening', () => {
             });
 
             expect(policy).toMatch(/connect-src [^;]*https:\/\/other\.example\.com/);
+        });
+    });
+
+    describe('oauth2 redirect url', () => {
+        it('should default to the redirect page next to the shell', async () => {
+            const router = createRouter();
+
+            const response = await router.fetch(createTestRequest('/docs/swagger-initializer.js'));
+            const source = await response.text();
+
+            // At /api/docs (no trailing slash) location.pathname is outside the
+            // mount, document.baseURI (from <base href>) is not.
+            const { config } = runInitializer(source, 'https://example.com/api/docs/');
+
+            expect(config.oauth2RedirectUrl).toEqual('https://example.com/api/docs/oauth2-redirect.html');
+        });
+
+        it('should keep a configured redirect url', async () => {
+            const router = createRouter('test/data/swagger.json', { oauth2RedirectUrl: 'https://example.com/cb' });
+
+            const response = await router.fetch(createTestRequest('/docs/swagger-initializer.js'));
+            const { config } = runInitializer(await response.text());
+
+            expect(config.oauth2RedirectUrl).toEqual('https://example.com/cb');
+        });
+    });
+
+    describe('baseURL', () => {
+        it('should throw at setup for an invalid baseURL', () => {
+            expect(() => createUIHandler('test/data/swagger.json', { baseURL: 'not a url' })).toThrow(/baseURL/);
+            expect(() => createUIHandler('test/data/swagger.json', { baseURL: 'ftp://example.com/' })).toThrow(/baseURL/);
+        });
+
+        it('should keep the path prefix without a trailing slash', async () => {
+            const router = createRouter('test/data/swagger.json', { baseURL: 'https://example.com/prefix' });
+
+            const response = await router.fetch(createTestRequest('/docs'));
+
+            expect(await response.text()).toContain('<base href="https://example.com/prefix/docs/" />');
+        });
+
+        it('should keep the path prefix for a root mount', async () => {
+            const router = new App();
+
+            router.use(swaggerUI('test/data/swagger.json', { baseURL: 'https://example.com/prefix/' }));
+
+            const response = await router.fetch(createTestRequest('/'));
+
+            expect(await response.text()).toContain('<base href="https://example.com/prefix/" />');
+        });
+    });
+
+    describe('function options', () => {
+        it('should throw at setup for bound or native functions', () => {
+            const fn = function interceptor(req: any) {
+                return req;
+            };
+
+            expect(() => createUIHandler('test/data/swagger.json', { requestInterceptor: fn.bind(null) })).toThrow(/requestInterceptor/);
+            expect(() => createUIHandler('test/data/swagger.json', { responseInterceptor: Math.max as any })).toThrow(/responseInterceptor/);
         });
     });
 });

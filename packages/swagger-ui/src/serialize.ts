@@ -33,9 +33,18 @@ export function serializeOptions(input: Record<string, any>) : string {
     const token = `__routup_fn_${randomUUID().replace(/-/g, '')}_`;
     const fns : string[] = [];
 
-    const json = JSON.stringify(input, (_key, value) => {
+    const json = JSON.stringify(input, (key, value) => {
         if (typeof value === 'function') {
-            fns.push(toFunctionSource(value));
+            const source = toFunctionSource(value);
+
+            if (source.includes('[native code]')) {
+                throw new Error(
+                    `The swagger-ui option ${JSON.stringify(key)} is a bound or native function, ` +
+                    'which cannot be serialized. Pass a plain function instead.',
+                );
+            }
+
+            fns.push(source);
 
             return `${token}${fns.length - 1}`;
         }

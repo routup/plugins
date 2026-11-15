@@ -24,6 +24,12 @@ window.onload = function () {
         swaggerOptions[key] = options[key];
     });
 
+    // Swagger UI derives the default from location.pathname, which
+    // points outside the mount for /docs (no trailing slash).
+    if (!swaggerOptions.oauth2RedirectUrl) {
+        swaggerOptions.oauth2RedirectUrl = new URL('oauth2-redirect.html', document.baseURI).href;
+    }
+
     var ui = SwaggerUIBundle(swaggerOptions);
 
     if (oauth) {
