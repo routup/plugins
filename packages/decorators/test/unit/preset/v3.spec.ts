@@ -295,6 +295,17 @@ describe('src/preset (V3)', () => {
             expect(responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
         });
 
+        it('should reject a status that is not a literal', async () => {
+            await expect(generateMetadata({
+                cache: false,
+                preset: buildPreset(),
+                entryPoint: {
+                    cwd: path.resolve(process.cwd(), 'test', 'fixtures', 'returns-status-constant'),
+                    pattern: '**/*.ts',
+                },
+            })).rejects.toThrow(/@DReturns on 'ConstantController\.read': the status must be a numeric or string literal/);
+        });
+
         it('should accept a string status', async () => {
             const { responses } = spec.paths['/returns/{name}']!.get!;
 

@@ -24,9 +24,11 @@ const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();
 
 /**
- * Read the response a `@DReturns`/`@DDescription` declares.
+ * Read the response a `@DReturns`/`@DDescription` declares. The status has
+ * to be a literal: trapi cannot fold an imported constant, and documenting
+ * such a response at 200 would overwrite the success response.
  */
-function readResponseIntent(ctx: HandlerContext, _decorator: string): ResponseIntent {
+function readResponseIntent(ctx: HandlerContext, decorator: string): ResponseIntent {
     const statusArg = ctx.argument(0);
 
     let status: string | undefined;
@@ -41,9 +43,20 @@ function readResponseIntent(ctx: HandlerContext, _decorator: string): ResponseIn
                 status = String(value);
             }
         }
-    }
 
-    status ??= '200';
+        if (status === undefined) {
+            const host = ctx.host.parentName ?
+                `${ctx.host.parentName}.${ctx.host.name}` :
+                ctx.host.name;
+
+            throw new Error(
+                `@${decorator} on '${host}': the status must be a numeric or string literal, ` +
+                'an imported constant or other expression cannot be resolved.',
+            );
+        }
+    } else {
+        status = '200';
+    }
 
     const description = readString(ctx.argument(1)) ?? describeStatus(status);
     const payload = ctx.argument(2);
