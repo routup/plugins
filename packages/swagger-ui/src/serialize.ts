@@ -12,10 +12,43 @@ function isExpression(source: string) : boolean {
     }
 }
 
+const toObjectValue = (source: string) => `Object.values({ ${source}\n })[0]`;
+
+// `async` and/or `*` before a computed method name.
+const COMPUTED_METHOD_RE = /^((?:async\s*)?(?:\*\s*)?)\[/;
+
+/**
+ * Read a method shorthand back from an object literal. A computed name
+ * (`[key]() {}`) is replaced by `_`, since its expression refers to
+ * server-side scope; the end of the name is the first `]` that leaves
+ * a source which compiles.
+ */
+function toMethodExpression(source: string) : string | undefined {
+    const match = COMPUTED_METHOD_RE.exec(source);
+
+    if (!match) {
+        const output = toObjectValue(source);
+
+        return isExpression(output) ? output : undefined;
+    }
+
+    const prefix = match[1]!;
+
+    for (let end = source.indexOf(']', prefix.length); end !== -1; end = source.indexOf(']', end + 1)) {
+        const output = toObjectValue(`${prefix}_${source.substring(end + 1)}`);
+
+        if (isExpression(output)) {
+            return output;
+        }
+    }
+
+    return undefined;
+}
+
 /**
  * Turn a function into source that is valid as an expression.
  * Function expressions, arrows and classes are kept; method shorthand
- * of any form (`foo() {}`, `async *foo() {}`, `['foo']() {}`,
+ * of any form (`foo() {}`, `async *foo() {}`, `[key]() {}`,
  * `'foo'() {}`) is wrapped in an object literal and read back.
  */
 function toFunctionSource(key: string, fn: CallableFunction) : string {
@@ -32,9 +65,9 @@ function toFunctionSource(key: string, fn: CallableFunction) : string {
         return source;
     }
 
-    const method = `Object.values({ ${source}\n })[0]`;
+    const method = toMethodExpression(source);
 
-    if (isExpression(method)) {
+    if (method) {
         return method;
     }
 

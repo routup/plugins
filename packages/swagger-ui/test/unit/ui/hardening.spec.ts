@@ -761,6 +761,51 @@ describe('src/ui hardening', () => {
             }
         });
 
+        it('should not re-evaluate computed method names', async () => {
+            const key = 'requestInterceptor';
+
+            const output = roundTrip({
+                plain: {
+                    [key](req: number) {
+                        return req + 1;
+                    },
+                }[key],
+                async: {
+                    async [key](req: number) {
+                        return req + 2;
+                    },
+                }[key],
+                generator: {
+                    * [key](req: number) {
+                        yield req + 3;
+                    },
+                }[key],
+                asyncGenerator: {
+                    async* [key](req: number) {
+                        yield req + 4;
+                    },
+                }[key],
+            });
+
+            expect(output.plain(1)).toEqual(2);
+            expect(await output.async(1)).toEqual(3);
+            expect(output.generator(1).next().value).toEqual(4);
+            expect((await output.asyncGenerator(1).next()).value).toEqual(5);
+        });
+
+        it('should find the end of a computed name containing brackets and strings', () => {
+            const names : Record<string, string[]> = { 'a]b': ['requestInterceptor'] };
+            const fn = {
+                [names['a]b']![0]!](req: string) {
+                    return `[${req}]`;
+                },
+            }.requestInterceptor;
+
+            const output = roundTrip({ requestInterceptor: fn });
+
+            expect(output.requestInterceptor('x')).toEqual('[x]');
+        });
+
         it('should keep function and arrow expressions', () => {
             const output = roundTrip({
                 a: function named(x: number) {
