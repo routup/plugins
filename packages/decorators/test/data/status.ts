@@ -1,4 +1,5 @@
 import type { IAppEvent } from 'routup';
+import { createError } from 'routup';
 import {
     DBody,
     DConsumes,
@@ -44,5 +45,11 @@ export class StatusController {
     @DGet('raw')
     raw(): Response {
         return new Response('raw', { status: 203 });
+    }
+
+    @DStatus(201)
+    @DGet('error')
+    error(): string {
+        throw createError({ status: 404, message: 'Not found' });
     }
 }

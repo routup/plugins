@@ -1,4 +1,5 @@
 import type { IAppEvent } from 'routup';
+import { createError } from 'routup';
 import {
     DContext,
     DController,
@@ -31,6 +32,12 @@ export class ProducesController {
         event.response.headers.set('content-type', 'text/plain');
 
         return 'a,b';
+    }
+
+    @DGet('error')
+    @DProduces('text/event-stream')
+    error(): string {
+        throw createError({ status: 404, message: 'Not found' });
     }
 
     @DGet('download')

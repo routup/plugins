@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { App } from 'routup';
+import { App, defineErrorHandler } from 'routup';
 import { decorators } from '../../src';
 import { ProducesController } from '../data/produces';
 import { ProducesClassController } from '../data/produces-class';
@@ -14,6 +14,15 @@ function createApp() {
     const router = new App();
 
     router.use(decorators({ controllers: [ProducesController, ProducesClassController] }));
+
+    return router;
+}
+
+
+function createAppWithErrorHandler() {
+    const router = createApp();
+
+    router.use(defineErrorHandler((error) => ({ message: error.message })));
 
     return router;
 }
@@ -64,5 +73,12 @@ describe('data/produces', () => {
         const response = await createApp().fetch(createTestRequest('/produces-class/method'));
 
         expect(response.headers.get('content-type')).toEqual('text/plain');
+    });
+
+    it('should not apply the content-type to a custom error response', async () => {
+        const response = await createAppWithErrorHandler().fetch(createTestRequest('/produces/error'));
+
+        expect(response.headers.get('content-type')).toMatch(/^application\/json/);
+        expect(await response.json()).toEqual({ message: 'Not found' });
     });
 });

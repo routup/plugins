@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { body } from '@routup/body';
-import { App } from 'routup';
+import { App, defineErrorHandler } from 'routup';
 import { decorators } from '../../src';
 import { StatusController } from '../data/status';
 
@@ -15,6 +15,15 @@ function createApp() {
 
     router.use(body());
     router.use(decorators({ controllers: [StatusController] }));
+
+    return router;
+}
+
+
+function createAppWithErrorHandler() {
+    const router = createApp();
+
+    router.use(defineErrorHandler((error) => ({ message: error.message })));
 
     return router;
 }
@@ -50,5 +59,12 @@ describe('data/status', () => {
 
         expect(response.status).toEqual(203);
         expect(await response.text()).toEqual('raw');
+    });
+
+    it('should not apply the status to a custom error response', async () => {
+        const response = await createAppWithErrorHandler().fetch(createTestRequest('/status/error'));
+
+        expect(response.status).toEqual(200);
+        expect(await response.json()).toEqual({ message: 'Not found' });
     });
 });

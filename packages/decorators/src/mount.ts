@@ -47,18 +47,36 @@ function buildControllerApp(
                 );
 
                 const response = meta.responses[propertyKey];
+                const previousStatus = event.response.status;
 
                 if (response?.status !== undefined) {
                     event.response.status = response.status;
                 }
 
                 const contentType = response?.produces?.[0] ?? meta.produces[0];
+                let contentTypeSet = false;
 
                 if (contentType && !event.response.headers.has('content-type')) {
                     event.response.headers.set('content-type', contentType);
+                    contentTypeSet = true;
                 }
 
-                return controller[propertyKey](...args);
+                try {
+                    return await controller[propertyKey](...args);
+                } catch (e) {
+                    // routup hands the same `event.response` to error
+                    // handlers: an error response must not inherit the
+                    // success status or media type declared above.
+                    if (response?.status !== undefined) {
+                        event.response.status = previousStatus;
+                    }
+
+                    if (contentTypeSet) {
+                        event.response.headers.delete('content-type');
+                    }
+
+                    throw e;
+                }
             },
         });
 
