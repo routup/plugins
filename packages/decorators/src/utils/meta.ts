@@ -2,6 +2,18 @@ import type { DecoratorMeta, DecoratorResponseOptions } from '../types';
 
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 
+/**
+ * Check whether a controller instance (or its class) carries decorator
+ * metadata, without creating an entry as useDecoratorMeta() does.
+ */
+export function hasDecoratorMeta(target: Record<string, any>) : boolean {
+    if (typeof target === 'function') {
+        return symbol in target.prototype;
+    }
+
+    return symbol in target;
+}
+
 export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
     if (symbol in target) {
         const meta = (target as any)[symbol] as Partial<DecoratorMeta>;
