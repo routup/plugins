@@ -18,9 +18,8 @@ plugins/
 │   ├── rate-limit/     # In-memory rate limiting
 │   ├── rate-limit-redis/ # Redis adapter for rate-limit
 │   └── swagger-ui/     # Mount Swagger UI from a generated/given OpenAPI document
-├── .github/            # CI workflows + reusable actions
+├── .github/            # CI workflows, reusable actions, root README images (assets/)
 ├── nx.json             # NX task config and caching
-├── rollup.config.mjs   # Shared Rollup config factory
 ├── tsconfig.json       # Root TypeScript config
 └── package.json        # Workspace root
 ```
@@ -31,6 +30,7 @@ Every package follows the same structure:
 
 ```
 packages/[name]/
+├── assets/logo.svg       # README logo, shipped via "files" (README loads it from jsDelivr)
 ├── src/
 │   ├── index.ts           # Public exports (plugin + types)
 │   ├── module.ts          # Plugin factory function
@@ -39,12 +39,12 @@ packages/[name]/
 │   ├── request.ts         # Request helpers (useRequestX)
 │   └── utils/             # Internal helpers
 ├── test/
-│   ├── jest.config.js
+│   ├── vitest.config.ts
 │   └── unit/*.spec.ts
-├── package.json           # Dual ESM/CJS exports
+├── package.json           # ESM-only exports
 ├── tsconfig.json          # Extends root
 ├── tsconfig.build.json    # Declaration-only emit
-└── rollup.config.mjs      # Imports createConfig from root
+└── tsdown.config.ts       # Build config
 ```
 
 ## Packages Overview
@@ -62,7 +62,7 @@ packages/[name]/
 | `prometheus` | `@routup/prometheus` | Metrics + /metrics endpoint | `prom-client` |
 | `query` | `@routup/query` | Query string parsing | `qs` |
 | `rate-limit` | `@routup/rate-limit` | In-memory rate limiter | — |
-| `rate-limit-redis` | `@routup/rate-limit-redis` | Redis rate-limit adapter | `@routup/rate-limit`, `ioredis` |
+| `rate-limit-redis` | `@routup/rate-limit-redis` | Redis rate-limit adapter | `@routup/rate-limit`, `redis-extension` |
 | `swagger-ui` | `@routup/swagger-ui` | Mount Swagger UI from a JSON document or URL | `@routup/assets`, `swagger-ui-dist` |
 
 OpenAPI generation is not a routup-owned package — call `@trapi/swagger`'s `generateSwagger()` directly with `buildPreset()` from `@routup/decorators/preset`, or use the `trapi` CLI with `--preset @routup/decorators/preset`. See `packages/decorators/README.md` for the snippet.
@@ -75,4 +75,4 @@ Layer 2 (adapters):     rate-limit-redis, swagger-ui
 Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, prometheus, query, rate-limit
 ```
 
-All packages peer-depend on `routup@^5.0.0`.
+All packages peer-depend on `routup@^6.1.0`.
