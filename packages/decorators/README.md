@@ -555,6 +555,7 @@ For responses shared by every controller, pass them to `generateSwagger` as `dat
 | `mountController(app, controller)`, `mountControllers(app, controllers)` | Functions | Mount controllers without the plugin wrapper |
 | `createClassDecorator`, `createMethodDecorator`, `createParameterDecorator` | Functions | Build your own decorators on the same metadata |
 | `useDecoratorMeta(target)` | Function | Read or create the metadata stored on a controller prototype |
+| `hasDecoratorMeta(target)` | Function | Check whether a controller instance or class carries metadata, without creating any |
 | `buildDecoratorMethodArguments(context, parameters)` | Function | Resolve the argument list for a method from its parameter metadata |
 | `createHandlerForClassType(Class, options)`, `isHandlerClassInstance(value)` | Functions | Wrap a middleware class as a routup handler; check for a `run` method |
 | `ParameterType` | Enum | Parameter kinds: `context`, `request`, `response`, `next`, `param`, `header`, `body`, `query`, `cookie` |

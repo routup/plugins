@@ -226,6 +226,20 @@ router.use(decorators({
 }));
 ```
 
+## Checking for a controller
+
+`hasDecoratorMeta(target)` tells whether a controller instance or class carries decorator metadata, without creating any. Use it to validate controllers that come from outside your own code before mounting them:
+
+```typescript
+import { hasDecoratorMeta } from '@routup/decorators';
+
+hasDecoratorMeta(new UserController()); // true
+hasDecoratorMeta(UserController); // true
+hasDecoratorMeta({}); // false
+```
+
+`useDecoratorMeta(target)` is no substitute for the check: it creates an empty metadata entry on a target that has none.
+
 ## See also
 
 - [Parameters](./parameters) — every `@D*` parameter decorator
