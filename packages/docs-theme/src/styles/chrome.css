@@ -1,7 +1,7 @@
 /*
- * Chrome: the site footer and the transparent nav on landing pages
- * (`pageClass: rt-home`). VitePress's own component styles are unlayered,
- * so these overrides are unlayered too and imported last.
+ * Chrome: the site footer, and the transparent nav and hidden local nav on
+ * landing pages (`pageClass: rt-home`). VitePress's own component styles
+ * are unlayered, so these overrides are unlayered too and imported last.
  */
 
 /* ---------- RtFooter ---------- */
@@ -231,4 +231,13 @@
     html:not(.dark) .Layout.rt-home .VPNavBar:not(.screen-open) .VPNavBarTitle .VPImage.dark {
         display: inline;
     }
+}
+
+/* ---------- No local nav on rt-home ---------- */
+
+/* A landing page has no sidebar and no outline. Below 960px VitePress
+ * still shows its local nav, a "Return to top" bar, once the page is
+ * scrolled past the nav height. */
+.Layout.rt-home .VPLocalNav {
+    display: none;
 }
