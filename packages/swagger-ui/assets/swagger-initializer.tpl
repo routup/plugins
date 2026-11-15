@@ -17,7 +17,7 @@ window.onload = function () {
         plugins: [
             SwaggerUIBundle.plugins.DownloadUrl,
         ],
-        layout: 'StandaloneLayout',
+        layout: 'BaseLayout',
     };
 
     Object.keys(options).forEach(function (key) {

@@ -55,6 +55,26 @@ function runInitializer(source: string) : Captured {
 const PAYLOAD = '</script><script>alert(1)</script><!-- & \u2028\u2029 $& $\' $`';
 
 describe('src/ui hardening', () => {
+    describe('layout', () => {
+        it('should default to BaseLayout (no top bar to explore other documents)', async () => {
+            const router = createRouter();
+
+            const response = await router.fetch(createTestRequest('/docs/swagger-initializer.js'));
+            const { config } = runInitializer(await response.text());
+
+            expect(config.layout).toEqual('BaseLayout');
+        });
+
+        it('should let a consumer opt into StandaloneLayout', async () => {
+            const router = createRouter('test/data/swagger.json', { layout: 'StandaloneLayout' });
+
+            const response = await router.fetch(createTestRequest('/docs/swagger-initializer.js'));
+            const { config } = runInitializer(await response.text());
+
+            expect(config.layout).toEqual('StandaloneLayout');
+        });
+    });
+
     describe('escaping', () => {
         it('should not let spec content break out of the bootstrap', async () => {
             const spec = {

@@ -65,6 +65,8 @@ router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
 
 The recommended policy adds the document's remote origins (document URL, `servers`, OAuth token URLs) to `connect-src`. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
 
+The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back.
+
 ## Install analytics
 
 `swagger-ui-dist` depends on `@scarf/scarf`, whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` to disable it.
