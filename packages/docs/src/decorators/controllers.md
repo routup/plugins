@@ -1,6 +1,6 @@
 ---
 title: Decorators — Controllers
-description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DStatus and @DProduces."
+description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DStatus, @DReturns and @DProduces."
 relatedPlugins: [swagger]
 ---
 
@@ -93,6 +93,48 @@ The status is written to `event.response.status` after the arguments are resolve
 
 The OpenAPI preset documents the return type under this status instead of `200`. Pass a numeric literal: trapi cannot resolve an imported constant, and generation fails on anything that is not a three-digit status code.
 
+## Declared responses
+
+`@DReturns<T>(status, description?, example?)` documents a response of a method: the type argument is the payload schema, the description defaults to the HTTP reason phrase of the status (`409` → `Conflict`, `200` → `OK`, `Ok` for an unknown code). It only affects the OpenAPI document; at runtime it does nothing.
+
+```typescript
+import { DBody, DController, DPost, DReturns } from '@routup/decorators';
+
+@DController('/users')
+export class UserController {
+    @DPost('')
+    @DReturns<ConflictPayload>(409, 'User exists')
+    @DReturns<ValidationPayload>(400)
+    async create(@DBody() data: UserInput): Promise<UserPayload> {
+        return users.create(data);    // → 200 UserPayload
+    }
+}
+```
+
+The return type stays the success response (`200 UserPayload`); `409` and `400` are added next to it. Combined with `@DStatus`, a declaration at the same status merges into the success response, and further success statuses can be listed alongside:
+
+```typescript
+@DPut('/:name')
+@DStatus(201)
+@DReturns<UserPayload>(201, 'Created')
+@DReturns<UserPayload>(202, 'Accepted')
+async upsert(@DPath('name') name: string): Promise<UserPayload> {
+    return users.upsert(name);
+}
+```
+
+On a class, `@DReturns` applies to every operation of the controller; a method-level declaration at the same status wins:
+
+```typescript
+@DController('/users')
+@DReturns<UnauthorizedPayload>(401)
+export class UserController { /* ... */ }
+```
+
+For responses shared by every controller, pass them to `generateSwagger`'s `data.responses` (an operation's own response at the same status wins): `responses: [{ name: '401', status: '401', description: 'Unauthorized' }]`.
+
+`@DDescription` is a deprecated alias of `@DReturns`.
+
 ## Response media types
 
 `@DProduces(...mediaTypes)` declares what a method answers with. Put it on a class to apply it to every method; a method-level `@DProduces` replaces the class-level one at runtime.
@@ -118,7 +160,7 @@ export class ExportController {
 
 At runtime the first media type becomes the `content-type` of a returned plain value (string, object, `Uint8Array`, …), unless a header is already set or the method sets its own. A returned `Response` is left untouched, so set its `content-type` yourself.
 
-In the OpenAPI preset the media types of a method-level `@DProduces` document the success response (the `@DStatus` code, or `200`) only, with a schema derived from them that replaces the return type (which for a `Response` would document the Fetch `Response` object). Error responses such as `@DDescription(404, …)` keep `application/json`:
+In the OpenAPI preset the media types of a method-level `@DProduces` document the success response (the `@DStatus` code, or `200`) only, with a schema derived from them that replaces the return type (which for a `Response` would document the Fetch `Response` object). Error responses such as `@DReturns(404)` keep `application/json`:
 
 | Media types | Schema | Applies to |
 |---|---|---|
@@ -126,7 +168,7 @@ In the OpenAPI preset the media types of a method-level `@DProduces` document th
 | all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` | the success response |
 | anything else, `*+json` / `*+xml` (e.g. `image/svg+xml`) or a mix | the method's return type | every response of the operation |
 
-The last row, and a class-level `@DProduces`, go to the operation-wide `produces`: trapi cannot yet attach media types to the implicit success response that carries the return type. A schema declared with `@DDescription<T>(status, …)` at the same status takes precedence.
+The last row, and a class-level `@DProduces`, go to the operation-wide `produces`: trapi cannot yet attach media types to the implicit success response that carries the return type. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence.
 
 ## Accessing the event
 
