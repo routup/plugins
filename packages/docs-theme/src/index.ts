@@ -1,6 +1,14 @@
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 
+import RtButton from './components/RtButton.vue';
+import RtCard from './components/RtCard.vue';
+import RtCodePanel from './components/RtCodePanel.vue';
+import RtHeading from './components/RtHeading.vue';
+import RtLogo from './components/RtLogo.vue';
+import RtMethodBadge from './components/RtMethodBadge.vue';
+import RtSection from './components/RtSection.vue';
+
 import './styles/index.css';
 
 export type {
@@ -10,4 +18,15 @@ export type {
     RtFooterLink,
 } from './types';
 
-export default { extends: DefaultTheme } satisfies Theme;
+export default {
+    extends: DefaultTheme,
+    enhanceApp({ app }) {
+        app.component('RtButton', RtButton);
+        app.component('RtCard', RtCard);
+        app.component('RtCodePanel', RtCodePanel);
+        app.component('RtHeading', RtHeading);
+        app.component('RtLogo', RtLogo);
+        app.component('RtMethodBadge', RtMethodBadge);
+        app.component('RtSection', RtSection);
+    },
+} satisfies Theme;
