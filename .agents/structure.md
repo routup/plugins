@@ -75,4 +75,4 @@ Layer 2 (adapters):     rate-limit-redis, swagger-ui
 Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, prometheus, query, rate-limit
 ```
 
-All packages peer-depend on `routup@^6.1.0`.
+All packages peer-depend on `routup@^6.3.0`.

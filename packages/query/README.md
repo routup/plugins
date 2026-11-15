@@ -67,7 +67,7 @@ serve(app, { port: 3000 });
 npm install @routup/query
 ```
 
-The package is ESM only, requires Node.js >= 22 and has `routup@^6.1.0` as a peer dependency. `qs` and its types are installed as dependencies.
+The package is ESM only, requires Node.js >= 24 and has `routup@^6.3.0` as a peer dependency. `qs` and its types are installed as dependencies.
 
 ## Usage
 

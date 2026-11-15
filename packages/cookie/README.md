@@ -86,7 +86,7 @@ serve(app, { port: 3000 });
 npm install @routup/cookie
 ```
 
-The package is ESM only, requires Node.js >= 22 and has `routup@^6.1.0` as a peer dependency.
+The package is ESM only, requires Node.js >= 24 and has `routup@^6.3.0` as a peer dependency.
 
 ## Usage
 

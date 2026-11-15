@@ -65,7 +65,7 @@ app.get('/', defineCoreHandler((event) => {
 npm install @routup/i18n ilingo --save
 ```
 
-ESM only, Node.js `>=22`, peer dependencies `routup@^6.1.0` and `ilingo@^6.2.1`.
+ESM only, Node.js `>=24`, peer dependencies `routup@^6.3.0` and `ilingo@^6.2.1`.
 
 ## Usage
 

@@ -81,7 +81,7 @@ app.get('/', defineCoreHandler(() => 'ok'));
 npm install @routup/logger --save
 ```
 
-ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`.
+ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`.
 
 ## Usage
 

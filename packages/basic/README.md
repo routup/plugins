@@ -58,7 +58,7 @@ app.use(basic());
 npm install @routup/basic
 ```
 
-The package is ESM only, requires Node.js >= 22 and has `routup@^6.1.0` as a peer dependency. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies.
+The package is ESM only, requires Node.js >= 24 and has `routup@^6.3.0` as a peer dependency. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies.
 
 ## Usage
 

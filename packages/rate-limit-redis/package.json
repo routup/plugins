@@ -50,7 +50,7 @@
     "peerDependencies": {
         "@routup/rate-limit": "^4.0.2",
         "redis-extension": "^3.0.0",
-        "routup": "^6.1.0"
+        "routup": "^6.3.0"
     },
     "peerDependenciesMeta": {
         "redis-extension": {
@@ -60,7 +60,7 @@
     "devDependencies": {
         "@routup/rate-limit": "^4.0.2",
         "redis-extension": "^3.0.0",
-        "routup": "^6.1.0"
+        "routup": "^6.3.0"
     },
     "publishConfig": {
         "access": "public"

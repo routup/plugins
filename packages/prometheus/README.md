@@ -62,7 +62,7 @@ serve(app, { port: 3000 });
 npm install @routup/prometheus prom-client
 ```
 
-ESM only, Node.js >=22. Peer dependencies: `routup@^6.1.0` and `prom-client@>=15.0.0`.
+ESM only, Node.js >=24. Peer dependencies: `routup@^6.3.0` and `prom-client@>=15.0.0`.
 
 ## Usage
 

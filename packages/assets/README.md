@@ -58,7 +58,7 @@ app.use(assets('dist', { fallback: 'index.html', fallbackIgnores: ['^/api'] }));
 npm install @routup/assets --save
 ```
 
-ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
+ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
 
 ## Usage
 

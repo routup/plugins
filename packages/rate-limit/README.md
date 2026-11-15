@@ -67,7 +67,7 @@ serve(app, { port: 3000 });
 npm install @routup/rate-limit
 ```
 
-ESM only, Node.js >=22. Peer dependency: `routup@^6.1.0`.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`.
 
 ## Usage
 

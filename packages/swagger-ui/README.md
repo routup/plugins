@@ -60,7 +60,7 @@ app.use('/docs', swaggerUI('./openapi.json'));
 npm install @routup/swagger-ui --save
 ```
 
-ESM only, Node.js `>=22`, peer dependencies `routup@^6.1.0` and `@types/swagger-ui-dist@^3.30.5` (for the option types). `swagger-ui-dist` and `@routup/assets` are installed as dependencies.
+ESM only, Node.js `>=24`, peer dependencies `routup@^6.3.0` and `@types/swagger-ui-dist@^3.30.5` (for the option types). `swagger-ui-dist` and `@routup/assets` are installed as dependencies.
 
 ## Usage
 

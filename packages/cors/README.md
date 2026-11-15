@@ -57,7 +57,7 @@ app.use(cors({ origin: true, credentials: true, exposeHeaders: ['x-request-id'] 
 npm install @routup/cors --save
 ```
 
-ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`.
+ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`.
 
 ## Usage
 

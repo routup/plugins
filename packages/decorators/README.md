@@ -87,7 +87,7 @@ app.use(decorators({ controllers: [UserController] }));
 npm install @routup/decorators --save
 ```
 
-ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; you still mount their plugins (see [Parsers](#parsers-for-body-query-and-cookies)). For OpenAPI generation you also install the optional peers `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` (see [OpenAPI generation](#openapi-generation)).
+ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; you still mount their plugins (see [Parsers](#parsers-for-body-query-and-cookies)). For OpenAPI generation you also install the optional peers `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` (see [OpenAPI generation](#openapi-generation)).
 
 The decorators are legacy TypeScript decorators. Your `tsconfig.json` needs:
 

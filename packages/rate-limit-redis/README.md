@@ -72,7 +72,7 @@ serve(app, { port: 3000 });
 npm install @routup/rate-limit-redis @routup/rate-limit redis-extension ioredis
 ```
 
-ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `routup@^6.1.0`, `@routup/rate-limit@^4.0.2` and `redis-extension@^3.0.0` (marked optional in `package.json`, but the store imports it, so install it). Install `ioredis@^6` as well; it is a peer dependency of `redis-extension`.
+ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `routup@^6.3.0`, `@routup/rate-limit@^4.0.2` and `redis-extension@^3.0.0` (marked optional in `package.json`, but the store imports it, so install it). Install `ioredis@^6` as well; it is a peer dependency of `redis-extension`.
 
 ## Usage
 

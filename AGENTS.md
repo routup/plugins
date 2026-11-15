@@ -16,7 +16,7 @@ npm run test           # Run all tests with coverage
 npm run lint           # ESLint across all packages
 ```
 
-- **Node.js**: >=22
+- **Node.js**: >=24
 - **Package manager**: npm (workspaces)
 - **Monorepo orchestration**: NX
 
