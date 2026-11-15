@@ -19,4 +19,11 @@ export class PostController {
     ) {
         return foo;
     }
+
+    @DPost('optional')
+    postOptional(
+        @DBody('foo') foo?: string,
+    ) {
+        return { isUndefined: foo === undefined };
+    }
 }
