@@ -171,7 +171,7 @@ The UI uses `BaseLayout`, without Swagger UI's top bar: the page shows the confi
 
 ### Content security policy
 
-The shell loads only same-origin files, so it runs under `script-src 'self'; style-src 'self'`. Set `csp: true` to send the recommended policy, or a string to send that policy:
+The shell loads only same-origin files, so it runs under `script-src 'self'; style-src 'self'`. Set `csp: true` to send the recommended policy, an object to send it with extra sources, or a string to send that policy:
 
 ```typescript
 import { App } from 'routup';
@@ -185,19 +185,34 @@ router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
 With `csp: true` every response (including `304`s, so a reload keeps the policy) carries:
 
 ```
-default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:;
-media-src 'self' blob:; font-src 'self' data:; connect-src 'self' <origins>;
-object-src 'none'; base-uri 'self'; form-action 'self'
+default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:;
+media-src 'self' blob:; font-src 'self'; connect-src 'self' <origins>;
+base-uri 'self'; form-action 'self'; frame-ancestors 'none'
 ```
 
+- `default-src 'none'` closes every fetch directive the policy does not name (objects, frames, workers, manifests).
+- `frame-ancestors 'none'` forbids embedding the UI in a frame on any site.
 - `blob:` lets "Try it out" render binary responses (images, audio, video).
 - `<origins>` are the absolute origins of the document URL, `configUrl`, the `urls[]` entries, the document's `servers` at root, path and operation level (or Swagger 2 `host`), and its OAuth token, refresh and OpenID URLs.
 - Templated server URLs are expanded with the `default` and every `enum` value of their variables (each variable once for all its occurrences, all combinations up to 64 per server; beyond that only the defaults are used). A protocol-relative server (`//api.example.com`) adds its `https:` and `http:` origin.
 - Only origins of the form `scheme://host[:port]` (letters, digits, `.`, `-` or a bracketed IPv6 address) are added; any other server value is dropped.
-- The `baseURL` origin is added to every directive except `object-src`.
+- The `baseURL` origin is added to `script-src`, `style-src`, `img-src`, `media-src`, `font-src`, `connect-src` and `base-uri`, so a shell on another origin loads its own files. `default-src` stays `'none'` and `form-action` stays `'self'`.
 - With `layout: 'StandaloneLayout'` and a document loaded by URL, the validator badge origin (`https://validator.swagger.io` unless `validatorUrl` is `null` or `'none'`) is added to `img-src`.
 
-Some origins cannot be known in advance; pass a string policy for them: servers of a document loaded by URL, server URLs with a variable that has no default, values a visitor types freely into a server variable (no `enum`), and an OpenID Connect `token_endpoint` found through discovery on another origin than the `openIdConnectUrl`.
+To relax the recommended policy, pass an object instead of `true`. Its `connectSrc`, `imgSrc`, `origins` and `frameAncestors` sources are added to the derived ones; `{}` behaves like `true`. To let your own pages (and a portal) frame the UI and let it call one more API:
+
+```typescript
+router.use('/docs', swaggerUI('./openapi.json', {
+    csp: {
+        frameAncestors: ["'self'", 'https://portal.example.com'],
+        connectSrc: ['https://extra.example.com'],
+    },
+}));
+```
+
+An empty or absent `frameAncestors` keeps `frame-ancestors 'none'`. Invalid sources throw when `swaggerUI()` is called.
+
+Some origins cannot be known in advance; pass them through the `csp` object or a string policy: servers of a document loaded by URL, server URLs with a variable that has no default, values a visitor types freely into a server variable (no `enum`), and an OpenID Connect `token_endpoint` found through discovery on another origin than the `openIdConnectUrl`.
 
 To build your own header, reuse the policy:
 
@@ -208,10 +223,19 @@ const policy = buildContentSecurityPolicy({
     connectSrc: ['https://api.example.com'],
     imgSrc: [],
     origins: [],
+    frameAncestors: ["'self'"],
 });
 ```
 
 `buildContentSecurityPolicy()` throws for a source that contains whitespace, a control character, `;` or `,`, since it would add a directive or a second policy. Source expressions such as `'self'`, `data:`, `https:` or `*.example.com` are accepted.
+
+#### Security headers
+
+Set `securityHeaders: true` (independent of `csp`) to send these headers with every response, including `304`s:
+
+- `x-content-type-options: nosniff`
+- `referrer-policy: no-referrer`
+- `x-frame-options`: `DENY`; `SAMEORIGIN` when `csp` is an object whose `frameAncestors` is exactly `["'self'"]`; omitted when `frameAncestors` names any other source, since the header cannot express it (`frame-ancestors` in the policy governs then). With a string `csp` the value is `DENY`; a browser that reads `frame-ancestors` from your policy ignores `x-frame-options`.
 
 ### Producing the document
 
@@ -227,7 +251,8 @@ To *produce* the document from decorated controllers, see [`@routup/decorators` 
 | `baseURL` | `string` | none | Absolute URL the app is reachable under. The mount path is resolved against it for `<base href>`. Takes precedence over `basePath`. |
 | `oauth` | `UIOAuthOptions` | none | Passed to `ui.initOAuth()`: `clientId`, `clientSecret`, `realm`, `appName`, `scopeOperator`, `scopes` (required), `additionalQueryStringParams`, `useBasicAuthenticationWithAccessCodeGrant`, `usePkceWithAuthorizationCodeGrant`. Also serves the OAuth redirect page. |
 | `authAction` | `Record<string, any>` | none | Passed to `ui.authActions.authorize()` to pre-authorise security schemes. |
-| `csp` | `boolean \| string` | `false` | Set a `content-security-policy` header on every response. `true`: the [recommended policy](#content-security-policy), string: that policy. |
+| `csp` | `boolean \| string \| ContentSecurityPolicyInput` | `false` | Set a `content-security-policy` header on every response. `true`: the [recommended policy](#content-security-policy), object: the recommended policy with its `connectSrc`, `imgSrc`, `origins` and `frameAncestors` added, string: that policy. |
+| `securityHeaders` | `boolean` | `false` | Send `x-content-type-options`, `referrer-policy` and `x-frame-options` on every response (see [Security headers](#security-headers)). |
 | `spec` / `url` | | set from `document` | Overwritten from the `document` argument; set the document there instead. |
 
 Built-in Swagger UI defaults, each overridable through the options: `dom_id: '#swagger-ui'`, `deepLinking: true`, `presets: [apis, StandalonePreset]`, `plugins: [DownloadUrl]`, `layout: 'BaseLayout'` (see [Layout](#layout)). Setting `oauth2RedirectUrl` also serves the OAuth redirect page.
@@ -239,7 +264,7 @@ Built-in Swagger UI defaults, each overridable through the options: `dom_id: '#s
 | `swaggerUI(document, options?)` | function (default export) | Plugin that serves the UI on the path it is mounted at |
 | `createUIHandler(document, options?)` | function | The handler the plugin installs, for `router.use()` without the plugin wrapper |
 | `isFileURL(input)` | function | `true` when `input` is treated as a file path (no protocol, or `file:`) |
-| `buildContentSecurityPolicy(input?)` | function | The recommended policy as a header value; `input` adds `origins`, `connectSrc` and `imgSrc` sources |
+| `buildContentSecurityPolicy(input?)` | function | The recommended policy as a header value; `input` adds `origins`, `connectSrc` and `imgSrc` sources and sets `frameAncestors` (default `'none'`) |
 | `UIOptions`, `UIOAuthOptions`, `ContentSecurityPolicyInput` | types | Option types |
 
 ```typescript

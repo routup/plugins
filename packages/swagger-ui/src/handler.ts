@@ -9,10 +9,15 @@ import path from 'node:path';
 import { URL } from 'node:url';
 import type { Spec } from 'swagger-ui-dist';
 import { ASSETS_PATH } from './constants';
-import { buildContentSecurityPolicy, buildContentSecurityPolicyInput, hasOAuthScheme } from './csp';
+import {
+    buildContentSecurityPolicy,
+    buildContentSecurityPolicyInput,
+    buildFrameOptions,
+    hasOAuthScheme,
+} from './csp';
 import { isObject } from './object';
 import { escapeHTML, serializeOptions } from './serialize';
-import type { UIOptions } from './types';
+import type { ContentSecurityPolicyInput, UIOptions } from './types';
 import {
     cleanDoubleSlashes,
     withLeadingSlash,
@@ -92,6 +97,7 @@ export function createUIHandler(
         baseURL: baseURLInput,
         basePath,
         csp,
+        securityHeaders,
         ...swaggerOptions
     } = options;
 
@@ -110,11 +116,38 @@ export function createUIHandler(
     }
 
     let policy : string | undefined;
+    let frameAncestors : string[] | undefined;
 
     if (typeof csp === 'string') {
         policy = csp;
     } else if (csp) {
-        policy = buildContentSecurityPolicy(buildContentSecurityPolicyInput({ ...swaggerOptions, baseURL }));
+        const derived = buildContentSecurityPolicyInput({ ...swaggerOptions, baseURL });
+        const extra : ContentSecurityPolicyInput = typeof csp === 'object' ? csp : {};
+
+        frameAncestors = extra.frameAncestors;
+        policy = buildContentSecurityPolicy({
+            origins: [...(derived.origins || []), ...(extra.origins || [])],
+            connectSrc: [...(derived.connectSrc || []), ...(extra.connectSrc || [])],
+            imgSrc: [...(derived.imgSrc || []), ...(extra.imgSrc || [])],
+            frameAncestors,
+        });
+    }
+
+    const headers : [string, string][] = [];
+
+    if (policy) {
+        headers.push(['content-security-policy', policy]);
+    }
+
+    if (securityHeaders) {
+        headers.push(['x-content-type-options', 'nosniff']);
+        headers.push(['referrer-policy', 'no-referrer']);
+
+        const frameOptions = buildFrameOptions(frameAncestors);
+
+        if (frameOptions) {
+            headers.push(['x-frame-options', frameOptions]);
+        }
     }
 
     const distFiles = new Set(DIST_FILES);
@@ -184,9 +217,9 @@ export function createUIHandler(
             return event.next();
         }
 
-        // Set before the response is built, so a 304 carries it as well.
-        if (policy) {
-            event.response.headers.set('content-security-policy', policy);
+        // Set before the response is built, so a 304 carries them as well.
+        for (const [name, value] of headers) {
+            event.response.headers.set(name, value);
         }
 
         if (typeof output === 'undefined') {
