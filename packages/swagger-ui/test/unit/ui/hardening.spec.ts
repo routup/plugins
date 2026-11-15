@@ -4,6 +4,7 @@ import { App, defineCoreHandler } from 'routup';
 import type { Spec } from 'swagger-ui-dist';
 import type { UIOptions } from '../../../src';
 import { buildContentSecurityPolicy, createUIHandler, swaggerUI } from '../../../src';
+import { serializeOptions } from '../../../src/serialize';
 
 function createTestRequest(url: string, options?: RequestInit): Request {
     const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
@@ -684,6 +685,108 @@ describe('src/ui hardening', () => {
 
             expect(() => createUIHandler('test/data/swagger.json', { requestInterceptor: fn.bind(null) })).toThrow(/requestInterceptor/);
             expect(() => createUIHandler('test/data/swagger.json', { responseInterceptor: Math.max as any })).toThrow(/responseInterceptor/);
+        });
+    });
+
+    describe('serialize', () => {
+        const roundTrip = (input: Record<string, any>) => vm.runInNewContext(`(${serializeOptions(input)})`);
+
+        it('should serialize method forms to valid expressions', async () => {
+            const sources : Record<string, any>[] = [
+                {
+                    plain(req: any) {
+                        return { req, form: 'plain' }; 
+                    }, 
+                },
+                {
+                    async plain(req: any) {
+                        return { req, form: 'async' }; 
+                    }, 
+                },
+                {
+                    * plain(req: any) {
+                        yield { req, form: 'generator' }; 
+                    }, 
+                },
+                {
+                    async* plain(req: any) {
+                        yield { req, form: 'async generator' }; 
+                    }, 
+                },
+                {
+                    [['pla', 'in'].join('')](req: any) {
+                        return { req, form: 'computed' };
+                    },
+                },
+                {
+                    // eslint-disable-next-line no-useless-computed-key
+                    ['plain'](req: any) {
+                        return { req, form: 'computed literal' };
+                    },
+                },
+                {
+                    'plain'(req: any) {
+                        return { req, form: 'quoted' }; 
+                    }, 
+                },
+                {
+                    'with space'(req: any) {
+                        return { req, form: 'quoted space' }; 
+                    }, 
+                },
+            ];
+
+            for (const source of sources) {
+                const fn = Object.values(source)[0];
+                const output = roundTrip({ requestInterceptor: fn });
+                let result = output.requestInterceptor(1);
+
+                if (typeof result?.next === 'function') {
+                    result = result.next();
+                }
+
+                result = await result;
+
+                expect(result.value ?? result).toEqual(await (async () => {
+                    let expected = fn(1);
+
+                    if (typeof expected?.next === 'function') {
+                        expected = expected.next();
+                    }
+
+                    expected = await expected;
+
+                    return expected.value ?? expected;
+                })());
+            }
+        });
+
+        it('should keep function and arrow expressions', () => {
+            const output = roundTrip({
+                a: function named(x: number) {
+                    return x + 1;
+                },
+                b: (x: number) => x + 2,
+                c: async (x: number) => x + 3,
+            });
+
+            expect(output.a(1)).toEqual(2);
+            expect(output.b(1)).toEqual(3);
+        });
+
+        it('should keep __proto__ keys as own properties', () => {
+            const spec = JSON.parse('{"info":{"__proto__":{"x":"</script>&\u2028"}},"__proto__":[1]}');
+            const source = serializeOptions({ spec });
+
+            expect(source).not.toContain('<');
+            expect(source).not.toContain('\u2028');
+
+            const output = roundTrip({ spec });
+
+            expect(Object.hasOwn(output.spec, '__proto__')).toBe(true);
+            expect(Object.hasOwn(output.spec.info, '__proto__')).toBe(true);
+            expect(Object.getPrototypeOf(output.spec.info)).toBe(Object.getPrototypeOf(output.spec));
+            expect(JSON.stringify(output.spec)).toEqual(JSON.stringify(spec));
         });
     });
 });
