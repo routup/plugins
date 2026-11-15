@@ -111,13 +111,45 @@ function expandServerURL(server: unknown) : string | undefined {
     return unresolved ? undefined : url;
 }
 
+const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+
+/**
+ * Collect the `servers` lists of the document root, its Path Items
+ * and their Operations (OpenAPI 3 lets the latter two override the root).
+ */
+function collectServers(spec: Spec) : unknown[] {
+    const output : unknown[] = [];
+
+    const push = (container: unknown) => {
+        if (isObject(container) && Array.isArray(container.servers)) {
+            output.push(...container.servers);
+        }
+    };
+
+    push(spec);
+
+    if (isObject(spec.paths)) {
+        for (const pathItem of Object.values(spec.paths)) {
+            if (!isObject(pathItem)) {
+                continue;
+            }
+
+            push(pathItem);
+
+            for (const method of HTTP_METHODS) {
+                push(pathItem[method]);
+            }
+        }
+    }
+
+    return output;
+}
+
 function collectSpecOrigins(spec: Spec) : string[] {
     const output : (string | undefined)[] = [];
 
-    if (Array.isArray(spec.servers)) {
-        for (const server of spec.servers) {
-            output.push(toOrigin(expandServerURL(server)));
-        }
+    for (const server of collectServers(spec)) {
+        output.push(toOrigin(expandServerURL(server)));
     }
 
     if (typeof spec.host === 'string' && spec.host.length > 0) {

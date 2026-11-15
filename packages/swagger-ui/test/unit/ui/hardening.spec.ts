@@ -391,6 +391,40 @@ describe('src/ui hardening', () => {
             expect(policy).not.toContain('{');
         });
 
+        it('should add path and operation server origins', async () => {
+            const router = createRouter({
+                openapi: '3.0.0',
+                info: { title: 'x', version: '1' },
+                servers: [{ url: 'https://api.example.com' }],
+                paths: {
+                    '/upload': {
+                        post: {
+                            servers: [{ url: 'https://uploads.example.com' }],
+                            responses: {},
+                        },
+                    },
+                    '/files': {
+                        servers: [{ url: 'https://{region}.files.example.com', variables: { region: { default: 'eu' } } }],
+                        get: { responses: {} },
+                    },
+                    '/broken': null,
+                    '/other': {
+                        get: null,
+                        parameters: [],
+                        'x-ext': { servers: [{ url: 'https://ignored.example.com' }] },
+                    },
+                },
+            }, { csp: true });
+
+            const response = await router.fetch(createTestRequest('/docs/'));
+            const policy = response.headers.get('content-security-policy')!;
+
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/api\.example\.com/);
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/uploads\.example\.com/);
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/eu\.files\.example\.com/);
+            expect(policy).not.toContain('ignored.example.com');
+        });
+
         it('should add the spec url origin without validator for the base layout', async () => {
             const router = createRouter('https://specs.example.com/openapi.json', { csp: true });
 

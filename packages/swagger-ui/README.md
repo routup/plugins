@@ -188,7 +188,7 @@ object-src 'none'; base-uri 'self'; form-action 'self'
 ```
 
 - `blob:` lets "Try it out" render binary responses (images, audio, video).
-- `<origins>` are the absolute origins of the document URL, `configUrl`, the document's `servers` (or Swagger 2 `host`; templated URLs are expanded with their variable defaults), and its OAuth token, refresh and OpenID URLs.
+- `<origins>` are the absolute origins of the document URL, `configUrl`, the document's `servers` at root, path and operation level (or Swagger 2 `host`; templated URLs are expanded with their variable defaults), and its OAuth token, refresh and OpenID URLs.
 - The `baseURL` origin is added to every directive except `object-src`.
 - With `layout: 'StandaloneLayout'` and a document loaded by URL, the validator badge origin (`https://validator.swagger.io` unless `validatorUrl` is `null` or `'none'`) is added to `img-src`.
 

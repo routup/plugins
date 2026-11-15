@@ -63,7 +63,7 @@ The shell has no inline script or style, so it works under `script-src 'self'; s
 router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
 ```
 
-The recommended policy allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, `servers`, OAuth token URLs) to `connect-src`. Origins it cannot know (servers of a document loaded by URL, an OpenID Connect `token_endpoint` on another origin) need a string policy. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
+The recommended policy allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, root, path and operation `servers`, OAuth token URLs) to `connect-src`. Origins it cannot know (servers of a document loaded by URL, an OpenID Connect `token_endpoint` on another origin) need a string policy. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
 
 The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back.
 
