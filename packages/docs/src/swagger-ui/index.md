@@ -33,7 +33,7 @@ Open `http://localhost:3000/docs/` to interact with the document.
 
 `swaggerUI(source)` accepts:
 
-- A **filesystem path** to a JSON or YAML file: `'./writable/swagger.json'`
+- A **filesystem path** to a JSON file: `'./writable/swagger.json'`
 - A **URL** the UI fetches at runtime: `'https://api.example.com/openapi.json'`
 - A **plain object** — useful when you want to merge runtime values (auth servers, environment-specific URLs) before handing the document to the UI
 
@@ -48,6 +48,26 @@ router.use('/docs', swaggerUI({
 ## Mounting
 
 The UI is mounted under whatever path you pass to `router.use()`. Trailing slashes matter for static-asset resolution — visit `/docs/` not `/docs`.
+
+## Served files
+
+Only `GET` and `HEAD` are answered. The handler serves the HTML shell (at `/` and `/index.html`), its generated `swagger-initializer.js` and `index.css`, and from `swagger-ui-dist` only `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js` and the two favicons. `oauth2-redirect.html` (with `oauth2-redirect.js`) is served when `oauth` or `oauth2RedirectUrl` is set, or when a document passed as object or file declares an `oauth2`/`openIdConnect` scheme. Any other path or method is passed to the next handler (`404` when there is none).
+
+Document values are serialized with `<`, `>`, `&`, U+2028 and U+2029 escaped, so they cannot break out of the bootstrap.
+
+## Content security policy
+
+The shell has no inline script or style, so it works under `script-src 'self'; style-src 'self'`. Set `csp: true` to send the recommended policy on every response (including `304`s), or a string to send that policy:
+
+```typescript
+router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
+```
+
+The recommended policy adds the document's remote origins (document URL, `servers`, OAuth token URLs) to `connect-src`. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
+
+## Install analytics
+
+`swagger-ui-dist` depends on `@scarf/scarf`, whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` to disable it.
 
 ## Producing the document
 
