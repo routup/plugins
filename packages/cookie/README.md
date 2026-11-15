@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/cookie@4/assets/logo.svg" alt="@routup/cookie logo: a cookie with a bite taken out of it" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/cookie logo: a cookie with a bite taken out of it" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/cookie</h1>

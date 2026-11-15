@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/rate-limit-redis@5/assets/logo.svg" alt="@routup/rate-limit-redis logo: a round limit sign showing 429 above a database cylinder" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/rate-limit-redis logo: a round limit sign showing 429 above a database cylinder" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/rate-limit-redis</h1>

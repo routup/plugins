@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/rate-limit@4/assets/logo.svg" alt="@routup/rate-limit logo: a round limit sign showing 429 above a row of five dots" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/rate-limit logo: a round limit sign showing 429 above a row of five dots" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/rate-limit</h1>

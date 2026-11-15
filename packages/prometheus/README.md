@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/prometheus@4/assets/logo.svg" alt="@routup/prometheus logo: a stepped counter line rising across dashed sample markers" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/prometheus logo: a stepped counter line rising across dashed sample markers" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/prometheus</h1>

@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/assets@5/assets/logo.svg" alt="@routup/assets logo: a fan of static files on the routup tile" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/assets logo: a fan of static files on the routup tile" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/assets</h1>

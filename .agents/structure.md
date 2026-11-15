@@ -30,7 +30,7 @@ Every package follows the same structure:
 
 ```
 packages/[name]/
-├── assets/logo.svg       # README logo, shipped via "files" (README loads it from jsDelivr)
+├── assets/logo.svg       # README logo, referenced as ./assets/logo.svg
 ├── src/
 │   ├── index.ts           # Public exports (plugin + types)
 │   ├── module.ts          # Plugin factory function

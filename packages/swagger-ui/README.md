@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/swagger-ui@4/assets/logo.svg" alt="@routup/swagger-ui logo: a docs window with one operation expanded" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/swagger-ui logo: a docs window with one operation expanded" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/swagger-ui</h1>

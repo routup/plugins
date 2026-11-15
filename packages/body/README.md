@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/body@4/assets/logo.svg" alt="@routup/body logo: four coloured tiles, one per body format" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/body logo: four coloured tiles, one per body format" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/body</h1>

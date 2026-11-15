@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/decorators@5/assets/logo.svg" alt="@routup/decorators logo: decorators pinned on a class and its methods" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/decorators logo: decorators pinned on a class and its methods" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/decorators</h1>

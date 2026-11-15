@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/basic@3/assets/logo.svg" alt="@routup/basic logo: three cards fanned out, one per bundled plugin" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/basic logo: three cards fanned out, one per bundled plugin" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/basic</h1>

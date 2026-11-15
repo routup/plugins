@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/logger@2/assets/logo.svg" alt="@routup/logger logo: printed log strip" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/logger logo: printed log strip" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/logger</h1>

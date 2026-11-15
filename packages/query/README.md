@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/query@4/assets/logo.svg" alt="@routup/query logo: a key and value pair next to a question mark" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/query logo: a key and value pair next to a question mark" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/query</h1>

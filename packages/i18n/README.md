@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/i18n@5/assets/logo.svg" alt="@routup/i18n logo: one message, two languages" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/i18n logo: one message, two languages" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/i18n</h1>

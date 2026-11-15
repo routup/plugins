@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/npm/@routup/cors@2/assets/logo.svg" alt="@routup/cors logo: two browser origins and a preflight handshake" width="128" height="128" />
+    <img src="./assets/logo.svg" alt="@routup/cors logo: two browser origins and a preflight handshake" width="128" height="128" />
 </p>
 
 <h1 align="center">@routup/cors</h1>
