@@ -351,7 +351,9 @@ describe('src/ui hardening', () => {
 
             expect(policy).toContain("script-src 'self'");
             expect(policy).toContain("style-src 'self'");
-            expect(policy).toContain("img-src 'self' data:");
+            // binary "Try it out" responses render from blob: urls
+            expect(policy).toContain("img-src 'self' data: blob:");
+            expect(policy).toContain("media-src 'self' blob:");
             expect(policy).not.toContain('unsafe-inline');
             expect(policy).not.toContain('unsafe-eval');
         });
@@ -371,14 +373,41 @@ describe('src/ui hardening', () => {
             expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/auth\.example\.com/);
         });
 
-        it('should add the spec url and validator origins', async () => {
+        it('should expand templated server urls', async () => {
+            const router = createRouter({
+                openapi: '3.0.0',
+                info: { title: 'x', version: '1' },
+                servers: [
+                    { url: 'https://{env}.example.com/{base}', variables: { env: { default: 'prod' }, base: { default: 'v1' } } },
+                    { url: 'https://{tenant}.example.org' },
+                ],
+            }, { csp: true });
+
+            const response = await router.fetch(createTestRequest('/docs/'));
+            const policy = response.headers.get('content-security-policy')!;
+
+            expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/prod\.example\.com/);
+            expect(policy).not.toContain('example.org');
+            expect(policy).not.toContain('{');
+        });
+
+        it('should add the spec url origin without validator for the base layout', async () => {
             const router = createRouter('https://specs.example.com/openapi.json', { csp: true });
 
             const response = await router.fetch(createTestRequest('/docs/'));
             const policy = response.headers.get('content-security-policy')!;
 
             expect(policy).toMatch(/connect-src 'self' [^;]*https:\/\/specs\.example\.com/);
-            expect(policy).toMatch(/img-src 'self' data: [^;]*https:\/\/validator\.swagger\.io/);
+            expect(policy).not.toContain('validator.swagger.io');
+        });
+
+        it('should add the validator origin for the standalone layout', async () => {
+            const router = createRouter('https://specs.example.com/openapi.json', { csp: true, layout: 'StandaloneLayout' });
+
+            const response = await router.fetch(createTestRequest('/docs/'));
+            const policy = response.headers.get('content-security-policy')!;
+
+            expect(policy).toMatch(/img-src 'self' data: blob: [^;]*https:\/\/validator\.swagger\.io/);
         });
 
         it('should set a custom policy', async () => {
@@ -410,7 +439,8 @@ describe('src/ui hardening', () => {
             const policy = buildContentSecurityPolicy({ connectSrc: ['https://a.example.com'], imgSrc: ['https://b.example.com'] });
 
             expect(policy).toContain("connect-src 'self' https://a.example.com");
-            expect(policy).toContain("img-src 'self' data: https://b.example.com");
+            expect(policy).toContain("img-src 'self' data: blob: https://b.example.com");
+            expect(policy).toContain("media-src 'self' blob:");
             expect(policy).toContain("object-src 'none'");
         });
     });

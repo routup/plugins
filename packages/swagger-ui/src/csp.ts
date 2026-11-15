@@ -30,11 +30,13 @@ function toOrigin(input: unknown) : string | undefined {
  * Build the recommended content security policy for the Swagger UI shell.
  *
  * The shell loads only same-origin scripts and styles, so no hash or
- * `'unsafe-inline'` is needed. `data:` images are used by swagger-ui.css.
+ * `'unsafe-inline'` is needed. `data:` images are used by swagger-ui.css,
+ * `blob:` images and media by binary responses.
  */
 export function buildContentSecurityPolicy(input: ContentSecurityPolicyInput = {}) : string {
     const self = unique(["'self'", ...(input.origins || [])]).join(' ');
-    const img = unique(["'self'", ...(input.origins || []), 'data:', ...(input.imgSrc || [])]).join(' ');
+    // blob: urls render binary "Try it out" responses (images, audio, video).
+    const img = unique(["'self'", ...(input.origins || []), 'data:', 'blob:', ...(input.imgSrc || [])]).join(' ');
     const connect = unique(["'self'", ...(input.origins || []), ...(input.connectSrc || [])]).join(' ');
 
     return [
@@ -42,6 +44,7 @@ export function buildContentSecurityPolicy(input: ContentSecurityPolicyInput = {
         `script-src ${self}`,
         `style-src ${self}`,
         `img-src ${img}`,
+        `media-src ${self} blob:`,
         `font-src ${self} data:`,
         `connect-src ${connect}`,
         "object-src 'none'",
@@ -81,12 +84,39 @@ export function hasOAuthScheme(spec: unknown) : boolean {
         .some((scheme) => scheme.type === 'oauth2' || scheme.type === 'openIdConnect');
 }
 
+/**
+ * Replace `{name}` placeholders of a server url with the variable defaults.
+ * A placeholder without default leaves the server unresolved (undefined).
+ */
+function expandServerURL(server: unknown) : string | undefined {
+    if (!isObject(server) || typeof server.url !== 'string') {
+        return undefined;
+    }
+
+    const variables = isObject(server.variables) ? server.variables : {};
+    let unresolved = false;
+
+    const url = server.url.replace(/\{([^}]+)\}/g, (_match, name: string) => {
+        const variable = variables[name];
+
+        if (isObject(variable) && typeof variable.default === 'string') {
+            return variable.default;
+        }
+
+        unresolved = true;
+
+        return '';
+    });
+
+    return unresolved ? undefined : url;
+}
+
 function collectSpecOrigins(spec: Spec) : string[] {
     const output : (string | undefined)[] = [];
 
     if (Array.isArray(spec.servers)) {
         for (const server of spec.servers) {
-            output.push(toOrigin(server?.url));
+            output.push(toOrigin(expandServerURL(server)));
         }
     }
 
@@ -126,9 +156,11 @@ export function buildContentSecurityPolicyInput(options: UIOptions) : ContentSec
 
     const imgSrc : (string | undefined)[] = [];
 
-    // The validator badge is only rendered for documents loaded by url.
+    // The validator badge is part of the standalone layout and only
+    // rendered for documents loaded by url.
     if (
         options.url &&
+        options.layout === 'StandaloneLayout' &&
         options.validatorUrl !== null &&
         options.validatorUrl !== 'none'
     ) {
