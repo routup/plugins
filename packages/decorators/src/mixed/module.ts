@@ -3,7 +3,24 @@ import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
 export function DDeprecated() : any {
     return () => {};
 }
+/**
+ * @deprecated Use DReturns
+ */
 export function DDescription<T>(name: string | number, description?: string, example?: T): any {
+    return () => { };
+}
+
+/**
+ * Declare a response status and its payload type (OpenAPI only).
+ *
+ * The type argument is the payload schema. Without a description the
+ * HTTP reason phrase of the status is used, e.g. `Conflict` for 409.
+ *
+ * @param status - e.g. `409` or `'409'`.
+ * @param description - Response description.
+ * @param example - Example payload.
+ */
+export function DReturns<T>(status: number | string, description?: string, example?: T): any {
     return () => { };
 }
 

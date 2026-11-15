@@ -11,6 +11,7 @@ import {
     readNumber,
     readString,
 } from '@trapi/core';
+import { STATUS_CODES } from 'node:http';
 import { moveProducedResponse } from './produces';
 
 const appendTags = append('tags').positionalAll();
@@ -19,7 +20,7 @@ const appendConsumes = append('consumes').positionalAll();
 function applyDescription(ctx: HandlerContext, draft: ControllerDraft | MethodDraft): void {
     const statusArg = ctx.argument(0);
     const status = readString(statusArg) ?? String(readNumber(statusArg) ?? '200');
-    const description = readString(ctx.argument(1)) ?? 'Ok';
+    const description = readString(ctx.argument(1)) ?? STATUS_CODES[status] ?? 'Ok';
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ?
         [{ value: payload.raw }] :
@@ -136,6 +137,11 @@ const methodDescriptionHandler = method({
     apply: (ctx, draft) => applyDescription(ctx, draft),
 });
 
+const methodReturnsHandler = method({
+    match: { name: 'DReturns', on: 'method' },
+    apply: (ctx, draft) => applyDescription(ctx, draft),
+});
+
 const methodExampleHandler = method({
     match: { name: 'DExample', on: 'method' },
     apply: (ctx, draft) => {
@@ -197,6 +203,7 @@ export function buildSwaggerMethodHandlers(): MethodHandler[] {
         methodDescriptionHandler,
         methodExampleHandler,
         methodHiddenHandler,
+        methodReturnsHandler,
         methodSecurityHandler,
         methodStatusHandler,
         methodTagsHandler,

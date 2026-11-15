@@ -216,4 +216,41 @@ describe('src/preset (V3)', () => {
         expect(Object.keys(operation.responses['200']!.content!)).toEqual(['application/octet-stream']);
         expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
     });
+    describe('DReturns', () => {
+        const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` });
+
+        it('should add error responses next to the success response', async () => {
+            const { responses } = spec.paths['/returns']!.post!;
+
+            expect(Object.keys(responses).sort()).toEqual(['200', '400', '409']);
+            expect(responses['409']!.description).toEqual('User exists');
+            expect(responses['400']!.description).toEqual('Bad Request');
+            expect(responses['409']!.content!['application/json']!.schema).toEqual(ref('ConflictPayload'));
+            expect(responses['400']!.content!['application/json']!.schema).toEqual(ref('ValidationPayload'));
+            expect(responses['200']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+        });
+
+        it('should describe the @DStatus response and add another success response', async () => {
+            const { responses } = spec.paths['/returns/{name}']!.put!;
+
+            expect(Object.keys(responses).sort()).toEqual(['201', '202']);
+            expect(responses['201']!.description).toEqual('Created');
+            expect(responses['201']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+            expect(responses['202']!.content!['application/json']!.schema).toEqual(ref('UserPayload'));
+        });
+
+        it('should default the description to the reason phrase', async () => {
+            const { responses } = spec.paths['/returns/{name}']!.delete!;
+
+            expect(responses['204']!.description).toEqual('No Content');
+            expect(responses['204']!.content).toBeUndefined();
+        });
+
+        it('should accept a string status', async () => {
+            const { responses } = spec.paths['/returns/{name}']!.get!;
+
+            expect(responses['404']!.description).toEqual('Missing');
+            expect(responses['404']!.content!['application/json']!.schema).toEqual(ref('NotFoundPayload'));
+        });
+    });
 });
