@@ -87,7 +87,7 @@ app.use(decorators({ controllers: [UserController] }));
 npm install @routup/decorators --save
 ```
 
-ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; you still mount their plugins (see [Parsers](#parsers-for-body-query-and-cookies)). For OpenAPI generation you also install the optional peer `@trapi/core` plus `@trapi/metadata` and `@trapi/swagger` (see [OpenAPI generation](#openapi-generation)).
+ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; you still mount their plugins (see [Parsers](#parsers-for-body-query-and-cookies)). For OpenAPI generation you also install the optional peers `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` (see [OpenAPI generation](#openapi-generation)).
 
 The decorators are legacy TypeScript decorators. Your `tsconfig.json` needs:
 
@@ -252,7 +252,7 @@ export class EventController {
 
 - `@DProduces(...mediaTypes)` (on a method or a class) declares the media types a method answers with. At runtime the first one becomes the `content-type` of a returned plain value unless a header is already set or the method sets its own; a returned `Response` is left untouched. Like `@DStatus`, it is applied after the method returned, so the method cannot read it from `event.response.headers`.
 - In the OpenAPI preset, `@DProduces` documents only the success response (the `@DStatus` code, or `200`) with these media types; error responses (e.g. `@DReturns(404)`) keep `application/json`. A method-level `@DProduces` replaces the class-level one, as at runtime. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
-- When the return type says nothing about the payload (`Response`, `Blob`, `Buffer`, `Uint8Array`, `ArrayBuffer`, `ReadableStream`, or no return value), a method-level `@DProduces` also sets the schema of that response: `type: string` when all media types are `text/*`, `type: string, format: binary` for any other media types. JSON and XML media types (`application/json`, `application/xml`, `*+json`, `*+xml`), a mix of kinds, any other return type, and a class-level `@DProduces` keep the return type as the schema. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence.
+- When the return type says nothing about the payload (`Response`, `Blob`, `File`, `Buffer`, `Uint8Array`, `ArrayBuffer`, `ReadableStream`, `any`, `unknown`, a union of them, also with `null` or `undefined`, or no return value), a method-level `@DProduces` also sets the schema of that response: `type: string` when all media types are text (`text/*`, YAML, JavaScript, NDJSON, form-urlencoded), `type: string, format: binary` when all of them are other non-JSON, non-XML types (`application/pdf`, `image/png`, `application/vnd.ms-excel`, …), and an unspecified schema for JSON, XML, wildcards or a mix. Any other return type, and the return type under a class-level `@DProduces`, is kept as the schema. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. `Response`, `Blob` and `File` are matched by name, so do not give an own payload type one of these names.
 - `@DConsumes(...mediaTypes)` (on a method or a class) declares the request body media types for the OpenAPI document; at runtime it does nothing.
 
 ### Parameter decorators
@@ -483,7 +483,7 @@ export class DocumentedUserController {
 
 - A class-level declaration applies to every operation of the controller; a method-level one at the same status wins.
 - A `@DReturns` at the `@DStatus` code describes that success response instead of adding a second one. Without a type argument it keeps the return type as the schema (e.g. `@DReturns(200, 'The user')`).
-- The status is a literal (`409` or `'409'`) or a constant or enum member (`HttpStatus.Conflict`). A status the generator cannot resolve, such as a call, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
+- The status is a literal (`409` or `'409'`), a constant or enum member (`HttpStatus.Conflict`), a range (`'4XX'`) or `'default'`. A status the generator cannot resolve, such as a call, or that is none of these, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
 - It only documents: when a method answers with another status, it sets that status itself.
 
 ```typescript
@@ -599,7 +599,7 @@ See the docs site for [controllers](https://plugins.routup.dev/decorators/contro
 - **Parameter positions matter.** Only decorated parameters are filled. If a method decorates some parameters but not others, the undecorated ones are `undefined`; a method with no parameter decorators gets the event as its first argument.
 - **`@DHeader` returns `null` for a missing header** (that is what `Headers.get` returns), while `@DQuery(key)` and `@DCookie(name)` return `undefined`.
 - **Documentation decorators are no-ops at runtime.** `@DSecurity` does not check anything; add a middleware for that.
-- **`@trapi/core` is an optional peer.** The runtime entry never imports it; only `@routup/decorators/preset` does, so install it only where you generate the document. The preset needs version `2.3` or newer of `@trapi/core`, `@trapi/metadata` and `@trapi/swagger`.
+- **The trapi packages are optional peers.** The runtime entry never imports them; only `@routup/decorators/preset` imports `@trapi/core`, so install them only where you generate the document. The preset needs version `2.3` or newer of `@trapi/core`, `@trapi/metadata` and `@trapi/swagger`: an older `@trapi/metadata` ignores `@DProduces` without an error.
 
 ## License
 

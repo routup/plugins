@@ -140,7 +140,7 @@ async upsert(
 
 A `@DReturns` at the `@DStatus` code (or at `200` without one) describes that success response instead of adding a second one; without a type argument the return type stays its schema.
 
-As for `@DStatus`, the status is a literal (`409` or `'409'`) or a constant or enum member (`HttpStatus.Conflict`). A status the generator cannot resolve, such as a call, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
+As for `@DStatus`, the status is a literal (`409` or `'409'`) or a constant or enum member (`HttpStatus.Conflict`); a range (`'4XX'`) and `'default'` work too. A status the generator cannot resolve, such as a call, or that is none of these, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
 
 On a class, `@DReturns` applies to every operation of the controller; a method-level declaration at the same status wins:
 
@@ -183,15 +183,15 @@ At runtime the first media type becomes the `content-type` of a returned plain v
 
 In the OpenAPI preset the media types of `@DProduces` document the success response (the `@DStatus` code, or `200`) only; error responses such as `@DReturns(404)` keep `application/json`. A method-level `@DProduces` replaces the class-level one, as at runtime.
 
-A return type such as `Response`, `Blob`, `Buffer`, `Uint8Array`, `ArrayBuffer` or `ReadableStream` (or no return value) says nothing about the payload. For such a method, a method-level `@DProduces` also sets the schema of the success response:
+Some return types say nothing about the payload: `Response`, `Blob`, `File`, `Buffer`, `Uint8Array`, `ArrayBuffer`, `ReadableStream`, `any`, `unknown`, a union of them, also with `null` or `undefined`, or no return value. For such a method, a method-level `@DProduces` also sets the schema of the success response:
 
 | Media types of a method-level `@DProduces` | Schema of the success response |
 |---|---|
-| all `text/*` (e.g. `text/event-stream`, `text/csv`) | `type: string` |
-| JSON or XML (`application/json`, `application/xml`, `*+json`, `*+xml` such as `image/svg+xml`), or a mix of kinds | the method's return type |
-| anything else (e.g. `application/pdf`, `application/zip`, `image/png`, `application/vnd.ms-excel`) | `type: string, format: binary` |
+| all text: `text/*` (e.g. `text/event-stream`, `text/csv`, `text/xml`), YAML, JavaScript, NDJSON, `application/x-www-form-urlencoded` | `type: string` |
+| all other types except the ones below (e.g. `application/pdf`, `application/zip`, `image/png`, `application/vnd.ms-excel`) | `type: string, format: binary` |
+| JSON or XML (`application/json`, `application/xml`, `*+json`, `*+xml` such as `image/svg+xml`), `multipart/*`, a wildcard, or a mix of kinds | unspecified (any value) |
 
-A return type that describes the payload (an object type, `string`, …) is kept whatever the media types are, and so is the return type under a class-level `@DProduces`. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
+A return type that describes the payload (an object type, `string`, …) is kept whatever the media types are, and so is the return type under a class-level `@DProduces`. A schema declared with `@DReturns<T>(status, …)` at the same status takes precedence. `Response`, `Blob` and `File` are matched by name, so do not give an own payload type one of these names. A media type the generator cannot resolve, such as a call, fails generation. Swagger 2.0 has no media types per response, so there they are the `produces` of the operation.
 
 ## Accessing the event
 

@@ -20,10 +20,19 @@ import { describeStatus, mergeResponseIntent } from './response';
 const appendTags = append('tags').positionalAll();
 const appendConsumes = append('consumes').positionalAll();
 
+// A status code, a range (`4XX`) or `default`: the keys OpenAPI allows.
+const STATUS_PATTERN = /^([1-5]\d\d|[1-5]XX|default)$/;
+
 function readStatus(argument: DecoratorArgument): string | undefined {
     const value = readString(argument) ?? readNumber(argument);
 
-    return value === undefined ? undefined : String(value);
+    if (value === undefined) {
+        return undefined;
+    }
+
+    const status = String(value);
+
+    return STATUS_PATTERN.test(status) ? status : undefined;
 }
 
 /**
@@ -32,7 +41,7 @@ function readStatus(argument: DecoratorArgument): string | undefined {
  * would overwrite the success response.
  */
 function readResponseIntent(ctx: HandlerContext): ResponseIntent {
-    const status = requireArgument(ctx, 0, readStatus, 'a status code (a number or a string)') ?? '200';
+    const status = requireArgument(ctx, 0, readStatus, 'a status code (e.g. 409, a range such as \'4XX\', or \'default\')') ?? '200';
     const description = readString(ctx.argument(1)) ?? describeStatus(status);
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ?

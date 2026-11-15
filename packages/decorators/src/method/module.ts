@@ -49,11 +49,11 @@ export function DPatch(url: string, handlers?: ClassType[]) : MethodDecorator {
 /**
  * Declare the status a method answers with on success.
  *
- * The status is applied to `event.response` before the method runs, so a
- * status the method sets itself, or a returned `Response`, still wins.
+ * The status is applied after the method returned a value, and only when
+ * the method left `event.response.status` as it was, so a status the method
+ * sets itself, or a returned `Response`, still wins.
  * The `@routup/decorators/preset` documents the return type under this
- * status; pass a three-digit numeric literal, since trapi cannot resolve
- * imported constants.
+ * status; pass a literal or a numeric constant or enum member.
  *
  * @param status - HTTP status code, e.g. `201` or `202`.
  */

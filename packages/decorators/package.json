@@ -56,10 +56,18 @@
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
         "@trapi/core": "^2.3.0",
+        "@trapi/metadata": "^2.3.0",
+        "@trapi/swagger": "^2.3.0",
         "routup": "^6.1.0"
     },
     "peerDependenciesMeta": {
         "@trapi/core": {
+            "optional": true
+        },
+        "@trapi/metadata": {
+            "optional": true
+        },
+        "@trapi/swagger": {
             "optional": true
         }
     },

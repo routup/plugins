@@ -164,6 +164,10 @@ describe('src/preset (V2)', () => {
         expect(spec.paths['/produces-class/method']!.get!.produces).toEqual(['text/plain']);
     });
 
+    it('should document no body for a @DStatus(204)', async () => {
+        expect(spec.paths['/status/empty']!.get!.responses).toEqual({ 204: { description: 'No content' } });
+    });
+
     it('should document a @DReturns payload', async () => {
         const operation = spec.paths['/returns']!.post!;
 
