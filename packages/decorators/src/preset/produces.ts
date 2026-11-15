@@ -88,18 +88,16 @@ export function moveProducedResponse(draft: MethodDraft, status: string): void {
 
 function applyMethodProduces(ctx: HandlerContext, draft: MethodDraft): void {
     const mediaTypes = readMediaTypes(ctx);
-
-    draft.produces.push(...mediaTypes);
-
     const kinds = new Set(mediaTypes.map((mediaType) => classifyMediaType(mediaType)));
-
-    if (kinds.size !== 1) {
-        return;
-    }
-
     const [kind] = kinds;
 
-    if (!kind) {
+    // Without a derived schema the success response has to carry the
+    // method's return type, which a handler cannot see, and trapi only
+    // merges it into a handler response when `successStatus` is set.
+    // Fall back to the operation-wide `produces` for those media types.
+    if (kinds.size !== 1 || !kind) {
+        draft.produces.push(...mediaTypes);
+
         return;
     }
 
@@ -121,6 +119,7 @@ function applyMethodProduces(ctx: HandlerContext, draft: MethodDraft): void {
     }
 
     response.schema ??= schema;
+    response.produces = [...(response.produces ?? []), ...mediaTypes];
 }
 
 const classProducesHandler = controller({

@@ -209,4 +209,11 @@ describe('src/preset (V3)', () => {
         operation = spec.paths['/produces-class/method']!.get!;
         expect(Object.keys(operation.responses['200']!.content!)).toContain('text/plain');
     });
+
+    it('should apply @DProduces media types to the success response only', async () => {
+        const operation = spec.paths['/produces/with-error']!.get!;
+
+        expect(Object.keys(operation.responses['200']!.content!)).toEqual(['application/octet-stream']);
+        expect(Object.keys(operation.responses['404']!.content!)).toEqual(['application/json']);
+    });
 });

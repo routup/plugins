@@ -59,6 +59,13 @@ export class ProducesController {
         return new Uint8Array([1]);
     }
 
+    @DGet('with-error')
+    @DProduces('application/octet-stream')
+    @DDescription<{ message: string }>(404, 'Not found')
+    withError(): Uint8Array {
+        return new Uint8Array([1]);
+    }
+
     @DPost('status-first')
     @DStatus(201)
     @DProduces('image/png')
