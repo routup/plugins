@@ -7,14 +7,17 @@ export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
         return (target as any)[symbol];
     }
 
+    // Maps keyed by method name have no prototype, so that a method named
+    // like an `Object.prototype` member (e.g. `toString`) does not resolve
+    // to the inherited value.
     (target as any)[symbol] = {
         url: '',
         middlewares: [],
-        methods: {},
+        methods: Object.create(null),
         produces: [],
-        responses: {},
-        parameters: {},
-    } as DecoratorMeta;
+        responses: Object.create(null),
+        parameters: Object.create(null),
+    } satisfies DecoratorMeta;
 
     return (target as any)[symbol];
 }
