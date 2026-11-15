@@ -20,10 +20,6 @@ class PrototypeController {
     }
 }
 
-class UndecoratedController {
-    name = 'undecorated';
-}
-
 describe('method names of Object.prototype members', () => {
     it('should mount a decorated method named toString', async () => {
         const router = new App();
@@ -38,7 +34,8 @@ describe('method names of Object.prototype members', () => {
     });
 
     it('should not write decorator options onto an inherited toString', () => {
-        const instance = new UndecoratedController();
+        // an object whose toString is the inherited, undecorated one
+        const instance = { name: 'undecorated' };
 
         expect(Object.hasOwn(instance.toString, 'status')).toBe(false);
         expect(Object.hasOwn(Object.prototype.toString, 'status')).toBe(false);

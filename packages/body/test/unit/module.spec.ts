@@ -288,6 +288,7 @@ describe('src/**', () => {
 
         router.post('/', defineCoreHandler(async (event) => {
             const pending = readRequestBody(event);
+
             setRequestBody(event, { foo: 'baz' });
 
             return {
@@ -315,6 +316,7 @@ describe('src/**', () => {
 
         router.post('/', defineCoreHandler(async (event) => {
             const pending = readRequestBody(event, 'foo');
+
             setRequestBody(event, { foo: 'baz' });
 
             return { key: await pending };
