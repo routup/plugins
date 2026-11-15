@@ -4,7 +4,7 @@
     "packages/body": "4.1.0",
     "packages/cookie": "4.0.2",
     "packages/cors": "2.0.2",
-    "packages/decorators": "5.1.0",
+    "packages/decorators": "5.2.0",
     "packages/i18n": "5.0.1",
     "packages/logger": "2.0.2",
     "packages/prometheus": "4.0.2",
