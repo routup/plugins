@@ -8,6 +8,7 @@ import RtHeading from './components/RtHeading.vue';
 import RtLogo from './components/RtLogo.vue';
 import RtMethodBadge from './components/RtMethodBadge.vue';
 import RtSection from './components/RtSection.vue';
+import Layout from './Layout.vue';
 
 import './styles/index.css';
 
@@ -20,6 +21,7 @@ export type {
 
 export default {
     extends: DefaultTheme,
+    Layout,
     enhanceApp({ app }) {
         app.component('RtButton', RtButton);
         app.component('RtCard', RtCard);

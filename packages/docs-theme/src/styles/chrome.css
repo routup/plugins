@@ -1,0 +1,190 @@
+/*
+ * Chrome: the site footer and the transparent nav on landing pages
+ * (`pageClass: rt-home`). VitePress's own component styles are unlayered,
+ * so these overrides are unlayered too and imported last.
+ */
+
+/* ---------- RtFooter ---------- */
+.rt-footer {
+    position: relative;
+    padding: 64px 0 32px;
+    border-top: 1px solid var(--rt-border-on-dark);
+    background: var(--rt-surface-dark);
+    color: var(--rt-on-dark-muted);
+    font-size: 14px;
+    color-scheme: dark;
+}
+
+/* The sidebar is fixed. From 960px it sits at --vp-z-index-sidebar (25):
+ * the footer paints above it so its band reaches the left edge. Below
+ * 960px the sidebar is the mobile drawer (60) and must cover the footer,
+ * and the sticky local nav (20) must stay above it, so no z-index there.
+ * --vp-z-index-footer (10) is not enough. */
+@media (min-width: 960px) {
+    .rt-footer {
+        z-index: 26;
+    }
+}
+
+.rt-footer a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.rt-footer a:hover {
+    color: var(--rt-on-dark);
+}
+
+.rt-footer a:focus-visible {
+    outline: 2px solid var(--rt-color-primary-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.rt-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--rt-footer-columns, 3), minmax(0, 1fr));
+    gap: 40px 24px;
+}
+
+.rt-footer__brand {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: 14px;
+    align-content: start;
+    max-width: 320px;
+}
+
+.rt-footer__home {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.rt-footer a.rt-footer__home {
+    color: var(--rt-on-dark);
+}
+
+.rt-footer__tagline {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.rt-footer__title {
+    margin: 0 0 14px;
+    border: 0;
+    padding: 0;
+    font-family: var(--rt-font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rt-on-dark-faint);
+}
+
+.rt-footer__links {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rt-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 56px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rt-border-on-dark);
+    font-family: var(--rt-font-mono);
+    font-size: 12px;
+    color: var(--rt-on-dark-faint);
+}
+
+@media (max-width: 519px) {
+    .rt-footer__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 820px) {
+    .rt-footer__grid {
+        grid-template-columns: minmax(0, 2fr) repeat(var(--rt-footer-columns, 3), minmax(0, 1fr));
+    }
+
+    .rt-footer__brand {
+        grid-column: auto;
+    }
+}
+
+/* ---------- Transparent nav on rt-home ---------- */
+
+/* From 960px the nav is fixed: let the hero run under it. The hero adds
+ * --rt-nav-offset to its own top padding to clear the bar. 960px is
+ * VitePress's breakpoint for the fixed nav. */
+.Layout.rt-home {
+    --rt-nav-offset: 0px;
+}
+
+@media (min-width: 960px) {
+    .Layout.rt-home {
+        --rt-nav-offset: var(--vp-nav-height);
+    }
+
+    .Layout.rt-home .VPContent {
+        padding-top: 0;
+    }
+}
+
+/* Below 960px the nav scrolls with the page above the hero: give it the
+ * hero's background so no light strip sits over a dark page. */
+@media (max-width: 959px) {
+    .Layout.rt-home .VPNav {
+        background-color: var(--rt-surface-dark);
+    }
+}
+
+.Layout.rt-home .VPNavBar.top:not(.screen-open) {
+    --vp-nav-bg-color: transparent;
+    --vp-c-gutter: transparent;
+}
+
+/* Re-scope the text variables on the bar's own items only. On .VPNavBar,
+ * or on .VPNavBarMenu (which contains the flyout roots), they would reach
+ * the open dropdown menus and paint light text on their light background. */
+.Layout.rt-home .VPNavBar.top:not(.screen-open) :is(
+    .VPNavBarTitle,
+    .VPNavBarMenuLink,
+    .VPNavBarSearch,
+    .VPNavBarAppearance,
+    .VPNavBarSocialLinks,
+    .VPNavBarHamburger
+),
+.Layout.rt-home .VPNavBar.top:not(.screen-open) :is(.VPNavBarMenuGroup, .VPNavBarExtra) > .button {
+    --vp-c-text-1: var(--rt-on-dark);
+    --vp-c-text-2: var(--rt-on-dark-muted);
+    --vp-c-text-3: var(--rt-on-dark-faint);
+    --vp-c-brand-1: var(--rt-color-accent-400);
+    --vp-c-brand-2: var(--rt-color-accent-400);
+    --vp-c-divider: var(--rt-border-on-dark-strong);
+    --vp-c-bg-alt: rgb(255 255 255 / 0.06);
+    --vp-input-border-color: var(--rt-border-on-dark-strong);
+    --vp-input-switch-bg-color: rgb(255 255 255 / 0.08);
+}
+
+/* `themeConfig.logo` as `{ light, dark }`: the dark variant wins on the
+ * dark hero in light mode too. */
+.Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.light {
+    display: none;
+}
+
+html:not(.dark) .Layout.rt-home .VPNavBar.top:not(.screen-open) .VPNavBarTitle .VPImage.dark {
+    display: inline;
+}

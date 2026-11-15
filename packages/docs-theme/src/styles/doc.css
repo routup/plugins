@@ -1,0 +1,129 @@
+/*
+ * Doc-page polish: code blocks, inline code, custom blocks and tables in
+ * .vp-doc, in the same language as the shared components (12px radius,
+ * hairline borders, Geist Mono, violet accent). Colours stay on --rt-*
+ * tokens so both colour modes follow without extra rules.
+ */
+:root {
+    --vp-code-bg: var(--rt-color-bg-muted);
+    --vp-code-color: var(--rt-color-primary-text);
+    --vp-code-block-bg: var(--rt-color-bg-elevated);
+    --vp-code-block-divider-color: var(--rt-color-border);
+    --vp-code-tab-divider: var(--rt-color-border);
+    --vp-code-tab-active-bar-color: var(--rt-color-primary-500);
+
+    --vp-custom-block-info-bg: var(--rt-color-bg-elevated);
+    --vp-custom-block-info-border: var(--rt-color-border);
+    --vp-custom-block-info-code-bg: var(--rt-color-bg-muted);
+    --vp-custom-block-tip-bg: color-mix(in oklab, var(--rt-color-primary-500) 7%, var(--rt-color-bg));
+    --vp-custom-block-tip-border: color-mix(in oklab, var(--rt-color-primary-500) 30%, transparent);
+    --vp-custom-block-tip-code-bg: color-mix(in oklab, var(--rt-color-primary-500) 12%, transparent);
+    --vp-custom-block-warning-bg: color-mix(in oklab, var(--rt-color-warning-500) 8%, var(--rt-color-bg));
+    --vp-custom-block-warning-border: color-mix(in oklab, var(--rt-color-warning-500) 35%, transparent);
+    --vp-custom-block-danger-bg: color-mix(in oklab, var(--rt-color-error-500) 7%, var(--rt-color-bg));
+    --vp-custom-block-danger-border: color-mix(in oklab, var(--rt-color-error-500) 35%, transparent);
+}
+
+/* ---------- inline code ---------- */
+.vp-doc :not(pre) > code {
+    border: 1px solid var(--rt-color-border);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-family: var(--rt-font-mono);
+}
+
+.vp-doc a > code,
+.vp-doc .custom-block :not(pre) > code {
+    border-color: transparent;
+}
+
+/* ---------- code blocks ---------- */
+.vp-doc div[class*='language-'] {
+    box-shadow: inset 0 0 0 1px var(--rt-color-border);
+}
+
+.vp-doc div[class*='language-'] > span.lang {
+    font-family: var(--rt-font-mono);
+    letter-spacing: 0.04em;
+}
+
+@media (min-width: 640px) {
+    .vp-doc div[class*='language-'],
+    .vp-doc .vp-block {
+        border-radius: 12px;
+    }
+
+    .vp-doc .vp-code-group .tabs {
+        border-radius: 12px 12px 0 0;
+        box-shadow:
+            inset 0 0 0 1px var(--rt-color-border),
+            inset 0 -1px var(--vp-code-tab-divider);
+    }
+
+    .vp-doc .vp-code-group div[class*='language-'] {
+        border-radius: 0 0 12px 12px;
+    }
+}
+
+/* ---------- custom blocks ---------- */
+.vp-doc .custom-block {
+    border-radius: 12px;
+    padding: 16px 20px 8px;
+}
+
+.vp-doc .custom-block-title {
+    font-family: var(--rt-font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.vp-doc .custom-block.tip .custom-block-title {
+    color: var(--rt-color-primary-text);
+}
+
+/* ---------- tables ---------- */
+.vp-doc table {
+    border: 1px solid var(--rt-color-border);
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.vp-doc tr {
+    border-top: 0;
+    background-color: var(--rt-color-bg);
+}
+
+.vp-doc tr:nth-child(2n) {
+    background-color: var(--rt-color-bg);
+}
+
+.vp-doc th,
+.vp-doc td {
+    border: 0;
+    border-top: 1px solid var(--rt-color-border);
+}
+
+.vp-doc thead tr:first-child th {
+    border-top: 0;
+}
+
+.vp-doc th {
+    font-family: var(--rt-font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rt-color-fg-muted);
+    background-color: var(--rt-color-bg-elevated);
+}
+
+.vp-doc th:first-child {
+    border-top-left-radius: 11px;
+}
+
+.vp-doc th:last-child {
+    border-top-right-radius: 11px;
+}

@@ -81,9 +81,37 @@ export default defineRoutupConfig({
             text: 'Edit this page on GitHub',
         },
 
-        footer: {
-            message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2024-present Peter Placzek',
+        rtFooter: {
+            tagline: 'Plugins for routup.',
+            columns: [
+                {
+                    title: 'Docs',
+                    links: [
+                        { text: 'All plugins', link: '/' },
+                        { text: 'routup', link: 'https://routup.dev' },
+                        { text: 'Plugin authoring', link: 'https://routup.dev/guide/plugin-authoring/' },
+                    ],
+                },
+                {
+                    title: 'Plugins',
+                    links: [
+                        { text: 'Bundles', link: '/basic/' },
+                        { text: 'Request & response', link: '/body/' },
+                        { text: 'Routing patterns', link: '/decorators/' },
+                        { text: 'API documentation', link: '/swagger-ui/' },
+                        { text: 'Operations', link: '/cors/' },
+                    ],
+                },
+                {
+                    title: 'Project',
+                    links: [
+                        { text: 'GitHub', link: 'https://github.com/routup/plugins' },
+                        { text: 'Releases', link: 'https://github.com/routup/plugins/releases' },
+                        { text: 'Issues', link: 'https://github.com/routup/plugins/issues' },
+                    ],
+                },
+            ],
+            note: 'MIT licensed',
         },
     },
 });

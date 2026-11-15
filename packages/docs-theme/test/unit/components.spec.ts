@@ -3,6 +3,7 @@ import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 
+import RtButton from '../../src/components/RtButton.vue';
 import RtCard from '../../src/components/RtCard.vue';
 import RtCodePanel from '../../src/components/RtCodePanel.vue';
 import RtLogo from '../../src/components/RtLogo.vue';
@@ -34,11 +35,32 @@ describe('RtCard', () => {
         expect(html).toContain('target="_blank"');
     });
 
+    it('treats a protocol-relative link as external', async () => {
+        const html = await render(RtCard, { href: '//plugins.routup.dev/cors/' }, 'cors');
+
+        expect(html).toContain('target="_blank"');
+    });
+
     it('renders no link without href', async () => {
         const html = await render(RtCard, {}, 'plain');
 
         expect(html).not.toContain('<a');
         expect(html).toContain('plain');
+    });
+});
+
+describe('RtButton', () => {
+    it('opens an external link in a new tab', async () => {
+        const html = await render(RtButton, { href: 'https://github.com/routup/plugins' }, 'GitHub');
+
+        expect(html).toContain('target="_blank"');
+        expect(html).toContain('rel="noopener"');
+    });
+
+    it('keeps an internal link in the same tab', async () => {
+        const html = await render(RtButton, { href: '#plugins' }, 'Browse');
+
+        expect(html).not.toContain('target=');
     });
 });
 
