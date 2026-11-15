@@ -79,6 +79,56 @@ describe('RtCodePanel', () => {
         expect(html).toContain('Install');
         expect(html).toContain('Define');
     });
+
+    it('clamps active to the tab range', async () => {
+        const tabs = [
+            { label: 'Install', code: 'npm install routup' },
+            { label: 'Define', code: 'const app = new App();' },
+        ];
+
+        const past = await render(RtCodePanel, { tabs, active: 5 });
+
+        expect(past).toContain('const app = new App();');
+        expect(past).toMatch(/aria-selected="true"[^>]*>.*Define/);
+
+        const negative = await render(RtCodePanel, { tabs, active: -1 });
+
+        expect(negative).toContain('npm install routup');
+        expect(negative).toMatch(/aria-selected="true"[^>]*>.*Install/);
+    });
+
+    it('makes only the active tab focusable', async () => {
+        const html = await render(RtCodePanel, {
+            tabs: [
+                { label: 'Install', code: 'npm install routup' },
+                { label: 'Define', code: 'const app = new App();' },
+                { label: 'Serve', code: 'serve(app);' },
+            ],
+            active: 1,
+        });
+
+        const tabindexes = html.matchAll(/role="tab"[^>]*tabindex="(-?\d)"/g).map((match) => match[1]).toArray();
+
+        expect(tabindexes).toEqual(['-1', '0', '-1']);
+    });
+
+    it('keeps the file label outside the tablist', async () => {
+        const html = await render(RtCodePanel, {
+            title: 'app.ts',
+            tabs: [{ label: 'Install', code: 'npm install routup' }],
+        });
+
+        const tablist = html.match(/<div[^>]*role="tablist"[^>]*>(.*?)<\/div>/)?.[1] ?? '';
+
+        expect(html).toContain('app.ts');
+        expect(tablist).not.toContain('app.ts');
+    });
+
+    it('makes the code focusable for keyboard scrolling', async () => {
+        const html = await render(RtCodePanel, { code: 'a' });
+
+        expect(html).toMatch(/<pre[^>]*tabindex="0"/);
+    });
 });
 
 describe('RtMethodBadge', () => {

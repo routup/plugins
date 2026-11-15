@@ -3,6 +3,12 @@
  * RtButton, RtMethodBadge, RtLogo). Sections publish --rt-section-*
  * properties so headings, buttons and cards adapt to dark surfaces;
  * outside a section they fall back to the page tokens.
+ *
+ * The blocks also render inside markdown (.vp-doc), where VitePress styles
+ * links, headings, paragraphs and inline code with selectors such as
+ * `.vp-doc a` (0,1,1), `.vp-doc a:hover` (0,2,1) and `.vp-doc :not(pre) > code`
+ * (0,1,2). Rules that must win there match or beat that specificity and
+ * rely on this file loading after VitePress's and doc.css.
  */
 
 /* ---------- RtSection ---------- */
@@ -149,7 +155,7 @@
     color: var(--rt-section-accent, var(--rt-color-primary-text));
 }
 
-.rt-heading__title {
+.rt-heading .rt-heading__title {
     margin: 0;
     padding: 0;
     border: 0;
@@ -157,19 +163,19 @@
     color: var(--rt-section-fg, var(--rt-color-fg));
 }
 
-.rt-heading__title--h1 {
+.rt-heading .rt-heading__title--h1 {
     font-size: clamp(40px, 6.4vw, 72px);
     line-height: 1.02;
     letter-spacing: -0.035em;
 }
 
-.rt-heading__title--h2 {
+.rt-heading .rt-heading__title--h2 {
     font-size: clamp(30px, 4.2vw, 46px);
     line-height: 1.08;
     letter-spacing: -0.03em;
 }
 
-.rt-heading__lede {
+.rt-heading .rt-heading__lede {
     margin: 0;
     font-size: 17px;
     line-height: 1.6;
@@ -191,9 +197,15 @@
     color: var(--rt-color-fg);
 }
 
-.rt-card--link {
+a.rt-card--link {
+    color: var(--rt-color-fg);
+    font-weight: inherit;
     text-decoration: none;
     transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+a.rt-card--link:hover {
+    color: var(--rt-color-fg);
 }
 
 .rt-card--link:hover {
@@ -209,6 +221,7 @@
 .rt-card h3 {
     margin: 0;
     font-size: 19px;
+    line-height: 1.35;
     font-weight: 600;
     letter-spacing: -0.015em;
 }
@@ -220,14 +233,17 @@
     color: var(--rt-color-fg-muted);
 }
 
-.rt-card code {
+.rt-card :not(pre) > code {
+    padding: 0;
+    border: 0;
+    background: none;
     font-family: var(--rt-font-mono);
     font-size: 0.9em;
     color: var(--rt-color-fg);
 }
 
 /* ---------- RtButton ---------- */
-.rt-button {
+a.rt-button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -246,29 +262,30 @@
     transform: translateY(-1px);
 }
 
+/* Violet 500 keeps 3:1 or more against white, tinted and dark surfaces. */
 .rt-button:focus-visible {
-    outline: 2px solid var(--rt-color-accent-400);
+    outline: 2px solid var(--rt-color-primary-500);
     outline-offset: 2px;
 }
 
-.rt-button--primary {
+a.rt-button.rt-button--primary {
     background: var(--rt-color-primary-600);
     color: var(--rt-color-on-primary);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 28px -10px rgba(124, 58, 237, 0.8);
 }
 
-.rt-button--primary:hover {
+a.rt-button.rt-button--primary:hover {
     background: var(--rt-color-primary-700);
     color: var(--rt-color-on-primary);
 }
 
-.rt-button--ghost {
+a.rt-button.rt-button--ghost {
     border-color: var(--rt-section-border-strong, var(--rt-color-border));
     background: rgba(255, 255, 255, 0.02);
     color: var(--rt-section-fg, var(--rt-color-fg));
 }
 
-.rt-button--ghost:hover {
+a.rt-button.rt-button--ghost:hover {
     border-color: var(--rt-color-primary-400);
     color: var(--rt-section-fg, var(--rt-color-fg));
 }
@@ -318,20 +335,29 @@
     gap: 4px;
     height: 44px;
     padding: 0 10px;
-    overflow-x: auto;
     border-bottom: 1px solid var(--rt-border-on-dark);
     font-family: var(--rt-font-mono);
     font-size: 12.5px;
+}
+
+/* The active underline is an inset shadow, so nothing overflows the
+ * tablist vertically and no scrollbar appears beside the tabs. */
+.rt-code-panel__tablist {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .rt-code-panel__tab {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 -1px;
+    margin: 0;
     padding: 0 12px;
     border: 0;
-    border-bottom: 2px solid transparent;
     background: none;
     color: var(--rt-on-dark-faint);
     font: inherit;
@@ -349,7 +375,7 @@
 }
 
 .rt-code-panel__tab[aria-selected='true'] {
-    border-bottom-color: var(--rt-color-accent-400);
+    box-shadow: inset 0 -2px 0 var(--rt-color-accent-400);
     color: var(--rt-on-dark);
 }
 
@@ -363,6 +389,7 @@
 
 .rt-code-panel__file {
     display: flex;
+    flex: none;
     align-items: center;
     margin-left: auto;
     padding-right: 6px;
@@ -391,6 +418,11 @@
     font-size: clamp(12px, 1.6vw, 14px);
     line-height: 1.75;
     counter-reset: rt-line;
+}
+
+.rt-code-panel__code:focus-visible {
+    outline: 2px solid var(--rt-color-accent-400);
+    outline-offset: -2px;
 }
 
 .rt-code-panel__code code {
@@ -471,8 +503,8 @@
         animation: none;
     }
 
-    .rt-card--link,
-    .rt-button {
+    a.rt-card--link,
+    a.rt-button {
         transition: none;
     }
 

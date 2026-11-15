@@ -1,5 +1,7 @@
 <script setup lang="ts">
+/* global HTMLElement, KeyboardEvent -- DOM types; ESLint's no-undef does not know them in .vue files. */
 import { computed, ref, useId } from 'vue';
+import { clampTabIndex, moveTabIndex } from '../tabs';
 
 export type RtCodeTab = {
     label: string;
@@ -23,9 +25,11 @@ const props = withDefaults(defineProps<RtCodePanelProps>(), {
 defineSlots<{ footer?: () => unknown }>();
 
 const id = useId();
-const current = ref(props.active);
+const selected = ref(props.active);
 
-const hasTabs = computed(() => !!props.tabs && props.tabs.length > 0);
+const tabCount = computed(() => props.tabs?.length ?? 0);
+const hasTabs = computed(() => tabCount.value > 0);
+const current = computed(() => clampTabIndex(selected.value, tabCount.value));
 
 const lines = computed(() => {
     const source = hasTabs.value ?
@@ -39,6 +43,21 @@ const lines = computed(() => {
 function tabId(index: number) {
     return `${id}-tab-${index}`;
 }
+
+function onKeydown(event: KeyboardEvent) {
+    const next = moveTabIndex(event.key, current.value, tabCount.value);
+
+    if (next === undefined) {
+        return;
+    }
+
+    event.preventDefault();
+    selected.value = next;
+
+    const tablist = event.currentTarget as HTMLElement;
+
+    tablist.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
+}
 </script>
 
 <template>
@@ -46,24 +65,30 @@ function tabId(index: number) {
         <div
             v-if="hasTabs"
             class="rt-code-panel__tabs"
-            role="tablist"
         >
-            <button
-                v-for="(tab, index) in tabs"
-                :id="tabId(index)"
-                :key="index"
-                type="button"
-                role="tab"
-                class="rt-code-panel__tab"
-                :aria-selected="index === current"
-                :aria-controls="`${id}-code`"
-                @click="current = index"
+            <div
+                class="rt-code-panel__tablist"
+                role="tablist"
+                @keydown="onKeydown"
             >
-                <span
-                    class="rt-code-panel__step"
-                    aria-hidden="true"
-                >{{ index + 1 }}</span>{{ tab.label }}
-            </button>
+                <button
+                    v-for="(tab, index) in tabs"
+                    :id="tabId(index)"
+                    :key="index"
+                    type="button"
+                    role="tab"
+                    class="rt-code-panel__tab"
+                    :tabindex="index === current ? 0 : -1"
+                    :aria-selected="index === current"
+                    :aria-controls="`${id}-code`"
+                    @click="selected = index"
+                >
+                    <span
+                        class="rt-code-panel__step"
+                        aria-hidden="true"
+                    >{{ index + 1 }}</span>{{ tab.label }}
+                </button>
+            </div>
             <span
                 v-if="title"
                 class="rt-code-panel__file"
@@ -78,6 +103,7 @@ function tabId(index: number) {
         <pre
             :id="`${id}-code`"
             class="rt-code-panel__code"
+            tabindex="0"
             :role="hasTabs ? 'tabpanel' : undefined"
             :aria-labelledby="hasTabs ? tabId(current) : undefined"
         ><code><span
