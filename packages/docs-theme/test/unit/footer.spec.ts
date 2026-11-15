@@ -101,4 +101,23 @@ describe('RtFooter', () => {
         expect(html).toMatch(/href="https:\/\/github\.com\/routup\/plugins"[^>]*target="_blank"[^>]*rel="noopener"/);
         expect(html).not.toMatch(/href="\/"[^>]*target=/);
     });
+
+    it('renders columns with the same title and links with the same target', async () => {
+        data.theme = {
+            rtFooter: {
+                tagline: 'Plugins for routup.',
+                columns: [
+                    { title: 'Docs', links: [{ text: 'Home', link: '/' }, { text: 'Start', link: '/' }] },
+                    { title: 'Docs', links: [{ text: 'Plugins', link: '/' }] },
+                ],
+            },
+        };
+
+        const html = await renderFooter();
+
+        expect(html.match(/<nav /g)).toHaveLength(2);
+        expect(html).toContain('Home');
+        expect(html).toContain('Start');
+        expect(html).toContain('Plugins');
+    });
 });

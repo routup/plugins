@@ -38,8 +38,8 @@ function toHref(link: string) {
                     </p>
                 </div>
                 <nav
-                    v-for="column in footer.columns"
-                    :key="column.title"
+                    v-for="(column, columnIndex) in footer.columns"
+                    :key="`${columnIndex}-${column.title}`"
                     class="rt-footer__column"
                     :aria-label="column.title"
                 >
@@ -48,8 +48,8 @@ function toHref(link: string) {
                     </h2>
                     <ul class="rt-footer__links">
                         <li
-                            v-for="item in column.links"
-                            :key="item.link"
+                            v-for="(item, itemIndex) in column.links"
+                            :key="`${itemIndex}-${item.link}`"
                         >
                             <a
                                 :href="toHref(item.link)"
