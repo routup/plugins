@@ -16,6 +16,25 @@ describe('defineRoutupConfig', () => {
         expect(config.vite?.ssr?.noExternal).toEqual(['routup', THEME]);
     });
 
+    it('keeps noExternal true', () => {
+        const config = defineRoutupConfig({ vite: { ssr: { noExternal: true } } });
+
+        expect(config.vite?.ssr?.noExternal).toBe(true);
+    });
+
+    it('wraps a single string noExternal entry', () => {
+        const config = defineRoutupConfig({ vite: { ssr: { noExternal: 'routup' } } });
+
+        expect(config.vite?.ssr?.noExternal).toEqual(['routup', THEME]);
+    });
+
+    it('wraps a single RegExp noExternal entry', () => {
+        const pattern = /^@routup\//;
+        const config = defineRoutupConfig({ vite: { ssr: { noExternal: pattern } } });
+
+        expect(config.vite?.ssr?.noExternal).toEqual([pattern, THEME]);
+    });
+
     it('adds the theme to vite.optimizeDeps.exclude', () => {
         const config = defineRoutupConfig({ vite: { optimizeDeps: { exclude: ['routup'] } } });
 

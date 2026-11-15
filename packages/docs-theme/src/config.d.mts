@@ -1,5 +1,5 @@
 import type { DefaultTheme, UserConfig } from 'vitepress';
-import type { RoutupThemeConfig } from './types';
+import type { RoutupThemeConfig } from './types.js';
 
 /**
  * Add what every routup docs site needs to a VitePress config: the theme in

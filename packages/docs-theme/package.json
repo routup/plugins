@@ -8,7 +8,8 @@
         ".": "./src/index.ts",
         "./config": {
             "types": "./src/config.d.mts",
-            "import": "./src/config.mjs"
+            "import": "./src/config.mjs",
+            "default": "./src/config.mjs"
         },
         "./components/*": "./src/components/*",
         "./style.css": "./src/styles/index.css"
