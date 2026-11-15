@@ -119,50 +119,63 @@ export function hasOAuthScheme(spec: unknown) : boolean {
 }
 
 /**
- * Upper bound of urls a templated server expands to; beyond it the
- * server is skipped and needs a string policy.
+ * Upper bound of variable assignments a templated server expands to;
+ * beyond it only the defaults are used.
  */
 const MAX_SERVER_URLS = 64;
 
-function toVariableValues(variable: unknown) : string[] {
-    if (!isObject(variable)) {
-        return [];
-    }
+const PLACEHOLDER_RE = /\{([^}]+)\}/g;
 
-    const values = [variable.default, ...(Array.isArray(variable.enum) ? variable.enum : [])]
-        .filter((value) => typeof value === 'string' || typeof value === 'number')
-        .map((value) => `${value}`);
-
-    return [...new Set(values)];
+function toVariableValue(value: unknown) : string | undefined {
+    return typeof value === 'string' || typeof value === 'number' ?
+        `${value}` :
+        undefined;
 }
 
 /**
  * Expand the `{name}` placeholders of a server url with every value
- * a visitor can pick (the default and the `enum` values).
- * A placeholder without value or more than MAX_SERVER_URLS
- * combinations leave the server unresolved (empty).
+ * a visitor can pick (the default and the `enum` values). Each
+ * variable is assigned once for all its occurrences. With more than
+ * MAX_SERVER_URLS assignments only the defaults are used; a variable
+ * without value leaves the server unresolved (empty).
  */
 function expandServerURLs(server: unknown) : string[] {
     if (!isObject(server) || typeof server.url !== 'string') {
         return [];
     }
 
+    const template = server.url;
     const variables = isObject(server.variables) ? server.variables : {};
-    const parts = server.url.split(/\{([^}]+)\}/g);
+    const names = [...new Set(Array.from(template.matchAll(PLACEHOLDER_RE), (match) => match[1]!))];
 
-    let urls = [''];
+    const defaults : Record<string, string> = {};
+    let assignments : Record<string, string>[] = [{}];
 
-    for (const [i, part] of parts.entries()) {
-        const values = i % 2 === 0 ? [part] : toVariableValues(variables[part]);
+    for (const name of names) {
+        const variable = isObject(variables[name]) ? variables[name] : {};
+        const fallback = toVariableValue(variable.default);
+        const values = [...new Set([
+            fallback,
+            ...(Array.isArray(variable.enum) ? variable.enum.map(toVariableValue) : []),
+        ].filter((value): value is string => typeof value === 'string'))];
 
-        if (values.length === 0 || urls.length * values.length > MAX_SERVER_URLS) {
+        if (values.length === 0) {
             return [];
         }
 
-        urls = urls.flatMap((url) => values.map((value) => url + value));
+        defaults[name] = fallback ?? values[0]!;
+        assignments = assignments.flatMap((assignment) => values.map((value) => ({ ...assignment, [name]: value })));
+
+        if (assignments.length > MAX_SERVER_URLS) {
+            assignments = [];
+        }
     }
 
-    return urls;
+    if (assignments.length === 0) {
+        assignments = [defaults];
+    }
+
+    return assignments.map((assignment) => template.replace(PLACEHOLDER_RE, (_match, name: string) => assignment[name]!));
 }
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];

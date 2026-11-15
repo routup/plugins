@@ -563,7 +563,7 @@ describe('src/ui hardening', () => {
             expect(policy).toMatch(/connect-src [^;]*https:\/\/stage\.example\.com:8443/);
         });
 
-        it('should skip a server with too many variable combinations', async () => {
+        it('should keep only the defaults of a server with too many variable combinations', async () => {
             const values = Array.from({ length: 9 }, (_, i) => `v${i}`);
             const policy = await fetchPolicy({
                 servers: [
@@ -575,8 +575,36 @@ describe('src/ui hardening', () => {
                 ],
             });
 
-            expect(policy).not.toContain('huge.example.com');
+            expect(policy).toContain('https://v0.v0.huge.example.com');
+            expect(policy).not.toContain('v1.v0.huge.example.com');
             expect(policy).toContain('https://small.example.com');
+        });
+
+        it('should count a repeated variable once', async () => {
+            const values = Array.from({ length: 9 }, (_, i) => `r${i}`);
+            const policy = await fetchPolicy({
+                servers: [{
+                    url: 'https://{region}.api.example.com/{region}',
+                    variables: { region: { default: 'r0', enum: values } },
+                }],
+            });
+
+            for (const value of values) {
+                expect(policy).toContain(`https://${value}.api.example.com`);
+            }
+        });
+
+        it('should fall back to the defaults beyond the limit', async () => {
+            const values = Array.from({ length: 9 }, (_, i) => `v${i}`);
+            const policy = await fetchPolicy({
+                servers: [{
+                    url: 'https://{a}.{b}.fallback.example.com',
+                    variables: { a: { default: 'v1', enum: values }, b: { default: 'v2', enum: values } },
+                }],
+            });
+
+            expect(policy).toMatch(/connect-src [^;]*https:\/\/v1\.v2\.fallback\.example\.com/);
+            expect(policy.match(/fallback\.example\.com/g)).toHaveLength(1);
         });
 
         it('should add both schemes for protocol-relative server urls', async () => {
