@@ -1,21 +1,82 @@
-# @routup/decorators
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/npm/@routup/decorators@5/assets/logo.svg" alt="@routup/decorators logo: decorators pinned on a class and its methods" width="128" height="128" />
+</p>
 
-[![npm version](https://badge.fury.io/js/@routup%2Fdecorators.svg)](https://badge.fury.io/js/@routup%2Fdecorators)
-[![main](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
-[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+<h1 align="center">@routup/decorators</h1>
 
-This is a plugin to create request handlers with class-, method- & parameter-decorators.
-Those, can than be bound/mounted to an arbitrary router instance.  
+<p align="center">
+    <b>Write routup routes as TypeScript classes with method and parameter decorators, and generate OpenAPI from them.</b><br>
+    You stop repeating path prefixes and reading params, body, query and cookies by hand in every handler; the same decorators feed your OpenAPI document.
+</p>
+
+<p align="center">
+    <a href="https://www.npmjs.com/package/@routup/decorators"><img src="https://img.shields.io/npm/v/@routup/decorators" alt="npm version" /></a>
+    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
+    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
+    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
+</p>
+
+<p align="center">
+    <a href="#installation"><b>Installation</b></a>
+    ·
+    <a href="#usage">Usage</a>
+    ·
+    <a href="#options">Options</a>
+    ·
+    <a href="#api">API</a>
+    ·
+    <a href="https://plugins.routup.dev/decorators/">Docs</a>
+</p>
+
+---
+
+## Why @routup/decorators?
+
+With plain routup you register each route with `app.get(path, defineCoreHandler(...))`, repeat the resource prefix on every path, and pull `event.params`, the parsed body, query and cookies out of the event inside each handler. If you also publish an OpenAPI document, it is a second description of the same routes that you keep in sync by hand.
+
+| Concern | Without it | With @routup/decorators |
+|---------|-----------|-------------------------|
+| Route registration | One `app.get` / `app.post` call per route, prefix repeated in each path | `@DController('/users')` on the class, `@DGet('/:id')` on the method; the route is `controller path + method path` |
+| Reading input | `event.params.id`, `await readRequestBody(event)`, `useRequestQuery(event, 'page')` in the handler body | `@DPath('id')`, `@DBody()`, `@DQuery('page')` inject the values as method arguments |
+| Scoped middleware | `app.use('/users', handler)` or a sub-`App` you build yourself | Middleware classes in `@DController(path, [Auth])` (whole controller) or `@DGet(path, [Auth])` (one route) |
+| Several mount paths | Register the routes again under each prefix | `@DController(['/users', '/members'])` mounts the controller under both |
+| OpenAPI | A spec written by hand next to the code | The `./preset` subpath lets `@trapi/metadata` read the same decorators; `@trapi/swagger` writes the document |
+
+Functional handlers need no compiler flags and no class instances; decorators need `experimentalDecorators`. Both can live on the same `App`.
+
+```typescript
+import { DController, DGet, DPath, decorators } from '@routup/decorators';
+import { App } from 'routup';
+
+@DController('/users')
+class UserController {
+    @DGet('/:id')
+    async show(@DPath('id') id: string) {
+        return { id };
+    }
+}
+
+const app = new App();
+
+app.use(decorators({ controllers: [UserController] }));
+```
 
 **Table of Contents**
 
 - [Installation](#installation)
-- [Configuration](#configuration)
-- [Documentation](#documentation)
 - [Usage](#usage)
-- [OpenAPI generation](#openapi-generation)
+  - [Controllers](#controllers)
+  - [Mounting controllers](#mounting-controllers)
+  - [Return values and the event](#return-values-and-the-event)
+  - [Parameter decorators](#parameter-decorators)
+  - [Parsers for body, query and cookies](#parsers-for-body-query-and-cookies)
+  - [Middleware](#middleware)
+  - [OpenAPI generation](#openapi-generation)
+- [Options](#options)
+- [API](#api)
+  - [mountControllers](#mountcontrollers)
+  - [Custom decorators](#custom-decorators)
+- [Notes](#notes)
 - [License](#license)
 
 ## Installation
@@ -24,151 +85,266 @@ Those, can than be bound/mounted to an arbitrary router instance.
 npm install @routup/decorators --save
 ```
 
-## Configuration
+ESM only, Node.js `>=22`, peer dependency `routup@^6.1.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; you still mount their plugins (see [Parsers](#parsers-for-body-query-and-cookies)). For OpenAPI generation you also install the optional peer `@trapi/core` plus `@trapi/metadata` and `@trapi/swagger` (see [OpenAPI generation](#openapi-generation)).
 
-The following TypeScript options must be present in the project tsconfig.json file:
+The decorators are legacy TypeScript decorators. Your `tsconfig.json` needs:
 
 ```json
 {
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    }
 }
 ```
 
-## Documentation
-
-To read the docs, visit [https://routup.net](https://routup.net)
+If you build with a tool other than `tsc` (esbuild, SWC, Vite), enable its legacy-decorator mode as well.
 
 ## Usage
 
-### Controller
+### Controllers
 
-The first step is to define a Controller.
-
-`controller.ts`
 ```typescript
-import type { IAppEvent } from 'routup';
 import {
     DBody,
-    DContext,
     DController,
     DDelete,
     DGet,
+    DPatch,
     DPath,
     DPost,
+    DPut,
 } from '@routup/decorators';
 
 @DController('/users')
 export class UserController {
     @DGet('')
-    async getMany() {
-        return 'Hello, World!';
+    async list() {
+        return [{ id: 1, name: 'Ada' }];
     }
 
-    // `@DController` also accepts `string[]` to mount the controller under
-    // multiple paths, e.g. `@DController(['/users', '/members'])`.
-
     @DGet('/:id')
-    async getOne(
-        @DPath('id') id: string,
-    ) {
-        return 'Hello, World!';
+    async show(@DPath('id') id: string) {
+        return { id: Number(id), name: 'Ada' };
     }
 
     @DPost('')
-    async create(
-        @DBody() body: any,
-    ) {
-        return 'Hello, World!';
+    async create(@DBody() body: { name: string }) {
+        return { id: 2, ...body };
+    }
+
+    @DPut('/:id')
+    async replace(@DPath('id') id: string, @DBody() body: { name: string }) {
+        return { id: Number(id), ...body };
+    }
+
+    @DPatch('/:id')
+    async update(@DPath('id') id: string, @DBody('name') name: string) {
+        return { id: Number(id), name };
     }
 
     @DDelete('/:id', [])
-    async delete(
-        @DPath('id') id: string,
-    ) {
-        return 'Hello, World!';
+    async remove(@DPath('id') id: string) {
+        return { id: Number(id), deleted: true };
     }
 }
 ```
 
-In routup v5, handlers return values directly instead of calling `send(res, data)`.
-Use `@DContext()` when you need the full event object (e.g. to access `event.store`, `event.headers`, or `event.response`):
+- The route path is the controller path joined with the method path: `show` answers `GET /users/:id`, `list` answers `GET /users`.
+- Method decorators: `@DGet`, `@DPost`, `@DPut`, `@DPatch`, `@DDelete`. Each takes `(path, middlewares?)`.
+- `@DController` also takes an array of paths, for example `@DController(['/users', '/members'])`. Every method is then reachable under each path.
+- Methods may be `async`; the plugin awaits them.
+
+### Mounting controllers
 
 ```typescript
-import type { IAppEvent } from 'routup';
-import { DContext, DController, DGet } from '@routup/decorators';
-
-@DController('/example')
-export class ExampleController {
-    @DGet('')
-    async handle(
-        @DContext() event: IAppEvent,
-    ) {
-        event.response.status = 201;
-        return { message: 'created' };
-    }
-}
-```
-
-### Parameter Decorators
-
-| Decorator | Description |
-|-----------|-------------|
-| `@DContext()` | Full `IAppEvent` object (preferred) |
-| `@DRequest()` | Web Standard `Request` (`event.request`) |
-| `@DResponse()` | Response metadata (`event.response`) |
-| `@DNext()` | Next function (`event.next`) |
-| `@DPath(name)` | Route parameter by name |
-| `@DPaths()` | All route parameters |
-| `@DHeader(name)` | Request header by name |
-| `@DHeaders()` | All request headers (`Headers` object) |
-| `@DBody(prop?)` | Request body (requires `@routup/body`) |
-| `@DQuery(prop?)` | Query parameter (requires `@routup/query`) |
-| `@DCookie(name)` | Cookie by name (requires `@routup/cookie`) |
-| `@DCookies()` | All cookies (requires `@routup/cookie`) |
-
-### Installation
-
-The last step is to install the plugin and mount the controllers to a router instance.
-
-`@DBody`, `@DCookie`/`@DCookies`, and `@DQuery` defer to the helpers from `@routup/body`, `@routup/cookie`, and `@routup/query` — install whichever parsers your controllers actually use. The simplest setup mounts [`@routup/basic`](https://www.npmjs.com/package/@routup/basic), which bundles all three.
-
-`app.ts`
-
-```typescript
-import { decorators } from '@routup/decorators';
 import { basic } from '@routup/basic';
+import { decorators } from '@routup/decorators';
 import { App, serve } from 'routup';
-
 import { UserController } from './controller';
 
 const router = new App();
 
 router.use(basic());
 router.use(decorators({
-    controllers: [
-        UserController,
-    ],
+    controllers: [UserController],
 }));
 
 serve(router, { port: 3000 });
 ```
 
-## OpenAPI generation
+- `controllers` takes classes or instances. A class is instantiated once with `new Controller()` (no constructor arguments); pass an instance when the controller needs dependencies: `controllers: [new UserController(repository)]`.
+- Each controller becomes a child `App` mounted at its `@DController` path. You can mount decorator controllers and functional handlers on the same router.
 
-`@routup/decorators` ships a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath that decodes routup's `@D*` decorators into the schema TRAPI's generators understand. There's no separate generator package — extract metadata with `@trapi/metadata`, hand it to `@trapi/swagger`, or wire the preset into the `trapi` CLI.
+### Return values and the event
 
-### Programmatically
+```typescript
+import type { IAppEvent } from 'routup';
+import { DContext, DController, DGet, DPost } from '@routup/decorators';
 
-`@trapi/swagger`'s `generateSwagger()` accepts pre-built metadata, so call `generateMetadata()` from `@trapi/metadata` first. Reference the preset by package specifier — `@trapi/metadata` resolves it via the `preset` export of `@routup/decorators/preset`:
+@DController('/orders')
+export class OrderController {
+    @DGet('')
+    async list() {
+        return [{ id: 1 }, { id: 2 }];
+    }
+
+    @DGet('/raw')
+    async raw() {
+        return 'hello';
+    }
+
+    @DGet('/image')
+    async image() {
+        return new Response(new Uint8Array([137, 80, 78, 71]), {
+            headers: { 'content-type': 'image/png' },
+        });
+    }
+
+    @DPost('')
+    async create(@DContext() event: IAppEvent) {
+        event.response.status = 201;
+
+        return { message: 'created' };
+    }
+}
+```
+
+- Return the value instead of sending it. routup turns objects into JSON, strings into text, and passes a `Response` through unchanged.
+- Use `@DContext()` when you need the whole event, for example to set `event.response.status`, read `event.headers` or use `event.store`.
+
+### Parameter decorators
+
+| Decorator | Injects |
+|-----------|---------|
+| `@DContext()` | The full `IAppEvent` |
+| `@DRequest()` | The Web Standard `Request` (`event.request`) |
+| `@DResponse()` | The response accumulator (`event.response`) |
+| `@DNext()` | The next function (`event.next`) |
+| `@DPath(name)` | One route parameter (`event.params[name]`) |
+| `@DPaths()` | All route parameters (`event.params`) |
+| `@DHeader(name)` | One request header (`event.headers.get(name)`, name lower-cased) |
+| `@DHeaders()` | All request headers (the `Headers` object) |
+| `@DBody(prop?)` | The parsed body, or one property of it (`readRequestBody` from `@routup/body`) |
+| `@DQuery(prop?)` | The parsed query, or one key of it (`useRequestQuery` from `@routup/query`) |
+| `@DCookie(name)` | One cookie (`useRequestCookie` from `@routup/cookie`) |
+| `@DCookies()` | All cookies (`useRequestCookies` from `@routup/cookie`) |
+
+```typescript
+import {
+    DController,
+    DCookie,
+    DGet,
+    DHeader,
+    DPath,
+    DQuery,
+} from '@routup/decorators';
+
+@DController('/users')
+export class ProfileController {
+    @DGet('/:id/profile')
+    async show(
+        @DPath('id') id: string,
+        @DQuery('include') include: string | undefined,
+        @DHeader('accept-language') lang: string | null,
+        @DCookie('session') session: string | undefined,
+    ) {
+        return { id, include, lang, session };
+    }
+}
+```
+
+A method without any parameter decorator receives the event as its first argument.
+
+### Parsers for body, query and cookies
+
+`@DBody`, `@DQuery`, `@DCookie` and `@DCookies` read what the matching plugin parsed. Mount the plugins your controllers use before `decorators()`. [`@routup/basic`](https://www.npmjs.com/package/@routup/basic) mounts all three:
+
+```typescript
+import { basic } from '@routup/basic';
+import { decorators } from '@routup/decorators';
+import { App } from 'routup';
+import { UserController } from './controller';
+
+const router = new App();
+
+router.use(basic());
+router.use(decorators({ controllers: [UserController] }));
+```
+
+Or pick them one by one, for example to skip cookies or change body options:
+
+```typescript
+import { body } from '@routup/body';
+import { cookie } from '@routup/cookie';
+import { decorators } from '@routup/decorators';
+import { query } from '@routup/query';
+import { App } from 'routup';
+import { UserController } from './controller';
+
+const router = new App();
+
+router.use(body({ json: { limit: '5mb' } }));
+router.use(cookie());
+router.use(query());
+router.use(decorators({ controllers: [UserController] }));
+```
+
+### Middleware
+
+```typescript
+import type { IAppEvent } from 'routup';
+import type { HandlerInterface } from '@routup/decorators';
+import { DContext, DController, DGet } from '@routup/decorators';
+
+const UserKey = Symbol.for('app:user');
+
+class AuthMiddleware implements HandlerInterface {
+    run(event: IAppEvent) {
+        event.store[UserKey] = 'ada';
+
+        return event.next();
+    }
+}
+
+class AuditMiddleware implements HandlerInterface {
+    run(event: IAppEvent) {
+        console.log('audit', event.path);
+
+        return event.next();
+    }
+}
+
+@DController('/account', [AuthMiddleware])
+export class AccountController {
+    @DGet('', [AuditMiddleware])
+    async show(@DContext() event: IAppEvent) {
+        return { user: event.store[UserKey] };
+    }
+}
+```
+
+- Middleware is a class with a `run(event)` method (`HandlerInterface`). Return `event.next()` to continue to the route; return a value to answer the request yourself.
+- Classes passed to `@DController(path, [...])` run for every route of the controller. Classes passed to a method decorator run only for that method and path.
+- A new middleware instance is created for every request it handles.
+
+### OpenAPI generation
+
+`@routup/decorators` ships a [TRAPI](https://github.com/tada5hi/trapi) preset under the `./preset` subpath. It tells `@trapi/metadata` how to read the `@D*` decorators; there is no separate generator package. Install the generator packages as dev dependencies:
+
+```bash
+npm install --save-dev @trapi/core @trapi/metadata @trapi/swagger
+```
+
+#### Programmatically
+
+`@trapi/swagger`'s `generateSwagger()` takes pre-built metadata, so call `generateMetadata()` from `@trapi/metadata` first. Reference the preset by its package specifier; `@trapi/metadata` imports `@routup/decorators/preset` and uses its default export:
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
-import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
-import process from 'node:process';
+import { Version, generateSwagger, saveSwagger } from '@trapi/swagger';
 import path from 'node:path';
+import process from 'node:process';
 
 const metadata = await generateMetadata({
     preset: '@routup/decorators/preset',
@@ -188,25 +364,145 @@ const spec = await generateSwagger({
     },
 });
 
-await saveSwagger(spec, { outputDirectory: 'writable' });
+await saveSwagger(spec, { cwd: 'writable' });
 ```
 
-If you need to customise the preset before passing it in, import `buildPreset` from `@routup/decorators/preset` and supply the returned object as `preset` instead of the string identifier.
+`saveSwagger()` writes `writable/swagger.json` (the `name` and `format` options change the file name and switch to YAML).
 
-Pair the result with [`@routup/swagger-ui`](https://www.npmjs.com/package/@routup/swagger-ui) to serve the generated document at runtime.
+To change the preset before generation, import `buildPreset` from `@routup/decorators/preset` and pass the returned object as `preset` instead of the string:
 
-### Via the trapi CLI
+```typescript
+import { buildPreset } from '@routup/decorators/preset';
+import { generateMetadata } from '@trapi/metadata';
 
-Skip the JS glue entirely — the CLI accepts the preset by name:
+const preset = buildPreset();
+
+preset.parameters = preset.parameters?.filter((handler) => handler.match.name !== 'DHeaders');
+
+const metadata = await generateMetadata({
+    preset,
+    entryPoint: { cwd: 'src', pattern: '**/*.ts' },
+});
+```
+
+Serve the result with [`@routup/swagger-ui`](https://www.npmjs.com/package/@routup/swagger-ui).
+
+#### Via the trapi CLI
+
+The `trapi` binary comes from `@trapi/cli` and takes the preset by name:
 
 ```bash
-npx trapi --preset @routup/decorators/preset
+npm install --save-dev @trapi/cli
+npx trapi generate --preset @routup/decorators/preset --entry-point 'src/**/*.ts' --output swagger.json
 ```
 
-`@trapi/core` is declared as an *optional* peer dependency, so runtime-only consumers of `@routup/decorators` never pay for it. Install it (alongside `@trapi/metadata` and `@trapi/swagger`) only when you actually call into the generator.
+#### Documentation decorators
+
+These decorators do nothing at runtime; the preset reads them into the generated document.
+
+| Decorator | Where | Effect in the document |
+|-----------|-------|------------------------|
+| `@DTags(...names)` | class, method | Adds tags |
+| `@DDescription<T>(status, description?, example?)` | class, method | Adds a response with that status (default `'200'`) and description (default `'Ok'`); the type argument becomes the schema |
+| `@DExample(example)` | method | Adds an example to the default response |
+| `@DSecurity(scopes?, name?)` | class, method | Adds a security requirement (name defaults to `'default'`) |
+| `@DDeprecated()` | class, method | Marks the operation(s) deprecated |
+| `@DHidden()` | class, method | Leaves the operation(s) out of the document |
+
+```typescript
+import {
+    DController,
+    DDescription,
+    DGet,
+    DPath,
+    DSecurity,
+    DTags,
+} from '@routup/decorators';
+
+type User = { id: string, name: string };
+
+@DTags('users')
+@DController('/users')
+export class DocumentedUserController {
+    @DGet('/:id')
+    @DSecurity(['users:read'], 'bearer')
+    @DDescription<User>(200, 'The user')
+    async show(@DPath('id') id: string): Promise<User> {
+        return { id, name: 'Ada' };
+    }
+}
+```
+
+## Options
+
+`decorators(options)`:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `controllers` | `(ClassType \| Record<string, any>)[]` | required | Controller classes (instantiated with `new`) or controller instances to mount |
+
+## API
+
+| Export | Kind | Purpose |
+|--------|------|---------|
+| `decorators(options)` (also default export) | Plugin factory | Mounts the given controllers when installed |
+| `DController(path, middlewares?)` | Class decorator | Controller path (string or string array) and controller-wide middleware |
+| `DGet`, `DPost`, `DPut`, `DPatch`, `DDelete` | Method decorators | `(path, middlewares?)`: route a method for that HTTP verb |
+| `DContext`, `DRequest`, `DResponse`, `DNext` | Parameter decorators | Inject the event, request, response accumulator or next function |
+| `DPath`, `DPaths`, `DHeader`, `DHeaders` | Parameter decorators | Inject route params and request headers |
+| `DBody`, `DQuery`, `DCookie`, `DCookies` | Parameter decorators | Inject parsed body, query and cookies |
+| `DTags`, `DDescription`, `DExample`, `DSecurity`, `DDeprecated`, `DHidden` | Decorators | Documentation only, read by the preset |
+| `mountController(app, controller)`, `mountControllers(app, controllers)` | Functions | Mount controllers without the plugin wrapper |
+| `createClassDecorator`, `createMethodDecorator`, `createParameterDecorator` | Functions | Build your own decorators on the same metadata |
+| `useDecoratorMeta(target)` | Function | Read or create the metadata stored on a controller prototype |
+| `buildDecoratorMethodArguments(context, parameters)` | Function | Resolve the argument list for a method from its parameter metadata |
+| `createHandlerForClassType(Class, options)`, `isHandlerClassInstance(value)` | Functions | Wrap a middleware class as a routup handler; check for a `run` method |
+| `ParameterType` | Enum | Parameter kinds: `context`, `request`, `response`, `next`, `param`, `header`, `body`, `query`, `cookie` |
+| `Options`, `ClassType`, `HandlerInterface`, `HandlerContext`, `DecoratorMeta`, `DecoratorMethodOptions`, `DecoratorParameterOptions` | Types | Plugin options, middleware contract and metadata shapes |
+| `buildPreset()`, default export (from `@routup/decorators/preset`) | TRAPI preset | Preset for `@trapi/metadata`; the default export is `buildPreset()` |
+
+### `mountControllers`
+
+`decorators()` is a thin wrapper around `mountControllers`. Call it yourself to mount controllers on an `App` directly:
+
+```typescript
+import { mountControllers } from '@routup/decorators';
+import { App } from 'routup';
+import { UserController } from './controller';
+
+const router = new App();
+
+mountControllers(router, [UserController]);
+```
+
+### Custom decorators
+
+The factories write to the same metadata the built-in decorators use. For example a `@DOptions` method decorator:
+
+```typescript
+import { createMethodDecorator } from '@routup/decorators';
+import type { ClassType } from '@routup/decorators';
+
+export function DOptions(path: string, middlewares?: ClassType[]): MethodDecorator {
+    return createMethodDecorator('options', path, middlewares);
+}
+```
+
+A custom decorator works at runtime right away. The preset only knows the names listed above (plus `DAll`, `DHead`, `DOptions` and `DConsumes`), so other names need their own handler in a preset built from `buildPreset()`.
+
+See the docs site for [controllers](https://plugins.routup.dev/decorators/controllers) and [parameters](https://plugins.routup.dev/decorators/parameters).
+
+## Notes
+
+- **Parser plugins are not optional at runtime.** Without `body()`, `@DBody()` yields `{}`; without `query()` or `cookie()`, `@DQuery()` and `@DCookies()` yield `{}` and the single-key forms yield `undefined`. Nothing throws.
+- **No dependency injection.** A controller class is created with `new Controller()` and no arguments. Pass an instance if it needs constructor arguments.
+- **Parameter positions matter.** Only decorated parameters are filled. If a method decorates some parameters but not others, the undecorated ones are `undefined`; a method with no parameter decorators gets the event as its first argument.
+- **`@DHeader` returns `null` for a missing header** (that is what `Headers.get` returns), while `@DQuery(key)` and `@DCookie(name)` return `undefined`.
+- **Documentation decorators are no-ops at runtime.** `@DSecurity` does not check anything; add a middleware for that.
+- **`@trapi/core` is an optional peer.** The runtime entry never imports it; only `@routup/decorators/preset` does, so install it only where you generate the document.
 
 ## License
 
 Made with 💚
 
-Published under [MIT License](./LICENSE).
+Published under [MIT License](https://github.com/routup/plugins/blob/master/LICENSE).

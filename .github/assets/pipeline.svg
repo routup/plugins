@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400" viewBox="0 0 960 400" role="img" aria-labelledby="pl-title pl-desc">
+<title id="pl-title">How routup plugins handle a request</title>
+<desc id="pl-desc">A request passes through the handlers registered with app.use in order: logger, cors, rateLimit, basic, then your route handler. Each one calls event.next() to pass the request on and gets the Response back on the way out. cors answers a preflight OPTIONS request with 204 and rateLimit answers with 429 once a client exceeds max requests in windowMs, so the request never reaches later handlers. basic stores the parsed query and cookies on event.store and parses the body on first read; the handler reads them with readRequestBody, useRequestCookie and useRequestQuery. logger prints its line once the Response is back.</desc>
+<style>
+  .pl-panel { fill: #f7f5ff; stroke: #ddd6fe; }
+  .pl-card { fill: #ffffff; stroke: #c4b5fd; }
+  .pl-handler { fill: #f0fdff; stroke: #67e8f9; }
+  .pl-fg { fill: #1e1b3a; }
+  .pl-muted { fill: #5b5675; }
+  .pl-next { stroke: #7c3aed; }
+  .pl-next-fill { fill: #7c3aed; }
+  .pl-back { stroke: #0891b2; }
+  .pl-back-fill { fill: #0891b2; }
+  .pl-early { fill: #fff7e6; stroke: #f59e0b; }
+  .pl-early-text { fill: #9a5b00; }
+  .pl-chip { fill: #ffffff; stroke: #ddd6fe; }
+  @media (prefers-color-scheme: dark) {
+    .pl-panel { fill: #18142b; stroke: #3b2f63; }
+    .pl-card { fill: #120f20; stroke: #6d5bb0; }
+    .pl-handler { fill: #0c1c22; stroke: #0e7490; }
+    .pl-fg { fill: #ece9fb; }
+    .pl-muted { fill: #a8a3c4; }
+    .pl-next { stroke: #a78bfa; }
+    .pl-next-fill { fill: #a78bfa; }
+    .pl-back { stroke: #22d3ee; }
+    .pl-back-fill { fill: #22d3ee; }
+    .pl-early { fill: #2a1d05; stroke: #f59e0b; }
+    .pl-early-text { fill: #fbbf24; }
+    .pl-chip { fill: #120f20; stroke: #3b2f63; }
+  }
+  text { font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  .pl-mono { font-family: 'JetBrains Mono', SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+
+<!-- background panel so every label sits on a surface -->
+<rect class="pl-panel" x="8" y="8" width="944" height="384" rx="18" stroke-width="1.5"/>
+
+<!-- top lane: event.next() -->
+<line class="pl-next" x1="95" y1="92" x2="865" y2="92" stroke-width="3"/>
+<g class="pl-next" stroke-width="3">
+  <line x1="249" y1="92" x2="249" y2="112"/><line x1="403" y1="92" x2="403" y2="112"/>
+  <line x1="557" y1="92" x2="557" y2="112"/><line x1="711" y1="92" x2="711" y2="112"/>
+  <line x1="865" y1="92" x2="865" y2="112"/>
+</g>
+<g class="pl-next-fill">
+  <path d="M243 110 L255 110 L249 120 Z"/><path d="M397 110 L409 110 L403 120 Z"/>
+  <path d="M551 110 L563 110 L557 120 Z"/><path d="M705 110 L717 110 L711 120 Z"/>
+  <path d="M859 110 L871 110 L865 120 Z"/>
+</g>
+<line class="pl-next" x1="95" y1="92" x2="95" y2="120" stroke-width="3"/>
+<rect class="pl-chip" x="24" y="30" width="190" height="30" rx="15" stroke-width="1.5"/>
+<circle class="pl-next-fill" cx="42" cy="45" r="6"/>
+<text class="pl-mono pl-fg" x="56" y="50" font-size="13">event.next() →</text>
+
+<!-- bottom lane: Response -->
+<line class="pl-back" x1="95" y1="222" x2="865" y2="222" stroke-width="3"/>
+<g class="pl-back" stroke-width="3">
+  <line x1="249" y1="192" x2="249" y2="222"/><line x1="711" y1="192" x2="711" y2="222"/>
+  <line x1="865" y1="192" x2="865" y2="222"/>
+</g>
+<path class="pl-back-fill" d="M88 205 L102 205 L95 194 Z"/>
+<line class="pl-back" x1="95" y1="204" x2="95" y2="222" stroke-width="3"/>
+<rect class="pl-chip" x="746" y="30" width="190" height="30" rx="15" stroke-width="1.5"/>
+<circle class="pl-back-fill" cx="764" cy="45" r="6"/>
+<text class="pl-mono pl-fg" x="778" y="50" font-size="13">← Response</text>
+
+<!-- early answers from cors and rateLimit -->
+<g stroke-width="2">
+  <line class="pl-back" x1="403" y1="192" x2="403" y2="222" stroke-dasharray="5 4"/>
+  <line class="pl-back" x1="557" y1="192" x2="557" y2="222" stroke-dasharray="5 4"/>
+</g>
+<rect class="pl-early" x="371" y="208" width="64" height="26" rx="13" stroke-width="1.5"/>
+<text class="pl-mono pl-early-text" x="403" y="226" font-size="13" font-weight="600" text-anchor="middle">204</text>
+<rect class="pl-early" x="525" y="208" width="64" height="26" rx="13" stroke-width="1.5"/>
+<text class="pl-mono pl-early-text" x="557" y="226" font-size="13" font-weight="600" text-anchor="middle">429</text>
+
+<!-- cards -->
+<g stroke-width="1.5">
+  <rect class="pl-card" x="29" y="120" width="132" height="72" rx="12"/>
+  <rect class="pl-card" x="183" y="120" width="132" height="72" rx="12"/>
+  <rect class="pl-card" x="337" y="120" width="132" height="72" rx="12"/>
+  <rect class="pl-card" x="491" y="120" width="132" height="72" rx="12"/>
+  <rect class="pl-card" x="645" y="120" width="132" height="72" rx="12"/>
+  <rect class="pl-handler" x="799" y="120" width="132" height="72" rx="12"/>
+</g>
+<g text-anchor="middle">
+  <text class="pl-fg" x="95" y="152" font-size="15" font-weight="600">Request</text>
+  <text class="pl-muted" x="95" y="172" font-size="12">client</text>
+  <text class="pl-mono pl-fg" x="249" y="152" font-size="14" font-weight="600">logger()</text>
+  <text class="pl-muted" x="249" y="172" font-size="12">@routup/logger</text>
+  <text class="pl-mono pl-fg" x="403" y="152" font-size="14" font-weight="600">cors()</text>
+  <text class="pl-muted" x="403" y="172" font-size="12">@routup/cors</text>
+  <text class="pl-mono pl-fg" x="557" y="152" font-size="14" font-weight="600">rateLimit()</text>
+  <text class="pl-muted" x="557" y="172" font-size="12">@routup/rate-limit</text>
+  <text class="pl-mono pl-fg" x="711" y="152" font-size="14" font-weight="600">basic()</text>
+  <text class="pl-muted" x="711" y="172" font-size="12">@routup/basic</text>
+  <text class="pl-fg" x="865" y="152" font-size="15" font-weight="600">your handler</text>
+  <text class="pl-mono pl-muted" x="865" y="172" font-size="12">app.post(…)</text>
+</g>
+
+<!-- notes -->
+<g class="pl-muted" font-size="12.5" text-anchor="middle">
+  <text x="95" y="268">POST /posts?draft=1</text>
+  <text x="95" y="288">cookie: session=…</text>
+  <text x="95" y="308">body: { "title": … }</text>
+
+  <text x="249" y="268">starts a timer,</text>
+  <text x="249" y="288">prints one line when</text>
+  <text x="249" y="308">the Response is back</text>
+
+  <text x="403" y="268">preflight OPTIONS:</text>
+  <text x="403" y="288">answers 204 here;</text>
+  <text x="403" y="308">else adds CORS headers</text>
+
+  <text x="557" y="268">counts per client key;</text>
+  <text x="557" y="288">over max in windowMs:</text>
+  <text x="557" y="308">answers 429 here</text>
+
+  <text x="711" y="268">query and cookies</text>
+  <text x="711" y="288">→ event.store;</text>
+  <text x="711" y="308">body parsed on read</text>
+</g>
+<g class="pl-mono pl-fg" font-size="11.5" text-anchor="middle">
+  <text x="865" y="268">readRequestBody()</text>
+  <text x="865" y="288">useRequestCookie()</text>
+  <text x="865" y="308">useRequestQuery()</text>
+</g>
+
+<!-- legend -->
+<g font-size="12.5">
+  <line class="pl-next" x1="40" y1="356" x2="72" y2="356" stroke-width="3"/>
+  <text class="pl-muted" x="82" y="361">passes the request on, in app.use() order</text>
+  <line class="pl-back" x1="370" y1="356" x2="402" y2="356" stroke-width="3"/>
+  <text class="pl-muted" x="412" y="361">Response travels back through every earlier handler</text>
+  <rect class="pl-early" x="752" y="345" width="34" height="22" rx="11" stroke-width="1.5"/>
+  <text class="pl-muted" x="796" y="361">answered early</text>
+</g>
+</svg>
