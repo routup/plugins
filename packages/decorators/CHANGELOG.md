@@ -6,6 +6,29 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.1.0](https://github.com/routup/plugins/compare/decorators-v5.0.2...decorators-v5.1.0) (2026-11-15)
+
+
+### Features
+
+* **decorators:** add DStatus, DProduces and DReturns, export setRequestBody ([#859](https://github.com/routup/plugins/issues/859)) ([72560e5](https://github.com/routup/plugins/commit/72560e58d5ce596c940092fc829df4816f4927e0)), closes [#855](https://github.com/routup/plugins/issues/855)
+* **decorators:** adopt trapi 2.3 in the preset ([#862](https://github.com/routup/plugins/issues/862)) ([e682db3](https://github.com/routup/plugins/commit/e682db336f97aa48d5d459c50ebf137c007c89b5))
+
+
+### Bug Fixes
+
+* require routup ^6.3.0 and node &gt;=24 ([e3339a1](https://github.com/routup/plugins/commit/e3339a107396829e9cb32040d9b4367dd1be8b5f))
+* ship README logo in package assets ([76aae10](https://github.com/routup/plugins/commit/76aae10d8636b92665e10ab84f3604343320754d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^4.0.1 to ^4.1.0
+    * @routup/cookie bumped from ^4.0.1 to ^4.0.2
+    * @routup/query bumped from ^4.0.2 to ^4.0.3
+
 ## [5.0.2](https://github.com/routup/plugins/compare/decorators-v5.0.1...decorators-v5.0.2) (2026-11-08)
 
 

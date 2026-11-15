@@ -1,5 +1,31 @@
 # Changelog
 
+## [5.0.0](https://github.com/routup/plugins/compare/swagger-ui-v4.0.2...swagger-ui-v5.0.0) (2026-11-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **rate-limit-redis:** @routup/rate-limit-redis requires redis-extension ^3 (ioredis ^6, Node.js >=24). redis-extension dropped its shared default client (setClient/useClient); pass the client to the RedisStore constructor instead.
+* **swagger-ui:** Only GET and HEAD are answered. Paths other than the shell and the allowlisted files are passed to the next handler instead of answering the shell or a swagger-ui-dist file. The ?url= query is ignored. The default layout is BaseLayout; an explicit layout: 'StandaloneLayout' shows the top bar, which was hidden by CSS before. The options object passed to swaggerUI() is not modified. An invalid baseURL or a function option that cannot be serialized throws at setup.
+
+### Features
+
+* **rate-limit-redis:** adopt redis-extension 3 and bump dependencies ([4112fa6](https://github.com/routup/plugins/commit/4112fa6a1ab0227faded0abd81eb69d9e99926a3))
+* **swagger-ui:** harden served files and bootstrap, add csp option ([#860](https://github.com/routup/plugins/issues/860)) ([82cd7ba](https://github.com/routup/plugins/commit/82cd7ba7dbd2da7ea4d8dfa83d9f22fab9d6f97a))
+
+
+### Bug Fixes
+
+* require routup ^6.3.0 and node &gt;=24 ([e3339a1](https://github.com/routup/plugins/commit/e3339a107396829e9cb32040d9b4367dd1be8b5f))
+* ship README logo in package assets ([76aae10](https://github.com/routup/plugins/commit/76aae10d8636b92665e10ab84f3604343320754d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^5.0.1 to ^6.0.0
+
 ## [4.0.2](https://github.com/routup/plugins/compare/swagger-ui-v4.0.1...swagger-ui-v4.0.2) (2026-11-08)
 
 

@@ -1,6 +1,6 @@
 {
     "name": "@routup/rate-limit-redis",
-    "version": "5.0.2",
+    "version": "6.0.0",
     "type": "module",
     "description": "Share @routup/rate-limit hit counters across processes and instances by storing them in Redis.",
     "exports": {
@@ -48,7 +48,7 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "@routup/rate-limit": "^4.0.2",
+        "@routup/rate-limit": "^4.0.3",
         "redis-extension": "^3.0.0",
         "routup": "^6.3.0"
     },
@@ -58,7 +58,7 @@
         }
     },
     "devDependencies": {
-        "@routup/rate-limit": "^4.0.2",
+        "@routup/rate-limit": "^4.0.3",
         "redis-extension": "^3.0.0",
         "routup": "^6.3.0"
     },

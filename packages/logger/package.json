@@ -1,6 +1,6 @@
 {
     "name": "@routup/logger",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "type": "module",
     "description": "Log one line per routup request, using morgan's token syntax and its tiny, short, common, combined and dev formats.",
     "exports": {
