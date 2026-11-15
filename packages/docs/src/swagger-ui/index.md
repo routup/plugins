@@ -47,7 +47,9 @@ router.use('/docs', swaggerUI({
 
 ## Mounting
 
-The UI is mounted under whatever path you pass to `router.use()`. Trailing slashes matter for static-asset resolution — visit `/docs/` not `/docs`.
+The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both work: the page sets `<base href="/docs/">`, so assets and the default OAuth redirect URL (`oauth2-redirect.html`) resolve inside the mount either way.
+
+Behind a reverse proxy, `basePath` (`'/api'`) or `baseURL` (`'https://example.com/api'`) prefixes the `<base href>`. `baseURL` must be an absolute `http(s)` URL (anything else throws at setup) and its path is treated as a directory, with or without trailing slash.
 
 ## Served files
 
@@ -63,9 +65,9 @@ The shell has no inline script or style, so it works under `script-src 'self'; s
 router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
 ```
 
-The recommended policy allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, root, path and operation `servers`, OAuth token URLs) to `connect-src`. Origins it cannot know (servers of a document loaded by URL, an OpenID Connect `token_endpoint` on another origin) need a string policy. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
+The recommended policy allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, `urls[]`, root, path and operation `servers`, OAuth token URLs) to `connect-src`. Templated servers are expanded with the `default` and every `enum` value of their variables (at most 64 URLs per server), and a protocol-relative server (`//api.example.com`) adds its `https:` and `http:` origin. Server values that are not a plain `scheme://host[:port]` origin are dropped. Origins it cannot know (servers of a document loaded by URL, values a visitor types freely into a server variable, an OpenID Connect `token_endpoint` on another origin) need a string policy. `buildContentSecurityPolicy({ connectSrc, imgSrc, origins })` returns the same policy for your own header; it throws for a source containing whitespace, `;` or `,`. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
 
-The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back.
+The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back, including its field to load any document by URL (earlier versions hid it with CSS for every layout). The `?url=` query parameter is ignored.
 
 ## Install analytics
 

@@ -79,7 +79,7 @@ serve(router, { port: 3000 });
 
 Open `http://localhost:3000/docs/` in a browser.
 
-- The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both return the page with `<base href="/docs/">`, so the bundle's relative asset links resolve either way.
+- The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both return the page with `<base href="/docs/">`, so the bundle's relative asset links resolve either way. The OAuth redirect URL defaults to `oauth2-redirect.html` next to that `<base href>`, so OAuth works from both as well.
 - Only `GET` and `HEAD` are answered, and only for the files listed in [Served files](#served-files). Other paths and methods under the mount go to the next handler, which answers `404` when there is none.
 
 ### Served files
@@ -138,6 +138,7 @@ router.use('/v2/docs', swaggerUI('./openapi.json', { baseURL: 'https://example.c
 ```
 
 - `basePath` is prefixed to the mount path; `baseURL` is used as the origin and prefix. When both are set, `baseURL` wins.
+- `baseURL` must be an absolute `http:` or `https:` URL; anything else throws when the plugin is created. Its path is treated as a directory: `https://example.com/api` behaves like `https://example.com/api/`.
 
 ### Swagger UI options and OAuth
 
@@ -160,11 +161,13 @@ router.use('/docs', swaggerUI('./openapi.json', {
 
 - Every Swagger UI configuration field (`SwaggerConfigs`) is serialised into `swagger-initializer.js` and passed to `SwaggerUIBundle`, overriding the built-in defaults. Function values (for example `requestInterceptor`) are passed as source.
 - Values of the document and the options are serialised with `<`, `>`, `&`, U+2028 and U+2029 escaped, so a description containing `</script>` or `<!--` cannot break out.
+- Bound and native functions (`fn.bind(…)`, `Math.max`) have no source to pass; they throw when the plugin is created.
 - `oauth` is passed to `ui.initOAuth()`, `authAction` to `ui.authActions.authorize()`, after the UI is created. `oauth` also serves the OAuth redirect page (see [Served files](#served-files)).
+- Without `oauth2RedirectUrl`, the redirect URL is `oauth2-redirect.html` resolved against the page's `<base href>`.
 
 ### Layout
 
-The UI uses `BaseLayout`, without Swagger UI's top bar: the page shows the configured document only, with no field to explore other documents by URL. Pass `layout: 'StandaloneLayout'` to get the top bar back; its logo then needs an inline style, which `style-src 'self'` blocks (the UI still works).
+The UI uses `BaseLayout`, without Swagger UI's top bar: the page shows the configured document only, with no field to explore other documents by URL. Pass `layout: 'StandaloneLayout'` to get the top bar back, including its field to load any document by URL (see [Upgrading to v5](#upgrading-to-v5)); its logo then needs an inline style, which `style-src 'self'` blocks (the UI still works).
 
 ### Content security policy
 
@@ -188,11 +191,13 @@ object-src 'none'; base-uri 'self'; form-action 'self'
 ```
 
 - `blob:` lets "Try it out" render binary responses (images, audio, video).
-- `<origins>` are the absolute origins of the document URL, `configUrl`, the document's `servers` at root, path and operation level (or Swagger 2 `host`; templated URLs are expanded with their variable defaults), and its OAuth token, refresh and OpenID URLs.
+- `<origins>` are the absolute origins of the document URL, `configUrl`, the `urls[]` entries, the document's `servers` at root, path and operation level (or Swagger 2 `host`), and its OAuth token, refresh and OpenID URLs.
+- Templated server URLs are expanded with the `default` and every `enum` value of their variables (all combinations, at most 64 per server; a server with more is skipped). A protocol-relative server (`//api.example.com`) adds its `https:` and `http:` origin.
+- Only origins of the form `scheme://host[:port]` (letters, digits, `.`, `-` or a bracketed IPv6 address) are added; any other server value is dropped.
 - The `baseURL` origin is added to every directive except `object-src`.
 - With `layout: 'StandaloneLayout'` and a document loaded by URL, the validator badge origin (`https://validator.swagger.io` unless `validatorUrl` is `null` or `'none'`) is added to `img-src`.
 
-Some origins cannot be known in advance; pass a string policy for them: servers of a document loaded by URL, server URLs with a variable that has no default, and an OpenID Connect `token_endpoint` found through discovery on another origin than the `openIdConnectUrl`.
+Some origins cannot be known in advance; pass a string policy for them: servers of a document loaded by URL, server URLs with a variable that has no default, values a visitor types freely into a server variable (no `enum`), and an OpenID Connect `token_endpoint` found through discovery on another origin than the `openIdConnectUrl`.
 
 To build your own header, reuse the policy:
 
@@ -205,6 +210,8 @@ const policy = buildContentSecurityPolicy({
     origins: [],
 });
 ```
+
+`buildContentSecurityPolicy()` throws for a source that contains whitespace, a control character, `;` or `,`, since it would add a directive or a second policy. Source expressions such as `'self'`, `data:`, `https:` or `*.example.com` are accepted.
 
 ### Producing the document
 
@@ -251,6 +258,13 @@ router.use('/docs', createUIHandler('./openapi.json'));
 - **The file is read once.** Changes to the document after `swaggerUI()` was called are not picked up until restart.
 - **Functions in options lose their scope.** Options are written into `swagger-initializer.js`; functions (for example `requestInterceptor`) are inserted by their source text, so they cannot use variables from your server code.
 - **Install analytics.** `swagger-ui-dist` depends on [`@scarf/scarf`](https://github.com/scarf-sh/scarf-js), whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` in the install environment (or `"scarfSettings": { "enabled": false }` in your `package.json`) to disable it.
+
+## Upgrading to v5
+
+- **The top bar is hidden by leaving it out, not by CSS.** The default layout is `BaseLayout`, which has no top bar. Earlier versions used `StandaloneLayout` and hid `.swagger-ui .topbar` with CSS for every layout. With an explicit `layout: 'StandaloneLayout'` the top bar, including its field to load any document by URL, is now visible.
+- **The `?url=` query parameter is ignored.** A link such as `/docs/?url=https://evil.example/openapi.json` no longer loads another document; the UI shows the document passed to `swaggerUI()`.
+- **Only `GET` and `HEAD` requests for the [served files](#served-files) are answered**; every other path and method goes to the next handler. `oauth2-redirect.html` is served only when an OAuth flow is configured.
+- **`baseURL` is validated** when the plugin is created and **bound or native function options throw** there too.
 
 ## License
 
