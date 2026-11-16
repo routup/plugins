@@ -103,6 +103,22 @@ class LeadingSlashGroupController {
     }
 }
 
+@DController(['/a', '/b'])
+class MultiPathSlashGroupController {
+    @DGet('{/:id}')
+    show() {
+        return 'show';
+    }
+}
+
+@DController([])
+class NoPathSlashGroupController {
+    @DGet('{/:id}')
+    show() {
+        return 'show';
+    }
+}
+
 function toRequest(method: string, path: string): Request {
     return new Request(`http://localhost${path}`, { method });
 }
@@ -202,12 +218,26 @@ describe('getControllerRoutes', () => {
 
     it('refuses a method path that starts with an optional group led by a slash', () => {
         for (const controller of [SlashGroupController, LeadingSlashGroupController]) {
+            const app = new App();
+
             expect(() => getControllerRoutes(controller)).toThrow(/GET "\/?\{\/:id\}" under the controller path "\/notes"/);
-            expect(() => mountController(new App(), controller)).toThrow(/GET "\/?\{\/:id\}" under the controller path "\/notes"/);
+            expect(() => mountController(app, controller)).toThrow(/GET "\/?\{\/:id\}" under the controller path "\/notes"/);
+            expect(app.routes).toEqual([]);
         }
     });
 
+    it('refuses such a method path whatever the base paths', () => {
+        expect(() => getControllerRoutes(MultiPathSlashGroupController))
+            .toThrow(/under the controller paths "\/a", "\/b"/);
+        expect(() => getControllerRoutes(NoPathSlashGroupController))
+            .toThrow(/GET "\{\/:id\}" with no controller path/);
+        expect(() => mountController(new App(), NoPathSlashGroupController))
+            .toThrow(/GET "\{\/:id\}" with no controller path/);
+    });
+
     it('lists exactly the method-bound routes the mount registers', async () => {
+        // None of these has method middlewares: those are method-bound
+        // routes too, so the filter below would count them.
         const controllers = [NoteController, MultiPathController, SegmentController];
 
         for (const controller of controllers) {

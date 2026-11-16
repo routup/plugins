@@ -247,7 +247,12 @@ hasDecoratorMeta({}); // false
 `getControllerRoutes(target)` lists the routes a controller instance or class is mounted under, without mounting it and without instantiating a class. Use it to check controllers from outside your own code against the routes of the host app:
 
 ```typescript
-import { getControllerRoutes } from '@routup/decorators';
+import {
+    DController,
+    DGet,
+    DPath,
+    getControllerRoutes,
+} from '@routup/decorators';
 
 @DController(['/users', '/members'])
 export class UserController {

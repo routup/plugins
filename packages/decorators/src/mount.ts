@@ -109,17 +109,19 @@ function registerController(
 ) : Set<unknown> {
     const urls = Array.isArray(meta.url) ? meta.url : [meta.url];
 
-    for (const url of urls) {
-        for (const method of Object.values(meta.methods)) {
-            if (/^\/?\{\//.test(method.url)) {
-                throw new AppError(
-                    `Cannot mount ${method.method.toUpperCase()} "${method.url}" ` +
-                    `under the controller path "${url}": a method path cannot start ` +
-                    'with an optional group that begins with a slash, since routup ' +
-                    'puts a slash before every method path, so the group could only ' +
-                    'match after a double slash.',
-                );
-            }
+    for (const method of Object.values(meta.methods)) {
+        if (/^\/?\{\//.test(method.url)) {
+            const paths = urls.map((url) => `"${url}"`).join(', ');
+            const under = urls.length === 0 ?
+                'with no controller path' :
+                `under the controller path${urls.length === 1 ? '' : 's'} ${paths}`;
+
+            throw new AppError(
+                `Cannot mount ${method.method.toUpperCase()} "${method.url}" ${under}: ` +
+                'a method path cannot start with an optional group that begins ' +
+                'with a slash, since routup puts a slash before every method path, ' +
+                'so the group could only match after a double slash.',
+            );
         }
     }
 
