@@ -3,14 +3,6 @@ import { isObject } from './object';
 
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 
-/**
- * Marks the class middlewares a subclass copied from its parent, so that
- * `@DController()` without middlewares keeps them on a subclass but resets
- * an own list. A global symbol on the array, so that every copy of the
- * package sees it.
- */
-const inheritedMark = Symbol.for('@routup/decorators:Inherited');
-
 function isClassPrototype(target: Record<string, any>) : boolean {
     return Object.hasOwn(target, 'constructor') &&
         target.constructor?.prototype === target;
@@ -100,16 +92,12 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
         parameters[key] = entries?.map((parameter) => ({ ...parameter }));
     }
 
-    const middlewares = [...meta.middlewares];
-
-    Object.defineProperty(middlewares, inheritedMark, { value: true });
-
     // Fields this copy of the package does not know (written by a custom
     // decorator or a newer copy) are carried over as they are.
     return {
         ...meta,
         url: Array.isArray(meta.url) ? [...meta.url] : meta.url,
-        middlewares,
+        middlewares: [...meta.middlewares],
         methods: methods as DecoratorMeta['methods'],
         produces: [...meta.produces],
         responses: responses as DecoratorMeta['responses'],
@@ -142,8 +130,8 @@ export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
 }
 
 /**
- * Set the controller path and middlewares. Without middlewares, a subclass
- * keeps the ones it copied from its parent, while an own list is reset.
+ * Set the controller path and middlewares. Without middlewares, the class
+ * starts from the class middlewares of its parent (none without one).
  */
 export function setDecoratorController(
     target: Record<string, any>,
@@ -156,9 +144,17 @@ export function setDecoratorController(
 
     if (Array.isArray(middlewares)) {
         meta.middlewares = [...middlewares];
-    } else if ((meta.middlewares as any)[inheritedMark] !== true) {
-        meta.middlewares = [];
+
+        return;
     }
+
+    // Read without copying or creating an entry on the parent.
+    const parent = Object.getPrototypeOf(target);
+    const inherited : Partial<DecoratorMeta> | undefined = parent && symbol in parent ?
+        parent[symbol] :
+        undefined;
+
+    meta.middlewares = [...(inherited?.middlewares ?? [])];
 }
 
 export function useDecoratorResponseOptions(

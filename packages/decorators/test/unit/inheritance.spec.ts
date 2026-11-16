@@ -956,6 +956,61 @@ describe('@DController middlewares', () => {
         expect(metaOf(Parent).middlewares).toEqual([FirstMiddleware]);
     });
 
+    it('starts from the inherited ones without an argument, whatever a custom decorator below wrote', () => {
+        class ThirdMiddleware implements HandlerInterface {
+            run() {
+                return undefined;
+            }
+        }
+
+        function DReassign() : ClassDecorator {
+            return (target: any) => {
+                const meta = useDecoratorMeta(target.prototype);
+
+                meta.middlewares = [...meta.middlewares, ThirdMiddleware];
+            };
+        }
+
+        function DPush() : ClassDecorator {
+            return (target: any) => {
+                useDecoratorMeta(target.prototype).middlewares.push(ThirdMiddleware);
+            };
+        }
+
+        @DController('/parent', [FirstMiddleware])
+        class Parent {}
+
+        @DController('/a')
+        @DReassign()
+        class ReassignBelow extends Parent {}
+
+        @DController('/a')
+        @DPush()
+        class PushBelow extends Parent {}
+
+        @DReassign()
+        @DController('/a')
+        class Above extends Parent {}
+
+        expect(metaOf(ReassignBelow).middlewares).toEqual([FirstMiddleware]);
+        expect(metaOf(PushBelow).middlewares).toEqual([FirstMiddleware]);
+        expect(metaOf(Above).middlewares).toEqual([FirstMiddleware, ThirdMiddleware]);
+        expect(metaOf(Parent).middlewares).toEqual([FirstMiddleware]);
+    });
+
+    it('gives a grandchild the current ones of its parent', () => {
+        @DController('/a', [FirstMiddleware])
+        class A {}
+
+        @DController('/b', [SecondMiddleware])
+        class B extends A {}
+
+        @DController('/c')
+        class C extends B {}
+
+        expect(metaOf(C).middlewares).toEqual([SecondMiddleware]);
+    });
+
     it('does not alias the array passed to the decorator', () => {
         const middlewares : ClassType[] = [FirstMiddleware];
 
