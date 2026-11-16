@@ -12,6 +12,7 @@ import type {
 import promClient from 'prom-client';
 import { buildRequestDurationMetric, buildUptimeMetric } from './metrics';
 import type { Metrics, Options } from './types';
+import { buildPathLabel } from './utils/path';
 
 export function createHandler<
     T extends RegistryContentType = PrometheusContentType,
@@ -73,9 +74,8 @@ export function registerMetrics<
             } finally {
                 labels.status_code = response?.status ?? 200;
                 labels.method = event.method;
-                labels.path = typeof options.normalizePath === 'function' ?
-                    options.normalizePath(path, event) :
-                    path;
+                // read after the handlers ran: event.route is request-wide
+                labels.path = buildPathLabel(path, event, options);
 
                 if (options.requestDurationLabels) {
                     Object.assign(labels, options.requestDurationLabels);

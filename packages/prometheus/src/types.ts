@@ -35,7 +35,17 @@ export type Options<T extends RegistryContentType = PrometheusContentType> = {
     uptimeName: string,
     uptimeLabels?: LabelValues<string>,
 
+    /**
+     * Rewrite the `path` label. Wins over the route pattern and
+     * `unmatchedPath`; `event.route` is readable inside it.
+     */
     normalizePath?: ((path: string, event: IAppEvent) => string);
+    /**
+     * Fixed `path` label of a request no method-bound route handled
+     * (e.g. a 404). Unset, such a request is labelled with its raw path,
+     * one series per distinct URL.
+     */
+    unmatchedPath?: string;
     skip: (event: IAppEvent) => boolean;
 
     collectDefaultMetrics?: DefaultMetricsCollectorConfiguration<T>,

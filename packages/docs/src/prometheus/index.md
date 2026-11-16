@@ -13,7 +13,7 @@ Collects standard HTTP metrics for every request and exposes them on a configura
 | Metric | Type | Description |
 |---|---|---|
 | `uptime` | gauge | Total uptime (seconds) of the HTTP server |
-| `requestDuration` | histogram | Per-request duration with method, path, and status labels |
+| `requestDuration` | histogram | Per-request duration with method, route pattern (`path`), and status labels |
 
 ## Installation
 
@@ -44,4 +44,4 @@ Scrape `http://localhost:3000/metrics` — Prometheus exposition format.
 
 ## See also
 
-- [Configuration](./configuration) — `metricsPath` plus exposing custom prom-client metrics
+- [Configuration](./configuration) — `metricsPath`, the `path` label (`unmatchedPath`, `normalizePath`) plus exposing custom prom-client metrics
