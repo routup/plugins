@@ -296,9 +296,9 @@ export class UserController extends BaseController {
 // UserController answers GET /users/health and GET /users
 ```
 
-- A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path and middlewares. Its own `@DController(path, middlewares?)` sets its path, and its middlewares when given.
+- A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path and middlewares. Its own `@DController(path, middlewares?)` sets its path; without a middlewares argument the subclass keeps the inherited controller middlewares, and an array (also `[]`) replaces them.
 - The decorators of a subclass change only the subclass, never its parent or another subclass.
-- An override with a verb decorator (`@DGet()`, ...) replaces the inherited route of that method, and only its own parameter decorators apply. An override without decorators keeps the inherited route and parameter decorators, and the route calls the override. The inherited `@DStatus()` and `@DProduces()` of a method apply to an override that declares none of its own.
+- Decorators keyed by a method follow the declaration the route comes from. An override with a verb decorator (`@DGet()`, ...) replaces the inherited route of that method, and only its own parameter decorators, `@DStatus()` and `@DProduces()` apply, none when it declares none. An override with parameter or response decorators but no verb keeps the inherited route, and its own decorators of each kind replace the inherited ones as a whole. An override without decorators keeps the inherited route, parameter decorators and response options, and the route calls the override. A class-level `@DProduces()` is inherited.
 - A subclass without decorators of its own is mounted and listed like its parent.
 - A subclass copies the metadata of its parent when the first decorator runs on it, at class definition, so a decorator applied to the parent by hand afterwards does not reach it.
 - The OpenAPI preset lists the inherited methods only for a class with its own `@DController()`, and does not inherit the class-level decorators of a parent.

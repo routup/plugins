@@ -226,7 +226,13 @@ describe('isolation of every inherited entry', () => {
         @DController('/sibling')
         class Sibling extends Parent {}
 
+        @DController('/bare', [])
+        class Bare extends Parent {}
+
         expectParentUnchanged();
+
+        // An empty array replaces the inherited middlewares as well.
+        expect(metaOf(Bare).middlewares).toEqual([]);
 
         expect(metaOf(Child).url).toEqual('/child');
         expect(metaOf(Child).middlewares).toEqual([SecondMiddleware]);
@@ -275,7 +281,7 @@ describe('isolation of every inherited entry', () => {
         expect(metaOf(Sibling).methods.item!.middlewares).toEqual([FirstMiddleware]);
     });
 
-    it('copies the response entries on @DStatus and @DProduces of a subclass', () => {
+    it('replaces the response options of a method on @DStatus and @DProduces of an override without a verb', () => {
         class Child extends Parent {
             @DStatus(202)
             @DProduces('text/html')
@@ -294,8 +300,10 @@ describe('isolation of every inherited entry', () => {
         expectParentUnchanged();
         expect(metaOf(Child).responses.item).toEqual({
             status: 202,
-            produces: ['text/html', 'text/csv'],
+            produces: ['text/html'],
         });
+        // the inherited route stays
+        expect(metaOf(Child).methods.item).toEqual(metaOf(Parent).methods.item);
         expect(metaOf(Sibling).responses.item).toEqual({ status: 201, produces: ['text/csv'] });
 
         metaOf(Sibling).responses.item!.produces!.push('text/xml');
@@ -468,6 +476,94 @@ describe('inherited metadata of an older package copy', () => {
 
         expect(response.status).toEqual(201);
         expect(await response.text()).toEqual('created');
+    });
+});
+
+describe('response options of an override', () => {
+    @DController('/parent')
+    class Parent {
+        @DGet('/item')
+        @DStatus(201)
+        @DProduces('text/csv')
+        item() {
+            return 'parent';
+        }
+    }
+
+    it('drops the inherited ones when the override has a verb decorator and none of its own', async () => {
+        @DController('/child')
+        class Child extends Parent {
+            @DPost('/item')
+            override item() {
+                return 'child';
+            }
+        }
+
+        expect(metaOf(Child).responses.item ?? {}).toEqual({});
+        expect(metaOf(Parent).responses.item).toEqual({ status: 201, produces: ['text/csv'] });
+
+        const app = new App();
+
+        mountControllers(app, [Parent, Child]);
+
+        const child = await fetch(app, '/child/item', 'POST');
+
+        expect(child.status).toEqual(200);
+        expect(child.headers.get('content-type')).not.toEqual('text/csv');
+
+        const parent = await fetch(app, '/parent/item');
+
+        expect(parent.status).toEqual(201);
+        expect(parent.headers.get('content-type')).toEqual('text/csv');
+    });
+
+    it('uses only its own when the override declares them, whatever the decorator order', async () => {
+        @DController('/before')
+        class Before extends Parent {
+            @DPost('/item')
+            @DStatus(202)
+            override item() {
+                return 'before';
+            }
+        }
+
+        @DController('/after')
+        class After extends Parent {
+            @DStatus(202)
+            @DPost('/item')
+            override item() {
+                return 'after';
+            }
+        }
+
+        expect(metaOf(Before).responses.item).toEqual({ status: 202 });
+        expect(metaOf(After).responses.item).toEqual({ status: 202 });
+
+        const app = new App();
+
+        mountControllers(app, [Before, After]);
+
+        expect((await fetch(app, '/before/item', 'POST')).status).toEqual(202);
+        expect((await fetch(app, '/after/item', 'POST')).status).toEqual(202);
+    });
+
+    it('keeps the inherited ones for an undecorated override', async () => {
+        @DController('/child')
+        class Child extends Parent {
+            override item() {
+                return 'child';
+            }
+        }
+
+        const app = new App();
+
+        mountController(app, Child);
+
+        const response = await fetch(app, '/child/item');
+
+        expect(response.status).toEqual(201);
+        expect(response.headers.get('content-type')).toEqual('text/csv');
+        expect(await response.text()).toEqual('child');
     });
 });
 

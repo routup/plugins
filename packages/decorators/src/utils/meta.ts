@@ -6,11 +6,13 @@ const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 type DecoratorParameters = DecoratorMeta['parameters'][string];
 
 /**
- * Parameter lists a subclass copied from its parent: the first parameter
- * decorator of the subclass for that method replaces such a list instead of
- * adding to it.
+ * Parameter lists and response options a subclass copied from its parent.
+ * Entries keyed by method name follow the declaration the route comes from:
+ * the first decorator of the subclass that writes such an entry replaces it
+ * as a whole, and a verb decorator of the subclass drops the ones still
+ * inherited.
  */
-const inheritedParameters = new WeakSet<DecoratorParameters>();
+const inheritedEntries = new WeakSet<DecoratorParameters | DecoratorResponseOptions>();
 
 /**
  * Check whether a controller instance (or its class) carries decorator
@@ -75,9 +77,12 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     const responses : DecoratorMeta['responses'] = Object.create(null);
 
     for (const [key, response] of Object.entries(meta.responses)) {
-        responses[key] = response?.produces ?
+        const copy : DecoratorResponseOptions = response?.produces ?
             { ...response, produces: [...response.produces] } :
             { ...response };
+
+        inheritedEntries.add(copy);
+        responses[key] = copy;
     }
 
     const parameters : DecoratorMeta['parameters'] = Object.create(null);
@@ -85,7 +90,7 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     for (const [key, entries] of Object.entries(meta.parameters)) {
         const copy = (entries ?? []).map((parameter) => ({ ...parameter }));
 
-        inheritedParameters.add(copy);
+        inheritedEntries.add(copy);
         parameters[key] = copy;
     }
 
@@ -129,7 +134,7 @@ export function useOwnDecoratorParameters(
     const meta = useOwnDecoratorMeta(target);
     const parameters = meta.parameters[propertyKey];
 
-    if (!parameters || inheritedParameters.has(parameters)) {
+    if (!parameters || inheritedEntries.has(parameters)) {
         meta.parameters[propertyKey] = [];
     }
 
@@ -139,7 +144,7 @@ export function useOwnDecoratorParameters(
 /**
  * Set the route of a method. A route a subclass declares replaces the
  * inherited route of that method together with its inherited parameter
- * decorators: the override declares its own, if any.
+ * decorators and response options: the override declares its own, if any.
  */
 export function setOwnDecoratorMethod(
     target: Record<string, any>,
@@ -148,11 +153,16 @@ export function setOwnDecoratorMethod(
 ) : void {
     const meta = useOwnDecoratorMeta(target);
     const parameters = meta.parameters[propertyKey];
+    const response = meta.responses[propertyKey];
 
     meta.methods[propertyKey] = method;
 
-    if (parameters && inheritedParameters.has(parameters)) {
+    if (parameters && inheritedEntries.has(parameters)) {
         meta.parameters[propertyKey] = [];
+    }
+
+    if (response && inheritedEntries.has(response)) {
+        meta.responses[propertyKey] = {};
     }
 }
 
@@ -161,8 +171,11 @@ export function useDecoratorResponseOptions(
     propertyKey: string,
 ) : DecoratorResponseOptions {
     const meta = useOwnDecoratorMeta(target);
+    const response = meta.responses[propertyKey];
 
-    meta.responses[propertyKey] ??= {};
+    if (!response || inheritedEntries.has(response)) {
+        meta.responses[propertyKey] = {};
+    }
 
-    return meta.responses[propertyKey];
+    return meta.responses[propertyKey]!;
 }
