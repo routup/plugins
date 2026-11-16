@@ -38,7 +38,7 @@ To get HTTP metrics out of a routup app with plain [prom-client](https://www.npm
 |---------|----------------------------------|-------------------------|
 | Request timing | Write a middleware that calls `startTimer()` and ends it after `event.next()` | `http_request_duration` histogram (or summary) recorded for every request |
 | Labels | Collect `method`, `path` and `status_code` yourself | Set automatically; add static labels or rewrite them with a callback |
-| Path cardinality | Map `/users/42` to `/users/:id` in your own code | `normalizePath` hook applied before the label is set |
+| Path cardinality | Map `/users/42` to `/users/:id` in your own code | Labelled by the route pattern (`/users/:id`) by default; `unmatchedPath` and `normalizePath` for the rest |
 | Uptime | Define and update a gauge | `http_uptime` gauge, in whole seconds since the plugin was installed |
 | Scrape endpoint | Add a route that awaits `registry.metrics()` and sets `Content-Type` | Mounted at `metricsPath` (default `/metrics`) |
 | Custom metrics | Register them on a registry you expose yourself | Register them on the same prom-client registry and they appear on the endpoint |
@@ -62,7 +62,7 @@ serve(app, { port: 3000 });
 npm install @routup/prometheus prom-client
 ```
 
-ESM only, Node.js >=24. Peer dependencies: `routup@^6.3.0` and `prom-client@>=15.0.0`.
+ESM only, Node.js >=24. Peer dependencies: `routup@^6.4.0` and `prom-client@>=15.0.0`.
 
 ## Usage
 
@@ -126,8 +126,8 @@ app.use(prometheus({
     // static labels: their names are added to the metric's label set
     requestDurationLabels: { service: 'api' },
 
-    // collapse ids so each user does not get its own time series
-    normalizePath: (path) => path.replace(/\/\d+/g, '/:id'),
+    // one series for every request no route handled (404s)
+    unmatchedPath: '<unmatched>',
 
     // last chance to change label values per request
     requestDurationLabelTransformer: (labels, event) => {
@@ -141,7 +141,11 @@ app.use(prometheus({
 }));
 ```
 
-- The `path` label is the raw request path (`event.path`, with a leading `/`), not the route pattern. Without `normalizePath`, every distinct URL becomes its own time series.
+- The `path` label is the pattern of the route that handled the request (`event.route.path`, e.g. `/api/users/:id` for `GET /api/users/42`), composed over every mount, so each route is one time series.
+- A request no method-bound route handled (a 404, a request only middleware or a method-less mount such as `app.use('/static', ...)` answered, an `OPTIONS` request answered without a route) is labelled with `unmatchedPath` when set, else with its raw path (`event.path`, with a leading `/`). Leaving `unmatchedPath` unset keeps one time series per distinct unmatched URL.
+- `normalizePath(path, event)` wins over both: it gets the raw path and the event, and `event.route` is readable inside it.
+- The label is resolved after the handlers ran. A method-bound route that passed on with `event.next()` (a guard such as `app.get('/admin/*rest', guard)`) still names the route when nothing after it answers, so such a 404 is labelled with the guard's pattern.
+- **Changed default:** a request handled by a method-bound route is labelled with the route's pattern where it was the concrete URL, which bounds the label's cardinality. Dashboards or alerts that match concrete paths need the pattern instead; to keep the concrete URL, set `normalizePath: (path) => path`.
 - The transformer runs after `requestDurationLabels` are merged in. It may only set label names the metric declares (`method`, `path`, `status_code` and the keys of `requestDurationLabels`); prom-client throws on any other name.
 
 ### Use a custom registry and default metrics
@@ -207,7 +211,8 @@ Any metric registered on the plugin's registry (the global prom-client registry 
 | `requestDurationSummary` | `Partial<SummaryConfiguration>` | `{}` | Extra prom-client summary configuration, applied over the defaults |
 | `requestDurationLabels` | `LabelValues<string>` | `undefined` | Static labels added to every observation |
 | `requestDurationLabelTransformer` | `(labels, event) => void` | `undefined` | Mutates the label values of each observation |
-| `normalizePath` | `(path, event) => string` | `undefined` | Rewrites the `path` label |
+| `normalizePath` | `(path, event) => string` | `undefined` | Computes the `path` label from the raw path and the event; wins over the route pattern and `unmatchedPath` |
+| `unmatchedPath` | `string` | `undefined` | `path` label of a request no method-bound route handled; unset, the raw path (one series per distinct URL) |
 | `skip` | `(event) => boolean` | `() => false` | Return `true` to leave a request unmeasured |
 
 ## API
