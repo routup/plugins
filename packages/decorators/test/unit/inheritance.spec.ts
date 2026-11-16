@@ -15,6 +15,7 @@ import {
     mountController,
     mountControllers,
     useDecoratorMeta,
+    useDecoratorResponseOptions,
 } from '../../src';
 
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
@@ -211,9 +212,9 @@ describe('isolation of every inherited entry', () => {
         expect(meta.responses.item).toEqual({ status: 201, produces: ['text/csv'] });
         expect(meta.parameters.item).toEqual([
             {
-                index: 0, 
-                property: 'a', 
-                type: 'query', 
+                index: 0,
+                property: 'a',
+                type: 'query',
             },
         ]);
     }
@@ -329,14 +330,16 @@ describe('isolation of every inherited entry', () => {
         expectParentUnchanged();
         expect(metaOf(Child).parameters.own).toEqual([
             {
-                index: 0, 
-                property: 'b', 
-                type: 'query', 
+                index: 0,
+                property: 'b',
+                type: 'query',
             },
         ]);
         expect(metaOf(Parent).parameters.own).toBeUndefined();
 
         metaOf(Sibling).parameters.item!.push({ index: 1, type: 'body' });
+        metaOf(Sibling).parameters.item![0]!.property = 'changed';
+        metaOf(Sibling).produces.push('text/xml');
 
         expectParentUnchanged();
     });
@@ -391,17 +394,37 @@ describe('overriding a method', () => {
 
         expect(metaOf(Child).parameters.item).toEqual([
             {
-                index: 0, 
-                property: 'b', 
-                type: 'query', 
+                index: 0,
+                property: 'b',
+                type: 'query',
             },
         ]);
         expect(metaOf(Parent).parameters.item).toEqual([
             {
-                index: 0, 
-                property: 'a', 
-                type: 'query', 
+                index: 0,
+                property: 'a',
+                type: 'query',
             },
+        ]);
+
+        const app = new App();
+
+        app.use(query());
+        mountController(app, Child);
+
+        expect(await (await fetch(app, '/child/item?a=x&b=y')).text()).toEqual('child:y');
+    });
+
+    it('keeps the inherited route for an override with parameter decorators only, using its parameters', async () => {
+        @DController('/child')
+        class Child extends Parent {
+            override item(@DQuery('b') b?: string) {
+                return `child:${b}`;
+            }
+        }
+
+        expect(getControllerRoutes(Child)).toEqual([
+            { method: 'GET', path: '/child/item' },
         ]);
 
         const app = new App();
@@ -440,10 +463,10 @@ describe('inherited metadata of an older package copy', () => {
             middlewares: [],
             methods: {
                 hello: {
-                    method: 'get', 
-                    url: '/hello', 
-                    middlewares: [], 
-                }, 
+                    method: 'get',
+                    url: '/hello',
+                    middlewares: [],
+                },
             },
             parameters: {},
         };
@@ -454,21 +477,27 @@ describe('inherited metadata of an older package copy', () => {
             [symbol]: legacy,
         };
 
-        const child = Object.create(parent);
+        // A class of an older package copy: its prototype is the parent.
+        function LegacyController() {}
+        LegacyController.prototype = parent;
 
-        child.created = () => 'created';
+        class Child extends (LegacyController as unknown as ClassType) {
+            created() {
+                return 'created';
+            }
+        }
 
-        const descriptor = Object.getOwnPropertyDescriptor(child, 'created')!;
+        const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'created')!;
 
-        DGet('/created')(child, 'created', descriptor);
-        DStatus(201)(child, 'created', descriptor);
+        DGet('/created')(Child.prototype, 'created', descriptor);
+        DStatus(201)(Child.prototype, 'created', descriptor);
 
         expect(Object.keys(legacy.methods)).toEqual(['hello']);
         expect(Object.keys((legacy as Record<string, any>).responses)).toEqual([]);
 
         const app = new App();
 
-        mountControllers(app, [Object.create(child)]);
+        mountControllers(app, [Child]);
 
         expect(await (await fetch(app, '/legacy/hello')).text()).toEqual('hello');
 
@@ -594,9 +623,128 @@ describe('an undecorated subclass', () => {
         expect(await (await fetch(app, '/parent/a')).text()).toEqual('a');
 
         expect(useDecoratorMeta(instance)).toBe(metaOf(Parent));
-        expect(useDecoratorMeta(Child.prototype)).toBe(metaOf(Parent));
 
         expect(Object.hasOwn(Child.prototype, symbol)).toBe(false);
         expect(Object.hasOwn(instance, symbol)).toBe(false);
+    });
+});
+
+describe('useDecoratorMeta() and useDecoratorResponseOptions()', () => {
+    @DController('/parent')
+    class Parent {
+        @DGet('/item')
+        @DStatus(201)
+        item() {
+            return 'parent';
+        }
+    }
+
+    it('give a subclass prototype its own copy, so a custom decorator changes only the subclass', () => {
+        class Child extends Parent {}
+
+        const meta = useDecoratorMeta(Child.prototype);
+
+        expect(Object.hasOwn(Child.prototype, symbol)).toBe(true);
+        expect(meta).not.toBe(metaOf(Parent));
+
+        meta.url = '/child';
+        meta.methods.item!.middlewares.push(SecondMiddleware);
+
+        expect(metaOf(Parent).url).toEqual('/parent');
+        expect(metaOf(Parent).methods.item!.middlewares).toEqual([]);
+        expect(getControllerRoutes(Child)).toEqual([
+            { method: 'GET', path: '/child/item' },
+        ]);
+    });
+
+    it('resolve the inherited response options of an instance without writing', async () => {
+        class Child extends Parent {}
+
+        const parent = new Parent();
+        const child = new Child();
+
+        expect(useDecoratorResponseOptions(parent, 'item').status).toEqual(201);
+        expect(useDecoratorResponseOptions(child, 'item').status).toEqual(201);
+
+        expect(Object.hasOwn(parent, symbol)).toBe(false);
+        expect(Object.hasOwn(child, symbol)).toBe(false);
+        expect(Object.hasOwn(Child.prototype, symbol)).toBe(false);
+
+        const app = new App();
+
+        mountControllers(app, [parent]);
+
+        expect((await fetch(app, '/parent/item')).status).toEqual(201);
+    });
+
+    it('resolve the response options of a forked subclass instance without replacing them', () => {
+        @DController('/child')
+        class Child extends Parent {}
+
+        expect(useDecoratorResponseOptions(new Child(), 'item').status).toEqual(201);
+        expect(metaOf(Child).responses.item!.status).toEqual(201);
+    });
+});
+
+describe('the mark of an inherited entry', () => {
+    it('is seen by every package copy, as it is a global symbol on the entry', () => {
+        // A subclass whose metadata another copy of the package forked.
+        class Child {
+            item(b?: string) {
+                return b;
+            }
+        }
+
+        const inherited = [{
+            index: 0, 
+            property: 'a', 
+            type: 'query' as const, 
+        }];
+
+        Object.defineProperty(inherited, Symbol.for('@routup/decorators:Inherited'), { value: true });
+
+        const meta = useDecoratorMeta(Child.prototype);
+
+        meta.parameters.item = inherited;
+
+        DQuery('b')(Child.prototype, 'item', 0);
+
+        expect(metaOf(Child).parameters.item).toEqual([
+            {
+                index: 0, 
+                property: 'b', 
+                type: 'query', 
+            },
+        ]);
+    });
+});
+
+describe('@DController middlewares', () => {
+    it('resets them on a class without a parent, as each application sets them', () => {
+        @DController('/a')
+        @DController('/b', [FirstMiddleware])
+        class Twice {}
+
+        expect(metaOf(Twice).url).toEqual('/a');
+        expect(metaOf(Twice).middlewares).toEqual([]);
+    });
+
+    it('keeps the inherited ones without an argument, and replaces them with an array', () => {
+        @DController('/parent', [FirstMiddleware])
+        class Parent {}
+
+        @DController('/keep')
+        class Keep extends Parent {}
+
+        @DController('/replace', [SecondMiddleware])
+        class Replace extends Parent {}
+
+        @DController('/none', [])
+        class None extends Parent {}
+
+        expect(metaOf(Keep).middlewares).toEqual([FirstMiddleware]);
+        expect(metaOf(Replace).middlewares).toEqual([SecondMiddleware]);
+        expect(metaOf(None).middlewares).toEqual([]);
+        expect(metaOf(Parent).middlewares).toEqual([FirstMiddleware]);
     });
 });

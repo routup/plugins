@@ -6,8 +6,8 @@ import {
     createHandlerForClassType,
     hasDecoratorMeta,
     isObject,
-    useDecoratorMeta,
 } from './utils';
+import { readDecoratorMeta } from './utils/meta';
 
 type RegisterControllerOptions = {
     /**
@@ -134,7 +134,7 @@ export function mountController(
         controller = new (input as ClassType)();
     }
 
-    registerController(router, controller, useDecoratorMeta(controller));
+    registerController(router, controller, readDecoratorMeta(controller));
 }
 
 /**
@@ -164,7 +164,7 @@ export function getControllerRoutes(
 
     const app: IApp = new App();
 
-    registerController(app, controller, useDecoratorMeta(controller), { middlewares: false });
+    registerController(app, controller, readDecoratorMeta(controller), { middlewares: false });
 
     const routes : ControllerRoute[] = [];
 

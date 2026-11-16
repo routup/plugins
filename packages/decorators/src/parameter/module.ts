@@ -1,4 +1,4 @@
-import { useOwnDecoratorParameters } from '../utils/meta';
+import { useDecoratorParameters } from '../utils/meta';
 import { ParameterType } from './constants';
 
 export function createParameterDecorator(
@@ -15,7 +15,7 @@ export function createParameterDecorator(
             return;
         }
 
-        useOwnDecoratorParameters(target, propertyKey).push({
+        useDecoratorParameters(target, propertyKey).push({
             index: parameterIndex,
             property,
             type,
