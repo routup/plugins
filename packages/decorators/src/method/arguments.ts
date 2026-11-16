@@ -17,9 +17,18 @@ export async function buildDecoratorMethodArguments(
         return [context.event];
     }
 
-    const items: unknown[] = [];
+    // The last declaration of an index wins (an override's after the
+    // inherited one, the outer of two stacked decorators), and only its
+    // extractor runs, so a shadowed one neither reads nor rejects the request.
+    const winners = new Map<number, DecoratorParameterOptions>();
 
     for (const parameter of parameters) {
+        winners.set(parameter.index, parameter);
+    }
+
+    const items: unknown[] = [];
+
+    for (const parameter of winners.values()) {
         if (parameter.type === ParameterType.CONTEXT) {
             items[parameter.index] = context.event;
 

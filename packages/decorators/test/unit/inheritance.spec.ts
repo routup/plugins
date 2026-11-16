@@ -1,10 +1,12 @@
 // eslint-disable-next-line max-classes-per-file
 import { describe, expect, it } from 'vitest';
+import { body } from '@routup/body';
 import { query } from '@routup/query';
 import { App } from 'routup';
 import type { IAppEvent } from 'routup';
 import type { ClassType, HandlerInterface } from '../../src';
 import {
+    DBody,
     DContext,
     DController,
     DGet,
@@ -348,6 +350,54 @@ describe('isolation of every inherited entry', () => {
     });
 });
 
+describe('two parameter decorators on one parameter', () => {
+    it('apply the outer one, which TypeScript applies last, without running the inner one', async () => {
+        @DController('/stacked')
+        class Stacked {
+            @DPost('/show')
+            show(@DQuery('a') @DBody() value?: unknown) {
+                return `value:${value}`;
+            }
+        }
+
+        expect(metaOf(Stacked).parameters.show).toEqual([
+            {
+                index: 0,
+                property: undefined,
+                type: 'body',
+            },
+            {
+                index: 0,
+                property: 'a',
+                type: 'query',
+            },
+        ]);
+
+        const app = new App();
+
+        app.use(body());
+        app.use(query());
+        mountController(app, Stacked);
+
+        const valid = await app.fetch(new Request('http://localhost/stacked/show?a=x', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{"foo":"bar"}',
+        }));
+
+        expect(await valid.text()).toEqual('value:x');
+
+        const malformed = await app.fetch(new Request('http://localhost/stacked/show?a=x', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{"broken',
+        }));
+
+        expect(malformed.status).toEqual(200);
+        expect(await malformed.text()).toEqual('value:x');
+    });
+});
+
 describe('overriding a method', () => {
     @DController('/parent')
     class Parent {
@@ -418,6 +468,43 @@ describe('overriding a method', () => {
         mountController(app, Child);
 
         expect(await (await fetch(app, '/child/item?a=x&b=y')).text()).toEqual('child:y');
+    });
+
+    it('runs only the parameter decorator of the override at an index the parent used', async () => {
+        @DController('/parent')
+        class BodyParent {
+            @DPost('/show')
+            show(@DBody() value?: unknown) {
+                return value;
+            }
+        }
+
+        @DController('/child')
+        class BodyChild extends BodyParent {
+            override async show(@DContext() event?: any) {
+                return `raw:${await event.request.text()}`;
+            }
+        }
+
+        const app = new App();
+
+        app.use(body());
+        mountControllers(app, [BodyParent, BodyChild]);
+
+        const init = {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{"broken',
+        };
+
+        const child = await app.fetch(new Request('http://localhost/child/show', init));
+
+        expect(child.status).toEqual(200);
+        expect(await child.text()).toEqual('raw:{"broken');
+
+        const parent = await app.fetch(new Request('http://localhost/parent/show', init));
+
+        expect(parent.status).toEqual(400);
     });
 
     it('keeps the inherited route for an override with parameter decorators only', async () => {

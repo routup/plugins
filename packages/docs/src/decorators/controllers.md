@@ -298,7 +298,7 @@ export class UserController extends BaseController {
 
 - A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path, middlewares and class-level `@DProduces()`.
 - On first use a subclass gets its own copy of that metadata. Its decorators add to or overwrite the copy as on a class without a parent, and never change the parent or another subclass:
-  - an override with a verb decorator (`@DGet()`, ...) replaces the route of that method and keeps its inherited parameter decorators; the override's own are added, and one at an index the parent used wins;
+  - an override with a verb decorator (`@DGet()`, ...) replaces the route of that method and keeps its inherited parameter decorators; the override's own are added, and at an index the parent used only the override's parameter decorator is applied;
   - its `@DStatus()` overwrites the inherited status, and its `@DProduces()` media types come before the inherited ones, so they are sent;
   - an override without decorators keeps the inherited route, which calls the override;
   - `@DController(path)` without middlewares starts from the class middlewares of the parent (dropping what a decorator below it added), an array (also `[]`) replaces them.
