@@ -6,14 +6,12 @@ on:
             - master
         paths:
             - 'packages/docs/**'
-            - 'packages/docs-theme/**'
             - '.github/workflows/docs.yml'
     pull_request:
         branches:
             - master
         paths:
             - 'packages/docs/**'
-            - 'packages/docs-theme/**'
             - '.github/workflows/docs.yml'
 
 jobs:
