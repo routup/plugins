@@ -2,10 +2,13 @@
 import { describe, expect, it } from 'vitest';
 import { query } from '@routup/query';
 import { App } from 'routup';
+import type { IAppEvent } from 'routup';
 import type { ClassType, HandlerInterface } from '../../src';
 import {
+    DContext,
     DController,
     DGet,
+    DPath,
     DPost,
     DProduces,
     DQuery,
@@ -282,7 +285,7 @@ describe('isolation of every inherited entry', () => {
         expect(metaOf(Sibling).methods.item!.middlewares).toEqual([FirstMiddleware]);
     });
 
-    it('replaces the response options of a method on @DStatus and @DProduces of an override without a verb', () => {
+    it('copies the response entries on @DStatus and @DProduces of an override without a verb', () => {
         class Child extends Parent {
             @DStatus(202)
             @DProduces('text/html')
@@ -301,7 +304,7 @@ describe('isolation of every inherited entry', () => {
         expectParentUnchanged();
         expect(metaOf(Child).responses.item).toEqual({
             status: 202,
-            produces: ['text/html'],
+            produces: ['text/html', 'text/csv'],
         });
         // the inherited route stays
         expect(metaOf(Child).methods.item).toEqual(metaOf(Parent).methods.item);
@@ -354,12 +357,12 @@ describe('overriding a method', () => {
         }
     }
 
-    it('replaces the inherited route when the override has a verb decorator', async () => {
+    it('replaces the inherited route when the override has a verb decorator, keeping its parameter decorators', async () => {
         @DController('/child')
         class Child extends Parent {
             @DPost('/thing')
             override item(a?: string) {
-                return `child:${typeof a}`;
+                return `child:${a}`;
             }
         }
 
@@ -375,15 +378,12 @@ describe('overriding a method', () => {
         app.use(query());
         mountControllers(app, [Parent, Child]);
 
-        // The override declares no parameter decorators, so the inherited
-        // ones do not apply: like any such method, it receives the event.
-        expect(metaOf(Child).parameters.item ?? []).toEqual([]);
-        expect(await (await fetch(app, '/child/thing?a=x', 'POST')).text()).toEqual('child:object');
+        expect(await (await fetch(app, '/child/thing?a=x', 'POST')).text()).toEqual('child:x');
         expect((await fetch(app, '/child/item')).status).toEqual(404);
         expect(await (await fetch(app, '/parent/item?a=x')).text()).toEqual('parent:x');
     });
 
-    it('replaces the inherited parameter decorators by the ones of the override', async () => {
+    it('adds the parameter decorators of the override, which win at an index the parent used', async () => {
         @DController('/child')
         class Child extends Parent {
             @DGet('/item')
@@ -393,6 +393,11 @@ describe('overriding a method', () => {
         }
 
         expect(metaOf(Child).parameters.item).toEqual([
+            {
+                index: 0,
+                property: 'a',
+                type: 'query',
+            },
             {
                 index: 0,
                 property: 'b',
@@ -415,7 +420,7 @@ describe('overriding a method', () => {
         expect(await (await fetch(app, '/child/item?a=x&b=y')).text()).toEqual('child:y');
     });
 
-    it('keeps the inherited route for an override with parameter decorators only, using its parameters', async () => {
+    it('keeps the inherited route for an override with parameter decorators only', async () => {
         @DController('/child')
         class Child extends Parent {
             override item(@DQuery('b') b?: string) {
@@ -453,6 +458,82 @@ describe('overriding a method', () => {
         mountController(app, Child);
 
         expect(await (await fetch(app, '/child/item?a=x')).text()).toEqual('child:x');
+    });
+
+    it('serves an override that only changes the path and middlewares as 5.3.0 did', async () => {
+        class Auth implements HandlerInterface {
+            run(event: IAppEvent) {
+                event.response.headers.set('x-auth', 'yes');
+
+                return event.next();
+            }
+        }
+
+        class Base {
+            @DGet('/:id')
+            @DStatus(201)
+            one(@DPath('id') id?: string, @DQuery('q') q?: string) {
+                return `base:${id}:${q}`;
+            }
+        }
+
+        @DController('/users')
+        class Users extends Base {
+            @DGet('/:id', [Auth])
+            override one(id?: string, q?: string) {
+                return `users:${id}:${q}`;
+            }
+        }
+
+        const app = new App();
+
+        app.use(query());
+        mountController(app, Users);
+
+        const response = await fetch(app, '/users/5?q=x');
+
+        expect(response.status).toEqual(201);
+        expect(response.headers.get('x-auth')).toEqual('yes');
+        expect(await response.text()).toEqual('users:5:x');
+    });
+
+    it('registers the inherited routes first, in the declaration order of the parent', async () => {
+        class Base {
+            @DGet('/:id')
+            show(@DPath('id') id: string, @DContext() event: IAppEvent) {
+                if (id === 'next') {
+                    return event.next();
+                }
+
+                return `id:${id}`;
+            }
+        }
+
+        @DController('/child')
+        class Child extends Base {
+            @DGet('/me')
+            me() {
+                return 'me';
+            }
+
+            @DGet('/next')
+            next() {
+                return 'next';
+            }
+        }
+
+        expect(getControllerRoutes(Child)).toEqual([
+            { method: 'GET', path: '/child/:id' },
+            { method: 'GET', path: '/child/me' },
+            { method: 'GET', path: '/child/next' },
+        ]);
+
+        const app = new App();
+
+        mountController(app, Child);
+
+        expect(await (await fetch(app, '/child/me')).text()).toEqual('id:me');
+        expect(await (await fetch(app, '/child/next')).text()).toEqual('next');
     });
 });
 
@@ -519,7 +600,7 @@ describe('response options of an override', () => {
         }
     }
 
-    it('drops the inherited ones when the override has a verb decorator and none of its own', async () => {
+    it('keeps the inherited ones when the override has a verb decorator and none of its own', async () => {
         @DController('/child')
         class Child extends Parent {
             @DPost('/item')
@@ -528,29 +609,22 @@ describe('response options of an override', () => {
             }
         }
 
-        expect(metaOf(Child).responses.item ?? {}).toEqual({});
-        expect(metaOf(Parent).responses.item).toEqual({ status: 201, produces: ['text/csv'] });
-
         const app = new App();
 
-        mountControllers(app, [Parent, Child]);
+        mountController(app, Child);
 
-        const child = await fetch(app, '/child/item', 'POST');
+        const response = await fetch(app, '/child/item', 'POST');
 
-        expect(child.status).toEqual(200);
-        expect(child.headers.get('content-type')).not.toEqual('text/csv');
-
-        const parent = await fetch(app, '/parent/item');
-
-        expect(parent.status).toEqual(201);
-        expect(parent.headers.get('content-type')).toEqual('text/csv');
+        expect(response.status).toEqual(201);
+        expect(response.headers.get('content-type')).toEqual('text/csv');
     });
 
-    it('uses only its own when the override declares them, whatever the decorator order', async () => {
+    it('overwrites the status and puts its own media types first, whatever the decorator order', async () => {
         @DController('/before')
         class Before extends Parent {
             @DPost('/item')
             @DStatus(202)
+            @DProduces('text/html')
             override item() {
                 return 'before';
             }
@@ -559,21 +633,27 @@ describe('response options of an override', () => {
         @DController('/after')
         class After extends Parent {
             @DStatus(202)
+            @DProduces('text/html')
             @DPost('/item')
             override item() {
                 return 'after';
             }
         }
 
-        expect(metaOf(Before).responses.item).toEqual({ status: 202 });
-        expect(metaOf(After).responses.item).toEqual({ status: 202 });
+        expect(metaOf(Before).responses.item).toEqual({ status: 202, produces: ['text/html', 'text/csv'] });
+        expect(metaOf(After).responses.item).toEqual({ status: 202, produces: ['text/html', 'text/csv'] });
+        expect(metaOf(Parent).responses.item).toEqual({ status: 201, produces: ['text/csv'] });
 
         const app = new App();
 
         mountControllers(app, [Before, After]);
 
-        expect((await fetch(app, '/before/item', 'POST')).status).toEqual(202);
-        expect((await fetch(app, '/after/item', 'POST')).status).toEqual(202);
+        for (const path of ['/before/item', '/after/item']) {
+            const response = await fetch(app, path, 'POST');
+
+            expect(response.status).toEqual(202);
+            expect(response.headers.get('content-type')).toEqual('text/html');
+        }
     });
 
     it('keeps the inherited ones for an undecorated override', async () => {
@@ -593,6 +673,43 @@ describe('response options of an override', () => {
         expect(response.status).toEqual(201);
         expect(response.headers.get('content-type')).toEqual('text/csv');
         expect(await response.text()).toEqual('child');
+    });
+
+    it('keeps what a custom decorator writes through useDecoratorMeta(), whatever the decorator order', () => {
+        function DAccepted() : MethodDecorator {
+            return (target: any, propertyKey: string | symbol) => {
+                const meta = useDecoratorMeta(target);
+
+                meta.responses[propertyKey as string] ??= {};
+                meta.responses[propertyKey as string]!.status = 202;
+                meta.parameters[propertyKey as string] ??= [];
+                meta.parameters[propertyKey as string]!.push({ index: 0, type: 'context' });
+            };
+        }
+
+        class Below extends Parent {
+            @DPost('/item')
+            @DAccepted()
+            override item() {
+                return 'below';
+            }
+        }
+
+        class Above extends Parent {
+            @DAccepted()
+            @DPost('/item')
+            override item() {
+                return 'above';
+            }
+        }
+
+        for (const meta of [metaOf(Below), metaOf(Above)]) {
+            expect(meta.responses.item).toEqual({ status: 202, produces: ['text/csv'] });
+            expect(meta.parameters.item).toEqual([{ index: 0, type: 'context' }]);
+        }
+
+        expect(metaOf(Parent).responses.item).toEqual({ status: 201, produces: ['text/csv'] });
+        expect(metaOf(Parent).parameters.item).toBeUndefined();
     });
 });
 
@@ -686,36 +803,87 @@ describe('useDecoratorMeta() and useDecoratorResponseOptions()', () => {
     });
 });
 
-describe('the mark of an inherited entry', () => {
-    it('is seen by every package copy, as it is a global symbol on the entry', () => {
-        // A subclass whose metadata another copy of the package forked.
-        class Child {
-            item(b?: string) {
-                return b;
+describe('the copy of the metadata', () => {
+    it('is taken only for a class prototype, not for an instance or a prototype of another class', () => {
+        @DController('/parent')
+        class Parent {
+            @DGet('/a')
+            a() {
+                return 'a';
             }
         }
 
-        const inherited = [{
-            index: 0, 
-            property: 'a', 
-            type: 'query' as const, 
-        }];
+        class Child extends Parent {}
 
-        Object.defineProperty(inherited, Symbol.for('@routup/decorators:Inherited'), { value: true });
+        const foreign = Object.create(Parent.prototype);
 
-        const meta = useDecoratorMeta(Child.prototype);
+        foreign.constructor = Child;
 
-        meta.parameters.item = inherited;
+        expect(useDecoratorMeta(new Child())).toBe(metaOf(Parent));
+        expect(useDecoratorMeta(foreign)).toBe(metaOf(Parent));
+        expect(Object.hasOwn(foreign, symbol)).toBe(false);
+        expect(Object.hasOwn(Child.prototype, symbol)).toBe(false);
+    });
 
-        DQuery('b')(Child.prototype, 'item', 0);
+    it('is not taken for a prototype built by hand without a constructor of its own', () => {
+        @DController('/parent')
+        class Parent {}
 
-        expect(metaOf(Child).parameters.item).toEqual([
-            {
-                index: 0, 
-                property: 'b', 
-                type: 'query', 
-            },
-        ]);
+        const prototype = Object.create(Parent.prototype);
+
+        expect(useDecoratorMeta(prototype)).toBe(metaOf(Parent));
+    });
+
+    it('is not taken for a prototype that cannot take a property', () => {
+        @DController('/parent')
+        class Parent {
+            @DGet('/a')
+            @DStatus(201)
+            a() {
+                return 'a';
+            }
+        }
+
+        class Frozen extends Parent {}
+
+        class Sealed extends Parent {}
+
+        Object.freeze(Frozen.prototype);
+        Object.seal(Sealed.prototype);
+
+        expect(useDecoratorMeta(Frozen.prototype)).toBe(metaOf(Parent));
+        expect(useDecoratorMeta(Sealed.prototype)).toBe(metaOf(Parent));
+        expect(useDecoratorResponseOptions(Frozen.prototype, 'a').status).toEqual(201);
+    });
+
+    it('keeps fields it does not know', () => {
+        @DController('/parent')
+        class Parent {}
+
+        (metaOf(Parent) as Record<string, any>).roles = ['admin'];
+
+        @DController('/child')
+        class Child extends Parent {}
+
+        expect((metaOf(Child) as Record<string, any>).roles).toEqual(['admin']);
+    });
+
+    it('keeps an unset method entry unset', () => {
+        @DController('/parent')
+        class Parent {
+            show() {
+                return 'show';
+            }
+        }
+
+        metaOf(Parent).methods.show = undefined as any;
+
+        @DController('/child')
+        class Child extends Parent {}
+
+        expect('show' in metaOf(Child).methods).toBe(true);
+        expect(metaOf(Child).methods.show).toBeUndefined();
+        expect(getControllerRoutes(Child)).toEqual([]);
     });
 });
 
@@ -746,5 +914,16 @@ describe('@DController middlewares', () => {
         expect(metaOf(Replace).middlewares).toEqual([SecondMiddleware]);
         expect(metaOf(None).middlewares).toEqual([]);
         expect(metaOf(Parent).middlewares).toEqual([FirstMiddleware]);
+    });
+
+    it('does not alias the array passed to the decorator', () => {
+        const middlewares : ClassType[] = [FirstMiddleware];
+
+        @DController('/own', middlewares)
+        class Own {}
+
+        middlewares.push(SecondMiddleware);
+
+        expect(metaOf(Own).middlewares).toEqual([FirstMiddleware]);
     });
 });

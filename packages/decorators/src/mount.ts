@@ -7,7 +7,7 @@ import {
     hasDecoratorMeta,
     isObject,
 } from './utils';
-import { readDecoratorMeta } from './utils/meta';
+import { useResolvedDecoratorMeta } from './utils/meta';
 
 type RegisterControllerOptions = {
     /**
@@ -134,7 +134,7 @@ export function mountController(
         controller = new (input as ClassType)();
     }
 
-    registerController(router, controller, readDecoratorMeta(controller));
+    registerController(router, controller, useResolvedDecoratorMeta(controller));
 }
 
 /**
@@ -164,7 +164,7 @@ export function getControllerRoutes(
 
     const app: IApp = new App();
 
-    registerController(app, controller, readDecoratorMeta(controller), { middlewares: false });
+    registerController(app, controller, useResolvedDecoratorMeta(controller), { middlewares: false });
 
     const routes : ControllerRoute[] = [];
 

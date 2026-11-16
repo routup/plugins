@@ -1,5 +1,5 @@
 import type { ClassType } from '../types';
-import { setDecoratorMethod, useDecoratorResponseOptions } from '../utils/meta';
+import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
 
 export function createMethodDecorator(
     method: string,
@@ -16,11 +16,13 @@ export function createMethodDecorator(
             return;
         }
 
-        setDecoratorMethod(target, propertyKey, {
+        const meta = useDecoratorMeta(target);
+
+        meta.methods[propertyKey] = {
             method,
             url,
             middlewares: handlers || [],
-        });
+        };
     };
 }
 

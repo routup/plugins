@@ -4,33 +4,16 @@ import { isObject } from './object';
 const symbol = Symbol.for('@routup/decorators:DecoratorMeta');
 
 /**
- * Marks a list or an entry a subclass copied from its parent. Entries keyed
- * by method name follow the declaration the route comes from: the first
- * built-in decorator of the subclass that writes such an entry replaces it
- * as a whole, and a verb decorator of the subclass drops the ones still
- * inherited. A global symbol on the copy itself, so that every copy of the
- * package sees the mark.
+ * Marks the class middlewares a subclass copied from its parent, so that
+ * `@DController()` without middlewares keeps them on a subclass but resets
+ * an own list. A global symbol on the array, so that every copy of the
+ * package sees it.
  */
 const inheritedMark = Symbol.for('@routup/decorators:Inherited');
 
-type DecoratorParameters = DecoratorMeta['parameters'][string];
-
-function markInherited<T extends object>(value: T) : T {
-    Object.defineProperty(value, inheritedMark, { value: true });
-
-    return value;
-}
-
-function isInherited(value: unknown) : boolean {
-    return isObject(value) || Array.isArray(value) ?
-        (value as any)[inheritedMark] === true :
-        false;
-}
-
 function isClassPrototype(target: Record<string, any>) : boolean {
     return Object.hasOwn(target, 'constructor') &&
-        typeof target.constructor === 'function' &&
-        target.constructor.prototype === target;
+        target.constructor?.prototype === target;
 }
 
 /**
@@ -49,10 +32,11 @@ export function hasDecoratorMeta(target: Record<string, any>) : boolean {
 /**
  * Resolve the metadata of a target through its prototype chain without
  * copying it, so that mounting or listing an instance or an undecorated
- * subclass leaves it without an entry of its own. A target with none in its
- * chain gets a new entry.
+ * subclass leaves it without an entry of its own. Fills the fields an
+ * older copy of the package did not write, and creates an entry on a
+ * target with none in its chain.
  */
-export function readDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
+export function useResolvedDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
     if (symbol in target) {
         const meta = (target as any)[symbol] as Partial<DecoratorMeta>;
 
@@ -89,27 +73,38 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     for (const [key, method] of Object.entries(meta.methods)) {
         // An unset entry stays unset, the mount skips it.
         methods[key] = method ?
-            { ...method, middlewares: [...(method.middlewares ?? [])] } :
+            { ...method, middlewares: [...method.middlewares] } :
             method;
     }
 
     const responses : DecoratorMeta['responses'] = Object.create(null);
 
     for (const [key, response] of Object.entries(meta.responses)) {
-        responses[key] = markInherited(response?.produces ?
-            { ...response, produces: [...response.produces] } :
-            { ...response });
+        const copy = { ...response };
+
+        if (copy.produces) {
+            copy.produces = [...copy.produces];
+        }
+
+        responses[key] = copy;
     }
 
     const parameters : DecoratorMeta['parameters'] = Object.create(null);
 
     for (const [key, entries] of Object.entries(meta.parameters)) {
-        parameters[key] = markInherited((entries ?? []).map((parameter) => ({ ...parameter })));
+        parameters[key] = entries.map((parameter) => ({ ...parameter }));
     }
 
+    const middlewares = [...meta.middlewares];
+
+    Object.defineProperty(middlewares, inheritedMark, { value: true });
+
+    // Fields this copy of the package does not know (written by a custom
+    // decorator or a newer copy) are carried over as they are.
     return {
+        ...meta,
         url: Array.isArray(meta.url) ? [...meta.url] : meta.url,
-        middlewares: markInherited([...meta.middlewares]),
+        middlewares,
         methods,
         produces: [...meta.produces],
         responses,
@@ -122,13 +117,17 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
  * metadata of a decorated parent first gets its own copy, on its first use
  * (also by a plain read), so that what is written to it never changes the
  * parent or a sibling. Any other target, such as an instance, reads the
- * metadata through its prototype chain. A target with none in its chain
- * gets a new entry.
+ * metadata through its prototype chain, as does a prototype that cannot
+ * take a property. A target with none in its chain gets a new entry.
  */
 export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
-    const meta = readDecoratorMeta(target);
+    const meta = useResolvedDecoratorMeta(target);
 
-    if (Object.hasOwn(target, symbol) || !isClassPrototype(target)) {
+    if (
+        Object.hasOwn(target, symbol) ||
+        !isClassPrototype(target) ||
+        !Object.isExtensible(target)
+    ) {
         return meta;
     }
 
@@ -138,8 +137,8 @@ export function useDecoratorMeta(target: Record<string, any>) : DecoratorMeta {
 }
 
 /**
- * Set the controller path and, when given, the controller middlewares. A
- * subclass keeps the inherited middlewares when none are given.
+ * Set the controller path and middlewares. Without middlewares, a subclass
+ * keeps the ones it copied from its parent, while an own list is reset.
  */
 export function setDecoratorController(
     target: Record<string, any>,
@@ -152,73 +151,18 @@ export function setDecoratorController(
 
     if (Array.isArray(middlewares)) {
         meta.middlewares = [...middlewares];
-    } else if (!isInherited(meta.middlewares)) {
+    } else if ((meta.middlewares as any)[inheritedMark] !== true) {
         meta.middlewares = [];
     }
 }
 
-/**
- * Resolve the parameter list of a method that a parameter decorator adds
- * to. A list copied from the parent is replaced, so that the parameter
- * decorators of an override are not mixed with the inherited ones.
- */
-export function useDecoratorParameters(
-    target: Record<string, any>,
-    propertyKey: string,
-) : DecoratorParameters {
-    const meta = useDecoratorMeta(target);
-    const parameters = meta.parameters[propertyKey];
-
-    if (!parameters || (Object.hasOwn(target, symbol) && isInherited(parameters))) {
-        meta.parameters[propertyKey] = [];
-    }
-
-    return meta.parameters[propertyKey]!;
-}
-
-/**
- * Set the route of a method. A route a subclass declares replaces the
- * inherited route of that method together with its inherited parameter
- * decorators and response options: the override declares its own, if any.
- */
-export function setDecoratorMethod(
-    target: Record<string, any>,
-    propertyKey: string,
-    method: DecoratorMeta['methods'][string],
-) : void {
-    const meta = useDecoratorMeta(target);
-
-    meta.methods[propertyKey] = method;
-
-    if (!Object.hasOwn(target, symbol)) {
-        return;
-    }
-
-    if (isInherited(meta.parameters[propertyKey])) {
-        meta.parameters[propertyKey] = [];
-    }
-
-    if (isInherited(meta.responses[propertyKey])) {
-        meta.responses[propertyKey] = {};
-    }
-}
-
-/**
- * Resolve the response options of a method. On a class prototype, options
- * copied from the parent are replaced as a whole, so that `@DStatus()` and
- * `@DProduces()` of an override do not mix with the inherited ones; any
- * other target reads them through its prototype chain.
- */
 export function useDecoratorResponseOptions(
     target: Record<string, any>,
     propertyKey: string,
 ) : DecoratorResponseOptions {
     const meta = useDecoratorMeta(target);
-    const response = meta.responses[propertyKey];
 
-    if (!response || (Object.hasOwn(target, symbol) && isInherited(response))) {
-        meta.responses[propertyKey] = {};
-    }
+    meta.responses[propertyKey] ??= {};
 
-    return meta.responses[propertyKey]!;
+    return meta.responses[propertyKey];
 }

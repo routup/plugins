@@ -1,4 +1,4 @@
-import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils/meta';
+import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
 
 export function DDeprecated() : any {
     return () => {};
