@@ -11,6 +11,7 @@ plugins/
 │   ├── cookie/         # Cookie read/write
 │   ├── cors/           # Native CORS — preflight + Access-Control-* headers
 │   ├── decorators/     # Class/method/parameter decorators (also exports ./preset for trapi)
+│   ├── docs/           # plugins.routup.dev VitePress site (private, not published)
 │   ├── i18n/           # Request translation
 │   ├── logger/         # Morgan-compatible request logger (handler factory, not Plugin)
 │   ├── prometheus/     # Metrics collection (prom-client)
@@ -47,6 +48,8 @@ packages/[name]/
 └── tsdown.config.ts       # Build config
 ```
 
+`docs` does not follow this layout (see Docs below).
+
 ## Packages Overview
 
 | Package | Scope | Description | Key Deps |
@@ -76,3 +79,8 @@ Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, pr
 ```
 
 All packages peer-depend on `routup@^6.3.0`.
+
+## Docs
+
+- `packages/docs` consumes `@routup/docs-theme` from npm (source in `routup/docs-theme`): `src/.vitepress/config.mts` calls `defineRoutupConfig`, `src/.vitepress/theme/index.ts` re-exports the theme. The landing page `src/index.md` is `layout: page`, `pageClass: rt-home`, with all copy in frontmatter; its sections live in `src/.vitepress/components/home/`. The plugin grid comes from the `plugin: { package, summary, group, order? }` frontmatter of each plugin's `index.md`, loaded by `src/.vitepress/data/plugins.data.ts`.
+- The docs workflow builds on changes under `packages/docs/**`.

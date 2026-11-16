@@ -2,6 +2,11 @@
 title: Swagger UI
 description: Mount Swagger UI on a routup router from a JSON document or remote URL.
 relatedPlugins: [decorators]
+plugin:
+    package: '@routup/swagger-ui'
+    summary: 'Serve Swagger UI.'
+    group: 'API documentation'
+    order: 1
 ---
 
 # @routup/swagger-ui

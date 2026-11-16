@@ -2,6 +2,11 @@
 title: Prometheus
 description: Collect HTTP metrics and expose a Prometheus scrape endpoint.
 relatedPlugins: []
+plugin:
+    package: '@routup/prometheus'
+    summary: 'Expose Prometheus metrics.'
+    group: 'Operations'
+    order: 5
 ---
 
 # @routup/prometheus

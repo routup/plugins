@@ -2,6 +2,11 @@
 title: Query
 description: Parse the request URL's query string into a typed map.
 relatedPlugins: [basic, decorators]
+plugin:
+    package: '@routup/query'
+    summary: 'Parse the query string.'
+    group: 'Request & response'
+    order: 3
 ---
 
 # @routup/query

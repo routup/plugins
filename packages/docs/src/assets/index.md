@@ -2,6 +2,11 @@
 title: Assets
 description: Serve static files from one or more directories with cache-control, fallback, and dotfile policies.
 relatedPlugins: []
+plugin:
+    package: '@routup/assets'
+    summary: 'Serve static files.'
+    group: 'Request & response'
+    order: 4
 ---
 
 # @routup/assets

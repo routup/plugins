@@ -2,6 +2,11 @@
 title: Logger
 description: Morgan-compatible HTTP request logger for routup, on top of native web-API helpers.
 relatedPlugins: []
+plugin:
+    package: '@routup/logger'
+    summary: 'Log requests.'
+    group: 'Operations'
+    order: 2
 ---
 
 # @routup/logger

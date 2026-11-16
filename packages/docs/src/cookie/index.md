@@ -2,6 +2,11 @@
 title: Cookie
 description: Parse request cookies and serialize Set-Cookie headers on the response.
 relatedPlugins: [basic, decorators]
+plugin:
+    package: '@routup/cookie'
+    summary: 'Read and set cookies.'
+    group: 'Request & response'
+    order: 2
 ---
 
 # @routup/cookie

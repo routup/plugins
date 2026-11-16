@@ -2,6 +2,11 @@
 title: CORS
 description: Handle preflight requests and add Access-Control-* response headers.
 relatedPlugins: [body, cookie]
+plugin:
+    package: '@routup/cors'
+    summary: 'Preflight and CORS headers.'
+    group: 'Operations'
+    order: 1
 ---
 
 # @routup/cors

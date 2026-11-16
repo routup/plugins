@@ -3,7 +3,7 @@ import config from '@tada5hi/eslint-config';
 export default [
     ...await config(),
     {
-        ignores: ['**/dist/**'],
+        ignores: ['**/dist/**', '**/.vitepress/cache/**'],
     },
     {
         // Public subpath entries (@routup/basic/body, ./cookie, ./query) re-exporting the underlying plugins.
