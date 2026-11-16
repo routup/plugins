@@ -1,5 +1,12 @@
 # Change Log
 
+## [4.1.0](https://github.com/routup/plugins/compare/prometheus-v4.0.2...prometheus-v4.1.0) (2026-11-16)
+
+
+### Features
+
+* **prometheus:** label requests by the dispatched route ([#872](https://github.com/routup/plugins/issues/872)) ([f748678](https://github.com/routup/plugins/commit/f748678d35ab989411acad582fd8d84de805ee40))
+
 ## [4.0.2](https://github.com/routup/plugins/compare/prometheus-v4.0.1...prometheus-v4.0.2) (2026-11-15)
 
 
