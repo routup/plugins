@@ -9,26 +9,28 @@ import {
     useDecoratorMeta,
 } from './utils';
 
-type ControllerApp = {
-    app: App,
-
+type RegisterControllerOptions = {
     /**
-     * The handlers of the decorated methods, without middlewares.
+     * Register the class and method middlewares (default: true). The route
+     * listing leaves them out, so that the app holds only the endpoints.
      */
-    handlers: Set<unknown>,
+    middlewares?: boolean,
 };
 
 function buildControllerApp(
     controller: Record<string, any>,
     meta: DecoratorMeta,
-): ControllerApp {
-    const childApp = new App();
-    const handlers = new Set<unknown>();
+    options: RegisterControllerOptions,
+): IApp {
+    const childApp: IApp = new App();
+    const middlewares = options.middlewares ?? true;
 
-    for (let i = 0; i < meta.middlewares.length; i++) {
-        const handler = createHandlerForClassType(meta.middlewares[i]!, {});
+    if (middlewares) {
+        for (let i = 0; i < meta.middlewares.length; i++) {
+            const handler = createHandlerForClassType(meta.middlewares[i]!, {});
 
-        childApp.use(handler);
+            childApp.use(handler);
+        }
     }
 
     const propertyKeys = Object.keys(meta.methods);
@@ -40,7 +42,7 @@ function buildControllerApp(
             continue;
         }
 
-        if (method.middlewares) {
+        if (middlewares && method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
                 childApp.use(createHandlerForClassType(
                     method.middlewares[i]!,
@@ -90,11 +92,10 @@ function buildControllerApp(
             },
         });
 
-        handlers.add(handler);
         childApp.use(handler);
     }
 
-    return { app: childApp, handlers };
+    return childApp;
 }
 
 /**
@@ -106,7 +107,8 @@ function registerController(
     router: IApp,
     controller: Record<string, any>,
     meta: DecoratorMeta,
-) : Set<unknown> {
+    options: RegisterControllerOptions = {},
+) : void {
     const urls = Array.isArray(meta.url) ? meta.url : [meta.url];
 
     for (const method of Object.values(meta.methods)) {
@@ -125,7 +127,7 @@ function registerController(
         }
     }
 
-    const { app, handlers } = buildControllerApp(controller, meta);
+    const app = buildControllerApp(controller, meta, options);
 
     // `router.use(url, childApp)` snapshots `childApp.routes` per
     // call (flatten-on-use), so mounting the same child under
@@ -134,8 +136,6 @@ function registerController(
     for (const url of urls) {
         router.use(url, app);
     }
-
-    return handlers;
 }
 
 export function mountController(
@@ -172,13 +172,14 @@ export function getControllerRoutes(
         input :
         (input as ClassType).prototype;
 
-    const app = new App();
-    const handlers = registerController(app, controller, useDecoratorMeta(controller));
+    const app: IApp = new App();
+
+    registerController(app, controller, useDecoratorMeta(controller), { middlewares: false });
 
     const routes : ControllerRoute[] = [];
 
     for (const route of app.routes) {
-        if (handlers.has(route.data) && route.method && route.path) {
+        if (route.method && route.path) {
             routes.push({ method: route.method, path: route.path });
         }
     }

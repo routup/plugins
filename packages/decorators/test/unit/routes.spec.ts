@@ -87,6 +87,19 @@ class SegmentController {
 
 class SubNoteController extends NoteController {}
 
+@DController('/same')
+class SamePathController {
+    @DGet('/:id')
+    first() {
+        return 'first';
+    }
+
+    @DGet('/:id')
+    second() {
+        return 'second';
+    }
+}
+
 @DController('/notes')
 class SlashGroupController {
     @DGet('{/:id}')
@@ -149,6 +162,22 @@ describe('getControllerRoutes', () => {
     it('does not list class or method middlewares', () => {
         expect(getControllerRoutes(MiddlewareController)).toEqual([
             { method: 'GET', path: '/guarded/x' },
+        ]);
+    });
+
+    it('lists two methods on the same method and path, as both are mounted', () => {
+        expect(getControllerRoutes(SamePathController)).toEqual([
+            { method: 'GET', path: '/same/:id' },
+            { method: 'GET', path: '/same/:id' },
+        ]);
+
+        const app = new App();
+
+        app.use(decorators({ controllers: [SamePathController] }));
+
+        expect(app.routes.map((route) => [route.method, route.path])).toEqual([
+            ['GET', '/same/:id'],
+            ['GET', '/same/:id'],
         ]);
     });
 
