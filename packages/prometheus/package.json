@@ -1,6 +1,6 @@
 {
     "name": "@routup/prometheus",
-    "version": "4.0.2",
+    "version": "4.1.0",
     "type": "module",
     "description": "Record request durations and uptime with prom-client and serve them on a Prometheus scrape endpoint.",
     "exports": {
