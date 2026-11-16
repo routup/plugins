@@ -153,6 +153,7 @@ export class UserController {
 ```
 
 - The route path is the controller path joined with the method path: `show` answers `GET /users/:id`, `list` answers `GET /users`.
+- A method path without a leading slash is a segment under the controller path: `@DGet(':id')` answers `GET /users/:id`. A method path that starts with an optional group led by a slash (`'{/:id}'` or `'/{/:id}'`) throws at mount, since its group could only match after a double slash (`/users//5`).
 - Method decorators: `@DGet`, `@DPost`, `@DPut`, `@DPatch`, `@DDelete`. Each takes `(path, middlewares?)`.
 - `@DController` also takes an array of paths, for example `@DController(['/users', '/members'])`. Every method is then reachable under each path.
 - Methods may be `async`; the plugin awaits them.
@@ -177,6 +178,21 @@ serve(router, { port: 3000 });
 
 - `controllers` takes classes or instances. A class is instantiated once with `new Controller()` (no constructor arguments); pass an instance when the controller needs dependencies: `controllers: [new UserController(repository)]`.
 - Each controller becomes a child `App` mounted at its `@DController` path. You can mount decorator controllers and functional handlers on the same router.
+
+### Listing the routes of a controller
+
+`getControllerRoutes(target)` lists the routes a controller instance or class is mounted under, without mounting it and without instantiating a class:
+
+```typescript
+import { getControllerRoutes } from '@routup/decorators';
+
+getControllerRoutes(UserController);
+// [{ method: 'GET', path: '/users' }, { method: 'GET', path: '/users/:id' }, ...]
+```
+
+- One entry per controller path and decorated method: ordered by controller path, then by declaration. Middlewares are not listed.
+- `method` is upper case and `path` is joined as the mount joins it, relative to the app the controller is mounted on.
+- A target without decorator metadata answers `[]` and gains no metadata entry. A method path the mount refuses throws here as well.
 
 ### Return values and the event
 
@@ -553,13 +569,14 @@ For responses shared by every controller, pass them to `generateSwagger` as `dat
 | `DTags`, `DReturns`, `DConsumes`, `DExample`, `DSecurity`, `DDeprecated`, `DHidden` | Decorators | Documentation only, read by the preset |
 | `DDescription` | Decorator | Deprecated alias of `DReturns` |
 | `mountController(app, controller)`, `mountControllers(app, controllers)` | Functions | Mount controllers without the plugin wrapper |
+| `getControllerRoutes(target)` | Function | List the method and path of every route a controller instance or class is mounted under |
 | `createClassDecorator`, `createMethodDecorator`, `createParameterDecorator` | Functions | Build your own decorators on the same metadata |
 | `useDecoratorMeta(target)` | Function | Read or create the metadata stored on a controller prototype |
 | `hasDecoratorMeta(target)` | Function | Check whether a controller instance or class carries metadata, without creating any |
 | `buildDecoratorMethodArguments(context, parameters)` | Function | Resolve the argument list for a method from its parameter metadata |
 | `createHandlerForClassType(Class, options)`, `isHandlerClassInstance(value)` | Functions | Wrap a middleware class as a routup handler; check for a `run` method |
 | `ParameterType` | Enum | Parameter kinds: `context`, `request`, `response`, `next`, `param`, `header`, `body`, `query`, `cookie` |
-| `Options`, `ClassType`, `HandlerInterface`, `HandlerContext`, `DecoratorMeta`, `DecoratorMethodOptions`, `DecoratorParameterOptions` | Types | Plugin options, middleware contract and metadata shapes |
+| `Options`, `ClassType`, `ControllerRoute`, `HandlerInterface`, `HandlerContext`, `DecoratorMeta`, `DecoratorMethodOptions`, `DecoratorParameterOptions` | Types | Plugin options, middleware contract and metadata shapes |
 | `buildPreset()`, default export (from `@routup/decorators/preset`) | TRAPI preset | Preset for `@trapi/metadata`; the default export is `buildPreset()` |
 
 ### `mountControllers`
