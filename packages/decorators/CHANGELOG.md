@@ -6,6 +6,13 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.3.0](https://github.com/routup/plugins/compare/decorators-v5.2.0...decorators-v5.3.0) (2026-11-16)
+
+
+### Features
+
+* **decorators:** list the routes of a controller ([#874](https://github.com/routup/plugins/issues/874)) ([12b5719](https://github.com/routup/plugins/commit/12b57196d150cd70895cdcd6335e46f075baafb3))
+
 ## [5.2.0](https://github.com/routup/plugins/compare/decorators-v5.1.0...decorators-v5.2.0) (2026-11-15)
 
 
