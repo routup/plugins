@@ -868,6 +868,46 @@ describe('the copy of the metadata', () => {
         expect((metaOf(Child) as Record<string, any>).roles).toEqual(['admin']);
     });
 
+    it('keeps a method entry without middlewares, and unset entries, as they are', async () => {
+        @DController('/parent')
+        class Parent {
+            show() {
+                return 'show';
+            }
+        }
+
+        // Written by hand, as plain JavaScript or an older copy may do.
+        const meta = metaOf(Parent);
+
+        meta.methods.show = { method: 'get', url: '/show' } as any;
+        meta.parameters.none = undefined as any;
+        meta.responses.none = undefined as any;
+
+        @DController('/child')
+        class Child extends Parent {
+            @DGet('/own')
+            own() {
+                return 'own';
+            }
+        }
+
+        expect(metaOf(Child).methods.show).toEqual({ method: 'get', url: '/show' });
+        expect(metaOf(Child).methods.show).not.toBe(meta.methods.show);
+        expect(metaOf(Child).parameters.none).toBeUndefined();
+        expect(metaOf(Child).responses.none).toBeUndefined();
+
+        expect(getControllerRoutes(Child)).toEqual([
+            { method: 'GET', path: '/child/show' },
+            { method: 'GET', path: '/child/own' },
+        ]);
+
+        const app = new App();
+
+        mountController(app, Child);
+
+        expect(await (await fetch(app, '/child/show')).text()).toEqual('show');
+    });
+
     it('keeps an unset method entry unset', () => {
         @DController('/parent')
         class Parent {

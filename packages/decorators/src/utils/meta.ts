@@ -67,32 +67,37 @@ export function useResolvedDecoratorMeta(target: Record<string, any>) : Decorato
     return (target as any)[symbol];
 }
 
+/**
+ * The metadata as it may be found: a custom decorator, plain JavaScript or
+ * an older copy of the package may leave an entry or a field unset.
+ */
+type LooseEntries<T> = Record<string, Partial<T> | undefined>;
+
 function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
-    const methods : DecoratorMeta['methods'] = Object.create(null);
+    // An unset entry or field stays unset in the copy.
+    const methods : LooseEntries<DecoratorMeta['methods'][string]> = Object.create(null);
+    const inputMethods : LooseEntries<DecoratorMeta['methods'][string]> = meta.methods;
 
-    for (const [key, method] of Object.entries(meta.methods)) {
-        // An unset entry stays unset, the mount skips it.
-        methods[key] = method ?
+    for (const [key, method] of Object.entries(inputMethods)) {
+        methods[key] = method?.middlewares ?
             { ...method, middlewares: [...method.middlewares] } :
-            method;
+            method && { ...method };
     }
 
-    const responses : DecoratorMeta['responses'] = Object.create(null);
+    const responses : LooseEntries<DecoratorResponseOptions> = Object.create(null);
+    const inputResponses : LooseEntries<DecoratorResponseOptions> = meta.responses;
 
-    for (const [key, response] of Object.entries(meta.responses)) {
-        const copy = { ...response };
-
-        if (copy.produces) {
-            copy.produces = [...copy.produces];
-        }
-
-        responses[key] = copy;
+    for (const [key, response] of Object.entries(inputResponses)) {
+        responses[key] = response?.produces ?
+            { ...response, produces: [...response.produces] } :
+            response && { ...response };
     }
 
-    const parameters : DecoratorMeta['parameters'] = Object.create(null);
+    const parameters : Record<string, DecoratorMeta['parameters'][string] | undefined> = Object.create(null);
+    const inputParameters : Record<string, DecoratorMeta['parameters'][string] | undefined> = meta.parameters;
 
-    for (const [key, entries] of Object.entries(meta.parameters)) {
-        parameters[key] = entries.map((parameter) => ({ ...parameter }));
+    for (const [key, entries] of Object.entries(inputParameters)) {
+        parameters[key] = entries?.map((parameter) => ({ ...parameter }));
     }
 
     const middlewares = [...meta.middlewares];
@@ -105,10 +110,10 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
         ...meta,
         url: Array.isArray(meta.url) ? [...meta.url] : meta.url,
         middlewares,
-        methods,
+        methods: methods as DecoratorMeta['methods'],
         produces: [...meta.produces],
-        responses,
-        parameters,
+        responses: responses as DecoratorMeta['responses'],
+        parameters: parameters as DecoratorMeta['parameters'],
     };
 }
 
