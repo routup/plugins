@@ -1,21 +1,18 @@
 import type { ClassType } from '../types';
-import { useDecoratorMeta } from '../utils';
+import { useOwnDecoratorMeta } from '../utils/meta';
 
 export function createClassDecorator(
     url: string | string[],
     middlewares?: ClassType[],
 ) : ClassDecorator {
     return (target: any) : void => {
-        const meta = useDecoratorMeta(target.prototype);
+        const meta = useOwnDecoratorMeta(target.prototype);
 
         meta.url = url;
-        meta.middlewares = [];
 
+        // Without middlewares, a subclass keeps the inherited ones.
         if (Array.isArray(middlewares)) {
-            meta.middlewares = [
-                ...meta.middlewares,
-                ...middlewares,
-            ];
+            meta.middlewares = [...middlewares];
         }
     };
 }

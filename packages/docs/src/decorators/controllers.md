@@ -271,6 +271,38 @@ getControllerRoutes(UserController);
 
 There is one entry per controller path and decorated method, ordered by controller path, then by declaration; only routes bound to a method are listed, so middlewares are not. `method` is upper case and `path` is joined exactly as the mount joins it, relative to the app the controller is mounted on. A target without decorator metadata answers `[]` and gains no metadata entry.
 
+## Inheritance
+
+A controller can extend a decorated class:
+
+```typescript
+import { DController, DGet } from '@routup/decorators';
+
+class BaseController {
+    @DGet('/health')
+    async health() {
+        return 'ok';
+    }
+}
+
+@DController('/users')
+export class UserController extends BaseController {
+    @DGet('')
+    async list() {
+        return [];
+    }
+}
+
+// UserController answers GET /users/health and GET /users
+```
+
+- A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path and middlewares. Its own `@DController(path, middlewares?)` sets its path, and its middlewares when given.
+- The decorators of a subclass change only the subclass, never its parent or another subclass.
+- An override with a verb decorator (`@DGet()`, ...) replaces the inherited route of that method, and only its own parameter decorators apply. An override without decorators keeps the inherited route and parameter decorators, and the route calls the override. The inherited `@DStatus()` and `@DProduces()` of a method apply to an override that declares none of its own.
+- A subclass without decorators of its own is mounted and listed like its parent.
+- A subclass copies the metadata of its parent when the first decorator runs on it, at class definition, so a decorator applied to the parent by hand afterwards does not reach it.
+- The OpenAPI preset lists the inherited methods only for a class with its own `@DController()`, and does not inherit the class-level decorators of a parent.
+
 ## See also
 
 - [Parameters](./parameters) — every `@D*` parameter decorator

@@ -1,4 +1,4 @@
-import { useDecoratorMeta } from '../utils';
+import { useOwnDecoratorParameters } from '../utils/meta';
 import { ParameterType } from './constants';
 
 export function createParameterDecorator(
@@ -15,13 +15,7 @@ export function createParameterDecorator(
             return;
         }
 
-        const meta = useDecoratorMeta(target);
-
-        if (typeof meta.parameters[propertyKey] === 'undefined') {
-            meta.parameters[propertyKey] = [];
-        }
-
-        meta.parameters[propertyKey].push({
+        useOwnDecoratorParameters(target, propertyKey).push({
             index: parameterIndex,
             property,
             type,

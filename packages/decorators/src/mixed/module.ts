@@ -1,4 +1,4 @@
-import { useDecoratorMeta, useDecoratorResponseOptions } from '../utils';
+import { useDecoratorResponseOptions, useOwnDecoratorMeta } from '../utils/meta';
 
 export function DDeprecated() : any {
     return () => {};
@@ -64,7 +64,7 @@ export function DProduces(...mediaTypes: string[]) {
         propertyKey?: string | symbol,
     ) : void => {
         if (typeof propertyKey === 'undefined') {
-            const meta = useDecoratorMeta(target.prototype);
+            const meta = useOwnDecoratorMeta(target.prototype);
 
             meta.produces = [...mediaTypes, ...meta.produces];
 

@@ -1,3 +1,7 @@
 export * from './handler';
-export * from './meta';
+export {
+    hasDecoratorMeta,
+    useDecoratorMeta,
+    useDecoratorResponseOptions,
+} from './meta';
 export * from './object';
