@@ -1,6 +1,6 @@
 {
     "name": "@routup/decorators",
-    "version": "5.2.0",
+    "version": "5.3.0",
     "type": "module",
     "description": "Write routup routes as TypeScript classes with method and parameter decorators, and generate OpenAPI from them.",
     "exports": {
