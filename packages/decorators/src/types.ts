@@ -56,6 +56,22 @@ export type HandlerContext = {
     event: IAppEvent,
 };
 
+/**
+ * A route a controller is mounted under, as listed by getControllerRoutes().
+ */
+export type ControllerRoute = {
+    /**
+     * Upper-case method name, as routup registers it (e.g. `GET`).
+     */
+    method: string,
+
+    /**
+     * Joined path of the controller and method path, relative to the app
+     * the controller is mounted on.
+     */
+    path: string,
+};
+
 export type Options = {
     controllers: (ClassType | Record<string, any>)[]
 };

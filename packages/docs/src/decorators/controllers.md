@@ -33,6 +33,8 @@ export class UserController {
 
 The full path is `controllerPath + methodPath`, so the `show` handler above resolves to `GET /users/:id`.
 
+The mount puts a slash before every method path, so `@DGet(':id')` under `/users` is `/users/:id`, and an optional group that starts with a slash ends up after that slash: `'{/:id}'` becomes `/users/{/:id}`, which matches `/users/` but not `/users/5`. For an optional trailing id, declare two methods, `''` and `'/:id'`: `'{:id}'` matches `/users/` and `/users/5`, but not `/users`.
+
 ## Multiple mount paths
 
 `@DController` also accepts an array of paths. The controller is mounted under each path, so every method is reachable through any of them:
@@ -239,6 +241,35 @@ hasDecoratorMeta({}); // false
 ```
 
 `useDecoratorMeta(target)` is no substitute for the check: it creates an empty metadata entry on a target that has none.
+
+## Listing the routes of a controller
+
+`getControllerRoutes(target)` lists the routes a controller instance or class is mounted under, without mounting it and without instantiating a class. Use it to check controllers from outside your own code against the routes of the host app:
+
+```typescript
+import {
+    DController,
+    DGet,
+    DPath,
+    getControllerRoutes,
+} from '@routup/decorators';
+
+@DController(['/users', '/members'])
+export class UserController {
+    @DGet('')         async list()                          {}
+    @DGet('/:id')     async show(@DPath('id') id: string)   {}
+}
+
+getControllerRoutes(UserController);
+// [
+//     { method: 'GET', path: '/users' },
+//     { method: 'GET', path: '/users/:id' },
+//     { method: 'GET', path: '/members' },
+//     { method: 'GET', path: '/members/:id' },
+// ]
+```
+
+There is one entry per controller path and decorated method, ordered by controller path, then by declaration; only routes bound to a method are listed, so middlewares are not. `method` is upper case and `path` is joined exactly as the mount joins it, relative to the app the controller is mounted on. A target without decorator metadata answers `[]` and gains no metadata entry.
 
 ## See also
 

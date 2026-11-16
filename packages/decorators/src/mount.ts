@@ -1,19 +1,36 @@
 import type { IApp, MethodName } from 'routup';
 import { App, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
-import type { ClassType, DecoratorMeta } from './types';
-import { createHandlerForClassType, isObject, useDecoratorMeta } from './utils';
+import type { ClassType, ControllerRoute, DecoratorMeta } from './types';
+import {
+    createHandlerForClassType,
+    hasDecoratorMeta,
+    isObject,
+    useDecoratorMeta,
+} from './utils';
+
+type RegisterControllerOptions = {
+    /**
+     * Register the class and method middlewares (default: true). The route
+     * listing leaves them out, so that the app holds only the endpoints.
+     */
+    middlewares?: boolean,
+};
 
 function buildControllerApp(
     controller: Record<string, any>,
     meta: DecoratorMeta,
-): App {
-    const childApp = new App();
+    options: RegisterControllerOptions,
+): IApp {
+    const childApp: IApp = new App();
+    const middlewares = options.middlewares ?? true;
 
-    for (let i = 0; i < meta.middlewares.length; i++) {
-        const handler = createHandlerForClassType(meta.middlewares[i]!, {});
+    if (middlewares) {
+        for (let i = 0; i < meta.middlewares.length; i++) {
+            const handler = createHandlerForClassType(meta.middlewares[i]!, {});
 
-        childApp.use(handler);
+            childApp.use(handler);
+        }
     }
 
     const propertyKeys = Object.keys(meta.methods);
@@ -25,7 +42,7 @@ function buildControllerApp(
             continue;
         }
 
-        if (method.middlewares) {
+        if (middlewares && method.middlewares) {
             for (let i = 0; i < method.middlewares.length; i++) {
                 childApp.use(createHandlerForClassType(
                     method.middlewares[i]!,
@@ -81,6 +98,30 @@ function buildControllerApp(
     return childApp;
 }
 
+/**
+ * Register a controller's routes on an app. The mount and the route
+ * listing both go through here, so the paths they report are joined by
+ * routup itself and cannot drift.
+ */
+function registerController(
+    router: IApp,
+    controller: Record<string, any>,
+    meta: DecoratorMeta,
+    options: RegisterControllerOptions = {},
+) : void {
+    const urls = Array.isArray(meta.url) ? meta.url : [meta.url];
+
+    const app = buildControllerApp(controller, meta, options);
+
+    // `router.use(url, childApp)` snapshots `childApp.routes` per
+    // call (flatten-on-use), so mounting the same child under
+    // multiple paths needs no clone — each mount gets its own
+    // copy of the routes with the right prefix.
+    for (const url of urls) {
+        router.use(url, app);
+    }
+}
+
 export function mountController(
     router: IApp,
     input: (ClassType | Record<string, any>),
@@ -93,21 +134,47 @@ export function mountController(
         controller = new (input as ClassType)();
     }
 
-    const meta = useDecoratorMeta(controller);
+    registerController(router, controller, useDecoratorMeta(controller));
+}
 
-    if (Array.isArray(meta.url)) {
-        const childApp = buildControllerApp(controller, meta);
-
-        // `router.use(url, childApp)` snapshots `childApp.routes` per
-        // call (flatten-on-use), so mounting the same child under
-        // multiple paths needs no clone — each mount gets its own
-        // copy of the routes with the right prefix.
-        for (const url of meta.url) {
-            router.use(url, childApp);
-        }
-    } else {
-        router.use(meta.url, buildControllerApp(controller, meta));
+/**
+ * List the routes a controller (an instance or a class) is mounted under:
+ * one entry per base path and decorated method, ordered by base path, then
+ * by declaration. Only routes bound to a method are listed, so middlewares
+ * and a method decorator without a method name are left out. The paths do
+ * not include the path of the app the controller is mounted on. A target
+ * that is not an object or a class answers an empty list.
+ */
+export function getControllerRoutes(
+    input: (ClassType | Record<string, any>),
+) : ControllerRoute[] {
+    if (
+        (typeof input !== 'object' && typeof input !== 'function') ||
+        input === null ||
+        !hasDecoratorMeta(input)
+    ) {
+        return [];
     }
+
+    // A class is listed through its prototype, which carries the metadata,
+    // so that its constructor never runs; the handlers are never called.
+    const controller : Record<string, any> = isObject(input) ?
+        input :
+        (input as ClassType).prototype;
+
+    const app: IApp = new App();
+
+    registerController(app, controller, useDecoratorMeta(controller), { middlewares: false });
+
+    const routes : ControllerRoute[] = [];
+
+    for (const route of app.routes) {
+        if (route.method && route.path) {
+            routes.push({ method: route.method, path: route.path });
+        }
+    }
+
+    return routes;
 }
 
 export function mountControllers(
