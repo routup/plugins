@@ -33,7 +33,7 @@ export class UserController {
 
 The full path is `controllerPath + methodPath`, so the `show` handler above resolves to `GET /users/:id`.
 
-A method path without a leading slash is a segment under the controller path, so `@DGet(':id')` also resolves to `GET /users/:id`. A method path that starts with an optional group led by a slash (`'{/:id}'` or `'/{/:id}'`) throws at mount, since routup always puts a slash before the method path and its group could only match after a double slash.
+The mount puts a slash before every method path, so `@DGet(':id')` under `/users` is `/users/:id`, and an optional group that starts with a slash ends up after that slash: `'{/:id}'` becomes `/users/{/:id}`, which matches `/users/` but not `/users/5`. For an optional trailing id, declare two methods, `''` and `'/:id'`: `'{:id}'` matches `/users/` and `/users/5`, but not `/users`.
 
 ## Multiple mount paths
 
@@ -269,7 +269,7 @@ getControllerRoutes(UserController);
 // ]
 ```
 
-There is one entry per controller path and decorated method, ordered by controller path, then by declaration; middlewares are not listed. `method` is upper case and `path` is joined exactly as the mount joins it, relative to the app the controller is mounted on. A target without decorator metadata answers `[]` and gains no metadata entry, and a method path the mount refuses throws here as well.
+There is one entry per controller path and decorated method, ordered by controller path, then by declaration; only routes bound to a method are listed, so middlewares are not. `method` is upper case and `path` is joined exactly as the mount joins it, relative to the app the controller is mounted on. A target without decorator metadata answers `[]` and gains no metadata entry.
 
 ## See also
 

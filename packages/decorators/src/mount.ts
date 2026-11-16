@@ -1,5 +1,5 @@
 import type { IApp, MethodName } from 'routup';
-import { App, AppError, defineCoreHandler } from 'routup';
+import { App, defineCoreHandler } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, ControllerRoute, DecoratorMeta } from './types';
 import {
@@ -111,22 +111,6 @@ function registerController(
 ) : void {
     const urls = Array.isArray(meta.url) ? meta.url : [meta.url];
 
-    for (const method of Object.values(meta.methods)) {
-        if (/^\/?\{\//.test(method.url)) {
-            const paths = urls.map((url) => `"${url}"`).join(', ');
-            const under = urls.length === 0 ?
-                'with no controller path' :
-                `under the controller path${urls.length === 1 ? '' : 's'} ${paths}`;
-
-            throw new AppError(
-                `Cannot mount ${method.method.toUpperCase()} "${method.url}" ${under}: ` +
-                'a method path cannot start with an optional group that begins ' +
-                'with a slash, since routup puts a slash before every method path, ' +
-                'so the group could only match after a double slash.',
-            );
-        }
-    }
-
     const app = buildControllerApp(controller, meta, options);
 
     // `router.use(url, childApp)` snapshots `childApp.routes` per
@@ -156,13 +140,19 @@ export function mountController(
 /**
  * List the routes a controller (an instance or a class) is mounted under:
  * one entry per base path and decorated method, ordered by base path, then
- * by declaration. Middlewares are not listed, and the paths do not include
- * the path of the app the controller is mounted on.
+ * by declaration. Only routes bound to a method are listed, so middlewares
+ * and a method decorator without a method name are left out. The paths do
+ * not include the path of the app the controller is mounted on. A target
+ * that is not an object or a class answers an empty list.
  */
 export function getControllerRoutes(
     input: (ClassType | Record<string, any>),
 ) : ControllerRoute[] {
-    if (!hasDecoratorMeta(input)) {
+    if (
+        (typeof input !== 'object' && typeof input !== 'function') ||
+        input === null ||
+        !hasDecoratorMeta(input)
+    ) {
         return [];
     }
 

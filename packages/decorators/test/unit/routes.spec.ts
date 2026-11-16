@@ -7,9 +7,11 @@ import {
     DDelete,
     DGet,
     DPost,
+    createMethodDecorator,
     decorators,
     getControllerRoutes,
     mountController,
+    useDecoratorMeta,
 } from '../../src';
 
 class PassMiddleware implements HandlerInterface {
@@ -108,27 +110,31 @@ class SlashGroupController {
     }
 }
 
-@DController('/notes')
-class LeadingSlashGroupController {
-    @DGet('/{/:id}')
+@DController('/plain')
+class FalsyMethodController {
     show() {
         return 'show';
     }
-}
 
-@DController(['/a', '/b'])
-class MultiPathSlashGroupController {
-    @DGet('{/:id}')
-    show() {
-        return 'show';
+    @DGet('/x')
+    other() {
+        return 'other';
     }
 }
 
-@DController([])
-class NoPathSlashGroupController {
-    @DGet('{/:id}')
-    show() {
-        return 'show';
+// An unset entry, written through the public metadata API: the mount
+// skips it, and so must the listing.
+useDecoratorMeta(FalsyMethodController.prototype).methods.show = undefined as any;
+
+class PrefixController {
+    @createMethodDecorator('', '/x')
+    any() {
+        return 'any';
+    }
+
+    @DGet('/y')
+    other() {
+        return 'other';
     }
 }
 
@@ -245,23 +251,52 @@ describe('getControllerRoutes', () => {
         expect(await remove.text()).toEqual('remove');
     });
 
-    it('refuses a method path that starts with an optional group led by a slash', () => {
-        for (const controller of [SlashGroupController, LeadingSlashGroupController]) {
-            const app = new App();
+    it('lists an optional group led by a slash as the mount registers it', async () => {
+        const app = new App();
 
-            expect(() => getControllerRoutes(controller)).toThrow(/GET "\/?\{\/:id\}" under the controller path "\/notes"/);
-            expect(() => mountController(app, controller)).toThrow(/GET "\/?\{\/:id\}" under the controller path "\/notes"/);
-            expect(app.routes).toEqual([]);
-        }
+        mountController(app, SlashGroupController);
+
+        expect(getControllerRoutes(SlashGroupController)).toEqual([
+            { method: 'GET', path: '/notes/{/:id}' },
+        ]);
+        expect(app.routes.map((route) => route.path)).toEqual(['/notes/{/:id}']);
+
+        const response = await app.fetch(toRequest('GET', '/notes/'));
+
+        expect(await response.text()).toEqual('show');
     });
 
-    it('refuses such a method path whatever the base paths', () => {
-        expect(() => getControllerRoutes(MultiPathSlashGroupController))
-            .toThrow(/under the controller paths "\/a", "\/b"/);
-        expect(() => getControllerRoutes(NoPathSlashGroupController))
-            .toThrow(/GET "\{\/:id\}" with no controller path/);
-        expect(() => mountController(new App(), NoPathSlashGroupController))
-            .toThrow(/GET "\{\/:id\}" with no controller path/);
+    it('skips an unset method entry when listing and mounting', async () => {
+        const app = new App();
+
+        expect(() => mountController(app, FalsyMethodController)).not.toThrow();
+        expect(getControllerRoutes(FalsyMethodController)).toEqual([
+            { method: 'GET', path: '/plain/x' },
+        ]);
+
+        const response = await app.fetch(toRequest('GET', '/plain/x'));
+
+        expect(await response.text()).toEqual('other');
+    });
+
+    it('lists only routes bound to a method', async () => {
+        expect(getControllerRoutes(PrefixController)).toEqual([
+            { method: 'GET', path: '/y' },
+        ]);
+
+        const app = new App();
+
+        mountController(app, PrefixController);
+
+        const response = await app.fetch(toRequest('POST', '/x'));
+
+        expect(await response.text()).toEqual('any');
+    });
+
+    it('answers an empty list for a target that is not an object or a class', () => {
+        for (const target of [null, undefined, 0, 'controller', true, Symbol('x')]) {
+            expect(getControllerRoutes(target as any)).toEqual([]);
+        }
     });
 
     it('lists exactly the method-bound routes the mount registers', async () => {
