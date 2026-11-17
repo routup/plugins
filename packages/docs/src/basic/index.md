@@ -49,7 +49,7 @@ curl -X POST 'http://localhost:3000/items?page=2' \
 
 What each parser does by default is on its own page: [body](/body/#default-behaviour), [cookie](/cookie/#default-behaviour), [query](/query/#default-behaviour).
 
-To run a parser at another position, for example the body parser under `/api` only, install the three packages and register them yourself ([Combining Plugins](/guide/combining#body-cookie-and-query)).
+When you need only one of the three, install it alone: [`@routup/body`](/body/), [`@routup/cookie`](/cookie/) or [`@routup/query`](/query/). To run a parser at another position, for example the body parser under `/api` only, install the three packages and register them yourself ([Combining Plugins](/guide/combining#body-cookie-and-query)).
 
 ## Options
 
