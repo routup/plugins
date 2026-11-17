@@ -9,8 +9,12 @@ import {
     it,
 } from 'vitest';
 import {
+    checkEntryExports,
+    checkReadmeHeadings,
+    readCodeDeclarations,
     readDocumentedNames,
     readExports,
+    readFrontmatterLinks,
     readHeadingNames,
     readHeadingSlugs,
     readHeadings,
@@ -28,6 +32,7 @@ let broken: string;
 let star: string;
 let withDefault: string;
 let otherDefault: string;
+let twoAliases: string;
 
 beforeAll(() => {
     dir = mkdtempSync(path.join(tmpdir(), 'doc-checks-'));
@@ -56,6 +61,9 @@ beforeAll(() => {
 
     otherDefault = path.join(dir, 'other-default.ts');
     writeFileSync(otherDefault, 'export const named = 1;\nexport default function other(): void {}\n');
+
+    twoAliases = path.join(dir, 'two-aliases.ts');
+    writeFileSync(twoAliases, 'import { helper } from \'./helper\';\n\nexport { helper, helper as useHelper };\nexport default helper;\n');
 });
 
 afterAll(() => {
@@ -220,12 +228,16 @@ describe('readExports', () => {
         const result = readExports(withDefault);
 
         expect([...result.values].sort()).toEqual(['default', 'helper']);
-        expect(result.defaultAlias).toBe('helper');
+        expect(result.defaultAliases).toEqual(['helper']);
+    });
+
+    it('names every export the default export aliases', () => {
+        expect(readExports(twoAliases).defaultAliases.sort()).toEqual(['helper', 'useHelper']);
     });
 
     it('has no default alias when the default export is a declaration of its own', () => {
-        expect(readExports(otherDefault).defaultAlias).toBeUndefined();
-        expect(readExports(entry).defaultAlias).toBeUndefined();
+        expect(readExports(otherDefault).defaultAliases).toEqual([]);
+        expect(readExports(entry).defaultAliases).toEqual([]);
     });
 });
 
@@ -286,6 +298,189 @@ describe('readDocumentedNames', () => {
         ].join('\n');
 
         expect(readDocumentedNames(markdown)).toEqual(['afterFence']);
+    });
+});
+
+describe('readDocumentedNames in Decorator and Export tables', () => {
+    it('reads the first column of a table whose first header cell is Decorator or Export', () => {
+        const markdown = [
+            '## Route Decorators',
+            '',
+            '| Decorator | Route |',
+            '|---|---|',
+            '| `DGet(path?)`, `DPost(path?)` | GET, POST |',
+            '',
+            '## Other',
+            '',
+            '| Export | Description |',
+            '|---|---|',
+            '| `isObject` | Check |',
+            '',
+            '| Option | Description |',
+            '|---|---|',
+            '| `notAName` | x |',
+            '',
+            '| Decorator | Needs |',
+            '|---|---|',
+            '| `@DBody()` | body() |',
+        ].join('\n');
+
+        expect(readDocumentedNames(markdown)).toEqual(['DGet', 'DPost', 'isObject', 'DBody']);
+    });
+});
+
+describe('readCodeDeclarations', () => {
+    it('reads the types and interfaces declared in fenced code', () => {
+        const markdown = [
+            'type NotInCode = string;',
+            '',
+            '```ts',
+            'export type Handler = () => void;',
+            'interface Options {',
+            '    a: number;',
+            '}',
+            'declare type Declared = 1;',
+            'const typeName = 1;',
+            '```',
+        ].join('\n');
+
+        expect(readCodeDeclarations(markdown)).toEqual(['Handler', 'Options', 'Declared']);
+    });
+});
+
+describe('checkEntryExports', () => {
+    it('accepts a page that documents every export', () => {
+        const page = [
+            '## `create()`',
+            '## `Store`',
+            '## `VALUE`',
+            '## `helper`',
+            '',
+            '## Types',
+            '',
+            '| Type | Description |',
+            '|---|---|',
+            '| `Options`, `Partial2` | x |',
+            '',
+            '```ts',
+            'type Both = Options & { c: boolean };',
+            '```',
+        ].join('\n');
+
+        expect(checkEntryExports({
+            label: 'entry',
+            entryFile: entry,
+            pages: { 'helpers.md': page },
+        })).toEqual([]);
+    });
+
+    it('reports an undocumented runtime export and an undocumented type export', () => {
+        const page = [
+            '## `create()`',
+            '## `Store`',
+            '## `VALUE`',
+            '',
+            '## Types',
+            '',
+            '| Type | Description |',
+            '|---|---|',
+            '| `Options` | x |',
+        ].join('\n');
+
+        expect(checkEntryExports({
+            label: 'entry',
+            entryFile: entry,
+            pages: { 'helpers.md': page },
+            typeExempt: { Partial2: 'internal' },
+        })).toEqual([
+            'entry: runtime export `helper` is not documented',
+            'entry: type export `Both` is not documented',
+        ]);
+    });
+
+    it('reports stale exemptions', () => {
+        const page = '## `create()`\n## `Store`\n## `VALUE`\n## `helper`\n## Types\n\n| Type | x |\n|---|---|\n| `Options`, `Partial2`, `Both` | x |\n';
+
+        expect(checkEntryExports({
+            label: 'entry',
+            entryFile: entry,
+            pages: { 'helpers.md': page },
+            exempt: { helper: 'x', gone: 'x' },
+            typeExempt: { Options: 'x', Gone: 'x' },
+        })).toEqual([
+            'entry: stale exemption `helper` (it is documented)',
+            'entry: stale exemption `gone` (not a runtime export)',
+            'entry: stale type exemption `Options` (it is documented)',
+            'entry: stale type exemption `Gone` (not a type export)',
+        ]);
+    });
+
+    it('accepts the default export when any of its aliases is documented', () => {
+        expect(checkEntryExports({
+            label: 'aliases',
+            entryFile: twoAliases,
+            pages: { 'index.md': '## `useHelper()`\n\n| Export | Description |\n|---|---|\n| `helper` | x |\n' },
+        })).toEqual([]);
+        expect(checkEntryExports({
+            label: 'aliases',
+            entryFile: twoAliases,
+            pages: { 'index.md': '## `useHelper()`\n' },
+            exempt: { helper: 'same function as useHelper' },
+        })).toEqual([]);
+    });
+
+    it('reports a default export that is not a documented named export', () => {
+        expect(checkEntryExports({
+            label: 'other',
+            entryFile: otherDefault,
+            pages: { 'index.md': '## `named`\n' },
+        })).toEqual(['other: the default export is not a documented named export']);
+    });
+
+    it('reports a heading that hides a name', () => {
+        expect(checkEntryExports({
+            label: 'other',
+            entryFile: otherDefault,
+            pages: { 'index.md': '## `named`\n## `named` <Badge text="new" />\n' },
+            exempt: { default: 'x' },
+        })).toEqual(['index.md: heading "`named` <Badge text="new" />" is not a single backticked name']);
+    });
+});
+
+describe('checkReadmeHeadings', () => {
+    const readme = (headings: string[]) => [
+        '<h1 align="center">@routup/x</h1>',
+        '',
+        ...headings,
+        '',
+        '```md',
+        '## Fenced',
+        '```',
+    ].join('\n');
+
+    it('accepts the front door sections in order', () => {
+        expect(checkReadmeHeadings(readme([
+            '## Why @routup/x?',
+            '## Installation',
+            '## Quick Start',
+            '## Documentation',
+            '## License',
+        ]), '@routup/x')).toEqual([]);
+    });
+
+    it('reports another section, a wrong order and a level 3 heading', () => {
+        expect(checkReadmeHeadings(readme([
+            '## Why @routup/x?',
+            '## Installation',
+            '## Configuration',
+            '### `limit`',
+            '## Documentation',
+            '## Quick Start',
+            '## License',
+        ]), '@routup/x')).toEqual([
+            'level 2 headings are "Why @routup/x?", "Installation", "Configuration", "Documentation", "Quick Start", "License"; expected "Why @routup/x?", "Installation", "Quick Start", "Documentation", "License"',
+            'level 3 heading "`limit`"',
+        ]);
     });
 });
 
@@ -378,7 +573,64 @@ describe('readHeadingSlugs', () => {
     });
 });
 
+describe('readHeadingSlugs with custom ids', () => {
+    it('uses a {#id} suffix as the anchor and drops it from the text', () => {
+        const markdown = [
+            '## Default Behaviour {#default-behaviour}',
+            '## Options {#opts}',
+            '## Options',
+        ].join('\n');
+
+        expect([...readHeadingSlugs(markdown)]).toEqual(['default-behaviour', 'opts', 'options']);
+    });
+});
+
+describe('readFrontmatterLinks', () => {
+    it('reads the link values of the frontmatter', () => {
+        const markdown = [
+            '---',
+            'hero:',
+            '    actions:',
+            '        - text: \'Get Started\'',
+            '          link: \'/guide/getting-started\'',
+            '        - text: Browse',
+            '          link: "#plugins"',
+            '        - link: https://github.com/routup/plugins',
+            '---',
+            'link: /not-frontmatter',
+        ].join('\n');
+
+        expect(readFrontmatterLinks(markdown)).toEqual([
+            '/guide/getting-started',
+            '#plugins',
+            'https://github.com/routup/plugins',
+        ]);
+    });
+
+    it('reads nothing without frontmatter', () => {
+        expect(readFrontmatterLinks('# Title\nlink: /x\n')).toEqual([]);
+    });
+});
+
 describe('readLinks', () => {
+    it('reads reference definitions and anchor tags, and skips images', () => {
+        const markdown = [
+            'See [the guide][guide] and <a href="/cors/">cors</a>, <a class="x" href=\'/body/#options\'>body</a>.',
+            '![Diagram](/diagram.svg) and [![badge](https://img.shields.io/x)](/rate-limit/)',
+            '',
+            '[guide]: /guide/getting-started',
+            '[site]: <https://plugins.routup.dev/body/> "Body"',
+        ].join('\n');
+
+        expect(readLinks(markdown)).toEqual([
+            '/cors/',
+            '/body/#options',
+            '/rate-limit/',
+            '/guide/getting-started',
+            'https://plugins.routup.dev/body/',
+        ]);
+    });
+
     it('reads link targets outside fences and code spans', () => {
         const markdown = [
             '---',

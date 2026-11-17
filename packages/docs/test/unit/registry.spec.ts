@@ -5,10 +5,9 @@ import { describe, expect, it } from 'vitest';
 import { PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
 import { PACKAGE_ENTRIES } from '../aliases';
 import {
-    readDocumentedNames,
-    readExports,
+    checkEntryExports,
+    checkReadmeHeadings,
     readHeadingNames,
-    readHeadings,
     readHiddenNames,
     readOptionTableNames,
     readSectionTableNames,
@@ -150,65 +149,23 @@ describe.each(PLUGINS)('$name', (plugin) => {
     });
 
     /**
-     * Errors of one entry file against its pages; `label` names the entry
-     * in each message.
+     * The Markdown of the pages, keyed by their path under src/.
      */
-    function checkExports(label: string, entryFile: string, apiPages: string[], exempt: Record<string, string>): string[] {
-        const {
-            values,
-            types,
-            defaultAlias,
-        } = readExports(entryFile);
-        const documented = new Set<string>();
-        const hidden: string[] = [];
-
-        for (const page of apiPages) {
-            const markdown = readPage(plugin.name, page);
-
-            readDocumentedNames(markdown).forEach((name) => documented.add(name));
-            hidden.push(...readHiddenNames(markdown).map((text) => `${plugin.name}/${page}: heading "${text}" is not a single backticked name`));
-        }
-
-        expect(values.size, `${label}: no runtime exports read`).toBeGreaterThan(0);
-        expect(documented.size, `${label}: no documented names read`).toBeGreaterThan(0);
-
-        const errors: string[] = [...hidden];
-
-        // the default export counts as documented when it is a documented named export
-        if (values.has('default') && defaultAlias && documented.has(defaultAlias)) {
-            documented.add('default');
-        }
-
-        for (const name of documented) {
-            if (!values.has(name) && !types.has(name)) {
-                errors.push(`${label}: \`${name}\` is documented but not exported`);
-            }
-        }
-
-        for (const name of values) {
-            if (!documented.has(name) && !(name in exempt)) {
-                errors.push(name === 'default' ?
-                    `${label}: the default export is not a documented named export` :
-                    `${label}: runtime export \`${name}\` is not documented`);
-            }
-        }
-
-        for (const name of Object.keys(exempt)) {
-            if (!values.has(name)) {
-                errors.push(`${label}: stale exemption \`${name}\` (not a runtime export)`);
-            } else if (documented.has(name)) {
-                errors.push(`${label}: stale exemption \`${name}\` (it is documented)`);
-            }
-        }
-
-        return errors;
+    function readPages(pages: string[]): Record<string, string> {
+        return Object.fromEntries(pages.map((page) => [`${plugin.name}/${page}`, readPage(plugin.name, page)]));
     }
 
-    it('documents every runtime export and only real exports', () => {
-        expect(checkExports(plugin.name, entry, plugin.apiPages, plugin.exempt ?? {})).toEqual([]);
+    it('documents every export and only real exports', () => {
+        expect(checkEntryExports({
+            label: plugin.name,
+            entryFile: entry,
+            pages: readPages(plugin.apiPages),
+            exempt: plugin.exempt,
+            typeExempt: plugin.typeExempt,
+        })).toEqual([]);
     });
 
-    it('documents every runtime export of each subpath entry on its own pages', () => {
+    it('documents every export of each subpath entry on its own pages', () => {
         const manifest = JSON.parse(readFileSync(path.join(packagesRoot, plugin.name, 'package.json'), 'utf8'));
         const errors: string[] = [];
 
@@ -239,7 +196,13 @@ describe.each(PLUGINS)('$name', (plugin) => {
                 continue;
             }
 
-            errors.push(...checkExports(label, file, subEntry.apiPages, subEntry.exempt ?? {}));
+            errors.push(...checkEntryExports({
+                label,
+                entryFile: file,
+                pages: readPages(subEntry.apiPages),
+                exempt: subEntry.exempt,
+                typeExempt: subEntry.typeExempt,
+            }));
         }
 
         expect(errors).toEqual([]);
@@ -273,11 +236,8 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
     it('keeps the README a front door to the docs', () => {
         const readme = readFileSync(path.join(packagesRoot, plugin.name, 'README.md'), 'utf8');
-        const headings = readHeadings(readme)
-            .filter((heading) => (heading.level === 2 || heading.level === 3) && /^(Options|API|Notes|Usage)\b/.test(heading.text))
-            .map((heading) => heading.text);
 
-        expect(headings, `${plugin.name}: README sections that belong on the docs site`).toEqual([]);
+        expect(checkReadmeHeadings(readme, `@routup/${plugin.name}`), `${plugin.name}: README sections`).toEqual([]);
         expect(readme).toContain(`https://plugins.routup.dev/${plugin.name}/`);
     });
 

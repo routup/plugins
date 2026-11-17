@@ -2,13 +2,20 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { readHeadingSlugs, readLinks } from '../doc-checks';
+import config from '../../src/.vitepress/config.mts';
+import { readFrontmatterLinks, readHeadingSlugs, readLinks } from '../doc-checks';
 
 const docsRoot = fileURLToPath(new URL('../..', import.meta.url));
 const srcRoot = path.join(docsRoot, 'src');
 const repoRoot = path.resolve(docsRoot, '..', '..');
 
 const SITE = 'https://plugins.routup.dev';
+
+/**
+ * Anchors a page gets from a component instead of a heading: page ->
+ * component file (relative to src/) and the ids it renders.
+ */
+const COMPONENT_ANCHORS: Record<string, { component: string; ids: string[] }> = { 'index.md': { component: '.vitepress/components/home/PluginsGrid.vue', ids: ['plugins'] } };
 
 /**
  * Every page the site had before the plugin pages were reorganised (commit
@@ -68,6 +75,7 @@ function readSlugs(page: string): Set<string> {
 
     if (!slugs) {
         slugs = readHeadingSlugs(readFileSync(path.join(srcRoot, page), 'utf8'));
+        COMPONENT_ANCHORS[page]?.ids.forEach((id) => slugs!.add(id));
         slugCache.set(page, slugs);
     }
 
@@ -79,7 +87,7 @@ function readSlugs(page: string): Set<string> {
  * (relative to src/) a same-page anchor refers to.
  */
 function checkLink(link: string, from: string | undefined): string | undefined {
-    const [target = '', anchor] = link.split('#', 2);
+    const [target = '', anchor] = (link.startsWith(SITE) ? link.slice(SITE.length) || '/' : link).split('#', 2);
     let page: string;
 
     if (target === '') {
@@ -122,8 +130,10 @@ describe('links', () => {
         const errors: string[] = [];
 
         for (const page of pages) {
-            for (const link of readLinks(readFileSync(path.join(srcRoot, page), 'utf8'))) {
-                if (/^[a-z]+:/i.test(link)) {
+            const markdown = readFileSync(path.join(srcRoot, page), 'utf8');
+
+            for (const link of [...readFrontmatterLinks(markdown), ...readLinks(markdown)]) {
+                if (/^[a-z]+:/i.test(link) && !link.startsWith(`${SITE}/`) && link !== SITE) {
                     continue;
                 }
 
@@ -135,6 +145,43 @@ describe('links', () => {
             }
         }
 
+        expect(errors).toEqual([]);
+    });
+
+    it('renders the component anchors it relies on', () => {
+        for (const { component, ids } of Object.values(COMPONENT_ANCHORS)) {
+            const source = readFileSync(path.join(srcRoot, component), 'utf8');
+
+            for (const id of ids) {
+                expect(source, `${component}: id="${id}"`).toContain(`id="${id}"`);
+            }
+        }
+    });
+
+    it('resolves every internal link of the nav, the sidebar and the footer', () => {
+        type Item = { link?: string; items?: Item[] };
+
+        const theme = config.themeConfig as {
+            nav: Item[];
+            sidebar: Record<string, Item[]>;
+            rtFooter: { columns: { links: Item[] }[] };
+        };
+        const collect = (items: Item[]): string[] => items.flatMap((item) => [
+            ...(item.link ? [item.link] : []),
+            ...collect(item.items ?? []),
+        ]);
+        const links = [
+            ...collect(theme.nav),
+            ...Object.values(theme.sidebar).flatMap((groups) => collect(groups)),
+            ...theme.rtFooter.columns.flatMap((column) => collect(column.links)),
+        ];
+        const errors = links
+            .filter((link) => !/^[a-z]+:/i.test(link))
+            .map((link) => ({ link, error: checkLink(link, undefined) }))
+            .filter(({ error }) => !!error)
+            .map(({ link, error }) => `config.mts: ${link}: ${error}`);
+
+        expect(links.length).toBeGreaterThan(30);
         expect(errors).toEqual([]);
     });
 

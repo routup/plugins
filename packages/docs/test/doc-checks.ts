@@ -21,15 +21,18 @@ type Line = {
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const HEADING = /^ {0,3}(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/;
 const EXACT_NAME = /^`([A-Za-z_$][\w$]*)(?:\(\))?`$/;
-const TABLE_NAME = /^([A-Za-z_$][\w$]*)(?:<[^`]*>)?$/;
+const TABLE_NAME = /^@?([A-Za-z_$][\w$]*)(?:<[^`]*>|\([^`]*\))?$/;
+const EXPORT_TABLE_HEADER = /^(Decorator|Export)$/;
+const CODE_DECLARATION = /^\s*(?:export\s+)?(?:declare\s+)?(?:type|interface)\s+([A-Za-z_$][\w$]*)/;
 
 /**
- * The lines outside fenced code, each with its parsed heading when it is
- * one. A fence closes only on a line holding nothing but a marker of the
- * same character, at least as long as the opening one.
+ * Every line after the frontmatter; a fenced line (the markers included)
+ * has `fenced`, any other its parsed heading when it is one. A fence closes
+ * only on a line holding nothing but a marker of the same character, at
+ * least as long as the opening one.
  */
-function readLines(markdown: string): Line[] {
-    const output: Line[] = [];
+function readAllLines(markdown: string): (Line & { fenced?: boolean })[] {
+    const output: (Line & { fenced?: boolean })[] = [];
     let fence: string | undefined;
     const lines = markdown.split(/\r?\n/);
 
@@ -54,6 +57,8 @@ function readLines(markdown: string): Line[] {
                 fence = undefined;
             }
 
+            output.push({ text, fenced: true });
+
             continue;
         }
 
@@ -61,6 +66,7 @@ function readLines(markdown: string): Line[] {
 
         if (open) {
             fence = open[1];
+            output.push({ text, fenced: true });
 
             continue;
         }
@@ -73,6 +79,13 @@ function readLines(markdown: string): Line[] {
     }
 
     return output;
+}
+
+/**
+ * The lines outside fenced code and frontmatter.
+ */
+function readLines(markdown: string): Line[] {
+    return readAllLines(markdown).filter((line) => !line.fenced);
 }
 
 function isTableRow(text: string): boolean {
@@ -182,16 +195,20 @@ export function readSectionTableNames(markdown: string, heading: string): string
  * Names from level 2 and 3 headings that are exactly one backticked
  * identifier (optionally followed by `()` inside the backticks), and from
  * the first column of tables under a heading that starts with "Types" or
- * "Other Exports".
+ * "Other Exports", or whose header row starts with a "Decorator" or
+ * "Export" cell. In a table cell, a name may carry a leading `@` and a
+ * call or type argument list: `` `@DBody(name?)` `` reads as `DBody`.
  */
 export function readDocumentedNames(markdown: string): string[] {
     const names: string[] = [];
-    let inExportTable = false;
+    let inExportSection = false;
+    let table: 'names' | 'other' | undefined;
 
     for (const line of readLines(markdown)) {
         if (line.heading) {
-            inExportTable = line.heading.text.startsWith('Types') ||
+            inExportSection = line.heading.text.startsWith('Types') ||
                 line.heading.text.startsWith('Other Exports');
+            table = undefined;
 
             if (line.heading.level === 2 || line.heading.level === 3) {
                 const match = EXACT_NAME.exec(line.heading.text);
@@ -204,7 +221,24 @@ export function readDocumentedNames(markdown: string): string[] {
             continue;
         }
 
-        if (!inExportTable || !isTableRow(line.text) || isSeparatorRow(line.text)) {
+        if (!isTableRow(line.text)) {
+            table = undefined;
+
+            continue;
+        }
+
+        if (!table) {
+            // the header row
+            table = inExportSection || EXPORT_TABLE_HEADER.test(readFirstCell(line.text)) ?
+                'names' :
+                'other';
+
+            if (!inExportSection) {
+                continue;
+            }
+        }
+
+        if (table !== 'names' || isSeparatorRow(line.text)) {
             continue;
         }
 
@@ -218,6 +252,16 @@ export function readDocumentedNames(markdown: string): string[] {
     }
 
     return names;
+}
+
+/**
+ * Names of the types and interfaces declared in fenced code.
+ */
+export function readCodeDeclarations(markdown: string): string[] {
+    return readAllLines(markdown)
+        .filter((line) => line.fenced)
+        .map((line) => CODE_DECLARATION.exec(line.text)?.[1])
+        .filter((name): name is string => !!name);
 }
 
 /**
@@ -296,14 +340,24 @@ export function slugify(markdown: string): string {
         .toLowerCase();
 }
 
+const CUSTOM_ID = /\s*\{#([^}\s]+)\}\s*$/;
+
 /**
  * The anchors of every heading of a page; a repeated slug gets `-1`,
- * `-2`, ... as VitePress numbers it.
+ * `-2`, ... as VitePress numbers it. A `{#id}` suffix sets the anchor.
  */
 export function readHeadingSlugs(markdown: string): Set<string> {
     const slugs = new Set<string>();
 
     for (const heading of readHeadings(markdown)) {
+        const custom = CUSTOM_ID.exec(heading.text);
+
+        if (custom) {
+            slugs.add(custom[1]!);
+
+            continue;
+        }
+
         const base = slugify(heading.text);
         let slug = base;
 
@@ -318,21 +372,107 @@ export function readHeadingSlugs(markdown: string): Set<string> {
 }
 
 /**
- * Targets of the inline Markdown links outside fenced code, frontmatter
- * and code spans, in page order.
+ * The index of the `[` that opens the link text whose `]` is at `close`.
+ */
+function findLinkTextStart(text: string, close: number): number {
+    let depth = 0;
+
+    for (let index = close; index >= 0; index--) {
+        if (text[index] === ']') {
+            depth++;
+        } else if (text[index] === '[') {
+            depth--;
+
+            if (depth === 0) {
+                return index;
+            }
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Link targets outside fenced code, frontmatter and code spans, in page
+ * order: inline links (not images), `<a href>` and reference definitions.
  */
 export function readLinks(markdown: string): string[] {
     const links: string[] = [];
 
     for (const line of readLines(markdown)) {
         const text = line.text.replace(CODE_SPAN, '');
+        const definition = /^ {0,3}\[[^\]]+\]:\s*<?([^\s>]+)>?/.exec(text);
+
+        if (definition) {
+            links.push(definition[1]!);
+
+            continue;
+        }
 
         for (const match of text.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)) {
+            const start = findLinkTextStart(text, match.index);
+
+            if (start > 0 && text[start - 1] === '!') {
+                continue;
+            }
+
             links.push(match[1]!);
+        }
+
+        for (const match of text.matchAll(/<a\s[^>]*?href=(["'])(.*?)\1/gi)) {
+            links.push(match[2]!);
         }
     }
 
     return links;
+}
+
+/**
+ * Values of the `link:` keys of the YAML frontmatter, such as the hero
+ * actions of the landing page.
+ */
+export function readFrontmatterLinks(markdown: string): string[] {
+    const lines = markdown.split(/\r?\n/);
+
+    if (lines[0] !== '---') {
+        return [];
+    }
+
+    const end = lines.indexOf('---', 1);
+
+    return lines.slice(1, end === -1 ? 1 : end)
+        .map((line) => /^\s*(?:-\s+)?link:\s*(['"]?)(.+?)\1\s*$/.exec(line)?.[2])
+        .filter((link): link is string => !!link);
+}
+
+/**
+ * The level 2 headings a package README has, in this order, and the only
+ * ones; a README has no level 3 heading.
+ */
+function readReadmeSections(packageName: string): string[] {
+    return [`Why ${packageName}?`, 'Installation', 'Quick Start', 'Documentation', 'License'];
+}
+
+/**
+ * Errors of a package README against the front door shape of
+ * `readReadmeSections()`; fenced code is skipped.
+ */
+export function checkReadmeHeadings(markdown: string, packageName: string): string[] {
+    const headings = readHeadings(markdown);
+    const actual = headings.filter((heading) => heading.level === 2).map((heading) => heading.text);
+    const expected = readReadmeSections(packageName);
+    const errors: string[] = [];
+    const quote = (items: string[]) => items.map((item) => `"${item}"`).join(', ');
+
+    if (actual.join('\n') !== expected.join('\n')) {
+        errors.push(`level 2 headings are ${quote(actual)}; expected ${quote(expected)}`);
+    }
+
+    for (const heading of headings.filter((item) => item.level === 3)) {
+        errors.push(`level 3 heading "${heading.text}"`);
+    }
+
+    return errors;
 }
 
 // ---------------------------------------------------------------------------
@@ -411,16 +551,15 @@ export function readTypeKeys(entryFile: string, typeName: string): string[] {
 
 /**
  * Exports of a module, split into runtime values (functions, classes,
- * constants, `default`) and type-only exports. `defaultAlias` names the
- * export that resolves to the same declaration as the default export, if
- * any. A re-export whose target does not resolve throws, as does any
+ * constants, `default`) and type-only exports. `defaultAliases` names
+ * the exports that resolve to the same declaration as the default export. A re-export whose target does not resolve throws, as does any
  * semantic error in the entry file, so a broken barrel is not mistaken for
  * a smaller API.
  */
 export function readExports(entryFile: string): {
     values: Set<string>;
     types: Set<string>;
-    defaultAlias: string | undefined;
+    defaultAliases: string[];
 } {
     const { checker, symbol } = readModule(entryFile);
     const values = new Set<string>();
@@ -444,13 +583,121 @@ export function readExports(entryFile: string): {
     }
 
     const defaultTarget = targets.get('default');
-    const defaultAlias = defaultTarget ?
-        targets.entries().find(([name, target]) => name !== 'default' && target === defaultTarget)?.[0] :
-        undefined;
+    const defaultAliases = defaultTarget ?
+        targets.entries()
+            .filter(([name, target]) => name !== 'default' && target === defaultTarget)
+            .map(([name]) => name)
+            .toArray() :
+        [];
 
     return {
         values,
         types,
-        defaultAlias,
+        defaultAliases,
     };
+}
+
+export type EntryExportsInput = {
+    /**
+     * Names the entry in each message.
+     */
+    label: string;
+    entryFile: string;
+    /**
+     * Page name -> Markdown of the pages that document the entry.
+     */
+    pages: Record<string, string>;
+    /**
+     * Runtime export -> reason it is not documented under its own name.
+     */
+    exempt?: Record<string, string>;
+    /**
+     * Type export -> reason it is not documented under its own name.
+     */
+    typeExempt?: Record<string, string>;
+};
+
+/**
+ * Errors of one entry file against its pages: every runtime export is a
+ * documented name, every type export is a documented name or declared in
+ * fenced code, every documented name is an export, and each exemption is
+ * still needed. The default export counts as documented when one of its
+ * aliases is documented or exempt.
+ */
+export function checkEntryExports(input: EntryExportsInput): string[] {
+    const {
+        label,
+        entryFile,
+        pages,
+        exempt = {},
+        typeExempt = {},
+    } = input;
+    const {
+        values,
+        types,
+        defaultAliases,
+    } = readExports(entryFile);
+    const documented = new Set<string>();
+    const declared = new Set<string>();
+    const errors: string[] = [];
+
+    for (const [page, markdown] of Object.entries(pages)) {
+        readDocumentedNames(markdown).forEach((name) => documented.add(name));
+        readCodeDeclarations(markdown).forEach((name) => declared.add(name));
+        errors.push(...readHiddenNames(markdown).map((text) => `${page}: heading "${text}" is not a single backticked name`));
+    }
+
+    if (values.size === 0) {
+        errors.push(`${label}: no runtime exports read`);
+    }
+
+    if (documented.size === 0) {
+        errors.push(`${label}: no documented names read`);
+    }
+
+    for (const name of documented) {
+        if (!values.has(name) && !types.has(name)) {
+            errors.push(`${label}: \`${name}\` is documented but not exported`);
+        }
+    }
+
+    const defaultDocumented = defaultAliases.some((name) => documented.has(name) || name in exempt);
+
+    for (const name of values) {
+        if (name === 'default') {
+            if (!defaultDocumented && !('default' in exempt)) {
+                errors.push(`${label}: the default export is not a documented named export`);
+            }
+
+            continue;
+        }
+
+        if (!documented.has(name) && !(name in exempt)) {
+            errors.push(`${label}: runtime export \`${name}\` is not documented`);
+        }
+    }
+
+    for (const name of types) {
+        if (!documented.has(name) && !declared.has(name) && !(name in typeExempt)) {
+            errors.push(`${label}: type export \`${name}\` is not documented`);
+        }
+    }
+
+    for (const name of Object.keys(exempt)) {
+        if (!values.has(name)) {
+            errors.push(`${label}: stale exemption \`${name}\` (not a runtime export)`);
+        } else if (documented.has(name) || (name === 'default' && defaultDocumented)) {
+            errors.push(`${label}: stale exemption \`${name}\` (it is documented)`);
+        }
+    }
+
+    for (const name of Object.keys(typeExempt)) {
+        if (!types.has(name)) {
+            errors.push(`${label}: stale type exemption \`${name}\` (not a type export)`);
+        } else if (documented.has(name) || declared.has(name)) {
+            errors.push(`${label}: stale type exemption \`${name}\` (it is documented)`);
+        }
+    }
+
+    return errors;
 }

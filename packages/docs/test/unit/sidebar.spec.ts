@@ -18,13 +18,31 @@ const GUIDE_FOLDER = 'guide';
 const PUBLIC_FOLDER = 'public';
 
 /**
- * The `plugin.group` value of a page's frontmatter.
+ * The `plugin.group` value of a page's frontmatter: the `group:` key
+ * indented under the top-level `plugin:` key.
  */
-function readFrontmatterGroup(file: string): string | undefined {
-    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(readFileSync(file, 'utf8'))?.[1] ?? '';
-    const match = /^\s+group:\s*['"]?(.+?)['"]?\s*$/m.exec(frontmatter);
+function readFrontmatterGroup(markdown: string): string | undefined {
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(markdown)?.[1] ?? '';
+    const lines = frontmatter.split(/\r?\n/);
+    const start = lines.findIndex((line) => /^plugin:\s*$/.test(line));
 
-    return match?.[1];
+    if (start === -1) {
+        return undefined;
+    }
+
+    for (const line of lines.slice(start + 1)) {
+        if (/^\S/.test(line)) {
+            break;
+        }
+
+        const match = /^\s+group:\s*(['"]?)(.+?)\1\s*$/.exec(line);
+
+        if (match) {
+            return match[2];
+        }
+    }
+
+    return undefined;
 }
 
 const plugins = [
@@ -146,6 +164,45 @@ describe('definePluginPages', () => {
     });
 });
 
+describe('readFrontmatterGroup', () => {
+    it('reads the group of the plugin block only', () => {
+        expect(readFrontmatterGroup([
+            '---',
+            'title: CORS',
+            'plugin:',
+            '    package: \'@routup/cors\'',
+            '    group: \'Operations\'',
+            '---',
+        ].join('\n'))).toBe('Operations');
+
+        expect(readFrontmatterGroup([
+            '---',
+            'plugin:',
+            '    package: \'@routup/cors\'',
+            '',
+            'meta:',
+            '    group: Wrong',
+            '---',
+        ].join('\n'))).toBeUndefined();
+
+        expect(readFrontmatterGroup([
+            '---',
+            'plugin:',
+            '    package: \'@routup/cors\'',
+            '',
+            'group: Top',
+            '---',
+        ].join('\n'))).toBeUndefined();
+
+        expect(readFrontmatterGroup([
+            '---',
+            'hero:',
+            '    group: Wrong',
+            '---',
+        ].join('\n'))).toBeUndefined();
+    });
+});
+
 describe('PLUGIN_PAGES', () => {
     it('lists every plugin folder of the site', () => {
         const folders = readdirSync(srcRoot, { withFileTypes: true })
@@ -163,7 +220,7 @@ describe('PLUGIN_PAGES', () => {
 
     it('uses the group of each overview frontmatter', () => {
         const errors = PLUGIN_PAGES
-            .map((item) => ({ item, group: readFrontmatterGroup(path.join(srcRoot, item.name, 'index.md')) }))
+            .map((item) => ({ item, group: readFrontmatterGroup(readFileSync(path.join(srcRoot, item.name, 'index.md'), 'utf8')) }))
             .filter(({ item, group }) => group !== item.group)
             .map(({ item, group }) => `${item.name}: sidebar group "${item.group}", frontmatter plugin.group "${group}"`);
 

@@ -24,6 +24,11 @@ export type PluginDocs = {
      */
     exempt?: Record<string, string>;
     /**
+     * Type export -> reason it is neither a documented name nor declared in
+     * a code block of an API page.
+     */
+    typeExempt?: Record<string, string>;
+    /**
      * Options key -> reason it is not in the Options table.
      */
     optionExempt?: Record<string, string>;
@@ -65,6 +70,10 @@ export type EntryDocs = {
      * Runtime export -> reason it is not documented under its own name.
      */
     exempt?: Record<string, string>;
+    /**
+     * Type export -> reason it is not documented under its own name.
+     */
+    typeExempt?: Record<string, string>;
 };
 
 export type NestedOptionsDocs = {

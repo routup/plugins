@@ -74,7 +74,7 @@ Always include `Request` (or `Response`) in the name to stay consistent with rou
 A change to public API, options, defaults or observable behaviour updates the docs in the same change:
 
 - **Docs pages own the reference.** Options, exports and behaviour of a plugin are documented only on its pages under `packages/docs/src/<name>/`; every sample a page shows is a file in `packages/docs/examples/<name>/`, run by `packages/docs/test/unit/examples/<name>.spec.ts`.
-- **The README is a front door.** `packages/<name>/README.md` keeps the pitch, installation, one quick start (the code of `examples/<name>/quick-start.ts`) and links to the docs pages, never an option or export table. `npm test` fails when either drifts from the code (see testing.md).
+- **The README is a front door.** `packages/<name>/README.md` keeps the pitch, installation, one quick start (the code of `examples/<name>/quick-start.ts`) and links to the docs pages, never an option or export table. `npm test` checks the option and export names of the pages and the README shape automatically; types, defaults and behaviour are pinned by the sample specs (see testing.md).
 - **Registering a plugin** with `app.use()` is documented on routup.dev; link to `https://routup.dev/guide/plugins` instead of repeating it.
 - The root `README.md` changes when the feature list, quick start or package table does.
 - `.github/workflows/docs.yml` builds the site on changes under `packages/docs/**` and deploys it on push to `master`.
