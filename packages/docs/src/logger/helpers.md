@@ -35,16 +35,9 @@ declare function compile(format: string): Formatter;
 
 A compiled formatter gets the token map as its first argument. `logger()` merges `defaultTokens` with your `tokens`; outside `logger()`, pass them yourself:
 
-```typescript
-import type { IAppEvent } from 'routup';
-import { compile, defaultTokens, formatStrings } from '@routup/logger';
+<<< @/../examples/logger/compile.ts
 
-declare const event: IAppEvent;
-declare const response: Response | undefined;
-
-const formatter = compile(`${formatStrings.tiny} :user`);
-const line = formatter({ ...defaultTokens, user: () => 'alice' }, event, response);
-```
+Without the start time in `event.store[StartTimeSymbol]`, `:response-time` renders `-`.
 
 ## `resolveFormat()`
 

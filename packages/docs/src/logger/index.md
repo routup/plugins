@@ -49,7 +49,7 @@ The line is written before the response goes out: `:response-time` covers the ha
 - **Errors and unmatched paths log `-` as status.** When a route throws and no [error handler](https://routup.dev/guide/error-handling) answers, or no route matches, the logger gets no `Response`: routup builds the `500` or `404` response after the logger returned. `:status` and `:res[*]` render `-`; the line is still written. An error handler registered after the routes gives the logger its response and status.
 - **`:res[content-length]` is usually `-`.** The tokens read the headers of the `Response` the handlers returned. A plain return value, such as a string or an object, becomes a `Response` without a `Content-Length` header; a `Response` your route returns has the headers you gave it.
 - **Mount order matters.** A request answered by a handler registered before `logger()` is not logged. [Combining Plugins](/guide/combining) has the order with `cors()` and `rateLimit()`.
-- **Logging does not break a request.** An error thrown by `write` is swallowed. An error thrown by a token, a formatter or `skip` is not: the request fails with it.
+- **A failing `write` does not break a request.** An error thrown by `write` is swallowed. An error thrown by a token, a formatter or `skip` is not: the request fails with it.
 
 ## Next Steps
 

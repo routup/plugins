@@ -50,10 +50,12 @@ curl http://localhost:3000/
 <<< @/../examples/logger/file-stream.ts
 
 ```bash
-curl -u ada:secret http://localhost:3000/
+curl -u ada:secret -e https://example.com/ 'http://localhost:3000/?page=2'
 cat access.log
-# ::1 - ada [17/Nov/2026:10:21:03 +0000] "GET / HTTP/1.1" 200 - "-" "curl/8.7.1"
+# ::1 - ada [17/Nov/2026:10:21:03 +0000] "GET /?page=2 HTTP/1.1" 200 - "https://example.com/" "curl/8.7.1"
 ```
+
+The first field is the client address as the server reports it (`::1` for curl on the same machine); it is `-` when there is none, such as for `app.fetch()` in a test.
 
 ## Extend the Dev Format
 

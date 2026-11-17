@@ -11,15 +11,13 @@ import {
 import type { IAppEvent } from 'routup';
 import { App, defineCoreHandler, defineErrorHandler } from 'routup';
 import {
-    StartTimeSymbol,
     compile,
     createHandler,
-    defaultTokens,
-    formatStrings,
     logger,
     resolveFormat,
 } from '@routup/logger';
 import type { Options } from '@routup/logger';
+import { app as compileSample } from '../../../examples/logger/compile';
 import { app as customFormat } from '../../../examples/logger/custom-format';
 import { app as extendDev } from '../../../examples/logger/extend-dev';
 import { accessLog, app as fileStream } from '../../../examples/logger/file-stream';
@@ -77,6 +75,7 @@ afterEach(() => {
 
 afterAll(() => {
     rmSync(logDir, { recursive: true, force: true });
+    delete process.env.ACCESS_LOG;
 });
 
 describe('quick-start', () => {
@@ -399,25 +398,13 @@ describe('helpers stated on the pages', () => {
         expect(() => compile(42 as unknown as string)).toThrow(TypeError);
     });
 
-    it('compiles a derived preset that runs outside logger()', async () => {
-        let line: string | undefined;
-        const formatter = compile(`${formatStrings.tiny} :user`);
-        const app = new App();
+    it('compiles a derived preset that runs outside logger(), with the response time', async () => {
+        const lines = captureConsole();
 
-        app.use(defineCoreHandler(async (event) => {
-            event.store[StartTimeSymbol] = performance.now();
+        await get(compileSample, '/');
 
-            const response = await event.next();
-
-            line = formatter({ ...defaultTokens, user: () => 'alice' }, event, response);
-
-            return response;
-        }));
-        app.get('/', defineCoreHandler(() => 'ok'));
-
-        await get(app, '/');
-
-        expect(line).toMatch(/^GET \/ 200 - - \d+\.\d{3} ms alice$/);
+        expect(lines).toHaveLength(1);
+        expect(lines[0]).toMatch(/^GET \/ 200 - - \d+\.\d{3} ms alice$/);
     });
 
     it('builds the same handler with createHandler', async () => {
