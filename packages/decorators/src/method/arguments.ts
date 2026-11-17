@@ -20,15 +20,21 @@ export async function buildDecoratorMethodArguments(
     // The last declaration of an index wins (an override's after the
     // inherited one, the outer of two stacked decorators), and only its
     // extractor runs, so a shadowed one neither reads nor rejects the request.
-    const winners = new Map<number, DecoratorParameterOptions>();
+    // Indexes are compared as property keys, as the assignment does, and the
+    // winners run in list order.
+    const last : Record<PropertyKey, number> = Object.create(null);
 
-    for (const parameter of parameters) {
-        winners.set(parameter.index, parameter);
+    for (const [position, parameter] of parameters.entries()) {
+        last[parameter.index] = position;
     }
 
     const items: unknown[] = [];
 
-    for (const parameter of winners.values()) {
+    for (const [position, parameter] of parameters.entries()) {
+        if (last[parameter.index] !== position) {
+            continue;
+        }
+
         if (parameter.type === ParameterType.CONTEXT) {
             items[parameter.index] = context.event;
 
