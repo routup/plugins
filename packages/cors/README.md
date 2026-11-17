@@ -36,7 +36,7 @@ A browser on another origin sends an `OPTIONS` preflight before most API calls a
 |---------|-----------|-------------------|
 | Preflight | You register an `OPTIONS` handler per route (or a catch-all) and set the status and headers yourself | Every `OPTIONS` request with `Origin` and `Access-Control-Request-Method` gets a `204` with `Content-Length: 0` |
 | Origin allow-list | You compare the `Origin` header against a list and echo it back | `origin` takes a string, `RegExp`, array or function; on a match the request origin is reflected |
-| Cache correctness | You remember to append `Vary: origin` and `Vary: access-control-request-headers` | `Vary` is appended (not overwritten) whenever the response depends on the request |
+| Cache correctness | You remember to append `Vary: origin` and `Vary: access-control-request-headers` | `Vary: origin` when `Access-Control-Allow-Origin` is sent with a value other than `*`, `Vary: access-control-request-headers` with `Access-Control-Allow-Headers`; appended, not overwritten |
 | Credentials | A literal `*` in `Access-Control-Allow-Methods` is ignored by the browser under credentials | `methods: '*'` expands to `GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS`, `allowHeaders: '*'` mirrors the request, and unsafe `'*'` combinations log a warning |
 | Per-route use | Copy the header logic into each handler | `handleCors(event, options)` does the same work inside one handler |
 

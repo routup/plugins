@@ -65,7 +65,7 @@ Called without options, `cors()` allows every origin.
 - **Set, not appended.** The `Access-Control-*` headers overwrite values already on `event.response.headers`; `Vary` values are appended to existing ones.
 - **The preflight response is a new `Response`.** It copies the headers already on `event.response`, so a handler registered before the plugin can still add headers to it.
 - **A route's own `Response` gets no headers.** The plugin sets the headers on `event.response`, so a route that returns a `Response` object sends none of them. Return a value instead, or build the `Response` with `event.response.headers`. The `404` and error responses routup builds, and the answer of an [error handler](https://routup.dev/guide/error-handling), carry them.
-- **Order with other plugins.** Register `cors()` before a rate limiter, so a preflight is not counted and a `429` carries the CORS headers: [Combining Plugins](/guide/combining).
+- **Order with other plugins.** Register `cors()` before a rate limiter: [Combining Plugins](/guide/combining).
 
 ## Next Steps
 

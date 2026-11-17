@@ -401,6 +401,20 @@ describe('behaviour stated on the pages', () => {
         expect(none.headers.get('access-control-allow-origin')).toBeNull();
     });
 
+    it('does not call an origin function for a request without an Origin header', async () => {
+        const origin = vi.fn(() => true);
+        const app = create({ origin });
+
+        const response = await get(app, '/');
+
+        expect(origin).not.toHaveBeenCalled();
+        expect(response.headers.get('access-control-allow-origin')).toBeNull();
+
+        await get(app, '/', { origin: APP_ORIGIN });
+
+        expect(origin).toHaveBeenCalledWith(APP_ORIGIN);
+    });
+
     it('matches a RegExp with the g flag the same way on every request', async () => {
         const app = create({ origin: /example\.com$/g });
 
