@@ -58,11 +58,11 @@ The default store, [`MemoryStore`](/rate-limit/helpers#memorystore), keeps the c
 | `RateLimit-Limit` | The quota (`max`) for this request |
 | `RateLimit-Remaining` | Requests left in the current window, never below `0` |
 | `RateLimit-Reset` | Seconds until the store resets the counter (only when the store returns a `resetTime`) |
-| `Retry-After` | `windowMs` in whole seconds, only on a rejected request |
+| `Retry-After` | `windowMs` in seconds, rounded up, only on a rejected request |
 
 `Retry-After` is always the full window, not the time left until the reset; `RateLimit-Reset` carries the time left.
 
-The headers are set on `event.response`, so a route that returns a `Response` object of its own sends none of them.
+The headers are set on `event.response`, so a route that returns a `Response` object of its own sends none of them, except `RateLimit-Remaining` when `skipFailedRequest` or `skipSuccessfulRequest` uncounts the request.
 
 ## Next Steps
 

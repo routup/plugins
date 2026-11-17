@@ -293,6 +293,19 @@ describe('behaviour stated on the pages', () => {
         expect(response.headers.get('ratelimit-limit')).toBeNull();
     });
 
+    it('keeps only RateLimit-Remaining on a returned Response that is uncounted', async () => {
+        const app = new App();
+
+        app.use(rateLimit({ skipSuccessfulRequest: true }));
+        app.get('/', defineCoreHandler(() => new Response('raw')));
+
+        const response = await app.fetch(request('/'));
+
+        expect(response.headers.get('ratelimit-remaining')).toBe('5');
+        expect(response.headers.get('ratelimit-limit')).toBeNull();
+        expect(response.headers.get('ratelimit-reset')).toBeNull();
+    });
+
     it('judges a thrown error by the error handler, or counts it when none answers', async () => {
         const handled = new App();
 

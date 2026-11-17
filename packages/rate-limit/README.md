@@ -66,7 +66,7 @@ app.use(rateLimit({
 app.get('/', defineCoreHandler(() => 'Hello, World!'));
 ```
 
-`rateLimit()` returns a routup handler: mount it with `app.use()` before the routes it guards. Each counted response carries `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`; the 101st request in the window gets `429` with `Retry-After`.
+The sample exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file. `rateLimit()` returns a routup handler: mount it with `app.use()` before the routes it guards. Each counted response carries `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`; the 101st request in the window gets `429` with `Retry-After`.
 
 ## Documentation
 

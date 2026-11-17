@@ -12,7 +12,7 @@ relatedPlugins: [rate-limit-redis]
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `windowMs` | `number` | `60000` (1 minute) | Time frame in ms for which hits are remembered; also the `Retry-After` value |
+| `windowMs` | `number` | `60000` (1 minute) | Time frame in ms for which hits are remembered; also the `Retry-After` value (in seconds) |
 | `max` | `number \| (event) => number \| Promise<number>` | `5` | Requests allowed per window per key; `0` never rejects |
 | `message` | `any \| (event) => any \| Promise<any>` | `'Too many requests, please try again later.'` | Response body of a rejected request (default `handler` only) |
 | `statusCode` | `number` | `429` | Response status of a rejected request (default `handler` only) |
@@ -26,7 +26,7 @@ relatedPlugins: [rate-limit-redis]
 
 ### `windowMs`
 
-The window length in milliseconds. The default `MemoryStore` clears all counters together every `windowMs`, counted from when `rateLimit()` was called ([`MemoryStore`](/rate-limit/helpers#memorystore)). In whole seconds, it is also the `Retry-After` value of a rejected request ([Response Headers](/rate-limit/#response-headers)).
+The window length in milliseconds. The default `MemoryStore` clears all counters together every `windowMs`, counted from when `rateLimit()` was called ([`MemoryStore`](/rate-limit/helpers#memorystore)). In seconds, rounded up, it is also the `Retry-After` value of a rejected request ([Response Headers](/rate-limit/#response-headers)).
 
 ### `max`
 
