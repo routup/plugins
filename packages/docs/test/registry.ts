@@ -138,4 +138,9 @@ export const PLUGINS: PluginDocs[] = [
         optionsPage: 'configuration.md',
         apiPages: ['helpers.md'],
     },
+    {
+        // no options type: the constructor argument is documented by hand
+        name: 'rate-limit-redis',
+        apiPages: ['index.md'],
+    },
 ];

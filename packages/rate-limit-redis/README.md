@@ -17,15 +17,13 @@
 </p>
 
 <p align="center">
-    <a href="#installation"><b>Installation</b></a>
+    <a href="https://plugins.routup.dev/rate-limit-redis/"><b>Docs</b></a>
     ·
-    <a href="#usage">Usage</a>
+    <a href="https://plugins.routup.dev/rate-limit-redis/#connecting-to-redis">Connecting to Redis</a>
     ·
-    <a href="#options">Options</a>
+    <a href="https://plugins.routup.dev/rate-limit-redis/#redisstore">RedisStore</a>
     ·
-    <a href="#api">API</a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit-redis/">Docs</a>
+    <a href="https://plugins.routup.dev/rate-limit-redis/#recipes">Recipes</a>
 </p>
 
 ---
@@ -42,124 +40,42 @@ The default `MemoryStore` of [`@routup/rate-limit`](https://www.npmjs.com/packag
 | Expiry | All counters cleared together every `windowMs` | Each key has a TTL of `windowMs`, renewed on every hit |
 | Extra infrastructure | None | A Redis server |
 
-```typescript
-import { App, serve } from 'routup';
-import { rateLimit } from '@routup/rate-limit';
-import { RedisStore } from '@routup/rate-limit-redis';
-
-const app = new App();
-
-// Apply the rate limiting middleware to API calls only
-app.use('/api', rateLimit({
-    // 15 minutes
-    windowMs: 15 * 60 * 1000,
-
-    // Limit each IP to 100 requests
-    // per `window` (here, per 15 minutes)
-    max: 100,
-
-    // connects to localhost:6379; pass a connection string
-    // (new RedisStore('redis://...')) or an existing client instead
-    store: new RedisStore(),
-}));
-
-serve(app, { port: 3000 });
-```
-
 ## Installation
 
 ```bash
 npm install @routup/rate-limit-redis @routup/rate-limit redis-extension ioredis
 ```
 
-ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `routup@^6.3.0`, `@routup/rate-limit@^4.0.2` and `redis-extension@^3.0.0` (marked optional in `package.json`, but the store imports it, so install it). Install `ioredis@^6` as well; it is a peer dependency of `redis-extension`.
+ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `routup@^6.3.0`, `@routup/rate-limit@^4.0.3` and `redis-extension@^3.0.0` (marked optional in `package.json`, but the store imports it, so install it). Install `ioredis@^6` as well; it is a peer dependency of `redis-extension`.
 
-## Usage
-
-All limiter options (`windowMs`, `max`, `keyGenerator`, `skip`, `handler`, ...) belong to `@routup/rate-limit`; see its [options reference](https://plugins.routup.dev/rate-limit/configuration). This package only provides the `store`.
-
-### Connect with a connection string
+## Quick Start
 
 ```typescript
+import { App, defineCoreHandler } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 import { RedisStore } from '@routup/rate-limit-redis';
 
-const limiter = rateLimit({
-    store: new RedisStore('redis://user:pass@localhost:6379/0'),
-});
+export const app = new App();
+
+// 100 requests per client every 15 minutes, counted in Redis
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    // without an argument: a client for localhost:6379
+    store: new RedisStore(),
+}));
+
+app.get('/', defineCoreHandler(() => 'Hello, World!'));
 ```
 
-With a connection string, the store creates its own ioredis client through redis-extension's `createClient({ url })`.
+The sample exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file. Pass a Redis URL (`new RedisStore('redis://...')`) or an existing ioredis client to connect elsewhere.
 
-### Share an existing client
+## Documentation
 
-```typescript
-import { createClient } from 'redis-extension';
-import { rateLimit } from '@routup/rate-limit';
-import { RedisStore } from '@routup/rate-limit-redis';
+The full reference lives on [plugins.routup.dev](https://plugins.routup.dev/rate-limit-redis/):
 
-declare const redisUrl: string;
-
-// the client your app already uses
-const client = createClient({ url: redisUrl });
-
-const limiter = rateLimit({
-    store: new RedisStore(client),
-});
-```
-
-- The constructor accepts any ioredis client (`Client` from redis-extension, or `new Redis(...)` from `ioredis`).
-- Without an argument, the store creates a client for `localhost:6379`.
-
-### Change the key prefix
-
-```typescript
-import { RedisStore } from '@routup/rate-limit-redis';
-
-class LoginStore extends RedisStore {
-    protected override buildKey(key: string) {
-        return `rate-limit:login:${key}`;
-    }
-}
-```
-
-Keys are `rate-limit:<key>` by default, where `<key>` is the result of the limiter's `keyGenerator`. Override the protected `buildKey()` to give two limiters on the same Redis separate counters.
-
-## Options
-
-`new RedisStore(input?)`
-
-| Argument | Type | Default | Description |
-|----------|------|---------|-------------|
-| `input` | `string \| Client` | `undefined` | Redis URL for a dedicated client, or an existing ioredis client to share. When omitted, the store creates a client for `localhost:6379` |
-
-The window length comes from the limiter: `init()` receives the `@routup/rate-limit` options and the store uses their `windowMs` as the key TTL.
-
-## API
-
-| Export | Kind | Purpose |
-|--------|------|---------|
-| `RedisStore` | class (also the default export) | `Store` implementation for `@routup/rate-limit` backed by Redis |
-
-### `RedisStore`
-
-| Member | Description |
-|--------|-------------|
-| `client` | The ioredis client in use |
-| `options` | The limiter options passed to `init()` |
-| `init(options)` | Called by the limiter; stores the options |
-| `increment(key)` | Reads the counter, adds 1, writes it back with `PX windowMs`; returns `{ totalHits, resetTime }` with `resetTime` = now + `windowMs` |
-| `decrement(key)` | Subtracts 1 and writes it back with a fresh TTL; does nothing when the key does not exist |
-| `reset(key)` | Deletes the key. Not called by the limiter; call it yourself, for example after a successful login |
-| `buildKey(key)` | Protected; returns `rate-limit:<key>` |
-
-## Notes
-
-- **The TTL is renewed on every hit.** Each increment writes the key with `PX windowMs`, so a client that keeps sending requests at least once per window never sees its counter expire and stays blocked until it pauses for a full `windowMs`. This differs from the fixed window of `MemoryStore`.
-- **Increments are not atomic.** The store does `GET` then `SET`, not `INCR`. Concurrent requests for the same key, from one instance or several, can read the same value and undercount.
-- **`decrement()` does not wait for Redis.** The `SET` is not awaited, so a Redis error there is not reported to the limiter.
-- **Redis errors reject the request.** When `increment()` fails (for example Redis is down), the error propagates out of the middleware; the request is not let through.
-- **Connection lifetime is yours.** The store never closes its client. Call `quit()` on `store.client` on shutdown.
+- [Overview](https://plugins.routup.dev/rate-limit-redis/): requirements, connecting to Redis, how keys, TTLs and resets work, `RedisStore` and recipes
+- [@routup/rate-limit](https://plugins.routup.dev/rate-limit/): the limiter options and response headers
 
 ## License
 
