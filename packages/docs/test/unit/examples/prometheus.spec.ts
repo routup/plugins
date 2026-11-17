@@ -4,6 +4,7 @@ import {
     describe,
     expect,
     it,
+    vi,
 } from 'vitest';
 import type { LabelValues, OpenMetricsContentType } from 'prom-client';
 import { Registry, register } from 'prom-client';
@@ -53,6 +54,7 @@ beforeEach(() => {
 
 afterEach(() => {
     delete process.env.METRICS_TOKEN;
+    vi.restoreAllMocks();
 });
 
 function get(app: App, path: string, init: RequestInit = {}): Promise<Response> {
@@ -363,6 +365,45 @@ describe('behaviour stated on the pages', () => {
         new App().use(prometheus({ registry }));
 
         expect(() => new App().use(prometheus({ registry }))).toThrow('has already been registered');
+    });
+
+    it('uses the default histogram buckets and summary percentiles', async () => {
+        const histogram = create({}, (target) => {
+            target.get('/', defineCoreHandler(() => 'ok'));
+        });
+        const summaryApp = create({ requestDurationType: 'summary' }, (target) => {
+            target.get('/', defineCoreHandler(() => 'ok'));
+        });
+
+        await get(histogram.app, '/');
+        await get(summaryApp.app, '/');
+
+        expect((await histogram.registry.metrics()).match(/le="[^"]+"/g)).toEqual([
+            'le="0.003"',
+            'le="0.03"',
+            'le="0.1"',
+            'le="0.3"',
+            'le="1.5"',
+            'le="10"',
+            'le="+Inf"',
+        ]);
+        expect((await summaryApp.registry.metrics()).match(/quantile="[^"]+"/g)).toEqual([
+            'quantile="0.5"',
+            'quantile="0.75"',
+            'quantile="0.95"',
+            'quantile="0.98"',
+            'quantile="0.99"',
+            'quantile="0.999"',
+        ]);
+    });
+
+    it('reports uptime in whole seconds since the install', async () => {
+        const now = vi.spyOn(performance, 'now').mockReturnValue(10_000);
+        const { registry } = create({ requestDuration: false });
+
+        now.mockReturnValue(12_999);
+
+        expect(await registry.metrics()).toMatch(/^http_uptime 2$/m);
     });
 
     it('uses the given names, turns metrics off and ignores uptimeLabels', async () => {

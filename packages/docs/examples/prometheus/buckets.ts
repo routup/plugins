@@ -8,7 +8,7 @@ export const app = new App();
 
 app.use(prometheus({
     registry,
-    // seconds; spread over the defaults of prom-client's Histogram
+    // seconds; spread over the plugin's histogram defaults, replacing its buckets
     requestDurationHistogram: { buckets: [0.005, 0.01, 0.05, 0.1, 0.5, 1] },
 }));
 
