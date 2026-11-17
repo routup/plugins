@@ -2,17 +2,17 @@
 
 ## Plugin Pattern
 
-Every plugin is a factory function that returns a `Plugin` object compatible with routup's `Router.use()`:
+Every plugin is a factory function that returns a routup `Plugin` object, registered with `app.use()`:
 
 ```typescript
-// module.ts — standard plugin structure
+// module.ts: standard plugin structure
 import type { Plugin } from 'routup';
 
 export function myPlugin(options?: MyPluginOptions): Plugin {
     return {
         name: 'myPlugin',
-        install: (router) => {
-            router.use(createHandler(options));
+        install: (app) => {
+            app.use(createHandler(options));
         },
     };
 }
@@ -20,44 +20,40 @@ export function myPlugin(options?: MyPluginOptions): Plugin {
 export default myPlugin;
 ```
 
-The `Plugin` interface requires:
-- `name` — unique identifier string
-- `install(router)` — called when the plugin is registered on a router
+The `Plugin` type requires:
+- `name`: unique identifier string
+- `install(app)`: called with the `App` when the plugin is registered with `app.use()`
 
 ## Handler Pattern
 
-Handlers are created via factory functions that return routup `Handler` functions:
+Handlers are created via factory functions that return routup handlers:
 
 ```typescript
-// handler.ts — typical handler factory
-import { coreHandler } from 'routup';
+// handler.ts: typical handler factory
+import { defineCoreHandler } from 'routup';
 
 export function createHandler(options?: Options) {
-    return coreHandler((req, res, next) => {
-        // Middleware logic
-        next();
+    return defineCoreHandler((event) => {
+        // middleware logic
+        return event.next();
     });
 }
 ```
 
 ## Request/Response Helpers
 
-Plugins expose `useRequest*` and `useResponse*` utility functions for consumers to access parsed data:
+Plugins expose standalone helpers that take the event (`readRequestBody(event)`, `useRequestCookies(event)`, `setResponseCookie(event, ...)`). Parsed data lives in `event.store` under a symbol of the plugin, which keeps plugins decoupled:
 
 ```typescript
-// request.ts — accessor pattern
-import { useRequestParam } from 'routup';
+// request.ts: accessor pattern
+import type { IAppEvent } from 'routup';
 
-export function useRequestBody(req: Request): unknown {
-    return useRequestParam(req, 'body');
-}
+const CookieSymbol = Symbol.for('@routup/cookie:ReqCookie');
 
-export function setRequestBody(req: Request, value: unknown): void {
-    setRequestParam(req, 'body', value);
+export function useRequestCookies(event: IAppEvent): Record<string, string> {
+    return (event.store[CookieSymbol] ?? {}) as Record<string, string>;
 }
 ```
-
-This pattern stores data on the request object via routup's param system, keeping plugins decoupled.
 
 ## Package Entry Points
 
