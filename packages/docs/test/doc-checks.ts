@@ -197,6 +197,18 @@ export function readHiddenNames(markdown: string): string[] {
         .map((heading) => heading.text);
 }
 
+/**
+ * Names of the headings of one level that are exactly one backticked
+ * identifier (optionally `()` inside the backticks).
+ */
+export function readHeadingNames(markdown: string, level: 2 | 3): string[] {
+    return readLines(markdown)
+        .map((line) => line.heading)
+        .filter((heading): heading is Heading => heading?.level === level)
+        .map((heading) => EXACT_NAME.exec(heading.text)?.[1])
+        .filter((name): name is string => !!name);
+}
+
 // ---------------------------------------------------------------------------
 
 const TSCONFIG = fileURLToPath(new URL('../tsconfig.json', import.meta.url));
@@ -228,6 +240,15 @@ function readModule(entryFile: string): { checker: ts.TypeChecker; symbol: ts.Sy
 
     if (!program) {
         program = ts.createProgram({ rootNames: [file], options: readCompilerOptions() });
+
+        // an `export * from` a module that does not resolve adds no names
+        // and no declaration to check, only a diagnostic in the entry file
+        const errors = program.getSemanticDiagnostics(program.getSourceFile(file));
+
+        if (errors.length > 0) {
+            throw new Error(`${file}: ${errors.map((error) => ts.flattenDiagnosticMessageText(error.messageText, '\n')).join('; ')}`);
+        }
+
         programs.set(file, program);
     }
 
@@ -264,16 +285,26 @@ export function readTypeKeys(entryFile: string, typeName: string): string[] {
 
 /**
  * Exports of a module, split into runtime values (functions, classes,
- * constants) and type-only exports. A re-export whose target does not
- * resolve throws, so a broken barrel is not mistaken for a smaller API.
+ * constants, `default`) and type-only exports. `defaultAlias` names the
+ * export that resolves to the same declaration as the default export, if
+ * any. A re-export whose target does not resolve throws, as does any
+ * semantic error in the entry file, so a broken barrel is not mistaken for
+ * a smaller API.
  */
-export function readExports(entryFile: string): { values: Set<string>; types: Set<string> } {
+export function readExports(entryFile: string): {
+    values: Set<string>;
+    types: Set<string>;
+    defaultAlias: string | undefined;
+} {
     const { checker, symbol } = readModule(entryFile);
     const values = new Set<string>();
     const types = new Set<string>();
+    const targets = new Map<string, ts.Symbol>();
 
     for (const exported of checker.getExportsOfModule(symbol)) {
         const target = resolveSymbol(checker, exported);
+
+        targets.set(exported.name, target);
 
         if (!target.declarations || target.declarations.length === 0) {
             throw new Error(`${entryFile}: export "${exported.name}" does not resolve to a declaration`);
@@ -286,5 +317,14 @@ export function readExports(entryFile: string): { values: Set<string>; types: Se
         }
     }
 
-    return { values, types };
+    const defaultTarget = targets.get('default');
+    const defaultAlias = defaultTarget ?
+        targets.entries().find(([name, target]) => name !== 'default' && target === defaultTarget)?.[0] :
+        undefined;
+
+    return {
+        values,
+        types,
+        defaultAlias,
+    };
 }

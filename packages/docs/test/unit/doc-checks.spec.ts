@@ -11,6 +11,7 @@ import {
 import {
     readDocumentedNames,
     readExports,
+    readHeadingNames,
     readHiddenNames,
     readOptionTableNames,
     readTypeKeys,
@@ -19,6 +20,9 @@ import {
 let dir: string;
 let entry: string;
 let broken: string;
+let star: string;
+let withDefault: string;
+let otherDefault: string;
 
 beforeAll(() => {
     dir = mkdtempSync(path.join(tmpdir(), 'doc-checks-'));
@@ -38,6 +42,15 @@ beforeAll(() => {
     broken = path.join(dir, 'broken.ts');
     writeFileSync(broken, 'export * from \'./nested\';\n');
     writeFileSync(path.join(dir, 'nested.ts'), 'export { missing } from \'./does-not-exist\';\n');
+
+    star = path.join(dir, 'star.ts');
+    writeFileSync(star, 'export * from \'./nope\';\nexport const kept = 1;\n');
+
+    withDefault = path.join(dir, 'with-default.ts');
+    writeFileSync(withDefault, 'import { helper } from \'./helper\';\n\nexport { helper };\nexport default helper;\n');
+
+    otherDefault = path.join(dir, 'other-default.ts');
+    writeFileSync(otherDefault, 'export const named = 1;\nexport default function other(): void {}\n');
 });
 
 afterAll(() => {
@@ -137,6 +150,22 @@ describe('readExports', () => {
     it('throws on a nested re-export that does not resolve', () => {
         expect(() => readExports(broken)).toThrow(/missing/);
     });
+
+    it('throws on an export * whose module does not resolve', () => {
+        expect(() => readExports(star)).toThrow(/nope/);
+    });
+
+    it('names the export the default export aliases', () => {
+        const result = readExports(withDefault);
+
+        expect([...result.values].sort()).toEqual(['default', 'helper']);
+        expect(result.defaultAlias).toBe('helper');
+    });
+
+    it('has no default alias when the default export is a declaration of its own', () => {
+        expect(readExports(otherDefault).defaultAlias).toBeUndefined();
+        expect(readExports(entry).defaultAlias).toBeUndefined();
+    });
 });
 
 describe('readDocumentedNames', () => {
@@ -196,6 +225,24 @@ describe('readDocumentedNames', () => {
         ].join('\n');
 
         expect(readDocumentedNames(markdown)).toEqual(['afterFence']);
+    });
+});
+
+describe('readHeadingNames', () => {
+    it('reads single-identifier headings of one level, outside fences', () => {
+        const markdown = [
+            '## `two`',
+            '### `three`',
+            '   ### `indented()`',
+            '### `X<T>` y',
+            '### Plain',
+            '```',
+            '### `fenced`',
+            '```',
+        ].join('\n');
+
+        expect(readHeadingNames(markdown, 3)).toEqual(['three', 'indented']);
+        expect(readHeadingNames(markdown, 2)).toEqual(['two']);
     });
 });
 

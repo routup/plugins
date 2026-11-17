@@ -6,6 +6,7 @@ import { PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
 import {
     readDocumentedNames,
     readExports,
+    readHeadingNames,
     readHiddenNames,
     readOptionTableNames,
     readTypeKeys,
@@ -50,11 +51,19 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
         const keys = readTypeKeys(entry, plugin.optionsType);
         const exempt = plugin.optionExempt ?? {};
-        const table = readOptionTableNames(readPage(plugin.name, plugin.optionsPage!));
+        const optionsPage = readPage(plugin.name, plugin.optionsPage!);
+        const table = readOptionTableNames(optionsPage);
 
         expect(keys.length, `${plugin.name}: no keys read from ${plugin.optionsType}`).toBeGreaterThan(0);
 
-        const errors: string[] = [];
+        const errors: string[] = readHiddenNames(optionsPage)
+            .map((text) => `${plugin.name}/${plugin.optionsPage}: heading "${text}" is not a single backticked name`);
+
+        for (const name of readHeadingNames(optionsPage, 3)) {
+            if (!keys.includes(name)) {
+                errors.push(`${plugin.name}/${plugin.optionsPage}: heading \`${name}\` is not a key of ${plugin.optionsType}`);
+            }
+        }
 
         for (const key of keys) {
             if (!(key in exempt) && !table.includes(key)) {
@@ -82,7 +91,11 @@ describe.each(PLUGINS)('$name', (plugin) => {
     });
 
     it('documents every runtime export and only real exports', () => {
-        const { values, types } = readExports(entry);
+        const {
+            values,
+            types,
+            defaultAlias,
+        } = readExports(entry);
         const exempt = plugin.exempt ?? {};
         const documented = new Set<string>();
         const hidden: string[] = [];
@@ -99,6 +112,11 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
         const errors: string[] = [...hidden];
 
+        // the default export counts as documented when it is a documented named export
+        if (values.has('default') && defaultAlias && documented.has(defaultAlias)) {
+            documented.add('default');
+        }
+
         for (const name of documented) {
             if (!values.has(name) && !types.has(name)) {
                 errors.push(`${plugin.name}: \`${name}\` is documented but not exported`);
@@ -107,7 +125,9 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
         for (const name of values) {
             if (!documented.has(name) && !(name in exempt)) {
-                errors.push(`${plugin.name}: runtime export \`${name}\` is not documented`);
+                errors.push(name === 'default' ?
+                    `${plugin.name}: the default export is not a documented named export` :
+                    `${plugin.name}: runtime export \`${name}\` is not documented`);
             }
         }
 
@@ -124,10 +144,21 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
     it('keeps the README a front door to the docs', () => {
         const readme = readFileSync(path.join(packagesRoot, plugin.name, 'README.md'), 'utf8');
-        const headings = readme.split(/\r?\n/).filter((line) => /^##\s+(Options|API|Notes)\b/.test(line));
+        const headings = readme.split(/\r?\n/).filter((line) => /^#{2,3}\s+(Options|API|Notes|Usage)\b/.test(line));
 
         expect(headings, `${plugin.name}: README sections that belong on the docs site`).toEqual([]);
         expect(readme).toContain(`https://plugins.routup.dev/${plugin.name}/`);
+    });
+
+    it('has the docs quick start as the README quick start', () => {
+        const normalize = (input: string) => input.replace(/\r\n/g, '\n').trim();
+        const sample = path.join(docsRoot, 'examples', plugin.name, 'quick-start.ts');
+
+        expect(existsSync(sample), `${plugin.name}: examples/${plugin.name}/quick-start.ts is missing`).toBe(true);
+
+        const readme = readFileSync(path.join(packagesRoot, plugin.name, 'README.md'), 'utf8');
+
+        expect(normalize(readme), `${plugin.name}: README does not contain quick-start.ts`).toContain(normalize(readFileSync(sample, 'utf8')));
     });
 
     it('lists exactly the pages of its folder in the sidebar', () => {

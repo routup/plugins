@@ -35,6 +35,5 @@ export const PLUGINS: PluginDocs[] = [
         optionsType: 'Options',
         optionsPage: 'configuration.md',
         apiPages: ['helpers.md'],
-        exempt: { default: 'the default export is rateLimit(), documented under its name' },
     },
 ];

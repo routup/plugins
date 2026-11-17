@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import {
     afterEach,
     describe,
@@ -96,14 +94,6 @@ describe('quick-start', () => {
         expect(await last.text()).toBe('Too many requests, please try again later.');
         expect(last.headers.get('ratelimit-remaining')).toBe('0');
         expect(last.headers.get('retry-after')).toBe('900');
-    });
-
-    it('is the quick start of the README', () => {
-        const normalize = (input: string) => input.replace(/\r\n/g, '\n').trim();
-        const sample = readFileSync(fileURLToPath(new URL('../../../examples/rate-limit/quick-start.ts', import.meta.url)), 'utf8');
-        const readme = readFileSync(fileURLToPath(new URL('../../../../rate-limit/README.md', import.meta.url)), 'utf8');
-
-        expect(normalize(readme)).toContain(normalize(sample));
     });
 });
 

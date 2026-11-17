@@ -1,26 +1,6 @@
 import { defineRoutupConfig } from '@routup/docs-theme/config';
-import { buildSidebar } from './domains/sidebar';
+import { buildSidebar, definePluginPages as plugin } from './domains/sidebar';
 import type { SidebarPlugin } from './domains/types';
-
-const TITLES: Record<string, string> = {
-    'index': 'Overview',
-    'configuration': 'Configuration',
-    'helpers': 'Helpers',
-    'recipes': 'Recipes',
-    'controllers': 'Controllers',
-    'parameters': 'Parameters',
-};
-
-function plugin(name: string, group: string, pages: string[]): SidebarPlugin {
-    return {
-        name,
-        group,
-        pages: pages.map((page) => ({
-            text: TITLES[page] ?? page,
-            link: page === 'index' ? `/${name}/` : `/${name}/${page}`,
-        })),
-    };
-}
 
 /**
  * Every plugin and the pages it has, in sidebar order. A plugin's pages are

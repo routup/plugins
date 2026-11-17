@@ -4,6 +4,38 @@
  */
 import type { SidebarGroup, SidebarPlugin } from './types';
 
+/**
+ * Sidebar title per page file name (without `.md`).
+ */
+export const PAGE_TITLES: Record<string, string> = {
+    index: 'Overview',
+    configuration: 'Configuration',
+    helpers: 'Helpers',
+    recipes: 'Recipes',
+    controllers: 'Controllers',
+    parameters: 'Parameters',
+};
+
+/**
+ * One entry of the page list: `index` links to `/<name>/`, any other page
+ * to `/<name>/<page>`. A page name needs a title in `PAGE_TITLES`.
+ */
+export function definePluginPages(name: string, group: string, pages: string[]): SidebarPlugin {
+    return {
+        name,
+        group,
+        pages: pages.map((page) => {
+            const text = PAGE_TITLES[page];
+
+            if (!text) {
+                throw new Error(`${name}: page "${page}" has no entry in PAGE_TITLES`);
+            }
+
+            return { text, link: page === 'index' ? `/${name}/` : `/${name}/${page}` };
+        }),
+    };
+}
+
 export function buildSidebar(plugins: SidebarPlugin[]): Record<string, SidebarGroup[]> {
     const groups: SidebarGroup[] = [
         {
