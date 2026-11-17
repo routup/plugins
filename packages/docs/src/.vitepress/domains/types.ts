@@ -14,3 +14,19 @@ export type PluginGroupEntry = {
     group: PluginGroup;
     plugins: PluginEntry[];
 };
+
+export type SidebarLink = {
+    text: string;
+    link: string;
+};
+
+export type SidebarGroup = {
+    text: string;
+    items: SidebarLink[];
+};
+
+export type SidebarPlugin = {
+    name: string;
+    group: string;
+    pages: SidebarLink[];
+};

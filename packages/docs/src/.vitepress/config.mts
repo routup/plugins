@@ -1,4 +1,47 @@
 import { defineRoutupConfig } from '@routup/docs-theme/config';
+import { buildSidebar } from './domains/sidebar';
+import type { SidebarPlugin } from './domains/types';
+
+const TITLES: Record<string, string> = {
+    'index': 'Overview',
+    'configuration': 'Configuration',
+    'helpers': 'Helpers',
+    'recipes': 'Recipes',
+    'controllers': 'Controllers',
+    'parameters': 'Parameters',
+};
+
+function plugin(name: string, group: string, pages: string[]): SidebarPlugin {
+    return {
+        name,
+        group,
+        pages: pages.map((page) => ({
+            text: TITLES[page] ?? page,
+            link: page === 'index' ? `/${name}/` : `/${name}/${page}`,
+        })),
+    };
+}
+
+/**
+ * Every plugin and the pages it has, in sidebar order. A plugin's pages are
+ * the files in packages/docs/src/<name>/; the registry spec checks that the
+ * two agree for each registered plugin.
+ */
+export const PLUGIN_PAGES: SidebarPlugin[] = [
+    plugin('basic', 'Bundles', ['index', 'configuration']),
+    plugin('body', 'Request & response', ['index', 'configuration', 'helpers']),
+    plugin('cookie', 'Request & response', ['index', 'helpers']),
+    plugin('query', 'Request & response', ['index', 'helpers']),
+    plugin('assets', 'Request & response', ['index', 'configuration']),
+    plugin('decorators', 'Routing patterns', ['index', 'controllers', 'parameters']),
+    plugin('swagger-ui', 'API documentation', ['index']),
+    plugin('cors', 'Operations', ['index', 'helpers']),
+    plugin('logger', 'Operations', ['index', 'helpers']),
+    plugin('rate-limit', 'Operations', ['index', 'configuration']),
+    plugin('rate-limit-redis', 'Operations', ['index']),
+    plugin('prometheus', 'Operations', ['index', 'configuration']),
+    plugin('i18n', 'Operations', ['index']),
+];
 
 export default defineRoutupConfig({
     title: 'Routup Plugins',
@@ -24,52 +67,7 @@ export default defineRoutupConfig({
             { text: 'Plugins', link: '/' },
         ],
 
-        sidebar: [
-            {
-                text: 'Overview',
-                items: [
-                    { text: 'All plugins', link: '/' },
-                ],
-            },
-            {
-                text: 'Bundles',
-                items: [
-                    { text: 'basic', link: '/basic/' },
-                ],
-            },
-            {
-                text: 'Request & response',
-                items: [
-                    { text: 'body', link: '/body/' },
-                    { text: 'cookie', link: '/cookie/' },
-                    { text: 'query', link: '/query/' },
-                    { text: 'assets', link: '/assets/' },
-                ],
-            },
-            {
-                text: 'Routing patterns',
-                items: [
-                    { text: 'decorators', link: '/decorators/' },
-                ],
-            },
-            {
-                text: 'API documentation',
-                items: [
-                    { text: 'swagger-ui', link: '/swagger-ui/' },
-                ],
-            },
-            {
-                text: 'Operations',
-                items: [
-                    { text: 'cors', link: '/cors/' },
-                    { text: 'logger', link: '/logger/' },
-                    { text: 'rate-limit', link: '/rate-limit/' },
-                    { text: 'rate-limit-redis', link: '/rate-limit-redis/' },
-                    { text: 'prometheus', link: '/prometheus/' },
-                    { text: 'i18n', link: '/i18n/' },
-                ],
-            },
-        ],
+        sidebar: buildSidebar(PLUGIN_PAGES),
 
         socialLinks: [
             { icon: 'github', link: 'https://github.com/routup/plugins' },
