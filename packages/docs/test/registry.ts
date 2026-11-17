@@ -143,4 +143,14 @@ export const PLUGINS: PluginDocs[] = [
         name: 'rate-limit-redis',
         apiPages: ['index.md'],
     },
+    {
+        name: 'swagger-ui',
+        optionsType: 'UIOptions',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+        nestedOptions: [
+            { type: 'UIOAuthOptions', heading: '`oauth`' },
+            { type: 'ContentSecurityPolicyInput', heading: '`csp`' },
+        ],
+    },
 ];

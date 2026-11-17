@@ -1,0 +1,19 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Todo API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/todos": {
+            "get": {
+                "summary": "List the todos",
+                "responses": {
+                    "200": {
+                        "description": "The todos"
+                    }
+                }
+            }
+        }
+    }
+}

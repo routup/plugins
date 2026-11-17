@@ -11,7 +11,16 @@ plugin:
 
 # @routup/swagger-ui
 
-`swaggerUI()` mounts [`swagger-ui-dist`](https://www.npmjs.com/package/swagger-ui-dist) at any path and serves a given OpenAPI document.
+Serves [Swagger UI](https://swagger.io/tools/swagger-ui/) for an OpenAPI document under any path of a routup app. The plugin generates the page with your document or its URL, sets `<base href>` from the mount path and serves only the files of `swagger-ui-dist` the page needs.
+
+## Requirements
+
+- Node.js 24 or later, ESM only; the plugin reads the document and the Swagger UI files from the file system
+- `routup` `^6.3.0` (peer dependency)
+- `@types/swagger-ui-dist` `^3.30.5` (peer dependency): the Swagger UI option types that `UIOptions` extends
+- `swagger-ui-dist` `^5.35.0` and `@routup/assets` `^6.0.0` are installed as dependencies; the files are served from the installed `swagger-ui-dist`
+
+`swagger-ui-dist` depends on [`@scarf/scarf`](https://github.com/scarf-sh/scarf-js), whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` in the install environment, or `"scarfSettings": { "enabled": false }` in your `package.json`, to turn it off.
 
 ## Installation
 
@@ -19,70 +28,63 @@ plugin:
 npm install @routup/swagger-ui
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, serve } from 'routup';
-import { swaggerUI } from '@routup/swagger-ui';
+<<< @/../examples/swagger-ui/quick-start.ts
 
-const router = new App();
+`swaggerUI()` is a plugin: register it with `app.use()`, here under `/docs` ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file and open `http://localhost:3000/docs/` in a browser.
 
-router.use('/docs', swaggerUI('./openapi.json'));
+## Default Behaviour
 
-serve(router, { port: 3000 });
-```
+| Step | What happens |
+|------|--------------|
+| Install | At `app.use()`, the plugin reads a file document, checks the options and builds the page; a missing file, invalid JSON or an invalid option throws there |
+| Mount path | The page answers at the mount path, with and without trailing slash, and at `index.html` below it. Without a path it answers at `/` |
+| Base href | `<base href>` is the mount path of the request with a trailing slash, parent apps included: `/api/docs/` for a plugin under `/docs` in an app mounted at `/api`. [`basePath`](/swagger-ui/configuration#basepath) or [`baseURL`](/swagger-ui/configuration#baseurl) prefix it |
+| Requests | Only `GET` and `HEAD` for the [served files](#served-files) are answered. Every other path and method goes to the next handler: `404` when nothing else answers, and routup answers `OPTIONS` itself (`200` with an empty `Allow` header when only the plugin matches) |
+| Layout | `BaseLayout`, without the top bar and its field to load another document ([`layout`](/swagger-ui/configuration#layout)) |
+| Headers | No security headers; [`csp`](/swagger-ui/configuration#csp) and [`securityHeaders`](/swagger-ui/configuration#securityheaders) add them |
 
-Open `http://localhost:3000/docs/` to interact with the document.
+### Served Files
 
-## Document sources
+Paths relative to the mount path:
 
-`swaggerUI(source)` accepts:
+| Path | Content |
+|------|---------|
+| `/`, `/index.html` | The HTML shell; the stock Petstore page of `swagger-ui-dist` is never served |
+| `/swagger-initializer.js` | The bootstrap, generated with the document or its URL and the options |
+| `/index.css` | The page styles; the shell has no inline script or style |
+| `/swagger-ui.css`, `/swagger-ui-bundle.js`, `/swagger-ui-standalone-preset.js`, `/favicon-16x16.png`, `/favicon-32x32.png` | From `swagger-ui-dist` |
+| `/oauth2-redirect.html`, `/oauth2-redirect.js` | From `swagger-ui-dist`, only when an OAuth flow is configured: [`oauth`](/swagger-ui/configuration#oauth) or [`oauth2RedirectUrl`](/swagger-ui/configuration#oauth2redirecturl) is set, or an object or file document declares an `oauth2` or `openIdConnect` security scheme |
 
-- A **filesystem path** to a JSON file: `'./writable/swagger.json'`
-- A **URL** the UI fetches at runtime: `'https://api.example.com/openapi.json'`
-- A **plain object** — useful when you want to merge runtime values (auth servers, environment-specific URLs) before handing the document to the UI
+Everything else in `swagger-ui-dist` (`package.json`, the README, source maps, the ES bundles) is passed on like any other path.
 
-```typescript
-router.use('/docs', swaggerUI({
-    openapi: '3.1.0',
-    info: { title: 'My API', version: '1.0.0' },
-    paths: { /* ... */ },
-}));
-```
+### Document Sources
 
-## Mounting
+The first argument of `swaggerUI()` is the document:
 
-The UI is mounted under whatever path you pass to `router.use()`. `/docs` and `/docs/` both work: the page sets `<base href="/docs/">`, so assets and the default OAuth redirect URL (`oauth2-redirect.html`) resolve inside the mount either way.
+| Argument | Treated as | Notes |
+|----------|------------|-------|
+| An object | The document | Embedded in `swagger-initializer.js` as `spec` |
+| An absolute URL with a protocol other than `file:` | A URL | Passed to Swagger UI as `url`; the browser fetches it, so it must be reachable from the browser and allow CORS on another origin |
+| Any other string | A file path | Read with `JSON.parse` at `app.use()`, relative to the working directory, and embedded as `spec` |
 
-Behind a reverse proxy, `basePath` (`'/api'`) or `baseURL` (`'https://example.com/api'`) prefixes the `<base href>`. `baseURL` must be an absolute `http(s)` URL (anything else throws at setup) and its path is treated as a directory, with or without trailing slash.
+- **JSON only.** YAML files are not supported; convert them or pass the parsed object.
+- **Pass a path, not a `file://` URL.** A `file:///...` string counts as a file, but is then read as a plain path and fails. Convert it with `fileURLToPath()`, as the quick start does.
+- **The file is read once per install.** Changes to the file are picked up only when the app installs the plugin again, usually after a restart.
 
-## Served files
+[Recipes](/swagger-ui/recipes) show an object document and a URL. To produce the document from `@routup/decorators` controllers, see [OpenAPI generation](/decorators/#openapi-generation): generate it at build time, write it to a file and pass the file to `swaggerUI()`.
 
-Only `GET` and `HEAD` are answered. The handler serves the HTML shell (at `/` and `/index.html`), its generated `swagger-initializer.js` and `index.css`, and from `swagger-ui-dist` only `swagger-ui.css`, `swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js` and the two favicons. `oauth2-redirect.html` (with `oauth2-redirect.js`) is served when `oauth` or `oauth2RedirectUrl` is set, or when a document passed as object or file declares an `oauth2`/`openIdConnect` scheme. Any other path or method is passed to the next handler and the router decides the response: `404` when nothing else handles it, while routup answers `OPTIONS` itself (`200` with an empty `Allow` header when only the plugin is mounted).
+## Upgrading to v5
 
-Document values are serialized with `<`, `>`, `&`, U+2028 and U+2029 escaped, so they cannot break out of the bootstrap.
+- **The top bar is left out, not hidden by CSS.** The default layout is `BaseLayout`. Earlier versions used `StandaloneLayout` and hid the top bar with CSS for every layout; with `layout: 'StandaloneLayout'` it is now visible, including its field to load any document by URL.
+- **The `?url=` query parameter is ignored.** A link such as `/docs/?url=https://evil.example/openapi.json` shows the document passed to `swaggerUI()`.
+- **Only `GET` and `HEAD` for the [served files](#served-files) are answered**; every other path and method goes to the next handler, and the OAuth redirect page is served only when an OAuth flow is configured.
+- **`baseURL` is validated, and bound or native function options throw**, both when the plugin is installed.
 
-## Content security policy
+## Next Steps
 
-The shell has no inline script or style, so it works under `script-src 'self'; style-src 'self'`. Set `csp: true` to send the recommended policy on every response (including `304`s), an object to send it with extra sources, or a string to send that policy:
-
-```typescript
-router.use('/docs', swaggerUI('./openapi.json', { csp: true }));
-```
-
-The recommended policy starts with `default-src 'none'` and ends with `frame-ancestors 'none'`, so the fetch directives without a named fallback (objects, frames, manifests) and every framing are blocked; `worker-src 'none'` blocks workers, which would fall back to `script-src` otherwise. To relax it pass an object: its `connectSrc`, `imgSrc`, `origins` and `frameAncestors` are added to the derived sources (`{}` behaves like `true`), e.g. `csp: { frameAncestors: ["'self'"], connectSrc: ['https://extra.example.com'] }`. The `baseURL` origin is added to the fetch directives and `base-uri`, not to `default-src` or `form-action`. It allows `blob:` images and media (binary "Try it out" responses) and adds the document's remote origins (document URL, `urls[]`, root, path and operation `servers`, OAuth token URLs) to `connect-src`. Templated servers are expanded with the `default` and every `enum` value of their variables (up to 64 combinations per server, beyond that only the defaults), and a protocol-relative server (`//api.example.com`) adds its `https:` and `http:` origin. Server values that are not a plain `scheme://host[:port]` origin are dropped. Origins it cannot know (servers of a document loaded by URL, values a visitor types freely into a server variable, an OpenID Connect `token_endpoint` on another origin) need the `csp` object or a string policy. Set `securityHeaders: true` to also send `x-content-type-options: nosniff`, `referrer-policy: no-referrer` and `x-frame-options` (`DENY`, `SAMEORIGIN` for `frameAncestors: ["'self'"]`, omitted for other frame ancestors). `buildContentSecurityPolicy({ connectSrc, imgSrc, origins, frameAncestors })` returns the same policy for your own header; it throws for a source containing whitespace, `;` or `,`. See the [package README](https://github.com/routup/plugins/tree/master/packages/swagger-ui#content-security-policy) for the full policy.
-
-The UI uses `BaseLayout`, without Swagger UI's top bar, so visitors see the configured document only and cannot load others by URL. `layout: 'StandaloneLayout'` brings the top bar back, including its field to load any document by URL (earlier versions hid it with CSS for every layout). The `?url=` query parameter is ignored.
-
-## Install analytics
-
-`swagger-ui-dist` depends on `@scarf/scarf`, whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` to disable it.
-
-## Producing the document
-
-For OpenAPI documents generated from `@routup/decorators` controllers, see [Decorators → OpenAPI generation](/decorators/#openapi-generation). It walks through calling [`@trapi/swagger`](https://github.com/trapi/trapi)'s `generateSwagger()` with the bundled `@routup/decorators/preset`, or using the `trapi` CLI. Run that at build time, write the spec to `./openapi.json` (or wherever), and point `swaggerUI()` at the result so production doesn't recompute it on every boot.
-
-## See also
-
-- [`@routup/decorators` → OpenAPI generation](/decorators/#openapi-generation) — produce the document the UI serves
-- [`@trapi/swagger`](https://github.com/trapi/trapi) — the upstream OpenAPI generator
+- [Configuration](/swagger-ui/configuration): every option, the OAuth options and the content security policy
+- [Helpers](/swagger-ui/helpers): `swaggerUI()`, `createUIHandler()`, `buildContentSecurityPolicy()`, `isFileURL()` and the types
+- [Recipes](/swagger-ui/recipes): an object or URL document, a reverse proxy, OAuth login, embedding in a portal
+- [`@routup/decorators`](/decorators/#openapi-generation): generate the document from decorated controllers
