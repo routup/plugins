@@ -6,6 +6,13 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.3.1](https://github.com/routup/plugins/compare/decorators-v5.3.0...decorators-v5.3.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **decorators:** give a decorated subclass its own metadata ([#877](https://github.com/routup/plugins/issues/877)) ([4940e92](https://github.com/routup/plugins/commit/4940e925f32837a6b719b41af743d9b1897999b6)), closes [#876](https://github.com/routup/plugins/issues/876)
+
 ## [5.3.0](https://github.com/routup/plugins/compare/decorators-v5.2.0...decorators-v5.3.0) (2026-11-16)
 
 
