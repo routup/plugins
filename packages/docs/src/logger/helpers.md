@@ -1,26 +1,54 @@
 ---
-title: Logger — Helpers
-description: Format compiler, preset resolver, and built-in token map.
+title: Logger Helpers
+description: The logger factory, the format compiler, the presets, the built-in tokens and the types.
 relatedPlugins: []
 ---
 
-# Helpers
+# Helpers and API
 
-## `compile`
+Everything `@routup/logger` exports. Options are on [Configuration](/logger/configuration).
 
-Compiles a format string into a `Formatter`. Replaces tokens (`:name`, `:name[arg]`) with the matching token's return value, falling back to `-` when a token is missing.
+## `logger()`
+
+Creates the logging handler. It is also the default export.
+
+```typescript
+declare function logger(options?: Options): Handler;
+declare function logger(format: FormatInput, options?: Options): Handler;
+```
+
+## `createHandler()`
+
+Creates the same handler from an options object only; `logger()` calls it.
+
+```typescript
+declare function createHandler(options?: Options): Handler;
+```
+
+## `compile()`
+
+Compiles a format string into a `Formatter`. Each `:name` or `:name[arg]` becomes the return value of the matching token, or `-` when the token is missing or returns `undefined`. It throws a `TypeError` when `format` is not a string.
 
 ```typescript
 declare function compile(format: string): Formatter;
 ```
 
-## `resolveFormat`
+A compiled formatter gets the token map as its first argument. `logger()` merges `defaultTokens` with your `tokens`; outside `logger()`, pass them yourself:
 
-Resolves a `format` option into a `Formatter`:
-- a function is returned as-is
-- a known preset name (`'tiny'`, `'short'`, `'common'`, `'combined'`, `'dev'`) returns the preset's compiled formatter
-- any other string is treated as a raw format string and compiled
-- `undefined` / non-string / non-function falls back to `'tiny'`
+```typescript
+import type { IAppEvent } from 'routup';
+import { compile, defaultTokens, formatStrings } from '@routup/logger';
+
+declare const event: IAppEvent;
+declare const response: Response | undefined;
+
+const formatter = compile(`${formatStrings.tiny} :user`);
+const line = formatter({ ...defaultTokens, user: () => 'alice' }, event, response);
+```
+
+## `resolveFormat()`
+
+Turns a `format` option into a `Formatter`: a function is returned as is, `'dev'` returns `devFormatter`, `'tiny'`, `'short'`, `'common'` and `'combined'` return the compiled preset, any other string is compiled, and anything else falls back to `'tiny'`.
 
 ```typescript
 declare function resolveFormat(format: unknown): Formatter;
@@ -28,35 +56,50 @@ declare function resolveFormat(format: unknown): Formatter;
 
 ## `formatStrings`
 
-Object map of preset name → format string. Use it to build derived formats:
+Maps the preset names `tiny`, `short`, `common` and `combined` to their format strings ([`format`](/logger/configuration#format)). `dev` is not in the map; it is the `devFormatter` function. Use it to extend a preset: `` logger(`${formatStrings.tiny} :req[x-trace]`) ``.
 
 ```typescript
-import { compile, formatStrings } from '@routup/logger';
-
-const myFormat = compile(`${formatStrings.tiny} :req[x-trace]`);
-```
-
-## `defaultTokens`
-
-The built-in token map. `logger()` already merges `defaultTokens` under any `options.tokens` you supply, so passing custom tokens **extends** the defaults — no manual spread required:
-
-```typescript
-router.use(logger(':method :url :user', {
-    tokens: {
-        user: (event) => event.store.userId as string | undefined,
-    },
-}));
-```
-
-Import `defaultTokens` directly when you call `compile()` yourself or build a `Formatter` outside of `logger()` (where the auto-merge doesn't apply):
-
-```typescript
-import { compile, defaultTokens } from '@routup/logger';
-
-const formatter = compile(':method :url :user');
-const line = formatter({ ...defaultTokens, user: () => 'alice' }, event, response);
+declare const formatStrings: {
+    readonly combined: string;
+    readonly common: string;
+    readonly short: string;
+    readonly tiny: string;
+};
 ```
 
 ## `devFormatter`
 
-The colorized `Formatter` used by `format: 'dev'`. Exported in case you want to wrap it with extra information.
+The `Formatter` behind `format: 'dev'`, with the status coloured by range. [Extend the Dev Format](/logger/recipes#extend-the-dev-format) wraps it.
+
+```typescript
+declare const devFormatter: Formatter;
+```
+
+## `defaultTokens`
+
+The built-in tokens ([`tokens`](/logger/configuration#tokens)), keyed by name without the colon.
+
+```typescript
+declare const defaultTokens: TokenMap;
+```
+
+## `StartTimeSymbol`
+
+The `event.store` key under which the logger stores `performance.now()` when the request reaches it. `:response-time` reads it and renders `-` without it, so set it yourself when you run a formatter outside `logger()`.
+
+```typescript
+declare const StartTimeSymbol: unique symbol;
+```
+
+## Types
+
+| Type | Definition |
+|------|------------|
+| `Options` | The options object ([Configuration](/logger/configuration)) |
+| `FormatInput` | `string \| Formatter`, the type of `format` |
+| `Formatter` | `(tokens: TokenMap, event: IAppEvent, response: Response \| undefined) => string \| undefined` |
+| `Token` | `(event: IAppEvent, response: Response \| undefined, arg?: string) => string \| undefined` |
+| `TokenMap` | `Record<string, Token>` |
+| `PresetFormatName` | `'tiny' \| 'short' \| 'common' \| 'combined'`, the keys of `formatStrings` |
+| `SkipFn` | `(event: IAppEvent, response: Response \| undefined) => boolean`, the type of `skip` |
+| `WriteFn` | `(line: string) => void`, the type of `write` |

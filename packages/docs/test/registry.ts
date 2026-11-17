@@ -103,6 +103,12 @@ export const PLUGINS: PluginDocs[] = [
         apiPages: ['helpers.md'],
     },
     {
+        name: 'logger',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+    },
+    {
         name: 'query',
         optionsType: 'Options',
         optionsPage: 'configuration.md',
