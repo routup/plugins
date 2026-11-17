@@ -1,6 +1,6 @@
 ---
 title: Query
-description: Parse the request URL's query string into a typed map.
+description: Parse the request URL's query string into an object, nested keys and arrays included.
 relatedPlugins: [basic, decorators]
 plugin:
     package: '@routup/query'
@@ -11,7 +11,13 @@ plugin:
 
 # @routup/query
 
-Parses the request URL's query string once per request and caches it on `event.store`. Supports nested keys (`foo[bar]=1`), repeated keys (`tag=a&tag=b`), and the standard `URLSearchParams` decoding.
+Parses the query string of a routup request into an object, nested keys and arrays included. The URL is parsed once per request with [qs](https://github.com/ljharb/qs); handlers read the result instead of walking `URLSearchParams`.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
+- `qs` and `@types/qs` are installed as dependencies
 
 ## Installation
 
@@ -19,39 +25,44 @@ Parses the request URL's query string once per request and caches it on `event.s
 npm install @routup/query
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, defineCoreHandler, serve } from 'routup';
-import { query, useRequestQuery } from '@routup/query';
+<<< @/../examples/query/quick-start.ts
 
-const router = new App();
+`query()` is a plugin: register it with `app.use()` before the routes that read the query ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-router.use(query());
-
-router.get('/', defineCoreHandler((event) => {
-    const q = useRequestQuery(event);
-    return q;
-}));
-
-serve(router, { port: 3000 });
+```bash
+curl -g 'http://localhost:3000/users?page[limit]=10&page[offset]=0&sort=-name'
+# {"page":{"limit":"10","offset":"0"},"sort":"-name"}
 ```
 
-`GET /?foo=bar&tag=a&tag=b` resolves to `{ foo: 'bar', tag: ['a', 'b'] }`.
+## Default Behaviour
 
-## When to use it
+| Step | What happens |
+|------|--------------|
+| Parse | The middleware parses the part of the URL between `?` and `#` with qs and stores the result on the request; the helpers only read that store |
+| Skip | When a query is stored already, by an earlier `query()` or by `setRequestQuery()`, it does not parse again |
+| Values | Every value is a string, an array or an object, never a number or a boolean; `+` and percent escapes are decoded |
+| Empty | A URL without a query string gives `{}` |
 
-- Reading `?page=2&pageSize=20` style filters
-- Parsing nested query syntax that `URLSearchParams` alone doesn't reify
-- Any handler that needs query parameters multiple times — the parse runs once
+Handlers that run before `query()` see no query: `useRequestQuery(event)` returns `{}` and `useRequestQuery(event, key)` returns `undefined`.
 
-If you only need a single value once per request, `event.searchParams.get('foo')` from the core works without the plugin. The plugin pays for itself when you need the **parsed object**, **nested keys**, or **caching**.
+### What qs Builds
 
-## Companion plugins
+| Query string | Result |
+|--------------|--------|
+| `tag=a&tag=b` | `{ tag: ['a', 'b'] }` |
+| `ids[]=1&ids[]=2` | `{ ids: ['1', '2'] }` |
+| `page[limit]=10` | `{ page: { limit: '10' } }` |
+| `a[25]=x` | `{ a: { 25: 'x' } }`: an index above 20 gives an object |
+| `tag=...` 21 times | An object with the keys `0` to `20`: more than 20 repeated keys give an object |
+| `a[b][c][d][e][f][g]=x` | Nesting stops after five levels; the rest stays one key, `'[g]'` |
 
-- [`@routup/basic`](/basic/) bundles `query` + [`body`](/body/) + [`cookie`](/cookie/).
-- [`@routup/decorators`](/decorators/) wires the helpers to `@DQuery()`.
+Without options, qs keeps the first 1000 parameters and drops the rest. None of these limits raises an error; [Configuration](/query/configuration) changes them.
 
-## See also
+## Next Steps
 
-- [Helpers](./helpers) — `useRequestQuery`, `setRequestQuery`
+- [Configuration](/query/configuration): the qs parse options
+- [Helpers](/query/helpers): `useRequestQuery()`, `setRequestQuery()`, `hasRequestQuery()` and the types
+- [Recipes](/query/recipes): read and convert values, filters with nested keys, parser options, a default value
+- [Combining Plugins](/guide/combining#body-cookie-and-query): `@routup/basic` registers `body()`, `cookie()` and `query()` in one call

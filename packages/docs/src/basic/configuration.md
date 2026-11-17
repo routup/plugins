@@ -34,7 +34,7 @@ Forwarded to the cookie plugin. See [Cookie Configuration](/cookie/configuration
 
 ### `query`
 
-- **Type**: [Query options](/query/helpers) | `boolean`
+- **Type**: [Query options](/query/configuration) | `boolean`
 - **Default**: `true`
 
 Forwarded to the query plugin.

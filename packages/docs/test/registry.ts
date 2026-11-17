@@ -78,6 +78,12 @@ export const PLUGINS: PluginDocs[] = [
         ],
     },
     {
+        name: 'query',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+    },
+    {
         name: 'rate-limit',
         optionsType: 'Options',
         optionsPage: 'configuration.md',
