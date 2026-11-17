@@ -30,7 +30,8 @@ export type PluginDocs = {
     /**
      * Exported option types of an option value (such as the parser options
      * of body's `json`): the first table under `heading` on `page` (default
-     * `optionsPage`) lists exactly the keys of `type`.
+     * `optionsPage`) lists exactly the keys of `type`, or some of them with
+     * `subset`.
      */
     nestedOptions?: NestedOptionsDocs[];
 };
@@ -48,6 +49,11 @@ export type NestedOptionsDocs = {
      * Page relative to packages/docs/src/<name>/; defaults to optionsPage.
      */
     page?: string;
+    /**
+     * The table lists only some keys: every name in it must be a key of
+     * `type`, but not every key needs a row.
+     */
+    subset?: boolean;
 };
 
 export const PLUGINS: PluginDocs[] = [
@@ -95,6 +101,12 @@ export const PLUGINS: PluginDocs[] = [
         optionsType: 'Options',
         optionsPage: 'configuration.md',
         apiPages: ['helpers.md'],
+        // qs has more parse options than the page lists; it links the qs docs
+        nestedOptions: [{
+            type: 'ParseOptions',
+            heading: '`parse`',
+            subset: true,
+        }],
     },
     {
         name: 'rate-limit',
