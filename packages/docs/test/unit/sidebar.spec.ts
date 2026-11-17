@@ -13,6 +13,11 @@ const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
 const GUIDE_FOLDER = 'guide';
 
 /**
+ * The folder VitePress copies to the site root as is (redirect files).
+ */
+const PUBLIC_FOLDER = 'public';
+
+/**
  * The `plugin.group` value of a page's frontmatter.
  */
 function readFrontmatterGroup(file: string): string | undefined {
@@ -144,7 +149,7 @@ describe('definePluginPages', () => {
 describe('PLUGIN_PAGES', () => {
     it('lists every plugin folder of the site', () => {
         const folders = readdirSync(srcRoot, { withFileTypes: true })
-            .filter((item) => item.isDirectory() && !item.name.startsWith('.') && item.name !== GUIDE_FOLDER)
+            .filter((item) => item.isDirectory() && !item.name.startsWith('.') && item.name !== GUIDE_FOLDER && item.name !== PUBLIC_FOLDER)
             .map((item) => item.name)
             .sort();
 

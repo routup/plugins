@@ -11,6 +11,47 @@ const repoRoot = path.resolve(docsRoot, '..', '..');
 const SITE = 'https://plugins.routup.dev';
 
 /**
+ * Every page the site had before the plugin pages were reorganised (commit
+ * b8958d3). READMEs published to npm with older releases link to them, so
+ * each must stay a page or become a redirect file under src/public.
+ */
+const PUBLISHED_PAGES = [
+    'assets/configuration',
+    'assets/index',
+    'basic/configuration',
+    'basic/index',
+    'body/configuration',
+    'body/helpers',
+    'body/index',
+    'cookie/helpers',
+    'cookie/index',
+    'cors/helpers',
+    'cors/index',
+    'decorators/controllers',
+    'decorators/index',
+    'decorators/parameters',
+    'i18n/index',
+    'index',
+    'logger/helpers',
+    'logger/index',
+    'prometheus/configuration',
+    'prometheus/index',
+    'query/helpers',
+    'query/index',
+    'rate-limit-redis/index',
+    'rate-limit/configuration',
+    'rate-limit/index',
+    'swagger-ui/index',
+];
+
+/**
+ * The target of the `<meta http-equiv="refresh">` of a redirect file.
+ */
+function readRedirectTarget(html: string): string | undefined {
+    return /<meta\s+http-equiv="refresh"\s+content="0;\s*url=([^"]+)"/i.exec(html)?.[1];
+}
+
+/**
  * The Markdown pages of the site, relative to src/.
  */
 function readPages(): string[] {
@@ -123,6 +164,40 @@ describe('links', () => {
         }
 
         expect(count).toBeGreaterThan(readmes.length);
+        expect(errors).toEqual([]);
+    });
+
+    it('keeps every page published before the reorganisation, as a page or a redirect', () => {
+        const errors: string[] = [];
+
+        for (const page of PUBLISHED_PAGES) {
+            if (existsSync(path.join(srcRoot, `${page}.md`))) {
+                continue;
+            }
+
+            const redirect = path.join(srcRoot, 'public', `${page}.html`);
+
+            if (!existsSync(redirect)) {
+                errors.push(`${page}: neither src/${page}.md nor src/public/${page}.html exists`);
+
+                continue;
+            }
+
+            const target = readRedirectTarget(readFileSync(redirect, 'utf8'));
+
+            if (!target) {
+                errors.push(`src/public/${page}.html: no meta refresh`);
+
+                continue;
+            }
+
+            const error = checkLink(target, undefined);
+
+            if (error) {
+                errors.push(`src/public/${page}.html: ${target}: ${error}`);
+            }
+        }
+
         expect(errors).toEqual([]);
     });
 });
