@@ -8,6 +8,7 @@ import {
     readDocumentedNames,
     readExports,
     readHeadingNames,
+    readHeadings,
     readHiddenNames,
     readOptionTableNames,
     readSectionTableNames,
@@ -29,6 +30,20 @@ function linkToFile(link: string): string {
 }
 
 describe('registry', () => {
+    it('has an entry for every plugin package', () => {
+        const names = readdirSync(packagesRoot)
+            .filter((folder) => folder !== 'docs' && existsSync(path.join(packagesRoot, folder, 'package.json')))
+            .filter((folder) => {
+                const manifest = JSON.parse(readFileSync(path.join(packagesRoot, folder, 'package.json'), 'utf8'));
+
+                return typeof manifest.name === 'string' && manifest.name.startsWith('@routup/');
+            })
+            .sort();
+
+        expect(names.length).toBeGreaterThan(0);
+        expect(PLUGINS.map((plugin) => plugin.name).sort()).toEqual(names);
+    });
+
     it('has entries whose folders exist', () => {
         expect(PLUGINS.length).toBeGreaterThan(0);
 
@@ -230,9 +245,37 @@ describe.each(PLUGINS)('$name', (plugin) => {
         expect(errors).toEqual([]);
     });
 
+    it('covers every subpath of the package exports', () => {
+        const manifest = JSON.parse(readFileSync(path.join(packagesRoot, plugin.name, 'package.json'), 'utf8'));
+        const subpaths = Object.keys(manifest.exports ?? {}).filter((key) => key !== '.' && key !== './package.json');
+        const registered = (plugin.entries ?? []).map((item) => `.${item.specifier.slice(manifest.name.length)}`);
+        const exempt = plugin.subpathExempt ?? {};
+        const errors: string[] = [];
+
+        for (const subpath of subpaths) {
+            if (!registered.includes(subpath) && !(subpath in exempt)) {
+                errors.push(`${plugin.name}: subpath ${subpath} is neither in entries nor in subpathExempt`);
+            }
+
+            if (registered.includes(subpath) && subpath in exempt) {
+                errors.push(`${plugin.name}: subpath ${subpath} is in entries and in subpathExempt`);
+            }
+        }
+
+        for (const subpath of Object.keys(exempt)) {
+            if (!subpaths.includes(subpath)) {
+                errors.push(`${plugin.name}: stale subpathExempt ${subpath} (not in the exports)`);
+            }
+        }
+
+        expect(errors).toEqual([]);
+    });
+
     it('keeps the README a front door to the docs', () => {
         const readme = readFileSync(path.join(packagesRoot, plugin.name, 'README.md'), 'utf8');
-        const headings = readme.split(/\r?\n/).filter((line) => /^#{2,3}\s+(Options|API|Notes|Usage)\b/.test(line));
+        const headings = readHeadings(readme)
+            .filter((heading) => (heading.level === 2 || heading.level === 3) && /^(Options|API|Notes|Usage)\b/.test(heading.text))
+            .map((heading) => heading.text);
 
         expect(headings, `${plugin.name}: README sections that belong on the docs site`).toEqual([]);
         expect(readme).toContain(`https://plugins.routup.dev/${plugin.name}/`);

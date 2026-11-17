@@ -12,10 +12,14 @@ import {
     readDocumentedNames,
     readExports,
     readHeadingNames,
+    readHeadingSlugs,
+    readHeadings,
     readHiddenNames,
+    readLinks,
     readOptionTableNames,
     readSectionTableNames,
     readTypeKeys,
+    slugify,
 } from '../doc-checks';
 
 let dir: string;
@@ -163,6 +167,19 @@ describe('readSectionTableNames', () => {
     it('throws when the section has no table before the next heading', () => {
         expect(() => readSectionTableNames(markdown, '`raw`')).toThrow(/table/);
     });
+
+    it('throws when the table has a header but no rows', () => {
+        const empty = [
+            '### `parse`',
+            '',
+            '| Option | Type | Default | Description |',
+            '|---|---|---|---|',
+            '',
+            'Text.',
+        ].join('\n');
+
+        expect(() => readSectionTableNames(empty, '`parse`')).toThrow(/no rows/);
+    });
 });
 
 describe('readTypeKeys', () => {
@@ -308,6 +325,78 @@ describe('readHiddenNames', () => {
             '`name` <Badge text="new" />',
             '`X<T>` y',
             '`indented` extra',
+        ]);
+    });
+});
+
+describe('readHeadings', () => {
+    it('reads headings of every level outside fences', () => {
+        const markdown = [
+            '# Title',
+            '## Options',
+            '```md',
+            '## Fenced',
+            '```',
+            '#### Deep ###',
+        ].join('\n');
+
+        expect(readHeadings(markdown)).toEqual([
+            { level: 1, text: 'Title' },
+            { level: 2, text: 'Options' },
+            { level: 4, text: 'Deep' },
+        ]);
+    });
+});
+
+describe('slugify', () => {
+    it('drops backticks, punctuation and inline html, and joins words with hyphens', () => {
+        expect(slugify('`setResponseCookie()`')).toBe('setresponsecookie');
+        expect(slugify('`X<T>` y')).toBe('x-t-y');
+        expect(slugify('Body, Cookie and Query')).toBe('body-cookie-and-query');
+        expect(slugify('An Allow-List')).toBe('an-allow-list');
+        expect(slugify('`name` <Badge text="new" />')).toBe('name');
+        expect(slugify('See [the guide](/guide/combining)')).toBe('see-the-guide');
+        expect(slugify('1 Step')).toBe('_1-step');
+    });
+});
+
+describe('readHeadingSlugs', () => {
+    it('numbers repeated slugs the way VitePress does and skips frontmatter', () => {
+        const markdown = [
+            '---',
+            'title: Page',
+            '# not a heading',
+            '---',
+            '# Page',
+            '## Options',
+            '### `json`',
+            '## Options',
+            '## Options',
+        ].join('\n');
+
+        expect([...readHeadingSlugs(markdown)]).toEqual(['page', 'options', 'json', 'options-1', 'options-2']);
+    });
+});
+
+describe('readLinks', () => {
+    it('reads link targets outside fences and code spans', () => {
+        const markdown = [
+            '---',
+            'description: \'[front](/front)\'',
+            '---',
+            'See [Options](/rate-limit/configuration#options) and [below](#types).',
+            'Code `[no](/code)` is not a link, [`name`](/body/helpers#name) is.',
+            '```md',
+            '[fenced](/fenced)',
+            '```',
+            '[external](https://routup.dev/guide/plugins)',
+        ].join('\n');
+
+        expect(readLinks(markdown)).toEqual([
+            '/rate-limit/configuration#options',
+            '#types',
+            '/body/helpers#name',
+            'https://routup.dev/guide/plugins',
         ]);
     });
 });

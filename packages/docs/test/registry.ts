@@ -39,6 +39,11 @@ export type PluginDocs = {
      * each checked like the main entry against its own pages.
      */
     entries?: EntryDocs[];
+    /**
+     * Subpath of the package exports (such as "./body") -> reason it is not
+     * in `entries`.
+     */
+    subpathExempt?: Record<string, string>;
 };
 
 export type EntryDocs = {
@@ -95,6 +100,11 @@ export const PLUGINS: PluginDocs[] = [
         optionsType: 'Options',
         optionsPage: 'index.md',
         apiPages: ['index.md'],
+        subpathExempt: {
+            './body': 're-exports @routup/body, documented on /body/',
+            './cookie': 're-exports @routup/cookie, documented on /cookie/',
+            './query': 're-exports @routup/query, documented on /query/',
+        },
     },
     {
         name: 'body',

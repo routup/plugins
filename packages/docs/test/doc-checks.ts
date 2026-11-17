@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
-type Heading = {
+export type Heading = {
     level: number;
     text: string;
 };
@@ -31,8 +31,18 @@ const TABLE_NAME = /^([A-Za-z_$][\w$]*)(?:<[^`]*>)?$/;
 function readLines(markdown: string): Line[] {
     const output: Line[] = [];
     let fence: string | undefined;
+    const lines = markdown.split(/\r?\n/);
 
-    for (const text of markdown.split(/\r?\n/)) {
+    // YAML frontmatter: a `# comment` in it is not a heading
+    if (lines[0] === '---') {
+        const end = lines.indexOf('---', 1);
+
+        if (end !== -1) {
+            lines.splice(0, end + 1);
+        }
+    }
+
+    for (const text of lines) {
         if (fence) {
             const trimmed = text.trim();
 
@@ -127,6 +137,10 @@ function readTableNamesAfter(lines: Line[], start: number, label: string): strin
 
     if (!inTable) {
         throw new Error(`no table found under the "${label}" heading`);
+    }
+
+    if (names.length === 0) {
+        throw new Error(`the table under the "${label}" heading has no rows`);
     }
 
     return names;
@@ -231,6 +245,94 @@ export function readHeadingNames(markdown: string, level: 2 | 3): string[] {
         .filter((heading): heading is Heading => heading?.level === level)
         .map((heading) => EXACT_NAME.exec(heading.text)?.[1])
         .filter((name): name is string => !!name);
+}
+
+/**
+ * The headings outside fenced code and frontmatter, in page order.
+ */
+export function readHeadings(markdown: string): Heading[] {
+    return readLines(markdown)
+        .map((line) => line.heading)
+        .filter((heading): heading is Heading => !!heading);
+}
+
+const CODE_SPAN = /(`+)([\s\S]*?)\1/g;
+const SLUG_SPECIAL = /[\s~`!@#$%^&*()\-_+=[\]{}|\\;:"'“”‘’<>,.?/]+/g;
+
+/**
+ * The anchor VitePress gives a heading with this Markdown text: inline
+ * HTML and link targets dropped, code spans kept as text, then the
+ * slugify of `@mdit-vue/shared` (punctuation runs become one hyphen, lower
+ * case, a leading digit gets `_`).
+ */
+export function slugify(markdown: string): string {
+    const text = markdown
+        .split(CODE_SPAN)
+        .map((part, index) => {
+            // split() yields [text, fence, code, text, fence, code, ...]
+            if (index % 3 === 1) {
+                return '';
+            }
+
+            if (index % 3 === 2) {
+                return part;
+            }
+
+            return part
+                .replace(/<\/?[A-Za-z][^>]*>/g, '')
+                .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+        })
+        .join('');
+
+    return text
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036F]/g, '')
+        // eslint-disable-next-line no-control-regex
+        .replace(/[\u0000-\u001F]/g, '')
+        .replace(SLUG_SPECIAL, '-')
+        .replace(/-{2,}/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/^(\d)/, '_$1')
+        .toLowerCase();
+}
+
+/**
+ * The anchors of every heading of a page; a repeated slug gets `-1`,
+ * `-2`, ... as VitePress numbers it.
+ */
+export function readHeadingSlugs(markdown: string): Set<string> {
+    const slugs = new Set<string>();
+
+    for (const heading of readHeadings(markdown)) {
+        const base = slugify(heading.text);
+        let slug = base;
+
+        for (let index = 1; slugs.has(slug); index++) {
+            slug = `${base}-${index}`;
+        }
+
+        slugs.add(slug);
+    }
+
+    return slugs;
+}
+
+/**
+ * Targets of the inline Markdown links outside fenced code, frontmatter
+ * and code spans, in page order.
+ */
+export function readLinks(markdown: string): string[] {
+    const links: string[] = [];
+
+    for (const line of readLines(markdown)) {
+        const text = line.text.replace(CODE_SPAN, '');
+
+        for (const match of text.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)) {
+            links.push(match[1]!);
+        }
+    }
+
+    return links;
 }
 
 // ---------------------------------------------------------------------------

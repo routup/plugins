@@ -57,7 +57,8 @@
                     "default",
                     "^default",
                     "{workspaceRoot}/packages/*/src/**/*",
-                    "{workspaceRoot}/packages/*/README.md"
+                    "{workspaceRoot}/packages/*/README.md",
+                    "{workspaceRoot}/README.md"
                 ],
                 "dependsOn": []
             }
