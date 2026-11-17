@@ -17,15 +17,13 @@
 </p>
 
 <p align="center">
-    <a href="#installation"><b>Installation</b></a>
+    <a href="https://plugins.routup.dev/prometheus/"><b>Docs</b></a>
     ·
-    <a href="#usage">Usage</a>
+    <a href="https://plugins.routup.dev/prometheus/configuration">Configuration</a>
     ·
-    <a href="#options">Options</a>
+    <a href="https://plugins.routup.dev/prometheus/helpers">Helpers</a>
     ·
-    <a href="#api">API</a>
-    ·
-    <a href="https://plugins.routup.dev/prometheus/">Docs</a>
+    <a href="https://plugins.routup.dev/prometheus/recipes">Recipes</a>
 </p>
 
 ---
@@ -62,198 +60,32 @@ serve(app, { port: 3000 });
 npm install @routup/prometheus prom-client
 ```
 
-ESM only, Node.js >=24. Peer dependencies: `routup@^6.4.0` and `prom-client@>=15.0.0`.
+ESM only, Node.js >=24. Peer dependencies: `routup@^6.4.0` and `prom-client@>=15.0.0`, both required.
 
-## Usage
-
-### Serve the built-in metrics
+## Quick Start
 
 ```typescript
-import { App, serve } from 'routup';
-import { prometheus } from '@routup/prometheus';
-
-const app = new App();
-
-app.use(prometheus({
-    // serve metrics on path /metrics
-    metricsPath: '/metrics',
-}));
-
-serve(app, { port: 3000 });
-```
-
-The metrics can then be inspected on `http://localhost:3000/metrics`, in the Prometheus exposition format.
-
-- Install the plugin **before** any other plugin, middleware or route. Its middleware wraps everything registered after it; requests handled before it are not measured.
-- The plugin provides two built-in metrics:
-
-| Metric | Default name | Type | Description |
-|--------|--------------|------|-------------|
-| `uptime` | `http_uptime` | gauge | Seconds (whole numbers) since the plugin was installed |
-| `requestDuration` | `http_request_duration` | histogram or summary | Duration in seconds of each request, labeled with `method`, `path` and `status_code` |
-
-- Turn either one off with `uptime: false` or `requestDuration: false`.
-
-### Choose a histogram or a summary
-
-```typescript
-import { App } from 'routup';
-import { prometheus } from '@routup/prometheus';
-
-const app = new App();
-
-app.use(prometheus({
-    requestDurationType: 'summary',
-    requestDurationSummary: {
-        percentiles: [0.5, 0.9, 0.99],
-    },
-}));
-```
-
-- `requestDurationType` defaults to `'histogram'` with buckets `[0.003, 0.03, 0.1, 0.3, 1.5, 10]` (seconds).
-- With `'summary'`, the percentiles default to `[0.5, 0.75, 0.95, 0.98, 0.99, 0.999]`.
-- `requestDurationHistogram` and `requestDurationSummary` are spread into the prom-client configuration after the defaults, so they can override `buckets`, `percentiles`, `help` and the other prom-client fields.
-
-### Control labels and path cardinality
-
-```typescript
-import { App } from 'routup';
-import { prometheus } from '@routup/prometheus';
-
-const app = new App();
-
-app.use(prometheus({
-    // static labels: their names are added to the metric's label set
-    requestDurationLabels: { service: 'api' },
-
-    // one series for every request no route handled (404s)
-    unmatchedPath: '<unmatched>',
-
-    // last chance to change label values per request
-    requestDurationLabelTransformer: (labels, event) => {
-        if (event.method === 'HEAD') {
-            labels.method = 'GET';
-        }
-    },
-
-    // do not time health checks
-    skip: (event) => event.path === '/health',
-}));
-```
-
-- The `path` label is the pattern of the route that handled the request (`event.route.path`, e.g. `/api/users/:id` for `GET /api/users/42`), composed over every mount, so each route is one time series.
-- A request no method-bound route handled (a 404, a request only middleware or a method-less mount such as `app.use('/static', ...)` answered, an `OPTIONS` request answered without a route) is labelled with `unmatchedPath` when set, else with its raw path (`event.path`, with a leading `/`). Leaving `unmatchedPath` unset keeps one time series per distinct unmatched URL.
-- `normalizePath(path, event)` wins over both: it gets the raw path and the event, and `event.route` is readable inside it.
-- The label is resolved after the handlers ran. A method-bound route that passed on with `event.next()` (a guard such as `app.get('/admin/*rest', guard)`) still names the route when nothing after it answers, so such a 404 is labelled with the guard's pattern.
-- **Changed default:** a request handled by a method-bound route is labelled with the route's pattern where it was the concrete URL, which bounds the label's cardinality. Dashboards or alerts that match concrete paths need the pattern instead; to keep the concrete URL, set `normalizePath: (path) => path`.
-- The transformer runs after `requestDurationLabels` are merged in. It may only set label names the metric declares (`method`, `path`, `status_code` and the keys of `requestDurationLabels`); prom-client throws on any other name.
-
-### Use a custom registry and default metrics
-
-```typescript
-import { Registry } from 'prom-client';
-import { App } from 'routup';
-import { prometheus } from '@routup/prometheus';
-
-const registry = new Registry();
-const app = new App();
-
-app.use(prometheus({
-    registry,
-    collectDefaultMetrics: { register: registry },
-}));
-```
-
-- `registry` holds the built-in metrics and is what the scrape endpoint serializes. It defaults to prom-client's global `register`.
-- `collectDefaultMetrics` is passed to prom-client's `collectDefaultMetrics()` as is. Set its `register` field to the same registry, otherwise the process metrics land in the global registry.
-
-### Add your own metrics
-
-```typescript
-import { Counter } from 'prom-client';
 import { App, defineCoreHandler } from 'routup';
 import { prometheus } from '@routup/prometheus';
 
-const ordersCreated = new Counter({
-    name: 'orders_created_total',
-    help: 'Total orders created',
-    labelNames: ['region'],
-});
+export const app = new App();
 
-const app = new App();
+// first, so every route after it is timed; serves /metrics
+app.use(prometheus());
 
-app.use(prometheus({ metricsPath: '/metrics' }));
-
-app.post('/orders', defineCoreHandler(() => {
-    // ... business logic ...
-    ordersCreated.inc({ region: 'eu' });
-
-    return { ok: true };
-}));
+app.get('/users/:id', defineCoreHandler((event) => ({ id: event.params.id })));
 ```
 
-Any metric registered on the plugin's registry (the global prom-client registry by default) is served on the same endpoint.
+The sample exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file. `prometheus()` returns a plugin: register it with `app.use()` before the routes it times. `GET /metrics` then serves the `http_request_duration` histogram, labelled `path="/users/:id"` for `/users/42`, and the `http_uptime` gauge.
 
-## Options
+## Documentation
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `metricsPath` | `string` | `'/metrics'` | Path the scrape endpoint is mounted on |
-| `registry` | `Registry` | prom-client's global `register` | Registry the built-in metrics are registered on and the endpoint serializes |
-| `collectDefaultMetrics` | `DefaultMetricsCollectorConfiguration` | `undefined` | When set, passed to prom-client's `collectDefaultMetrics()` |
-| `uptime` | `boolean` | `true` | Register the uptime gauge |
-| `uptimeName` | `string` | `'http_uptime'` | Name of the uptime gauge |
-| `uptimeLabels` | `LabelValues<string>` | `undefined` | Accepted by the type but currently not applied to the gauge |
-| `requestDuration` | `boolean` | `true` | Register and record the request duration metric |
-| `requestDurationName` | `string` | `'http_request_duration'` | Name of the request duration metric |
-| `requestDurationType` | `'histogram' \| 'summary'` | `'histogram'` | Metric type for request durations |
-| `requestDurationHistogram` | `Partial<HistogramConfiguration>` | `{}` | Extra prom-client histogram configuration, applied over the defaults |
-| `requestDurationSummary` | `Partial<SummaryConfiguration>` | `{}` | Extra prom-client summary configuration, applied over the defaults |
-| `requestDurationLabels` | `LabelValues<string>` | `undefined` | Static labels added to every observation |
-| `requestDurationLabelTransformer` | `(labels, event) => void` | `undefined` | Mutates the label values of each observation |
-| `normalizePath` | `(path, event) => string` | `undefined` | Computes the `path` label from the raw path and the event; wins over the route pattern and `unmatchedPath` |
-| `unmatchedPath` | `string` | `undefined` | `path` label of a request no method-bound route handled; unset, the raw path (one series per distinct URL) |
-| `skip` | `(event) => boolean` | `() => false` | Return `true` to leave a request unmeasured |
+The full reference lives on [plugins.routup.dev](https://plugins.routup.dev/prometheus/):
 
-## API
-
-| Export | Kind | Purpose |
-|--------|------|---------|
-| `prometheus(options?)` | function (default export) | Plugin factory: registers the metrics, the timing middleware and the scrape endpoint |
-| `createHandler(registry?)` | function | Handler that responds with `registry.metrics()` and the registry's content type |
-| `registerMetrics(app, options)` | function | Creates the built-in metrics and mounts the timing middleware; returns them as `Metrics` |
-| `buildOptions(input?)` | function | Applies the defaults to an options input |
-| `MetricName` | enum | Default metric names: `REQUEST_DURATION`, `UPTIME` |
-| `MetricTypeName` | enum | `HISTOGRAM`, `SUMMARY` |
-| `Options`, `OptionsInput` | type | Resolved and partial plugin options |
-| `Metrics` | type | `{ uptime?: Gauge, requestDuration?: Summary \| Histogram }` |
-| `LabelTransformer` | type | Signature of `requestDurationLabelTransformer` |
-
-### `createHandler`
-
-Serve a registry on a path of your choice without the timing middleware, for example on a separate internal app:
-
-```typescript
-import { Registry } from 'prom-client';
-import { App } from 'routup';
-import { createHandler } from '@routup/prometheus';
-
-const registry = new Registry();
-const internal = new App();
-
-internal.use('/metrics', createHandler(registry));
-```
-
-Without an argument it serves prom-client's global registry.
-
-## Notes
-
-- **Order matters.** The timing middleware only wraps what is registered after the plugin.
-- **The scrape endpoint is a prefix mount.** It is registered with `app.use(metricsPath, ...)`, so it answers any method and any sub-path (`POST /metrics`, `/metrics/x`). Requests to it are timed like any other request.
-- **Status codes need an error handler.** The `status_code` label comes from the response the downstream chain returns. When a handler throws and no error handler answers, or no route matches, the plugin sees no response and records `200`. Register a `defineErrorHandler()` to get the real status.
-- **Metric names are global per registry.** Installing the plugin twice on the same registry (for example two apps on prom-client's global registry in one process, or in tests) makes prom-client throw because the metric names already exist. Pass a fresh `Registry` per app.
-- **Unknown labels break responses.** Setting a label in `requestDurationLabelTransformer` that the metric does not declare makes prom-client throw while the request is being recorded.
-- **Uptime starts at install time**, not at process start, and is truncated to whole seconds.
+- [Overview](https://plugins.routup.dev/prometheus/): requirements, the built-in metrics, the labels and the scrape endpoint
+- [Configuration](https://plugins.routup.dev/prometheus/configuration): every option, the `path` label, registries and default metrics
+- [Helpers](https://plugins.routup.dev/prometheus/helpers): `createHandler()`, `registerMetrics()`, `buildOptions()` and the types
+- [Recipes](https://plugins.routup.dev/prometheus/recipes): labels and cardinality, buckets, protecting the metrics route, an internal metrics app, your own metrics
 
 ## License
 

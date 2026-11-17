@@ -27,7 +27,7 @@ export const PLUGIN_PAGES: SidebarPlugin[] = [
     plugin('logger', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('rate-limit', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('rate-limit-redis', 'Operations', ['index']),
-    plugin('prometheus', 'Operations', ['index', 'configuration']),
+    plugin('prometheus', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('i18n', 'Operations', ['index']),
 ];
 
