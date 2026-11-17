@@ -52,7 +52,7 @@ Functional handlers need no compiler flags and no class instances; decorators ne
 npm install @routup/decorators
 ```
 
-ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`. The decorators are legacy TypeScript decorators: set `"experimentalDecorators": true` in your `tsconfig.json`, or the legacy decorator mode of your compiler ([TypeScript settings](https://plugins.routup.dev/decorators/#typescript-settings)). `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; register their plugins for `@DBody()`, `@DQuery()`, `@DCookie()` and `@DCookies()`. For OpenAPI generation, also install the optional peers `@trapi/core`, `@trapi/metadata` and `@trapi/swagger`.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`. The decorators are legacy TypeScript decorators: set `"experimentalDecorators": true` in your `tsconfig.json`, or the legacy decorator mode of your compiler ([TypeScript settings](https://plugins.routup.dev/decorators/#typescript-settings)). `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies; register their plugins for `@DBody()`, `@DQuery()`, `@DCookie()` and `@DCookies()`. For OpenAPI generation, also install the optional peers `@trapi/core`, `@trapi/metadata` and `@trapi/swagger`.
 
 ## Quick Start
 
