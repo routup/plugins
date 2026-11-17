@@ -1,0 +1,71 @@
+{
+    "extends": "../../tsconfig.build.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "types": [
+            "node"
+        ],
+        "paths": {
+            "@routup/assets": [
+                "../assets/src/index.ts"
+            ],
+            "@routup/basic": [
+                "../basic/src/index.ts"
+            ],
+            "@routup/basic/body": [
+                "../basic/src/body.ts"
+            ],
+            "@routup/basic/cookie": [
+                "../basic/src/cookie.ts"
+            ],
+            "@routup/basic/query": [
+                "../basic/src/query.ts"
+            ],
+            "@routup/body": [
+                "../body/src/index.ts"
+            ],
+            "@routup/cookie": [
+                "../cookie/src/index.ts"
+            ],
+            "@routup/cors": [
+                "../cors/src/index.ts"
+            ],
+            "@routup/decorators": [
+                "../decorators/src/index.ts"
+            ],
+            "@routup/decorators/preset": [
+                "../decorators/src/preset/index.ts"
+            ],
+            "@routup/i18n": [
+                "../i18n/src/index.ts"
+            ],
+            "@routup/logger": [
+                "../logger/src/index.ts"
+            ],
+            "@routup/prometheus": [
+                "../prometheus/src/index.ts"
+            ],
+            "@routup/query": [
+                "../query/src/index.ts"
+            ],
+            "@routup/rate-limit": [
+                "../rate-limit/src/index.ts"
+            ],
+            "@routup/rate-limit-redis": [
+                "../rate-limit-redis/src/index.ts"
+            ],
+            "@routup/swagger-ui": [
+                "../swagger-ui/src/index.ts"
+            ]
+        }
+    },
+    "include": [
+        "examples/**/*.ts",
+        "test/**/*.ts",
+        "src/.vitepress/**/*.ts",
+        "src/.vitepress/**/*.mts"
+    ]
+}
