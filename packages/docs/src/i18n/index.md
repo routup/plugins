@@ -11,7 +11,13 @@ plugin:
 
 # @routup/i18n
 
-Adds locale detection and translation to the routup pipeline. Built on [ilingo](https://github.com/tada5hi/ilingo) — bring any `Store` (memory, filesystem, async loader, …) and the plugin handles per-request locale resolution and the translator factory.
+Picks a locale for each request and translates messages in that locale with [ilingo](https://github.com/tada5hi/ilingo). The plugin negotiates `Accept-Language` against the locales of your ilingo store, and `useTranslator(event)` returns a translator already bound to the result.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
+- `ilingo` `^6.2.1` (peer dependency): the stores, the catalog helpers and the lookup itself
 
 ## Installation
 
@@ -19,66 +25,135 @@ Adds locale detection and translation to the routup pipeline. Built on [ilingo](
 npm install @routup/i18n ilingo
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, defineCoreHandler, serve } from 'routup';
-import {
-    MemoryStore,
-    defineCatalog,
-    defineLocale,
-    defineNamespace,
-    defineTranslations,
-} from 'ilingo';
-import { i18n, useTranslator } from '@routup/i18n';
+<<< @/../examples/i18n/quick-start.ts
 
-const store = new MemoryStore({
-    data: defineCatalog([
-        defineLocale('en', [
-            defineNamespace('app', [defineTranslations({ greeting: 'Hello, my name is {{name}}' })]),
-        ]),
-        defineLocale('de', [
-            defineNamespace('app', [defineTranslations({ greeting: 'Hallo, mein Name ist {{name}}' })]),
-        ]),
-    ]),
-});
+`i18n()` is a plugin: register it with `app.use()` before the routes that translate ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-const router = new App();
-
-router.use(i18n({ store }));
-
-router.get('/', defineCoreHandler((event) => {
-    const t = useTranslator(event);
-    return t({ namespace: 'app', key: 'greeting', data: { name: 'Peter' } });
-}));
-
-serve(router, { port: 3000 });
+```bash
+curl -H 'accept-language: de-DE,de;q=0.9' http://localhost:3000/
+# Hallo, mein Name ist Peter
+curl -H 'accept-language: en-US' http://localhost:3000/
+# Hello, my name is Peter
 ```
 
-The middleware inspects each incoming request and selects a locale (defaulting to ilingo's resolver — typically `Accept-Language` or a configured query/cookie strategy). `useTranslator(event)` returns a translator pre-bound to that locale.
+## Default Behaviour
 
-## When to use it
+For each request the plugin picks the locale in this order:
 
-- Multi-language API responses, error messages, or email bodies rendered server-side
-- Centralizing translation files under one `Store` shared across the request pipeline
-- Reusing existing ilingo stores (memory, filesystem, custom async loader)
+| Step | Source | Used when |
+|------|--------|-----------|
+| 1 | The [`locale`](#options) function | It returns a string; the string is used as is, also when the store has no such locale |
+| 2 | `Accept-Language`, negotiated against the locales the store reports | The header has a match; `q` weights count and `de-CH` matches `de`. Without the header, the first locale of the store wins |
+| 3 | The locale of the ilingo instance | Nothing matched: the [`locale`](#options) string if you set one, otherwise ilingo's default `'en'` |
 
-## Helpers
+The translator then looks the key up through ilingo's fallback chain: the request locale, its BCP-47 parents (`de-CH`, then `de`) and finally `en`. A key that no locale of the chain has resolves to `undefined`, and ilingo warns about it once per locale, namespace and key unless `NODE_ENV` is `production`.
 
-### `useTranslator`
+- **Return a string for a missing key.** A handler that returns `undefined` leaves the request unanswered: routup waits for `event.next()` until a timeout answers `408`, or forever without one. Use `?? fallback` on the result, or `onMissingKey` ([Fallback Text for Missing Keys](#fallback-text-for-missing-keys)).
+- **Locales are read once.** The plugin calls `getLocales()` of the ilingo instance on the first request and keeps the result, so a locale added to the store later is not negotiated.
+- **Translation is async.** The translator returns a promise; `await` it or return it from the handler.
 
-Returns a translator bound to the request's resolved locale.
+## Options
+
+`i18n()` takes nothing, an options object or an `Ilingo` instance.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `store` | `IStore \| IStore[]` | none | ilingo store or stores with the translations; passed to `new Ilingo({ store })` |
+| `locale` | `string \| LocaleReqFn` | none | A string becomes the locale of the ilingo instance, a function picks the locale per request |
+
+Without an argument, the plugin creates an `Ilingo` without a store, so every lookup misses.
+
+The options form forwards only `store` to ilingo. For `fallback`, `onMissingKey`, `formatters` or stores registered later, create the `Ilingo` yourself and pass it: `i18n(ilingo)` ([Fallback Text for Missing Keys](#fallback-text-for-missing-keys)). That form has no `locale` function; the locale of the instance is the one of step 3.
+
+- **A `locale` string is not a forced locale.** It applies only when the request matches none of the locales of the store (step 3). A request without `Accept-Language` gets the first locale of the store. To force a locale, use a function that always returns it.
+- **A `locale` function** receives the event, may be `async` and returns a locale or `undefined`; `undefined` falls back to `Accept-Language`. [Locale From the Query String](#locale-from-the-query-string) shows one.
+
+## `i18n()`
+
+Creates the plugin. It is also the default export.
 
 ```typescript
-import type { IAppEvent } from 'routup';
-import type { Translator } from '@routup/i18n';
+declare function i18n(): Plugin;
+declare function i18n(ilingo: Ilingo): Plugin;
+declare function i18n(options: Options): Plugin;
+```
 
+## `useTranslator()`
+
+Returns a translator for the locale the plugin chose for this request.
+
+```typescript
 declare function useTranslator(event: IAppEvent): Translator;
 ```
 
-```typescript
-const t = useTranslator(event);
-const greeting = t({ namespace: 'app', key: 'greeting', data: { name: 'Peter' } });
+The translator takes ilingo's `GetContext`: `namespace`, `key` and optional `data` (fills `{{name}}` placeholders), `count` (plural forms) and `locale`. A `locale` in the context wins over the request locale:
+
+<<< @/../examples/i18n/locale-override.ts
+
+```bash
+curl -H 'accept-language: de' http://localhost:3000/
+# {"request":"Hallo","english":"Hello"}
 ```
 
-For ilingo's `Translator` API (interpolation, fallback chains, plurals), see the [ilingo documentation](https://github.com/tada5hi/ilingo).
+`useTranslator()` throws a routup error with status `500` in two cases:
+
+- the plugin is not installed: `The i18n plugin is not installed.`
+- the `locale` function returned something other than a string or `undefined`: `The i18n locale must either be of type string or undefined.`
+
+Plurals, formatters and fallback chains work as described in the [ilingo documentation](https://github.com/tada5hi/ilingo).
+
+## Types
+
+| Type | Definition |
+|------|------------|
+| `Options` | `{ store?: IStore \| IStore[], locale?: string \| LocaleReqFn }` ([Options](#options)) |
+| `LocaleReqFn` | `(event: IAppEvent) => Promise<string \| undefined> \| string \| undefined` |
+| `Translator` | `(ctx: GetContext) => Promise<string \| undefined>` |
+
+## Recipes
+
+### Locale From the Query String
+
+A `locale` function reads `?lang=` and returns `undefined` without it, so `Accept-Language` decides then.
+
+<<< @/../examples/i18n/locale-function.ts
+
+```bash
+curl -H 'accept-language: en' 'http://localhost:3000/?lang=de'
+# Hallo
+curl -H 'accept-language: de' http://localhost:3000/
+# Hallo
+```
+
+### Fallback Text for Missing Keys
+
+A key the request locale lacks falls back to `en`. For a key that no locale has, an `Ilingo` instance with `onMissingKey` returns its name instead of `undefined`.
+
+<<< @/../examples/i18n/missing-keys.ts
+
+```bash
+curl -H 'accept-language: de' http://localhost:3000/farewell
+# Goodbye
+curl -H 'accept-language: de' http://localhost:3000/nope
+# app.nope
+```
+
+### Translations From Files
+
+A `LoaderStore` loads one JSON file per locale and namespace on first use and caches it. Its `locales` option is the list the plugin negotiates against; without it, the store reports only the locales it has loaded so far.
+
+<<< @/../examples/i18n/load-files.ts
+
+With `locales/de/app.json` containing `{ "greeting": "Hallo aus einer Datei" }`:
+
+```bash
+curl -H 'accept-language: de' http://localhost:3000/
+# Hallo aus einer Datei
+```
+
+## Next Steps
+
+- [ilingo](https://github.com/tada5hi/ilingo): stores, catalogs, plurals, formatters and fallback chains
+- [Plugins](https://routup.dev/guide/plugins): register a plugin, also under a path

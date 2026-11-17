@@ -103,6 +103,12 @@ export const PLUGINS: PluginDocs[] = [
         apiPages: ['helpers.md'],
     },
     {
+        name: 'i18n',
+        optionsType: 'Options',
+        optionsPage: 'index.md',
+        apiPages: ['index.md'],
+    },
+    {
         name: 'logger',
         optionsType: 'Options',
         optionsPage: 'configuration.md',
