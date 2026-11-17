@@ -25,8 +25,17 @@ export type SidebarGroup = {
     items: SidebarLink[];
 };
 
+/**
+ * One top-level entry of a sidebar: a group, or a single link.
+ */
+export type SidebarEntry = SidebarGroup | SidebarLink;
+
 export type SidebarPlugin = {
     name: string;
     group: string;
     pages: SidebarLink[];
+    /**
+     * Names of the plugins the overview's `relatedPlugins` frontmatter lists.
+     */
+    related: string[];
 };

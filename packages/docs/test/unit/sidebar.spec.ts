@@ -45,11 +45,36 @@ function readFrontmatterGroup(markdown: string): string | undefined {
     return undefined;
 }
 
+/**
+ * The top-level `relatedPlugins` list of a page's frontmatter, in flow
+ * form (`relatedPlugins: [a, b]`); an empty list when the key is absent.
+ */
+function readFrontmatterRelated(markdown: string): string[] {
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(markdown)?.[1] ?? '';
+    const line = frontmatter.split(/\r?\n/).find((item) => item.startsWith('relatedPlugins:'));
+
+    if (!line) {
+        return [];
+    }
+
+    const match = /^relatedPlugins:\s*\[(.*)\]\s*$/.exec(line);
+
+    if (!match) {
+        throw new Error(`relatedPlugins is not a flow list: ${line}`);
+    }
+
+    return match[1]!
+        .split(',')
+        .map((item) => item.trim().replace(/^(['"])(.*)\1$/, '$2'))
+        .filter((item) => item.length > 0);
+}
+
 const plugins = [
     {
         name: 'basic',
         group: 'Bundles',
         pages: [{ text: 'Overview', link: '/basic/' }],
+        related: [],
     },
     {
         name: 'rate-limit',
@@ -58,11 +83,19 @@ const plugins = [
             { text: 'Overview', link: '/rate-limit/' },
             { text: 'Configuration', link: '/rate-limit/configuration' },
         ],
+        related: ['rate-limit-redis', 'cors'],
+    },
+    {
+        name: 'rate-limit-redis',
+        group: 'Operations',
+        pages: [{ text: 'Overview', link: '/rate-limit-redis/' }],
+        related: ['rate-limit'],
     },
     {
         name: 'cors',
         group: 'Operations',
         pages: [{ text: 'Overview', link: '/cors/' }],
+        related: [],
     },
 ];
 
@@ -72,6 +105,8 @@ const guide = [
 ];
 
 const guideGroup = { text: 'Guide', items: guide };
+
+const backLink = { text: '← All plugins', link: '/' };
 
 const groups = [
     guideGroup,
@@ -87,6 +122,7 @@ const groups = [
         text: 'Operations',
         items: [
             { text: 'rate-limit', link: '/rate-limit/' },
+            { text: 'rate-limit-redis', link: '/rate-limit-redis/' },
             { text: 'cors', link: '/cors/' },
         ],
     },
@@ -100,11 +136,11 @@ describe('buildSidebar', () => {
         expect(sidebar['/guide/']).toEqual(groups);
     });
 
-    it('puts the guide first and then the pages of a plugin under its own path', () => {
+    it('gives a plugin a back link, its own pages and its related plugins', () => {
         const sidebar = buildSidebar(plugins, guide);
 
         expect(sidebar['/rate-limit/']).toEqual([
-            guideGroup,
+            backLink,
             {
                 text: 'rate-limit',
                 items: [
@@ -112,16 +148,51 @@ describe('buildSidebar', () => {
                     { text: 'Configuration', link: '/rate-limit/configuration' },
                 ],
             },
-            ...groups.slice(1),
+            {
+                text: 'Related',
+                items: [
+                    { text: 'rate-limit-redis', link: '/rate-limit-redis/' },
+                    { text: 'cors', link: '/cors/' },
+                ],
+            },
         ]);
-        expect(sidebar['/basic/']?.[1]).toEqual({
-            text: 'basic',
-            items: [{ text: 'Overview', link: '/basic/' }],
-        });
+    });
+
+    it('leaves out the related group of a plugin without related plugins', () => {
+        const sidebar = buildSidebar(plugins, guide);
+
+        expect(sidebar['/basic/']).toEqual([
+            backLink,
+            { text: 'basic', items: [{ text: 'Overview', link: '/basic/' }] },
+        ]);
+        expect(sidebar['/cors/']).toEqual([
+            backLink,
+            { text: 'cors', items: [{ text: 'Overview', link: '/cors/' }] },
+        ]);
+    });
+
+    it('keeps the pages of a plugin apart from a plugin whose name extends it', () => {
+        const sidebar = buildSidebar(plugins, guide);
+
+        expect(sidebar['/rate-limit-redis/']).toEqual([
+            backLink,
+            { text: 'rate-limit-redis', items: [{ text: 'Overview', link: '/rate-limit-redis/' }] },
+            { text: 'Related', items: [{ text: 'rate-limit', link: '/rate-limit/' }] },
+        ]);
     });
 
     it('has one key per plugin plus / and /guide/', () => {
-        expect(Object.keys(buildSidebar(plugins, guide)).sort()).toEqual(['/', '/basic/', '/cors/', '/guide/', '/rate-limit/']);
+        expect(Object.keys(buildSidebar(plugins, guide)).sort())
+            .toEqual(['/', '/basic/', '/cors/', '/guide/', '/rate-limit-redis/', '/rate-limit/']);
+    });
+
+    it('rejects a related plugin that is not in the list', () => {
+        expect(() => buildSidebar([{
+            name: 'cors',
+            group: 'Operations',
+            pages: [{ text: 'Overview', link: '/cors/' }],
+            related: ['session'],
+        }], guide)).toThrow('cors: related plugin "session" is not in the list');
     });
 
     it('rejects a plugin whose first page is not its overview', () => {
@@ -129,6 +200,7 @@ describe('buildSidebar', () => {
             name: 'cors',
             group: 'Operations',
             pages: [{ text: 'Helpers', link: '/cors/helpers' }],
+            related: [],
         }], guide)).toThrow('cors: the first page must link to /cors/');
     });
 });
@@ -155,7 +227,13 @@ describe('definePluginPages', () => {
                 { text: 'Overview', link: '/cors/' },
                 { text: 'Helpers', link: '/cors/helpers' },
             ],
+            related: [],
         });
+    });
+
+    it('carries the related plugins', () => {
+        expect(definePluginPages('rate-limit', 'Operations', ['index'], ['rate-limit-redis']).related)
+            .toEqual(['rate-limit-redis']);
     });
 
     it('rejects a page name without a title', () => {
@@ -203,6 +281,15 @@ describe('readFrontmatterGroup', () => {
     });
 });
 
+describe('readFrontmatterRelated', () => {
+    it('reads the top-level flow list', () => {
+        expect(readFrontmatterRelated('---\ntitle: A\nrelatedPlugins: [body, \'cookie\']\n---\n')).toEqual(['body', 'cookie']);
+        expect(readFrontmatterRelated('---\nrelatedPlugins: []\n---\n')).toEqual([]);
+        expect(readFrontmatterRelated('---\ntitle: A\n---\nrelatedPlugins: [body]\n')).toEqual([]);
+        expect(() => readFrontmatterRelated('---\nrelatedPlugins:\n    - body\n---\n')).toThrow('not a flow list');
+    });
+});
+
 describe('PLUGIN_PAGES', () => {
     it('lists every plugin folder of the site', () => {
         const folders = readdirSync(srcRoot, { withFileTypes: true })
@@ -223,6 +310,24 @@ describe('PLUGIN_PAGES', () => {
             .map((item) => ({ item, group: readFrontmatterGroup(readFileSync(path.join(srcRoot, item.name, 'index.md'), 'utf8')) }))
             .filter(({ item, group }) => group !== item.group)
             .map(({ item, group }) => `${item.name}: sidebar group "${item.group}", frontmatter plugin.group "${group}"`);
+
+        expect(errors).toEqual([]);
+    });
+
+    it('uses the relatedPlugins of each overview frontmatter', () => {
+        const errors = PLUGIN_PAGES
+            .map((item) => ({ item, related: readFrontmatterRelated(readFileSync(path.join(srcRoot, item.name, 'index.md'), 'utf8')) }))
+            .filter(({ item, related }) => related.join(',') !== item.related.join(','))
+            .map(({ item, related }) => `${item.name}: sidebar related [${item.related.join(', ')}], frontmatter relatedPlugins [${related.join(', ')}]`);
+
+        expect(errors).toEqual([]);
+    });
+
+    it('relates only registered plugins, never the plugin itself', () => {
+        const names = PLUGIN_PAGES.map((item) => item.name);
+        const errors = PLUGIN_PAGES.flatMap((item) => item.related
+            .filter((name) => !names.includes(name) || name === item.name)
+            .map((name) => `${item.name}: related plugin "${name}"`));
 
         expect(errors).toEqual([]);
     });

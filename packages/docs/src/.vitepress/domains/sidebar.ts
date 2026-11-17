@@ -1,9 +1,19 @@
 /**
- * Builds the path-keyed sidebar: the guide comes first on every page, then a
- * plugin's own pages on each of its pages, then the groups that link to
- * every plugin overview.
+ * Builds the path-keyed sidebar: the guide and the groups that link to every
+ * plugin overview on `/` and `/guide/`; on a plugin's pages, a link back to
+ * all plugins, the plugin's own pages and its related plugins.
  */
-import type { SidebarGroup, SidebarLink, SidebarPlugin } from './types';
+import type {
+    SidebarEntry,
+    SidebarGroup,
+    SidebarLink,
+    SidebarPlugin,
+} from './types';
+
+/**
+ * The first entry of every plugin sidebar.
+ */
+export const BACK_LINK: SidebarLink = { text: '← All plugins', link: '/' };
 
 /**
  * Sidebar title per page file name (without `.md`).
@@ -21,10 +31,16 @@ export const PAGE_TITLES: Record<string, string> = {
  * One entry of the page list: `index` links to `/<name>/`, any other page
  * to `/<name>/<page>`. A page name needs a title in `PAGE_TITLES`.
  */
-export function definePluginPages(name: string, group: string, pages: string[]): SidebarPlugin {
+export function definePluginPages(
+    name: string,
+    group: string,
+    pages: string[],
+    related: string[] = [],
+): SidebarPlugin {
     return {
         name,
         group,
+        related,
         pages: pages.map((page) => {
             const text = PAGE_TITLES[page];
 
@@ -37,7 +53,11 @@ export function definePluginPages(name: string, group: string, pages: string[]):
     };
 }
 
-export function buildSidebar(plugins: SidebarPlugin[], guide: SidebarLink[]): Record<string, SidebarGroup[]> {
+/**
+ * Keys end in `/`, so VitePress's prefix match keeps `/rate-limit/` from
+ * claiming the pages of `/rate-limit-redis/`.
+ */
+export function buildSidebar(plugins: SidebarPlugin[], guide: SidebarLink[]): Record<string, SidebarEntry[]> {
     const guideGroup: SidebarGroup = { text: 'Guide', items: guide };
     const groups: SidebarGroup[] = [
         {
@@ -63,17 +83,32 @@ export function buildSidebar(plugins: SidebarPlugin[], guide: SidebarLink[]): Re
         group.items.push({ text: plugin.name, link: overview });
     }
 
-    const sidebar: Record<string, SidebarGroup[]> = {
+    const sidebar: Record<string, SidebarEntry[]> = {
         '/': [guideGroup, ...groups],
         '/guide/': [guideGroup, ...groups],
     };
 
+    const names = new Set(plugins.map((plugin) => plugin.name));
+
     for (const plugin of plugins) {
-        sidebar[`/${plugin.name}/`] = [
-            guideGroup,
+        const entries: SidebarEntry[] = [
+            BACK_LINK,
             { text: plugin.name, items: plugin.pages },
-            ...groups,
         ];
+
+        const related = plugin.related.map((name) => {
+            if (!names.has(name)) {
+                throw new Error(`${plugin.name}: related plugin "${name}" is not in the list`);
+            }
+
+            return { text: name, link: `/${name}/` };
+        });
+
+        if (related.length > 0) {
+            entries.push({ text: 'Related', items: related });
+        }
+
+        sidebar[`/${plugin.name}/`] = entries;
     }
 
     return sidebar;
