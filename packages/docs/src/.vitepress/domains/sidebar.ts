@@ -1,7 +1,8 @@
 /**
  * Builds the path-keyed sidebar: the guide and the groups that link to every
- * plugin overview on `/` and `/guide/`; on a plugin's pages, a link back to
- * all plugins, the plugin's own pages and its related plugins.
+ * plugin overview on `/guide/` and on the root pages (`/plugins` falls back
+ * to the `/` key); on a plugin's pages, a link back to the overview of all
+ * plugins, the plugin's own pages and its related plugins.
  */
 import type {
     SidebarEntry,
@@ -11,9 +12,14 @@ import type {
 } from './types';
 
 /**
+ * The page that lists every plugin (`src/plugins.md`).
+ */
+export const PLUGINS_LINK = '/plugins';
+
+/**
  * The first entry of every plugin sidebar.
  */
-export const BACK_LINK: SidebarLink = { text: '← All plugins', link: '/' };
+export const BACK_LINK: SidebarLink = { text: '← All plugins', link: PLUGINS_LINK };
 
 /**
  * Sidebar title per page file name (without `.md`).
@@ -62,7 +68,7 @@ export function buildSidebar(plugins: SidebarPlugin[], guide: SidebarLink[]): Re
     const groups: SidebarGroup[] = [
         {
             text: 'Overview',
-            items: [{ text: 'All plugins', link: '/' }],
+            items: [{ text: 'All plugins', link: PLUGINS_LINK }],
         },
     ];
 

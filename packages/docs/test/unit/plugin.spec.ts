@@ -31,6 +31,11 @@ describe('PLUGIN_PAGE_PATTERN', () => {
         expect(files.filter((file) => file.startsWith('guide/'))).toEqual([]);
         expect(globSync('guide/*.md', { cwd: srcRoot })).toContain('guide/getting-started.md');
     });
+
+    it('does not read the plugins overview at the site root as a plugin', () => {
+        expect(globSync('*.md', { cwd: srcRoot })).toContain('plugins.md');
+        expect(globSync(PLUGIN_PAGE_PATTERN, { cwd: srcRoot })).not.toContain('plugins.md');
+    });
 });
 
 describe('buildPlugin', () => {

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isActive } from 'vitepress/dist/client/shared.js';
 import { describe, expect, it } from 'vitest';
 import config from '../../src/.vitepress/config.mts';
 import { readFrontmatterLinks, readHeadingSlugs, readLinks } from '../doc-checks';
@@ -10,6 +11,12 @@ const srcRoot = path.join(docsRoot, 'src');
 const repoRoot = path.resolve(docsRoot, '..', '..');
 
 const SITE = 'https://plugins.routup.dev';
+
+type NavItem = {
+    text: string;
+    link: string;
+    activeMatch?: string;
+};
 
 /**
  * Anchors a page gets from a component instead of a heading: page ->
@@ -183,6 +190,38 @@ describe('links', () => {
 
         expect(links.length).toBeGreaterThan(30);
         expect(errors).toEqual([]);
+    });
+
+    it('points the nav, the footer and the landing hero at the plugins page', () => {
+        const theme = config.themeConfig as { nav: NavItem[]; rtFooter: { columns: { links: NavItem[] }[] } };
+        const footer = theme.rtFooter.columns.flatMap((column) => column.links);
+        const hero = readFrontmatterLinks(readFileSync(path.join(srcRoot, 'index.md'), 'utf8'));
+
+        expect(theme.nav.find((item) => item.text === 'Plugins')?.link).toBe('/plugins');
+        expect(footer.filter((item) => item.text === 'All plugins').map((item) => item.link)).toEqual(['/plugins']);
+        expect(hero).toContain('/plugins');
+    });
+
+    it('highlights the Plugins nav entry on the plugins page and on every plugin page only', () => {
+        const { nav } = config.themeConfig as { nav: NavItem[] };
+        const isNavActive = (text: string, relativePath: string) => {
+            const item = nav.find((entry) => entry.text === text)!;
+
+            return isActive(relativePath, item.activeMatch || item.link, !!item.activeMatch);
+        };
+        const pluginPages = pages.filter((page) => page.includes('/') && !page.startsWith('guide/'));
+        const otherPages = ['index.md', '404.md', ...pages.filter((page) => page.startsWith('guide/'))];
+
+        expect(pluginPages.length).toBeGreaterThan(13);
+
+        for (const page of ['plugins.md', ...pluginPages]) {
+            expect(isNavActive('Plugins', page), page).toBe(true);
+            expect(isNavActive('Guide', page), page).toBe(false);
+        }
+
+        for (const page of otherPages) {
+            expect(isNavActive('Plugins', page), page).toBe(false);
+        }
     });
 
     it('resolves every docs site link of the READMEs to a page and a heading', () => {

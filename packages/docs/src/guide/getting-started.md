@@ -3,10 +3,6 @@ title: Getting Started
 description: Install a routup plugin, register it on an app and choose where it runs.
 ---
 
-<script setup>
-import PluginList from '../.vitepress/components/PluginList.vue';
-</script>
-
 # Getting Started
 
 The packages on this site add request parsing, CORS, rate limits, logging, metrics and more to a [routup](https://routup.dev) app. Each one is a separate npm package that you install alone and register with `app.use()`.
@@ -75,4 +71,4 @@ Register plugins that parse the request or set response headers before the route
 
 ## Plugins
 
-<PluginList />
+[Plugins](/plugins) lists every package by group, with a one-line summary and a link to its documentation.

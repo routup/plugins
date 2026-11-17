@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isActive } from 'vitepress/dist/client/shared.js';
 import { describe, expect, it } from 'vitest';
-import { GUIDE_PAGES, PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
+import config, { GUIDE_PAGES, PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
 import { buildSidebar, definePluginPages } from '../../src/.vitepress/domains/sidebar';
 
 const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
@@ -16,6 +17,36 @@ const GUIDE_FOLDER = 'guide';
  * The folder VitePress copies to the site root as is (redirect files).
  */
 const PUBLIC_FOLDER = 'public';
+
+/**
+ * The overview of all plugins: a page at the site root, not a folder with an
+ * `index.md`, which the landing loader would read as a plugin.
+ */
+const PLUGINS_PAGE = 'plugins.md';
+
+type SidebarItem = {
+    text?: string;
+    link?: string;
+    items?: SidebarItem[];
+};
+
+/**
+ * The sidebar VitePress picks for a page, as `getSidebar()` of the default
+ * theme (VitePress 1.6) does: the first key, by descending slash count,
+ * that the page path starts with.
+ */
+function resolveSidebar(sidebar: Record<string, SidebarItem[]>, relativePath: string): SidebarItem[] {
+    const page = `/${relativePath}`;
+    const key = Object.keys(sidebar)
+        .sort((a, b) => b.split('/').length - a.split('/').length)
+        .find((dir) => page.startsWith(dir));
+
+    return key ? sidebar[key]! : [];
+}
+
+function collectLinks(items: SidebarItem[]): SidebarItem[] {
+    return items.flatMap((item) => [...(item.link ? [item] : []), ...collectLinks(item.items ?? [])]);
+}
 
 /**
  * The `plugin.group` value of a page's frontmatter: the `group:` key
@@ -106,13 +137,13 @@ const guide = [
 
 const guideGroup = { text: 'Guide', items: guide };
 
-const backLink = { text: '← All plugins', link: '/' };
+const backLink = { text: '← All plugins', link: '/plugins' };
 
 const groups = [
     guideGroup,
     {
         text: 'Overview',
-        items: [{ text: 'All plugins', link: '/' }],
+        items: [{ text: 'All plugins', link: '/plugins' }],
     },
     {
         text: 'Bundles',
@@ -330,5 +361,44 @@ describe('PLUGIN_PAGES', () => {
             .map((name) => `${item.name}: related plugin "${name}"`));
 
         expect(errors).toEqual([]);
+    });
+});
+
+describe('site sidebar', () => {
+    const { sidebar } = (config.themeConfig as { sidebar: Record<string, SidebarItem[]> });
+
+    it('has the overview of all plugins as the only page at the root besides the landing page', () => {
+        const pages = readdirSync(srcRoot).filter((name) => name.endsWith('.md')).sort();
+
+        expect(pages).toEqual(['index.md', PLUGINS_PAGE]);
+    });
+
+    it('gives the plugins page the sidebar of the guide pages', () => {
+        const resolved = resolveSidebar(sidebar, PLUGINS_PAGE);
+
+        expect(resolved).toEqual(resolveSidebar(sidebar, 'guide/getting-started.md'));
+        expect(resolved[0]).toEqual({ text: 'Guide', items: GUIDE_PAGES });
+        expect(collectLinks(resolved).filter((item) => /^\/[^/]+\/$/.test(item.link!))).toHaveLength(PLUGIN_PAGES.length);
+    });
+
+    it('marks only the "All plugins" entry as active on the plugins page', () => {
+        const active = collectLinks(resolveSidebar(sidebar, PLUGINS_PAGE))
+            .filter((item) => isActive(PLUGINS_PAGE, item.link));
+
+        expect(active).toEqual([{ text: 'All plugins', link: '/plugins' }]);
+    });
+
+    it('resolves each plugin page to the sidebar of its own plugin', () => {
+        for (const plugin of PLUGIN_PAGES) {
+            for (const page of plugin.pages) {
+                const relativePath = page.link.endsWith('/') ? `${page.link.slice(1)}index.md` : `${page.link.slice(1)}.md`;
+                const resolved = resolveSidebar(sidebar, relativePath);
+                const active = collectLinks(resolved).filter((item) => isActive(relativePath, item.link));
+
+                expect(resolved[0], relativePath).toEqual(backLink);
+                expect(resolved[1]?.text, relativePath).toBe(plugin.name);
+                expect(active, relativePath).toEqual([page]);
+            }
+        }
     });
 });

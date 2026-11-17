@@ -13,8 +13,8 @@ hero:
     actions:
         - text: 'Get Started'
           link: '/guide/getting-started'
-        - text: 'Browse plugins'
-          link: '#plugins'
+        - text: 'Browse Plugins'
+          link: '/plugins'
         - text: 'View on GitHub'
           link: 'https://github.com/routup/plugins'
     install: 'npm install @routup/basic'

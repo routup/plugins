@@ -1,5 +1,5 @@
 import { defineRoutupConfig } from '@routup/docs-theme/config';
-import { buildSidebar, definePluginPages as plugin } from './domains/sidebar';
+import { PLUGINS_LINK, buildSidebar, definePluginPages as plugin } from './domains/sidebar';
 import type { SidebarLink, SidebarPlugin } from './domains/types';
 
 /**
@@ -59,7 +59,12 @@ export default defineRoutupConfig({
                 link: '/guide/getting-started',
                 activeMatch: '/guide/',
             },
-            { text: 'Plugins', link: '/' },
+            {
+                text: 'Plugins',
+                link: PLUGINS_LINK,
+                // the plugins page and every plugin folder; not the guide or 404
+                activeMatch: '^/(?!guide/|404$)[^/]',
+            },
         ],
 
         sidebar: buildSidebar(PLUGIN_PAGES, GUIDE_PAGES),
@@ -81,7 +86,7 @@ export default defineRoutupConfig({
                     links: [
                         { text: 'Getting started', link: '/guide/getting-started' },
                         { text: 'Combining plugins', link: '/guide/combining' },
-                        { text: 'All plugins', link: '/' },
+                        { text: 'All plugins', link: PLUGINS_LINK },
                         { text: 'routup', link: 'https://routup.dev' },
                         { text: 'Plugin authoring', link: 'https://routup.dev/guide/plugin-authoring/' },
                     ],
