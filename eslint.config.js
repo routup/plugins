@@ -13,6 +13,13 @@ export default [
         },
     },
     {
+        // Decorator samples declare a controller next to its middlewares or parent class.
+        files: ['packages/docs/examples/decorators/**/*.ts', 'packages/docs/test/unit/examples/decorators.spec.ts'],
+        rules: {
+            'max-classes-per-file': 'off',
+        },
+    },
+    {
         rules: {
             '@typescript-eslint/no-unused-vars': 'off',
             // Error.isError and Uint8Array base64 helpers are not available on every supported Node version (engines: >=22).

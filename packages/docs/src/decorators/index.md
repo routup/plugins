@@ -11,9 +11,35 @@ plugin:
 
 # @routup/decorators
 
-Define request handlers as classes with TypeScript decorators, then mount them on any routup router. Familiar shape if you're coming from NestJS, tsoa, or Spring — controllers, parameter injection, declarative paths.
+Write routup routes as TypeScript classes: `@DController()` sets the path of a class, `@DGet()`, `@DPost()` and the other method decorators bind its methods to routes, and parameter decorators pass the path parameters, headers, body, query or cookies in as arguments. A [TRAPI](https://github.com/tada5hi/trapi) preset reads the same decorators to generate an OpenAPI document.
 
-The same decorator metadata also drives OpenAPI generation: this package ships a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath, so the same controller serves as both your routing surface and your API contract. See [OpenAPI generation](#openapi-generation) below.
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
+- `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies. `@DBody()`, `@DQuery()`, `@DCookie()` and `@DCookies()` need their plugins registered before `decorators()`: see [Decorators and the Parsers](/guide/combining#decorators-and-the-parsers)
+- For [OpenAPI generation](#openapi-generation) only: `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` `^2.3.0` (optional peer dependencies). Only `@routup/decorators/preset` imports them, so install them where you generate the document. An older `@trapi/metadata` ignores `@DProduces` without an error
+
+### TypeScript Settings
+
+The package supports **legacy (experimental) TypeScript decorators only**, the flavour that has parameter decorators. Standard (TC39) decorators, which TypeScript 5 and later compile when `experimentalDecorators` is off, have no parameter decorators and pass a context object instead of a property name: `tsc` rejects the controllers (`TS1206 Decorators are not valid here`, `TS1241 Unable to resolve signature of method decorator`), and code emitted anyway registers no route, so every request gets `404`.
+
+| Compiler | What to configure |
+|----------|-------------------|
+| `tsc` | `"experimentalDecorators": true` in the `compilerOptions` of `tsconfig.json` |
+| esbuild, and tools built on it such as tsx | The same `tsconfig.json` setting, which they read. Without it esbuild fails with "Parameter decorators only work when experimental decorators are enabled" |
+| SWC (also `unplugin-swc` for Vite or Vitest) | `jsc.parser.decorators: true` and `jsc.transform.legacyDecorator: true` |
+| Node.js type stripping (`node app.ts`) | Not possible: decorators are not erasable syntax and fail with a `SyntaxError`. Compile first |
+
+```json
+{
+    "compilerOptions": {
+        "experimentalDecorators": true
+    }
+}
+```
+
+`emitDecoratorMetadata` is not needed: the package reads no design-type metadata. It does no harm when another library requires it.
 
 ## Installation
 
@@ -21,112 +47,75 @@ The same decorator metadata also drives OpenAPI generation: this package ships a
 npm install @routup/decorators
 ```
 
-The plugin requires TypeScript decorator metadata. In your `tsconfig.json`:
+## Quick Start
 
-```json
-{
-    "compilerOptions": {
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    }
-}
-```
+<<< @/../examples/decorators/quick-start.ts
 
-## Quick start
-
-```typescript
-// controller.ts
-import { DController, DGet, DPath } from '@routup/decorators';
-
-@DController('/users')
-export class UserController {
-    @DGet('')
-    async list() {
-        return [{ id: 1, name: 'Ada' }];
-    }
-
-    @DGet('/:id')
-    async show(@DPath('id') id: string) {
-        return { id: Number(id), name: 'Ada' };
-    }
-}
-```
-
-```typescript
-// app.ts
-import { App, serve } from 'routup';
-import { decorators } from '@routup/decorators';
-import { basic } from '@routup/basic';
-import { UserController } from './controller';
-
-const router = new App();
-
-router.use(basic());
-router.use(decorators({
-    controllers: [UserController],
-}));
-
-serve(router, { port: 3000 });
-```
-
-## When to use it
-
-- You prefer class-based controllers to functional handler files
-- You want to generate OpenAPI documentation from the same controller definitions (see below)
-- You're migrating a NestJS / tsoa / class-validator codebase and want a familiar shape
-
-The plugin doesn't replace `defineCoreHandler` — it sits alongside it. You can mount decorator controllers and functional handlers on the same router.
-
-## OpenAPI generation
-
-`@routup/decorators` exposes a [TRAPI](https://github.com/trapi/trapi) preset under the `./preset` subpath that maps `@DController` / `@DGet` / `@DBody` / `@DQuery` / etc. into the schema TRAPI's generators consume. There is no dedicated `@routup/swagger-generator` package — extract metadata with `@trapi/metadata`, feed it into `@trapi/swagger`, or use the `trapi` CLI.
-
-### Programmatically
-
-`generateSwagger()` accepts pre-built metadata, so run `generateMetadata()` from `@trapi/metadata` first. The preset can be referenced by package specifier — `@trapi/metadata` resolves it through the `preset` export of `@routup/decorators/preset`:
-
-```typescript
-import { generateMetadata } from '@trapi/metadata';
-import { generateSwagger, Version, saveSwagger } from '@trapi/swagger';
-import process from 'node:process';
-import path from 'node:path';
-
-const metadata = await generateMetadata({
-    preset: '@routup/decorators/preset',
-    entryPoint: {
-        cwd: path.join(process.cwd(), 'src'),
-        pattern: '**/*.ts',
-    },
-    ignore: ['**/node_modules/**'],
-});
-
-const spec = await generateSwagger({
-    version: Version.V3_2,
-    metadata,
-    data: {
-        name: 'My API',
-        servers: ['http://localhost:3000/'],
-    },
-});
-
-await saveSwagger(spec, { outputDirectory: 'writable' });
-```
-
-To customise the preset before generation, import `buildPreset` from `@routup/decorators/preset` and pass the returned object as `preset` instead of the string identifier.
-
-Hand the result to [`@routup/swagger-ui`](/swagger-ui/) to serve the document at runtime.
-
-### Via the trapi CLI
+`decorators()` returns a plugin: register it with `app.use()` ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
 ```bash
-npx trapi --preset @routup/decorators/preset
+curl http://localhost:3000/users/5
+# {"id":"5"}
 ```
 
-`@trapi/core`, `@trapi/metadata` and `@trapi/swagger` are declared as *optional* peer dependencies on `@routup/decorators` (version `2.3` or newer), so runtime-only consumers never pay for them. Install them only when you call into the generator. An older `@trapi/metadata` ignores `@DProduces` without an error.
+## Default Behaviour
 
-## See also
+| When | What happens |
+|------|--------------|
+| A class is defined | Its decorators store the paths, routes, parameters and middlewares on the class prototype. Nothing is registered yet; [`getControllerRoutes()`](/decorators/helpers#getcontrollerroutes) can already list the routes |
+| `decorators({ controllers })` is called | Returns the plugin; no controller is touched |
+| `app.use(decorators(...))` | Each class in `controllers` is created with `new Controller()`, without arguments; an instance is used as it is. Its middlewares and routes are added to the app at the position of this call, under each controller path. Installing the plugin again creates another instance and adds the routes again |
+| A request arrives | The class middlewares run, then the middlewares of the method's route, each as a new instance; then the parameter values are read and the method is called and awaited |
+| The method returns | The value becomes the response as for any routup handler; `undefined` leaves the request unanswered and a thrown error goes to the error handlers ([Return Values](/decorators/controllers#return-values)) |
 
-- [Controllers](./controllers) — `@DController`, HTTP method decorators, async handlers, returning a `Response`
-- [Parameters](./parameters) — every parameter decorator and the parser plugins it relies on
-- [`@routup/swagger-ui`](/swagger-ui/) — serve the generated document with Swagger UI
-- [`@trapi/swagger`](https://github.com/trapi/trapi) — the upstream OpenAPI generator the preset feeds into
+Routes registered before `app.use(decorators(...))` for the same path and method answer first, and the parser plugins must come before it.
+
+## OpenAPI Generation
+
+The `@routup/decorators/preset` entry tells `@trapi/metadata` how to read the `@D*` decorators. `@trapi/metadata` reads the TypeScript sources with the compiler, it does not run them; `@trapi/swagger` turns the metadata into the document. Install the three packages where you generate the document:
+
+```bash
+npm install --save-dev @trapi/core @trapi/metadata @trapi/swagger
+```
+
+<<< @/../examples/decorators/openapi.ts
+
+For the [controller of the documentation decorators](/decorators/controllers#documentation-decorators) this writes `GET /users/{id}` with the tag `users`, the `bearer` security requirement and the responses `200`, `401` and `404`, and `POST /users` with `201` and `401`.
+
+- In place of `buildPreset()`, `preset` also takes the string `'@routup/decorators/preset'`: `@trapi/metadata` imports the entry and uses its default export.
+- `saveSwagger(spec, { cwd: 'writable' })` from `@trapi/swagger` writes `writable/swagger.json`; its `name` and `format` options change the file name and switch to YAML.
+- Error responses shared by every operation go to `generateSwagger()` as `data.responses`, for example `responses: [{ name: '401', status: '401', description: 'Unauthorized' }]`; an operation's own response at the same status wins.
+- The document is a file or an object: serve it with [`@routup/swagger-ui`](/swagger-ui/). Nothing in `@routup/decorators` generates it at runtime.
+
+The `trapi` binary of `@trapi/cli` takes the preset by name:
+
+```bash
+npm install --save-dev @trapi/cli
+npx trapi generate --preset @routup/decorators/preset --entry-point 'src/**/*.ts' --output swagger.json
+```
+
+What each decorator adds to the document is described with the decorator: [`@DStatus()`](/decorators/controllers#dstatus), [`@DProduces()`](/decorators/controllers#dproduces), the [documentation decorators](/decorators/controllers#documentation-decorators) and the [parameter decorators](/decorators/parameters).
+
+### `buildPreset()`
+
+Returns a new preset object for `@trapi/metadata`. The default export of `@routup/decorators/preset` is the object `buildPreset()` returns.
+
+```typescript
+import type { Preset } from '@trapi/core';
+
+declare function buildPreset(): Preset;
+```
+
+Change the returned object to adjust the preset, for example to leave out a parameter decorator, and pass it as `preset`:
+
+<<< @/../examples/decorators/custom-preset.ts
+
+The preset knows the decorators of this package by name, plus `DAll` (documented as `GET`), `DHead` and `DOptions`. A [custom decorator](/decorators/helpers#createmethoddecorator) with another name works at runtime, but needs a handler of its own in a preset built from `buildPreset()` to appear in the document.
+
+## Next Steps
+
+- [Controllers](/decorators/controllers): `@DController()`, the method decorators, return values, middleware, inheritance and the documentation decorators
+- [Parameters](/decorators/parameters): every parameter decorator and what it passes in
+- [Configuration](/decorators/configuration): the options of `decorators()`
+- [Helpers](/decorators/helpers): mounting without the plugin, listing routes, custom decorators and the types
+- [Recipes](/decorators/recipes): a CRUD controller, middleware, body, query and cookies, a path prefix

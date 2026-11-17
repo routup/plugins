@@ -21,7 +21,7 @@ export const PLUGIN_PAGES: SidebarPlugin[] = [
     plugin('cookie', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('query', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('assets', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
-    plugin('decorators', 'Routing patterns', ['index', 'controllers', 'parameters']),
+    plugin('decorators', 'Routing patterns', ['index', 'controllers', 'parameters', 'configuration', 'helpers', 'recipes']),
     plugin('swagger-ui', 'API documentation', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('cors', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('logger', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),

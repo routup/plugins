@@ -129,6 +129,18 @@ export const PLUGINS: PluginDocs[] = [
         apiPages: ['helpers.md'],
     },
     {
+        name: 'decorators',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['controllers.md', 'parameters.md', 'helpers.md'],
+        entries: [{
+            specifier: '@routup/decorators/preset',
+            file: 'preset/index.ts',
+            apiPages: ['index.md'],
+            exempt: { default: 'the preset object buildPreset() returns, stated under buildPreset()' },
+        }],
+    },
+    {
         name: 'i18n',
         optionsType: 'Options',
         optionsPage: 'index.md',

@@ -68,7 +68,7 @@ packages/[name]/
 | `rate-limit-redis` | `@routup/rate-limit-redis` | Redis rate-limit adapter | `@routup/rate-limit`, `redis-extension` |
 | `swagger-ui` | `@routup/swagger-ui` | Mount Swagger UI from a JSON document or URL | `@routup/assets`, `swagger-ui-dist` |
 
-OpenAPI generation is not a routup-owned package — call `@trapi/swagger`'s `generateSwagger()` directly with `buildPreset()` from `@routup/decorators/preset`, or use the `trapi` CLI with `--preset @routup/decorators/preset`. See `packages/decorators/README.md` for the snippet.
+OpenAPI generation is not a routup-owned package: call `@trapi/swagger`'s `generateSwagger()` directly with `buildPreset()` from `@routup/decorators/preset`, or use the `trapi` CLI with `--preset @routup/decorators/preset`. The tested snippet is `packages/docs/examples/decorators/openapi.ts`.
 
 ## Dependency Layers
 
