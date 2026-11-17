@@ -20,8 +20,8 @@ relatedPlugins: [decorators]
 | `validatorUrl` | `string \| null` | Swagger UI's, `https://validator.swagger.io/validator` | Validator of the badge that `StandaloneLayout` shows for a document loaded by URL; `null` or `'none'` turns it off |
 | `csp` | `boolean \| string \| ContentSecurityPolicyInput` | `false` | Sends a `content-security-policy` header with every response |
 | `securityHeaders` | `boolean` | `false` | Sends `x-content-type-options`, `referrer-policy` and `x-frame-options` with every response |
-| `spec` | `Spec` | set from `document` | Replaced by the `document` argument when it is an object or a file |
-| `url` | `string` | set from `document` | Replaced by the `document` argument when it is a URL |
+| `spec` | `Spec` | set from `document` | Replaced by the `document` argument when it is an object or a file; next to a URL document it is passed on as well |
+| `url` | `string` | set from `document` | Replaced by the `document` argument when it is a URL; next to an object or file document it is passed on as well |
 | `urls` | `Url[]` | none | Several documents (`{ url, name }`) to pick from in the top bar of `StandaloneLayout` |
 | `configUrl` | `string` | none | URL of an external Swagger UI configuration document |
 | `layout` | `string` | `'BaseLayout'` | Top-level layout component of Swagger UI |
@@ -108,7 +108,7 @@ base-uri 'self'; form-action 'self'; frame-ancestors 'none'
 - `frame-ancestors 'none'` forbids framing the UI on any site.
 - `data:` images are used by `swagger-ui.css`; `blob:` lets "Try it out" show binary responses (images, audio, video).
 
-Origins derived from the options and the document go to `connect-src`: the document URL, `configUrl`, the `urls[]` entries, the `servers` of an object or file document at root, path and operation level (or the Swagger 2 `host`), and its OAuth token, refresh and OpenID Connect URLs.
+Origins derived from the options and the document go to `connect-src`: the document URL, `configUrl`, the `urls[]` entries, the `servers` of an object or file document at root, path and operation level and the Swagger 2 `host` (with its `schemes`, by default `https` and `http`), and its OAuth token, refresh and OpenID Connect URLs.
 
 - Templated server URLs are expanded with the `default` and every `enum` value of their variables, each variable once for all its occurrences. Above 64 combinations per server, only the defaults are used. A variable without a value leaves the server out.
 - A protocol-relative server (`//api.example.com`) adds its `https:` and its `http:` origin.
@@ -118,7 +118,7 @@ Origins derived from the options and the document go to `connect-src`: the docum
 
 Some origins cannot be known in advance; add them with the object or use a string policy: the servers of a document loaded by URL, a server variable without a value or one a visitor types freely (no `enum`), and an OpenID Connect `token_endpoint` found through discovery on another origin than the `openIdConnectUrl`.
 
-A source in the object that contains whitespace, a control character, `;` or `,` throws at `app.use()`, since it would add a directive or a second policy. Source expressions such as `'self'`, `data:`, `https:` or `*.example.com` are accepted. [Embed in a Portal](/swagger-ui/recipes#embed-in-a-portal) shows the object; [`buildContentSecurityPolicy()`](/swagger-ui/helpers#buildcontentsecuritypolicy) builds the same policy for a header of your own.
+A source in the object that is empty or contains whitespace, a control character, `;` or `,` throws at `app.use()`, since it would add a directive or a second policy. Source expressions such as `'self'`, `data:`, `https:` or `*.example.com` are accepted. [Embed in a Portal](/swagger-ui/recipes#embed-in-a-portal) shows the object; [`buildContentSecurityPolicy()`](/swagger-ui/helpers#buildcontentsecuritypolicy) builds the same policy for a header of your own.
 
 ### `securityHeaders`
 

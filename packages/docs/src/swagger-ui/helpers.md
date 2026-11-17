@@ -34,7 +34,7 @@ Returns the recommended policy of [`csp`](/swagger-ui/configuration#csp) as a he
 declare function buildContentSecurityPolicy(input?: ContentSecurityPolicyInput): string;
 ```
 
-Without input it returns the policy shown under [`csp`](/swagger-ui/configuration#csp). It throws for a source that contains whitespace, a control character, `;` or `,`.
+Without input it returns the policy shown under [`csp`](/swagger-ui/configuration#csp). It throws for a source that is empty or contains whitespace, a control character, `;` or `,`.
 
 ## `isFileURL()`
 

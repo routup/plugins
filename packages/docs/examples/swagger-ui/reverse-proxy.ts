@@ -1,8 +1,8 @@
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { App } from 'routup';
 import { swaggerUI } from '@routup/swagger-ui';
 
-const document = fileURLToPath(new URL('./openapi.json', import.meta.url));
+const document = JSON.parse(readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
 
 const api = new App();
 

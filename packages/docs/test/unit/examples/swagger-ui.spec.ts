@@ -193,6 +193,84 @@ describe('behaviour stated on the pages', () => {
         expect(() => new App().use(swaggerUI(pathToFileURL(DOCUMENT).href))).toThrow(/ENOENT/);
     });
 
+    it('treats a drive-letter path or a host:port string as a URL and passes it on', async () => {
+        for (const input of ['C:\\docs\\openapi.json', 'localhost:3000/openapi.json']) {
+            expect(isFileURL(input)).toBe(false);
+
+            const app = new App();
+
+            app.use('/docs', swaggerUI(input));
+
+            const source = await initializer(app, '/docs/swagger-initializer.js');
+
+            expect(source).toContain(`"url": ${JSON.stringify(input)}`);
+            expect(source).not.toContain('"spec"');
+        }
+    });
+
+    it('passes a url option on next to an object document', async () => {
+        const app = new App();
+
+        app.use('/docs', swaggerUI({
+            openapi: '3.1.0',
+            info: { title: 'T', version: '1' },
+            paths: {},
+        }, { url: 'https://example.com/other.json' }));
+
+        const source = await initializer(app, '/docs/swagger-initializer.js');
+
+        expect(source).toContain('"spec"');
+        expect(source).toContain('"url": "https://example.com/other.json"');
+    });
+
+    it('adds the Swagger 2 host with its schemes, https and http by default', async () => {
+        const policy = async (document: Record<string, unknown>) => {
+            const app = new App();
+
+            app.use('/docs', swaggerUI(document, { csp: true }));
+
+            return (await app.fetch(request('/docs/'))).headers.get('content-security-policy');
+        };
+
+        expect(await policy({
+            swagger: '2.0',
+            host: 'api.example.com',
+            paths: {},
+        }))
+            .toContain("connect-src 'self' https://api.example.com http://api.example.com;");
+        expect(await policy({
+            swagger: '2.0',
+            host: 'api.example.com',
+            schemes: ['https'],
+            paths: {},
+        }))
+            .toContain("connect-src 'self' https://api.example.com;");
+        expect(await policy({
+            swagger: '2.0',
+            host: 'api.example.com',
+            schemes: ['https'],
+            servers: [{ url: 'https://other.example.com' }],
+            paths: {},
+        })).toContain("connect-src 'self' https://other.example.com https://api.example.com;");
+    });
+
+    it('throws for a bound or native function option at app.use()', () => {
+        const fn = function interceptor(input: unknown) {
+            return input;
+        };
+        const bound = swaggerUI(DOCUMENT, { requestInterceptor: fn.bind(null) as never });
+
+        expect(() => new App().use(bound)).toThrow(/requestInterceptor/);
+        expect(() => new App().use(swaggerUI(DOCUMENT, { responseInterceptor: Math.max as never }))).toThrow(/responseInterceptor/);
+    });
+
+    it('throws for an empty csp source', () => {
+        const plugin = swaggerUI(DOCUMENT, { csp: { connectSrc: [''] } });
+
+        expect(() => new App().use(plugin)).toThrow(/connectSrc/);
+        expect(() => buildContentSecurityPolicy({ imgSrc: [''] })).toThrow(/imgSrc/);
+    });
+
     it('treats a string without protocol or with file: as a file path', () => {
         expect(isFileURL('./openapi.json')).toBe(true);
         expect(isFileURL('file:///srv/openapi.json')).toBe(true);

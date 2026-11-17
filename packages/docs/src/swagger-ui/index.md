@@ -66,11 +66,11 @@ The first argument of `swaggerUI()` is the document:
 | Argument | Treated as | Notes |
 |----------|------------|-------|
 | An object | The document | Embedded in `swagger-initializer.js` as `spec` |
-| An absolute URL with a protocol other than `file:` | A URL | Passed to Swagger UI as `url`; the browser fetches it, so it must be reachable from the browser and allow CORS on another origin |
-| Any other string | A file path | Read with `JSON.parse` at `app.use()`, relative to the working directory, and embedded as `spec` |
+| A string that parses as an absolute URL with a protocol other than `file:` | A URL | Passed to Swagger UI as `url`; the browser fetches it, so it must be reachable from the browser and allow CORS on another origin |
+| Any other string | A file path | Read with `JSON.parse` at `app.use()`, a relative path against the working directory of the process (not the file that calls `swaggerUI()`), and embedded as `spec` |
 
 - **JSON only.** YAML files are not supported; convert them or pass the parsed object.
-- **Pass a path, not a `file://` URL.** A `file:///...` string counts as a file, but is then read as a plain path and fails. Convert it with `fileURLToPath()`, as the quick start does.
+- **Some paths count as URLs.** The check uses `new URL()`, so a Windows drive-letter path (`C:\docs\openapi.json`, protocol `c:`) or a `host:port/...` string is passed to the browser as `url`, and the UI cannot load it. A `file:///...` string counts as a file, but is read as a plain path and fails. For a path that works on every platform, read and parse the file yourself and pass the object, as the quick start does, or pass a relative path.
 - **The file is read once per install.** Changes to the file are picked up only when the app installs the plugin again, usually after a restart.
 
 [Recipes](/swagger-ui/recipes) show an object document and a URL. To produce the document from `@routup/decorators` controllers, see [OpenAPI generation](/decorators/#openapi-generation): generate it at build time, write it to a file and pass the file to `swaggerUI()`.
