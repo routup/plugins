@@ -5,6 +5,13 @@
  */
 import type { PluginEntry, PluginGroup, PluginGroupEntry } from './types';
 
+/**
+ * The pages the landing page reads, relative to the site root: the overview
+ * of each plugin folder. Guide pages live in `guide/`, which has no
+ * `index.md`, so they are not read as plugins.
+ */
+export const PLUGIN_PAGE_PATTERN = '*/index.md';
+
 export const PLUGIN_GROUPS = [
     'Bundles',
     'Request & response',

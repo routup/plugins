@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
+import { GUIDE_PAGES, PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
 import { buildSidebar, definePluginPages } from '../../src/.vitepress/domains/sidebar';
 
 const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
@@ -38,7 +38,15 @@ const plugins = [
     },
 ];
 
+const guide = [
+    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Combining Plugins', link: '/guide/combining' },
+];
+
+const guideGroup = { text: 'Guide', items: guide };
+
 const groups = [
+    guideGroup,
     {
         text: 'Overview',
         items: [{ text: 'All plugins', link: '/' }],
@@ -57,17 +65,18 @@ const groups = [
 ];
 
 describe('buildSidebar', () => {
-    it('shows the plugin groups at the root and under /guide/', () => {
-        const sidebar = buildSidebar(plugins);
+    it('shows the guide and the plugin groups at the root and under /guide/', () => {
+        const sidebar = buildSidebar(plugins, guide);
 
         expect(sidebar['/']).toEqual(groups);
         expect(sidebar['/guide/']).toEqual(groups);
     });
 
-    it('puts the pages of a plugin first under its own path', () => {
-        const sidebar = buildSidebar(plugins);
+    it('puts the guide first and then the pages of a plugin under its own path', () => {
+        const sidebar = buildSidebar(plugins, guide);
 
         expect(sidebar['/rate-limit/']).toEqual([
+            guideGroup,
             {
                 text: 'rate-limit',
                 items: [
@@ -75,16 +84,16 @@ describe('buildSidebar', () => {
                     { text: 'Configuration', link: '/rate-limit/configuration' },
                 ],
             },
-            ...groups,
+            ...groups.slice(1),
         ]);
-        expect(sidebar['/basic/']?.[0]).toEqual({
+        expect(sidebar['/basic/']?.[1]).toEqual({
             text: 'basic',
             items: [{ text: 'Overview', link: '/basic/' }],
         });
     });
 
     it('has one key per plugin plus / and /guide/', () => {
-        expect(Object.keys(buildSidebar(plugins)).sort()).toEqual(['/', '/basic/', '/cors/', '/guide/', '/rate-limit/']);
+        expect(Object.keys(buildSidebar(plugins, guide)).sort()).toEqual(['/', '/basic/', '/cors/', '/guide/', '/rate-limit/']);
     });
 
     it('rejects a plugin whose first page is not its overview', () => {
@@ -92,7 +101,20 @@ describe('buildSidebar', () => {
             name: 'cors',
             group: 'Operations',
             pages: [{ text: 'Helpers', link: '/cors/helpers' }],
-        }])).toThrow('cors: the first page must link to /cors/');
+        }], guide)).toThrow('cors: the first page must link to /cors/');
+    });
+});
+
+describe('GUIDE_PAGES', () => {
+    it('lists every page of the guide folder, which has no index page', () => {
+        const folder = path.join(srcRoot, GUIDE_FOLDER);
+        const files = readdirSync(folder)
+            .filter((name) => name.endsWith('.md'))
+            .map((name) => `/${GUIDE_FOLDER}/${name.slice(0, -3)}`)
+            .sort();
+
+        expect(files).not.toContain(`/${GUIDE_FOLDER}/index`);
+        expect(GUIDE_PAGES.map((item) => item.link).sort()).toEqual(files);
     });
 });
 
@@ -114,15 +136,24 @@ describe('definePluginPages', () => {
     });
 });
 
+/**
+ * Folders of the site that hold no plugin.
+ */
+const GUIDE_FOLDER = 'guide';
+
 describe('PLUGIN_PAGES', () => {
     it('lists every plugin folder of the site', () => {
         const folders = readdirSync(srcRoot, { withFileTypes: true })
-            .filter((item) => item.isDirectory() && existsSync(path.join(srcRoot, item.name, 'index.md')))
+            .filter((item) => item.isDirectory() && !item.name.startsWith('.') && item.name !== GUIDE_FOLDER)
             .map((item) => item.name)
             .sort();
 
         expect(folders.length).toBeGreaterThan(0);
         expect(PLUGIN_PAGES.map((item) => item.name).sort()).toEqual(folders);
+
+        const missing = folders.filter((name) => !existsSync(path.join(srcRoot, name, 'index.md')));
+
+        expect(missing).toEqual([]);
     });
 
     it('uses the group of each overview frontmatter', () => {

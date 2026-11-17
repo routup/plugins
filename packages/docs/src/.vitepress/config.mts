@@ -1,6 +1,14 @@
 import { defineRoutupConfig } from '@routup/docs-theme/config';
 import { buildSidebar, definePluginPages as plugin } from './domains/sidebar';
-import type { SidebarPlugin } from './domains/types';
+import type { SidebarLink, SidebarPlugin } from './domains/types';
+
+/**
+ * The pages of `src/guide/`, in sidebar order.
+ */
+export const GUIDE_PAGES: SidebarLink[] = [
+    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Combining Plugins', link: '/guide/combining' },
+];
 
 /**
  * Every plugin and the pages it has, in sidebar order. A plugin's pages are
@@ -44,10 +52,15 @@ export default defineRoutupConfig({
 
         nav: [
             { text: 'Routup', link: 'https://routup.dev' },
+            {
+                text: 'Guide', 
+                link: '/guide/getting-started', 
+                activeMatch: '/guide/', 
+            },
             { text: 'Plugins', link: '/' },
         ],
 
-        sidebar: buildSidebar(PLUGIN_PAGES),
+        sidebar: buildSidebar(PLUGIN_PAGES, GUIDE_PAGES),
 
         socialLinks: [
             { icon: 'github', link: 'https://github.com/routup/plugins' },
@@ -64,6 +77,8 @@ export default defineRoutupConfig({
                 {
                     title: 'Docs',
                     links: [
+                        { text: 'Getting started', link: '/guide/getting-started' },
+                        { text: 'Combining plugins', link: '/guide/combining' },
                         { text: 'All plugins', link: '/' },
                         { text: 'routup', link: 'https://routup.dev' },
                         { text: 'Plugin authoring', link: 'https://routup.dev/guide/plugin-authoring/' },

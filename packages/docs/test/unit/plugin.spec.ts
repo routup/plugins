@@ -1,7 +1,16 @@
+import { globSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import type { PluginEntry } from '../../src/.vitepress/domains/types';
-import { PLUGIN_GROUPS, buildPlugin, groupPlugins } from '../../src/.vitepress/domains/plugin';
+import {
+    PLUGIN_GROUPS,
+    PLUGIN_PAGE_PATTERN,
+    buildPlugin,
+    groupPlugins,
+} from '../../src/.vitepress/domains/plugin';
+
+const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
 
 function entry(input: Partial<PluginEntry> & Pick<PluginEntry, 'package' | 'group'>): PluginEntry {
     return {
@@ -11,6 +20,17 @@ function entry(input: Partial<PluginEntry> & Pick<PluginEntry, 'package' | 'grou
         ...input,
     };
 }
+
+describe('PLUGIN_PAGE_PATTERN', () => {
+    it('matches the plugin overviews and no guide page', () => {
+        const files = globSync(PLUGIN_PAGE_PATTERN, { cwd: srcRoot });
+
+        expect(files).toContain('rate-limit/index.md');
+        expect(files.every((file) => /^[^/]+\/index\.md$/.test(file))).toBe(true);
+        expect(files.filter((file) => file.startsWith('guide/'))).toEqual([]);
+        expect(globSync('guide/*.md', { cwd: srcRoot })).toContain('guide/getting-started.md');
+    });
+});
 
 describe('buildPlugin', () => {
     it('maps valid frontmatter to an entry and keeps the url', () => {

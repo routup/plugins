@@ -1,8 +1,9 @@
 /**
- * Builds the path-keyed sidebar: a plugin's own pages come first on each of
- * its pages, followed by the groups that link to every plugin overview.
+ * Builds the path-keyed sidebar: the guide comes first on every page, then a
+ * plugin's own pages on each of its pages, then the groups that link to
+ * every plugin overview.
  */
-import type { SidebarGroup, SidebarPlugin } from './types';
+import type { SidebarGroup, SidebarLink, SidebarPlugin } from './types';
 
 /**
  * Sidebar title per page file name (without `.md`).
@@ -36,7 +37,8 @@ export function definePluginPages(name: string, group: string, pages: string[]):
     };
 }
 
-export function buildSidebar(plugins: SidebarPlugin[]): Record<string, SidebarGroup[]> {
+export function buildSidebar(plugins: SidebarPlugin[], guide: SidebarLink[]): Record<string, SidebarGroup[]> {
+    const guideGroup: SidebarGroup = { text: 'Guide', items: guide };
     const groups: SidebarGroup[] = [
         {
             text: 'Overview',
@@ -62,12 +64,13 @@ export function buildSidebar(plugins: SidebarPlugin[]): Record<string, SidebarGr
     }
 
     const sidebar: Record<string, SidebarGroup[]> = {
-        '/': groups,
-        '/guide/': groups,
+        '/': [guideGroup, ...groups],
+        '/guide/': [guideGroup, ...groups],
     };
 
     for (const plugin of plugins) {
         sidebar[`/${plugin.name}/`] = [
+            guideGroup,
             { text: plugin.name, items: plugin.pages },
             ...groups,
         ];
