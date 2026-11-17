@@ -13,7 +13,7 @@ export default defineConfig({
         include: ['test/unit/**/*.spec.ts'],
     },
     plugins: [
-        // @routup/decorators uses legacy decorators with metadata
+        // @routup/decorators uses legacy decorators; it reads no design-time metadata
         swc.vite({
             jsc: {
                 parser: {
@@ -22,7 +22,7 @@ export default defineConfig({
                 },
                 transform: {
                     legacyDecorator: true,
-                    decoratorMetadata: true,
+                    decoratorMetadata: false,
                 },
             },
         }),
