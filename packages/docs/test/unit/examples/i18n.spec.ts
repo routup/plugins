@@ -7,6 +7,7 @@ import {
     vi,
 } from 'vitest';
 import {
+    LoaderStore,
     MemoryStore,
     defineCatalog,
     defineLocale,
@@ -172,6 +173,32 @@ describe('behaviour stated on the page', () => {
 
         expect(await greeting(app, 'it')).toBe('Hello');
         expect(await greeting(create({ store }), 'it')).toBe('Ciao');
+    });
+
+    it('does not negotiate when the store reports no locales, and keeps that from the first request', async () => {
+        const texts: Record<string, string> = { en: 'Hello', de: 'Hallo' };
+        const store = new LoaderStore({
+            // no locales option: getLocales() reports only what is loaded
+            loader: (locale) => (texts[locale] ? defineTranslations({ greeting: texts[locale]! }) : undefined),
+        });
+        const app = new App();
+
+        app.use(i18n({ store }));
+        app.get('/', defineCoreHandler(async (event) => ({
+            locale: event.store[Symbol.for('@routup/i18n:ReqI18nLocale')],
+            text: (await useTranslator(event)({ namespace: 'app', key: 'greeting' })) ?? null,
+        })));
+
+        const read = async (language?: string) => (await app.fetch(request('/', language))).json();
+
+        // first request: the store reports [], which the plugin keeps
+        expect(await read('de')).toEqual({ locale: 'de', text: 'Hallo' });
+        expect(await store.getLocales()).toEqual(['de']);
+
+        // the first Accept-Language entry as sent, not negotiated against de
+        expect(await read('fr, de;q=0.5')).toEqual({ locale: 'fr', text: 'Hello' });
+        // * without the header
+        expect(await read()).toEqual({ locale: '*', text: 'Hello' });
     });
 
     it('misses every key without a store', async () => {

@@ -23,8 +23,11 @@ app.use(i18n({
     locale: (event) => event.searchParams.get('lang') ?? undefined,
 }));
 
-app.get('/', defineCoreHandler((event) => {
+app.get('/', defineCoreHandler(async (event) => {
     const translate = useTranslator(event);
 
-    return translate({ namespace: 'app', key: 'greeting' });
+    const text = await translate({ namespace: 'app', key: 'greeting' });
+
+    // a missing key resolves to undefined, which would leave the request unanswered
+    return text ?? 'app.greeting';
 }));

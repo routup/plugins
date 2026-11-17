@@ -45,14 +45,16 @@ For each request the plugin picks the locale in this order:
 | Step | Source | Used when |
 |------|--------|-----------|
 | 1 | The [`locale`](#options) function | It returns a string; the string is used as is, also when the store has no such locale |
-| 2 | `Accept-Language`, negotiated against the locales the store reports | The header has a match; `q` weights count and `de-CH` matches `de`. Without the header, the first locale of the store wins |
+| 2 | `Accept-Language`, negotiated against the locales the store reports | The header has a match; `q` weights count and `de-CH` matches `de`. Without the header, the first locale of the store wins. When the store reports no locales, see below |
 | 3 | The locale of the ilingo instance | Nothing matched: the [`locale`](#options) string if you set one, otherwise ilingo's default `'en'` |
+
+A store that reports no locales on the first request (no store, or a `LoaderStore` without its `locales` option) turns negotiation off for good: the request locale is then the client's first `Accept-Language` entry as sent, for example `fr` for `fr, de;q=0.5` even when `de` is loaded, or `*` without the header. Steps 2 and 3 do not apply; lookups for a locale the store lacks fall back as described next.
 
 The translator then looks the key up through ilingo's fallback chain: the request locale, its BCP-47 parents (`de-CH`, then `de`) and finally `en`. A key that no locale of the chain has resolves to `undefined`, and ilingo warns about it once per locale, namespace and key unless `NODE_ENV` is `production`.
 
 - **Return a string for a missing key.** A handler that returns `undefined` leaves the request unanswered: routup waits for `event.next()` until a timeout answers `408`, or forever without one. Use `?? fallback` on the result, or `onMissingKey` ([Fallback Text for Missing Keys](#fallback-text-for-missing-keys)).
-- **Locales are read once.** The plugin calls `getLocales()` of the ilingo instance on the first request and keeps the result, so a locale added to the store later is not negotiated.
-- **Translation is async.** The translator returns a promise; `await` it or return it from the handler.
+- **Locales are read once.** The plugin calls `getLocales()` of the ilingo instance on the first request and keeps the result, also an empty one, so a locale added to the store later is not negotiated.
+- **Translation is async.** The translator returns a promise; `await` it, as the samples do.
 
 ## Options
 
@@ -142,7 +144,7 @@ curl -H 'accept-language: de' http://localhost:3000/nope
 
 ### Translations From Files
 
-A `LoaderStore` loads one JSON file per locale and namespace on first use and caches it. Its `locales` option is the list the plugin negotiates against; without it, the store reports only the locales it has loaded so far.
+A `LoaderStore` loads one JSON file per locale and namespace on first use and caches it. Set its `locales` option: it is the list the plugin negotiates against. Without it, the store reports no locales on the first request, since nothing is loaded yet, and the plugin never negotiates ([Default Behaviour](#default-behaviour)).
 
 <<< @/../examples/i18n/load-files.ts
 

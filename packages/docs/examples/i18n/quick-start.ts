@@ -27,12 +27,15 @@ export const app = new App();
 
 app.use(i18n({ store }));
 
-app.get('/', defineCoreHandler((event) => {
+app.get('/', defineCoreHandler(async (event) => {
     const translate = useTranslator(event);
 
-    return translate({
+    const text = await translate({
         namespace: 'app',
         key: 'greeting',
         data: { name: 'Peter' },
     });
+
+    // a missing key resolves to undefined, which would leave the request unanswered
+    return text ?? 'app.greeting';
 }));
