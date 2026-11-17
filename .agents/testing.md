@@ -3,7 +3,7 @@
 ## Framework
 
 - **Runner**: Vitest 5 with v8 coverage provider
-- **HTTP Testing**: `supertest` for integration-style tests against routup Router
+- **HTTP Testing**: a routup `App` driven through `app.fetch()`
 - **Coverage**: Enforced thresholds (~58% branches, ~73-77% lines/functions/statements)
 
 ## Running Tests
@@ -36,26 +36,26 @@ export default defineConfig({
 
 ## Test Pattern
 
-Tests use `supertest` with a real routup `Router` instance — no mocking of the framework:
+Tests run a real routup `App` through `app.fetch()` with a Web `Request`; no mocking of the framework:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import supertest from 'supertest';
-import { Router, coreHandler, createNodeDispatcher } from 'routup';
-import { body, useRequestBody } from '../../src';
+import { describe, expect, it } from 'vitest';
+import { App, defineCoreHandler } from 'routup';
+import { body, readRequestBody } from '../../src';
 
 describe('body plugin', () => {
     it('should parse json body', async () => {
-        const router = new Router();
-        router.use(body({ json: true }));
-        router.post('/', coreHandler((req, res) => useRequestBody(req)));
+        const app = new App();
+        app.use(body());
+        app.post('/', defineCoreHandler((event) => readRequestBody(event)));
 
-        const server = supertest(createNodeDispatcher(router));
-        const response = await server
-            .post('/')
-            .send({ foo: 'bar' });
+        const response = await app.fetch(new Request('http://localhost/', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ foo: 'bar' }),
+        }));
 
-        expect(response.body).toEqual({ foo: 'bar' });
+        expect(await response.json()).toEqual({ foo: 'bar' });
     });
 });
 ```
@@ -63,8 +63,16 @@ describe('body plugin', () => {
 ## Key Conventions
 
 - Import `describe`, `it`, `expect` explicitly from `vitest`
-- Always test through HTTP with `supertest` — don't unit-test handlers in isolation
-- Use `createNodeDispatcher(router)` to bridge routup Router to a Node HTTP server
+- Test through `app.fetch()`; don't unit-test handlers in isolation
 - Test both success and error paths
 - Each package owns its own coverage config
-- `packages/decorators` uses `unplugin-swc` in its vitest config for legacy decorator support
+- `packages/decorators` and the docs tests use `unplugin-swc` in their vitest config for legacy decorator support
+
+## Docs Tests
+
+`npx nx run @routup/plugins-docs:test` (also part of `npm run test`) checks the docs site against the code:
+
+- `test/unit/registry.spec.ts`: every `@routup/*` package needs an entry in `test/registry.ts`. Per entry: the Options table against the options type, nested option tables, the exports of the main entry and each subpath (`entries`, or `subpathExempt` with a reason) against the API pages, the README (no Options, API, Notes or Usage heading; links to the docs; contains `examples/<name>/quick-start.ts`), the sidebar. Exemptions carry a reason and fail when stale. It compares names only; pin types, defaults and behaviour stated on a page in the sample spec.
+- `test/unit/links.spec.ts`: every internal link and anchor in `src/**/*.md` and every `https://plugins.routup.dev/...` link in a README resolves to a page and a heading (anchors are computed with VitePress' slugify in `test/doc-checks.ts`).
+- `test/unit/examples/<plugin>.spec.ts`: runs each sample the pages include.
+- `test/aliases.ts` resolves `@routup/*` to `packages/*/src`, so no build is needed. The NX `test` and `build` inputs of `packages/docs/package.json` list the plugin sources and READMEs; a new file the docs tests read outside `packages/docs` needs an input there, or NX serves a stale cached result.

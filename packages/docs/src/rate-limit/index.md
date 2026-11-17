@@ -70,3 +70,4 @@ The headers are set on `event.response`, so a route that returns a `Response` ob
 - [Helpers](/rate-limit/helpers): `useRequestRateLimitInfo()`, `MemoryStore`, the `Store` interface and the types
 - [Recipes](/rate-limit/recipes): limit one path, tiered quotas, count only failed requests, a custom store
 - [`@routup/rate-limit-redis`](/rate-limit-redis/): counters in Redis, shared between instances
+- [Combining Plugins](/guide/combining#rate-limit-with-a-shared-store): a shared store, and why `cors()` comes before the limiter
