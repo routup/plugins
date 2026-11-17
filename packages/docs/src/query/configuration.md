@@ -21,9 +21,10 @@ The qs `IParseOptions`. The common ones, with the defaults of qs 6:
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `depth` | `number \| false` | `5` | Maximum nesting depth of bracket keys; deeper keys stay in the key string |
-| `arrayLimit` | `number` | `20` | Largest array qs builds, for an index (`a[25]=x`) and for repeated keys; above it the value becomes an object with numeric keys |
+| `arrayLimit` | `number` | `20` | Largest array qs builds: an index of `arrayLimit` or more (`a[20]=x`), or more than `arrayLimit` repeated keys, gives an object with numeric keys |
 | `parameterLimit` | `number` | `1000` | Maximum number of parameters parsed; the rest are dropped |
-| `throwOnLimitExceeded` | `boolean` | `false` | Throw instead of dropping parameters or building an object |
+| `throwOnLimitExceeded` | `boolean` | `false` | Throw instead of dropping parameters over `parameterLimit` or building an object over `arrayLimit`; `depth` is not covered |
+| `strictDepth` | `boolean` | `false` | Throw when a key nests deeper than `depth` |
 | `allowDots` | `boolean` | `false` | Read `a.b=c` like `a[b]=c` |
 | `comma` | `boolean` | `false` | Split `a=b,c` into `['b', 'c']` |
 | `parseArrays` | `boolean` | `true` | With `false`, `a[0]=b` gives `{ a: { 0: 'b' } }` |
@@ -32,4 +33,4 @@ The qs `IParseOptions`. The common ones, with the defaults of qs 6:
 
 The [qs documentation](https://github.com/ljharb/qs#parsing-objects) lists the others. [Parser Options](/query/recipes#parser-options) shows a configuration.
 
-The middleware parses every request it runs for, so with `throwOnLimitExceeded` a query over a limit answers `500` on every route behind `query()`, also on routes that do not read it.
+The middleware parses every request it runs for, so with `throwOnLimitExceeded` or `strictDepth` a query over a limit answers `500` on every route behind `query()`, also on routes that do not read it.

@@ -54,11 +54,12 @@ Handlers that run before `query()` see no query: `useRequestQuery(event)` return
 | `tag=a&tag=b` | `{ tag: ['a', 'b'] }` |
 | `ids[]=1&ids[]=2` | `{ ids: ['1', '2'] }` |
 | `page[limit]=10` | `{ page: { limit: '10' } }` |
-| `a[25]=x` | `{ a: { 25: 'x' } }`: an index above 20 gives an object |
+| `a[19]=x` | `{ a: ['x'] }` |
+| `a[20]=x` | `{ a: { 20: 'x' } }`: an index of 20 or more gives an object |
 | `tag=...` 21 times | An object with the keys `0` to `20`: more than 20 repeated keys give an object |
 | `a[b][c][d][e][f][g]=x` | Nesting stops after five levels; the rest stays one key, `'[g]'` |
 
-Without options, qs keeps the first 1000 parameters and drops the rest. None of these limits raises an error; [Configuration](/query/configuration) changes them.
+Without options, qs keeps the first 1000 parameters and drops the rest. None of these limits raises an error unless you set `throwOnLimitExceeded` or `strictDepth`; [Configuration](/query/configuration) changes them.
 
 ## Next Steps
 

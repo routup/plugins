@@ -129,12 +129,13 @@ describe('behaviour stated on the pages', () => {
         expect(await read(create((event) => useRequestQuery(event)), '/?q=hello+wide%20world')).toEqual({ q: 'hello wide world' });
     });
 
-    it('keeps an index above arrayLimit and more than 20 repeated keys as objects', async () => {
+    it('builds an object from index 20 and from 21 repeated keys', async () => {
         const app = create((event) => useRequestQuery(event));
         const twenty = Array.from({ length: 20 }, (_, i) => `t=${i}`).join('&');
         const twentyOne = Array.from({ length: 21 }, (_, i) => `t=${i}`).join('&');
 
-        expect(await read(app, '/?a[25]=x')).toEqual({ a: { 25: 'x' } });
+        expect(await read(app, '/?a[19]=x')).toEqual({ a: ['x'] });
+        expect(await read(app, '/?a[20]=x')).toEqual({ a: { 20: 'x' } });
         expect(Array.isArray(((await read(app, `/?${twenty}`)) as { t: unknown }).t)).toBe(true);
         expect(Array.isArray(((await read(app, `/?${twentyOne}`)) as { t: unknown }).t)).toBe(false);
     });
@@ -197,6 +198,15 @@ describe('behaviour stated on the pages', () => {
         }, false);
 
         expect(await read(app, '/')).toEqual({ before: false, after: true });
+    });
+
+    it('throws for a too deep key only with strictDepth', async () => {
+        const deep = '/?a[b][c][d]=x';
+        const loose = create(() => 'ok', { parse: { depth: 2, throwOnLimitExceeded: true } });
+        const strict = create(() => 'ok', { parse: { depth: 2, strictDepth: true } });
+
+        expect((await loose.fetch(new Request(`http://localhost${deep}`))).status).toBe(200);
+        expect((await strict.fetch(new Request(`http://localhost${deep}`))).status).toBe(500);
     });
 
     it('answers 500 when throwOnLimitExceeded meets too many parameters', async () => {
