@@ -2,7 +2,7 @@ import { App } from 'routup';
 import { DController, DGet, decorators } from '@routup/decorators';
 
 @DController('/users')
-class UserController {
+export class UserController {
     @DGet('')
     list() {
         return [{ id: '1' }];

@@ -39,27 +39,15 @@ Each of the five decorators binds a method to one HTTP method and a path relativ
 declare function DGet(url: string, handlers?: ClassType[]): MethodDecorator;
 ```
 
+| Decorator | HTTP method |
+|-----------|-------------|
+| `@DGet(url, handlers?)` | `GET` |
+| `@DPost(url, handlers?)` | `POST` |
+| `@DPut(url, handlers?)` | `PUT` |
+| `@DPatch(url, handlers?)` | `PATCH` |
+| `@DDelete(url, handlers?)` | `DELETE` |
+
 The method may be `async`; it is awaited. [Return Values](#return-values) says how its result becomes the response. For another HTTP method, build a decorator with [`createMethodDecorator()`](/decorators/helpers#createmethoddecorator).
-
-### `DGet()`
-
-Routes `GET` requests for `url` to the method.
-
-### `DPost()`
-
-Routes `POST` requests for `url` to the method.
-
-### `DPut()`
-
-Routes `PUT` requests for `url` to the method.
-
-### `DPatch()`
-
-Routes `PATCH` requests for `url` to the method.
-
-### `DDelete()`
-
-Routes `DELETE` requests for `url` to the method.
 
 ## Return Values
 
@@ -74,7 +62,7 @@ A method returns the response value instead of sending it, as any routup handler
 | Returns a `Response` | That response, unchanged; `@DStatus()` and `@DProduces()` are not applied |
 | Returns `null` | An empty body with the status of `event.response` (`200`, or the `@DStatus()` code) |
 | Returns `undefined` | **No response.** routup waits for `event.next()` to be called, so the request hangs until a [timeout](https://routup.dev/guide/timeouts) answers `408` ([Returning `undefined`](https://routup.dev/guide/handlers#returning-undefined)) |
-| Throws | The error goes to the error handlers; without one, routup answers with the error's status (`500` for a plain `Error`) and `{"status":500,"message":"..."}`. `@DStatus()` and `@DProduces()` are not applied |
+| Throws | The error goes to the error handlers; without one, routup answers with the error's status (`500` for a plain `Error`) and `{"status":500,"message":"..."}` when the request accepts JSON or sends no `Accept` header, the message as plain text otherwise. `@DStatus()` and `@DProduces()` are not applied |
 
 - To set a status or header from the method, take the event with [`@DContext()`](/decorators/parameters#dcontext) (`event.response.status = 201` above) or the response accumulator with [`@DResponse()`](/decorators/parameters#dresponse).
 - To hand the request on to the next matching handler, return `event.next()` from a method that takes the event with `@DContext()`.
@@ -155,8 +143,8 @@ A controller can extend a decorated class:
   - an override without decorators keeps the inherited route, which calls the override
   - `@DController(path)` without middlewares starts from the class middlewares of the parent (dropping what a decorator below it added); an array, also `[]`, replaces them
 - **Order.** Inherited routes are registered first, in the declaration order of the parent: with a parent `@DGet('/:id')`, a subclass's `@DGet('/me')` is answered by the parent's route. Declare such a static route in the parent, or let the parent's method hand it over with `event.next()`.
-- **When the copy is taken.** On the first use of a class prototype: its first decorator at class definition, or `useDecoratorMeta(Subclass.prototype)`, also a plain read. A decorator applied to the parent by hand afterwards does not reach it. An instance only reads through its prototype chain, mounting and listing never copy, and a prototype built with `Object.create(Parent.prototype)` without a `constructor` of its own shares the metadata of the parent. So does a subclass prototype sealed or frozen before its first decorator runs, as by a sealing class decorator placed below `@DController()` on a subclass without member decorators of its own: place it above `@DController()`.
-- **Custom fields.** Fields a custom decorator stores on the metadata are carried into the copy by reference: a custom decorator that changes such a field in place also changes it for the parent, so it must replace the value instead.
+- **Decorate the parent first.** A subclass takes its copy at its first decorator, so a decorator applied to the parent by hand after the subclass is defined does not reach it. Place a class decorator that seals or freezes the class above `@DController()`; below it, a subclass without decorators of its own on its members shares the metadata of the parent.
+- **Custom decorators replace values.** The copy holds the fields a custom decorator stored by reference: assign a new value instead of changing the inherited one in place, or the parent changes too.
 - **OpenAPI.** The preset lists inherited methods only for a class with its own `@DController()`, does not inherit the class-level decorators of a parent, and documents a method from one declaration (the override when it has a method decorator, else the parent's), while the runtime combines the inherited parameter decorators and response options with those of the override.
 
 ## Documentation Decorators
@@ -176,12 +164,6 @@ These decorators do nothing at runtime; the [OpenAPI preset](/decorators/#openap
 | `@DDeprecated()` | class, method | Marks the operations deprecated |
 | `@DHidden()` | class, method | Leaves the operations out of the document |
 
-### `DTags()`
-
-```typescript
-declare function DTags(...names: string[]): (...args: any) => void;
-```
-
 ### `DReturns()`
 
 Documents a response: the type argument is the payload schema, and the description defaults to the reason phrase of the status (`409` gives `Conflict`, `200` gives `Ok`, an unknown code `Ok`).
@@ -195,12 +177,6 @@ declare function DReturns<T>(status: number | string, description?: string, exam
 - The status is a literal (`409` or `'409'`), a constant or enum member (`HttpStatus.Conflict`), a range (`'4XX'`) or `'default'`. A status the generator cannot resolve, such as a call, or that is none of these, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
 - It only documents: when a method answers with another status, the method sets that status itself, for example with `@DContext()` and `event.response.status = 201`.
 
-### `DConsumes()`
-
-```typescript
-declare function DConsumes(...mediaTypes: string[]): (...args: any) => void;
-```
-
 ### `DDescription()`
 
 Deprecated: use `@DReturns()`, which takes the same arguments.
@@ -209,28 +185,10 @@ Deprecated: use `@DReturns()`, which takes the same arguments.
 declare function DDescription<T>(name: string | number, description?: string, example?: T): any;
 ```
 
-### `DExample()`
-
-```typescript
-declare function DExample<T>(example: any): (...args: any) => void;
-```
-
 ### `DSecurity()`
 
 `roles` are the scopes of the requirement: an array, or one string.
 
 ```typescript
 declare function DSecurity(roles?: string | string[], name?: string): (...args: any) => void;
-```
-
-### `DDeprecated()`
-
-```typescript
-declare function DDeprecated(): any;
-```
-
-### `DHidden()`
-
-```typescript
-declare function DHidden(): () => void;
 ```

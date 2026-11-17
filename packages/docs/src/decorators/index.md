@@ -1,6 +1,6 @@
 ---
 title: Decorators
-description: Class-, method-, and parameter-decorators for routup — define controllers in TypeScript and mount them on a router.
+description: Class, method and parameter decorators for routup that define controllers as TypeScript classes and mount them on an app.
 relatedPlugins: [basic, body, cookie, query, swagger-ui]
 plugin:
     package: '@routup/decorators'
@@ -18,16 +18,16 @@ Write routup routes as TypeScript classes: `@DController()` sets the path of a c
 - Node.js 24 or later, ESM only
 - `routup` `^6.3.0` (peer dependency)
 - `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies. `@DBody()`, `@DQuery()`, `@DCookie()` and `@DCookies()` need their plugins registered before `decorators()`: see [Decorators and the Parsers](/guide/combining#decorators-and-the-parsers)
-- For [OpenAPI generation](#openapi-generation) only: `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` `^2.3.0` (optional peer dependencies). Only `@routup/decorators/preset` imports them, so install them where you generate the document. An older `@trapi/metadata` ignores `@DProduces` without an error
+- For [OpenAPI generation](#openapi-generation) only: `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` `^2.3.0` (optional peer dependencies). Only `@routup/decorators/preset` imports them, so install them where you generate the document. An older `@trapi/metadata` ignores `@DProduces` without an error. `@trapi/metadata` has `typescript` `>=5.0.0` as a peer dependency
 
 ### TypeScript Settings
 
-The package supports **legacy (experimental) TypeScript decorators only**, the flavour that has parameter decorators. Standard (TC39) decorators, which TypeScript 5 and later compile when `experimentalDecorators` is off, have no parameter decorators and pass a context object instead of a property name: `tsc` rejects the controllers (`TS1206 Decorators are not valid here`, `TS1241 Unable to resolve signature of method decorator`), and code emitted anyway registers no route, so every request gets `404`.
+The package supports **legacy (experimental) TypeScript decorators only**, the flavour that has parameter decorators. Standard (TC39) decorators, which TypeScript 5 and later compile when `experimentalDecorators` is off, have no parameter decorators and pass a context object instead of a property name: `tsc` rejects the controllers (`TS1206 Decorators are not valid here`, `TS1241 Unable to resolve signature of method decorator`), and code emitted anyway registers none of the method routes, so a request gets `404`. The class middlewares of `@DController()` still register, so under a guarded controller it gets `401` instead.
 
 | Compiler | What to configure |
 |----------|-------------------|
 | `tsc` | `"experimentalDecorators": true` in the `compilerOptions` of `tsconfig.json` |
-| esbuild, and tools built on it such as tsx | The same `tsconfig.json` setting, which they read. Without it esbuild fails with "Parameter decorators only work when experimental decorators are enabled" |
+| esbuild, and tools built on it such as tsx | The same `tsconfig.json` setting, which the build API and tsx read. The transform API reads no file: pass `tsconfigRaw: { compilerOptions: { experimentalDecorators: true } }`. Without the setting esbuild fails with "Parameter decorators only work when experimental decorators are enabled" |
 | SWC (also `unplugin-swc` for Vite or Vitest) | `jsc.parser.decorators: true` and `jsc.transform.legacyDecorator: true` |
 | Node.js type stripping (`node app.ts`) | Not possible: decorators are not erasable syntax and fail with a `SyntaxError`. Compile first |
 

@@ -8,7 +8,11 @@ relatedPlugins: [basic, body]
 
 ## A CRUD Controller
 
-A controller for one resource, with a store passed to its constructor: the instance goes into `controllers`, since a class would be created without arguments. `@DStatus()` sets `201` and `204`, and `createError()` from routup answers `400` and `404`.
+A controller for one resource, with a store passed to its constructor: the instance goes into `controllers`, since a class would be created without arguments. `@DStatus()` sets `201` and `204`, and `createError()` from routup answers `400` and `404`. The sample registers `body()` for `@DBody()`, so install `@routup/body` next to the decorators:
+
+```bash
+npm install @routup/body
+```
 
 <<< @/../examples/decorators/crud.ts
 
@@ -46,7 +50,11 @@ The class middleware also runs for a path under `/account` that no method answer
 
 ## Body, Query and Cookies
 
-`basic()` registers the body, cookie and query parsers in one call; the decorators then take the whole value or one key of it. [Decorators and the Parsers](/guide/combining#decorators-and-the-parsers) shows the same with the three plugins registered one by one.
+`basic()` registers the body, cookie and query parsers in one call; the decorators then take the whole value or one key of it. [Decorators and the Parsers](/guide/combining#decorators-and-the-parsers) shows the same with the three plugins registered one by one. Install `@routup/basic` next to the decorators:
+
+```bash
+npm install @routup/basic
+```
 
 <<< @/../examples/decorators/cart.ts
 

@@ -27,7 +27,7 @@ curl -X POST http://localhost:3000/webhook -H 'content-type: application/json' -
 
 ## Rate Limit With a Shared Store
 
-[`@routup/rate-limit`](/rate-limit/) keeps its counters in the process by default. With several instances behind a load balancer, each instance counts on its own; pass a `RedisStore` from [`@routup/rate-limit-redis`](/rate-limit-redis/) as the [`store`](/rate-limit/configuration#store) option to share the counters:
+[`@routup/rate-limit`](/rate-limit/) keeps its counters in the process by default. With several instances behind a load balancer, each instance counts on its own; pass a `RedisStore` from [`@routup/rate-limit-redis`](/rate-limit-redis/) as the [`store`](/rate-limit/configuration#store) option to share the counters. Its window behaves differently: each hit of a client starts that client's window over, where `MemoryStore` clears all counters together every `windowMs` ([Default Behaviour](/rate-limit-redis/#default-behaviour)).
 
 <<< @/../examples/guide/shared-store.ts
 
@@ -35,7 +35,7 @@ How to connect `RedisStore` to your Redis is described on the [`@routup/rate-lim
 
 ## Decorators and the Parsers
 
-[`@routup/decorators`](/decorators/) reads the body, the query string and the cookies with the helpers of the parser plugins, so three of its parameter decorators need a plugin registered before `decorators()`:
+[`@routup/decorators`](/decorators/) reads the body, the query string and the cookies with the helpers of the parser plugins, so four of its parameter decorators need a plugin registered before `decorators()`:
 
 | Decorator | Needs |
 |-----------|-------|

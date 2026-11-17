@@ -8,6 +8,8 @@ import {
     DBody,
     DContext,
     DController,
+    DCookie,
+    DCookies,
     DGet,
     DHeader,
     DNext,
@@ -31,7 +33,7 @@ import { app as middleware } from '../../../examples/decorators/middleware';
 import { app as mountControllersSample } from '../../../examples/decorators/mount-controllers';
 import { generateDocument } from '../../../examples/decorators/openapi';
 import { UserController as PathsController, app as paths } from '../../../examples/decorators/paths';
-import { app as prefix } from '../../../examples/decorators/prefix';
+import { UserController as PrefixUserController, app as prefix } from '../../../examples/decorators/prefix';
 import { app as quickStart } from '../../../examples/decorators/quick-start';
 import { app as request } from '../../../examples/decorators/request';
 import { app as returnValues } from '../../../examples/decorators/return-values';
@@ -209,6 +211,14 @@ describe('what a method returns', () => {
         expect(response.status).toBe(500);
         expect(response.headers.get('content-type')).toBe('application/json; charset=utf-8');
         expect(await response.json()).toEqual({ status: 500, message: 'boom' });
+    });
+
+    it('answers the fallback as plain text when the request does not accept JSON', async () => {
+        const response = await call(build(), '/r/throw', { headers: { accept: 'text/html' } });
+
+        expect(response.status).toBe(500);
+        expect(response.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+        expect(await response.text()).toBe('boom');
     });
 
     it('hands @DStatus and @DProduces to an error handler when the value fails to serialize', async () => {
@@ -425,6 +435,41 @@ describe('parameters', () => {
         });
     });
 
+    it('gives {} for a decorator without a name, undefined with a name, when no parser plugin is registered', async () => {
+        @DController('/none')
+        class NoParserController {
+            @DPost('')
+            create(
+                @DBody() data: unknown,
+                @DQuery() search: unknown,
+                @DCookies() cookies: unknown,
+                @DBody('name') name: unknown,
+                @DQuery('page') page: unknown,
+                @DCookie('session') session: unknown,
+            ) {
+                return {
+                    data,
+                    search,
+                    cookies,
+                    named: [name, page, session].map((value) => (value === undefined ? 'undefined' : value)),
+                };
+            }
+        }
+
+        const app = new App();
+
+        app.use(decorators({ controllers: [NoParserController] }));
+
+        const response = await app.fetch(postJson('/none?page=2', { name: 'pen' }, { cookie: 'session=abc' }));
+
+        expect(await response.json()).toEqual({
+            data: {},
+            search: {},
+            cookies: {},
+            named: ['undefined', 'undefined', 'undefined'],
+        });
+    });
+
     it('fails the request with the parser error for a malformed body', async () => {
         const app = new App();
 
@@ -593,6 +638,28 @@ describe('prefix', () => {
         expect(await (await call(prefix, '/api/v1/users')).json()).toEqual([{ id: '1' }]);
         expect(await (await call(prefix, '/api/v1/teams')).json()).toEqual([{ id: 't1' }]);
         expect((await call(prefix, '/users')).status).toBe(404);
+    });
+
+    it('lists the paths without the mount prefix', () => {
+        expect(getControllerRoutes(PrefixUserController)).toEqual([{ method: 'GET', path: '/users' }]);
+    });
+});
+
+describe('without @DController()', () => {
+    it('mounts the methods of the class at the root of the app', async () => {
+        class Health {
+            @DGet('/health')
+            check() {
+                return { ok: true };
+            }
+        }
+
+        const app = new App();
+
+        app.use(decorators({ controllers: [Health] }));
+
+        expect(await (await call(app, '/health')).json()).toEqual({ ok: true });
+        expect(getControllerRoutes(Health)).toEqual([{ method: 'GET', path: '/health' }]);
     });
 });
 

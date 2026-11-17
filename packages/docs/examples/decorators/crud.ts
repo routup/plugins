@@ -24,7 +24,7 @@ class TodoController {
 
     @DGet('')
     list() {
-        return this.todos.values().toArray();
+        return Array.from(this.todos.values());
     }
 
     @DGet('/:id')

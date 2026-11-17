@@ -19,7 +19,7 @@ curl -H 'accept-language: de' http://localhost:3000/files/docs/a.txt
 - **One decorator per parameter.** With two on the same parameter, the outer one, which TypeScript applies last, wins, and only it reads the request.
 - **Missing values.** `@DHeader()` gives `null` for a missing header (what `Headers.get()` returns); `@DPath()`, `@DBody(name)`, `@DQuery(name)` and `@DCookie()` give `undefined`.
 - **No validation or conversion.** Values arrive as the request or the parser plugin has them: a path parameter `'5'` stays a string, whatever the parameter's type says.
-- **OpenAPI.** The preset reads the decorators with a name as path, query, header or cookie parameters of that name, and `@DBody()` as the request body, typed with the parameter's TypeScript type.
+- **OpenAPI.** The preset types each parameter with its TypeScript type. A decorator with a name becomes a path, query, header or cookie parameter of that name, and `@DBody(name)` a property of the request body object; `@DBody()` is the whole body. Without a name, `@DQuery()` and `@DPaths()` with an object type give one parameter per property, and the other decorators one parameter named after the TypeScript parameter.
 
 ## Request Event
 
