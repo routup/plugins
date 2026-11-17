@@ -40,17 +40,7 @@ morgan is written for Node's `(req, res, next)` and hooks into `res.on('finish')
 | Extra fields | Edit the template | `tokens: { user: (event) => ... }` adds `:user` |
 | Output and noise | `console.log` in the handler, `if` around it | `write` picks the sink, `skip` drops requests (health checks, static files) |
 
-```typescript
-import { logger } from '@routup/logger';
-import { App, defineCoreHandler } from 'routup';
-
-const app = new App();
-
-app.use(logger('dev'));
-
-app.get('/', defineCoreHandler(() => 'ok'));
-// GET / 200 0.412 ms - -
-```
+The colored `dev` preset and its extension are shown in [Extend the Dev Format](https://plugins.routup.dev/logger/recipes#extend-the-dev-format).
 
 ## Installation
 

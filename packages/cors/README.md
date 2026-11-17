@@ -40,14 +40,7 @@ A browser on another origin sends an `OPTIONS` preflight before most API calls a
 | Credentials | A literal `*` in `Access-Control-Allow-Methods` is ignored by the browser under credentials | `methods: '*'` expands to `GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS`, `allowHeaders: '*'` mirrors the request, and unsafe `'*'` combinations log a warning |
 | Per-route use | Copy the header logic into each handler | `handleCors(event, options)` does the same work inside one handler |
 
-```typescript
-import { App } from 'routup';
-import { cors } from '@routup/cors';
-
-const app = new App();
-
-app.use(cors({ origin: true, credentials: true, exposeHeaders: ['x-request-id'] }));
-```
+For requests with cookies or an `Authorization` header, see the [Credentials](https://plugins.routup.dev/cors/recipes#credentials) recipe.
 
 ## Installation
 

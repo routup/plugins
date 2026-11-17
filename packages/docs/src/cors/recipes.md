@@ -46,9 +46,9 @@ The browser script calls `fetch(url, { credentials: 'include' })`. The preflight
 
 ```bash
 curl -i -X OPTIONS http://localhost:3000/me \
-  -H 'origin: https://app.example.com' \
-  -H 'access-control-request-method: GET' \
-  -H 'access-control-request-headers: authorization'
+    -H 'origin: https://app.example.com' \
+    -H 'access-control-request-method: GET' \
+    -H 'access-control-request-headers: authorization'
 # HTTP/1.1 204 No Content
 # access-control-allow-credentials: true
 # access-control-allow-headers: authorization
@@ -66,9 +66,9 @@ A request with a JSON body or an `Authorization` header is preceded by a preflig
 
 ```bash
 curl -i -X OPTIONS http://localhost:3000/todos \
-  -H 'origin: https://app.example.com' \
-  -H 'access-control-request-method: POST' \
-  -H 'access-control-request-headers: content-type'
+    -H 'origin: https://app.example.com' \
+    -H 'access-control-request-method: POST' \
+    -H 'access-control-request-headers: content-type'
 # HTTP/1.1 204 No Content
 # access-control-allow-headers: content-type,authorization
 # access-control-allow-methods: GET,POST,DELETE
@@ -88,8 +88,8 @@ With `preflight.continue`, the plugin sets the preflight headers and passes the 
 
 ```bash
 curl -i -X OPTIONS http://localhost:3000/upload \
-  -H 'origin: https://app.example.com' \
-  -H 'access-control-request-method: PUT'
+    -H 'origin: https://app.example.com' \
+    -H 'access-control-request-method: PUT'
 # HTTP/1.1 204 No Content
 # access-control-allow-methods: *
 # access-control-allow-origin: *

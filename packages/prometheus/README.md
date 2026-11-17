@@ -41,19 +41,6 @@ To get HTTP metrics out of a routup app with plain [prom-client](https://www.npm
 | Scrape endpoint | Add a route that awaits `registry.metrics()` and sets `Content-Type` | Mounted at `metricsPath` (default `/metrics`) |
 | Custom metrics | Register them on a registry you expose yourself | Register them on the same prom-client registry and they appear on the endpoint |
 
-```typescript
-import { App, serve } from 'routup';
-import { prometheus } from '@routup/prometheus';
-
-const app = new App();
-
-// install first, so every route after it is timed
-app.use(prometheus());
-
-serve(app, { port: 3000 });
-// GET http://localhost:3000/metrics
-```
-
 ## Installation
 
 ```bash

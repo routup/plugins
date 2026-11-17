@@ -32,9 +32,9 @@ npm install @routup/cors
 
 ```bash
 curl -i -X OPTIONS http://localhost:3000/ \
-  -H 'origin: https://app.example.com' \
-  -H 'access-control-request-method: POST' \
-  -H 'access-control-request-headers: content-type'
+    -H 'origin: https://app.example.com' \
+    -H 'access-control-request-method: POST' \
+    -H 'access-control-request-headers: content-type'
 # HTTP/1.1 204 No Content
 # access-control-allow-headers: content-type,authorization
 # access-control-allow-methods: *

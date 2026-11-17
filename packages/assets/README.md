@@ -38,7 +38,7 @@ Serving a `public/` or `dist/` folder next to an API looks like one `sendFile` c
 | Extensions and index files | You try `about`, `about.html`, `about/index.html` yourself | `extensions` (default `['html', 'htm']`) is tried as a suffix and as a directory index |
 | Missing files | You decide between a 404 and calling the next handler | The request falls through to the next handler by default; `fallback` serves an SPA shell, `resolve` produces any response |
 | Dotfiles | You filter `.env`, `.git/` by hand | Paths with a segment starting with `.` are not served, except `.well-known` |
-| Caching | You set `Cache-Control` and compare `If-None-Match` | `Cache-Control: public,max-age=…` is set, a matching weak ETag returns `304`, range requests return `206` |
+| Caching | You set `Cache-Control` and compare `If-None-Match` | `Cache-Control: public,max-age=…` is set, a matching weak ETag returns `304`, a `GET` with a byte range returns `206` |
 | Per-request filesystem work | `stat` on every request | With `scan` (default), the directory is listed once, when the plugin is registered, and lookups hit an in-memory map |
 
 ## Installation
@@ -47,7 +47,7 @@ Serving a `public/` or `dist/` folder next to an API looks like one `sendFile` c
 npm install @routup/assets
 ```
 
-ESM only, Node.js `>=24`, peer dependency `routup@^6.3.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
 
 ## Quick Start
 
