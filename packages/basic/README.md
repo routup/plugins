@@ -17,15 +17,11 @@
 </p>
 
 <p align="center">
-    <a href="#installation"><b>Installation</b></a>
+    <a href="https://plugins.routup.dev/basic/"><b>Docs</b></a>
     ·
-    <a href="#usage">Usage</a>
+    <a href="https://plugins.routup.dev/basic/#options">Options</a>
     ·
-    <a href="#options">Options</a>
-    ·
-    <a href="#api">API</a>
-    ·
-    <a href="https://plugins.routup.dev/basic/">Docs</a>
+    <a href="https://plugins.routup.dev/basic/#subpath-exports">Subpath Exports</a>
 </p>
 
 ---
@@ -42,16 +38,6 @@ Most APIs need the request body, cookies and the query string. Installing and re
 | Imports | Helpers from three packages | Helpers from `@routup/basic/body`, `/cookie` and `/query` |
 | Control | Full control over order and placement | Fixed order (body, cookie, query) at one point in the stack; install the plugins individually when you need more |
 
-```typescript
-import { App } from 'routup';
-import { basic } from '@routup/basic';
-
-const app = new App();
-
-// the same as app.use(body()); app.use(cookie()); app.use(query());
-app.use(basic());
-```
-
 ## Installation
 
 ```bash
@@ -60,93 +46,35 @@ npm install @routup/basic
 
 The package is ESM only, requires Node.js >= 24 and has `routup@^6.3.0` as a peer dependency. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies.
 
-## Usage
-
-### Register the bundle
-
-The modules **body**, **cookie** and **query** have an individual export path, as shown in the following snippet.
+## Quick Start
 
 ```typescript
-import { App, defineCoreHandler, serve } from 'routup';
+import { App, defineCoreHandler } from 'routup';
 import { basic } from '@routup/basic';
 import { readRequestBody } from '@routup/basic/body';
-import { useRequestCookie, useRequestCookies } from '@routup/basic/cookie';
+import { useRequestCookie } from '@routup/basic/cookie';
 import { useRequestQuery } from '@routup/basic/query';
 
-const app = new App();
+export const app = new App();
 
+// registers body(), cookie() and query(), in that order
 app.use(basic());
 
-app.post('/', defineCoreHandler(async (event) => {
-    const body = await readRequestBody(event);
-    // { key: value, ... }
-
-    const cookies = useRequestCookies(event);
-    // { key: value, ... }
-
-    const cookie = useRequestCookie(event, 'key');
-    // value
-
-    const query = useRequestQuery(event);
-    // { key: ..., ... }
-
-    return { body, cookies, cookie, query };
-}));
-
-serve(app, { port: 3000 });
+app.post('/items', defineCoreHandler(async (event) => ({
+    item: await readRequestBody(event),
+    page: useRequestQuery(event, 'page'),
+    session: useRequestCookie(event, 'session'),
+})));
 ```
 
-- `@routup/basic/body`, `@routup/basic/cookie` and `@routup/basic/query` re-export everything from `@routup/body`, `@routup/cookie` and `@routup/query`, so you need no second install. Importing from the original packages works as well; both resolve to the same store keys.
-- The helpers behave exactly as in the bundled packages; see their docs for the full reference: [@routup/body](https://plugins.routup.dev/body/), [@routup/cookie](https://plugins.routup.dev/cookie/), [@routup/query](https://plugins.routup.dev/query/).
+The sample exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-### Configure or skip a plugin
+## Documentation
 
-```typescript
-import { App } from 'routup';
-import { basic } from '@routup/basic';
+The full reference lives on [plugins.routup.dev](https://plugins.routup.dev/basic/):
 
-const app = new App();
-
-app.use(basic({
-    body: { json: { limit: '1mb' }, urlEncoded: true },
-    cookie: true,
-    query: false, // skip query parsing entirely
-}));
-```
-
-- Each key takes the options of that plugin, `true` (default options) or `false` (not registered).
-- With no key at all, all three plugins are registered. Once you pass one key, only the keys set to an object or `true` are registered: `basic({ body: true })` registers body alone.
-- The `body` options follow the same rule one level down: `body: { json: { limit: '512kb' } }` enables JSON only, without URL-encoded parsing.
-
-## Options
-
-`basic(options?)`:
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `body` | [`BodyOptions`](https://plugins.routup.dev/body/configuration) `\| boolean` | `true` | Options for `body()`; `false` skips it |
-| `cookie` | [`CookieOptions`](https://plugins.routup.dev/cookie/configuration) `\| boolean` | `true` | Options for `cookie()`; `false` skips it |
-| `query` | [`QueryOptions`](https://plugins.routup.dev/query/configuration) `\| boolean` | `true` | Options for `query()`; `false` skips it |
-
-The defaults apply only when you pass none of the three keys; see [Configure or skip a plugin](#configure-or-skip-a-plugin). The [configuration page](https://plugins.routup.dev/basic/configuration) of the docs has more examples.
-
-## API
-
-| Export | Kind | Purpose |
-|--------|------|---------|
-| `basic` (also the default export) | function | Create the bundle plugin |
-| `Options` | type | Option shape of `basic()` |
-| `boolToObject` | function | Internal helper (`true`/`false` to `{}`), exported by the barrel |
-| `@routup/basic/body` | subpath | Everything from [`@routup/body`](https://plugins.routup.dev/body/): `body`, `readRequestBody`, `readRequestBodyText`, `readRequestBodyStream`, ... |
-| `@routup/basic/cookie` | subpath | Everything from [`@routup/cookie`](https://plugins.routup.dev/cookie/): `cookie`, `useRequestCookie`, `setResponseCookie`, ... |
-| `@routup/basic/query` | subpath | Everything from [`@routup/query`](https://plugins.routup.dev/query/): `query`, `useRequestQuery`, `setRequestQuery`, ... |
-
-## Notes
-
-- **Partial options turn the rest off.** `basic({ query: false })` registers nothing, because `body` and `cookie` are then undefined. List every plugin you want.
-- **The order is fixed.** body, cookie, then query, all at the position of the `basic()` call. Handlers registered before it see no body options, cookies or query.
-- **Registering a plugin twice is harmless for cookie and query**, which skip parsing when a result is already stored. A second `body()` replaces the body options for later handlers.
-- **The options object is modified.** `basic()` writes the defaults into the object you pass when it has no keys; do not share one object between apps if that matters.
+- [Overview](https://plugins.routup.dev/basic/): requirements, default behaviour, the options, the subpath exports and the API
+- [@routup/body](https://plugins.routup.dev/body/), [@routup/cookie](https://plugins.routup.dev/cookie/), [@routup/query](https://plugins.routup.dev/query/): the options and helpers of each parser
 
 ## License
 

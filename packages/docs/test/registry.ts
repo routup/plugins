@@ -52,6 +52,12 @@ export type NestedOptionsDocs = {
 
 export const PLUGINS: PluginDocs[] = [
     {
+        name: 'basic',
+        optionsType: 'Options',
+        optionsPage: 'index.md',
+        apiPages: ['index.md'],
+    },
+    {
         name: 'body',
         optionsType: 'Options',
         optionsPage: 'configuration.md',

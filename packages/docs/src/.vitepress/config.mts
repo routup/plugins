@@ -16,7 +16,7 @@ export const GUIDE_PAGES: SidebarLink[] = [
  * two agree for each registered plugin.
  */
 export const PLUGIN_PAGES: SidebarPlugin[] = [
-    plugin('basic', 'Bundles', ['index', 'configuration']),
+    plugin('basic', 'Bundles', ['index']),
     plugin('body', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('cookie', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('query', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
