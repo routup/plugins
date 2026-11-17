@@ -9,7 +9,7 @@ Most apps register several plugins. This page shows the combinations that depend
 
 ## Body, Cookie and Query
 
-[`@routup/basic`](/basic/) depends on [`@routup/body`](/body/), [`@routup/cookie`](/cookie/) and [`@routup/query`](/query/). `app.use(basic())` registers `body()`, `cookie()` and `query()` in that order, at the position of the call, and the packages' helpers are re-exported under `@routup/basic/body`, `@routup/basic/cookie` and `@routup/basic/query`.
+[`@routup/basic`](/basic/) depends on [`@routup/body`](/body/), [`@routup/cookie`](/cookie/) and [`@routup/query`](/query/). `app.use(basic())` registers `body()`, `cookie()` and `query()` in that order, at the position of the call, and the packages' helpers are re-exported under `@routup/basic/body`, `@routup/basic/cookie` and `@routup/basic/query`. Once you pass any of the keys `body`, `cookie` or `query`, `basic()` registers only the parsers whose key is `true` or an options object: `basic({ body: true })` registers no query or cookie parser.
 
 Install the three packages separately when a parser has to run somewhere else than the others, for example the body parser only under `/api`, or when you need only one or two of them and not the other packages as dependencies:
 
@@ -31,7 +31,7 @@ curl -X POST http://localhost:3000/webhook -H 'content-type: application/json' -
 
 <<< @/../examples/guide/shared-store.ts
 
-`new RedisStore()` takes a Redis URL or an existing client; without one, it creates a client for `localhost:6379`.
+How to connect `RedisStore` to your Redis is described on the [`@routup/rate-limit-redis`](/rate-limit-redis/) page.
 
 ## Decorators and the Parsers
 
@@ -43,7 +43,9 @@ curl -X POST http://localhost:3000/webhook -H 'content-type: application/json' -
 | `@DQuery()`, `@DQuery(name)` | `query()` from `@routup/query` |
 | `@DCookies()`, `@DCookie(name)` | `cookie()` from `@routup/cookie` |
 
-`@DPath()`, `@DPaths()`, `@DHeader()`, `@DHeaders()`, `@DContext()`, `@DRequest()`, `@DResponse()` and `@DNext()` read the request event directly and need no plugin. `basic()` registers all three parsers at once.
+`@DPath(name)`, `@DPaths()`, `@DHeader(name)`, `@DHeaders()`, `@DContext()`, `@DRequest()`, `@DResponse()` and `@DNext()` read the request event directly and need no plugin.
+
+The sample imports the parsers from `@routup/body`, `@routup/query` and `@routup/cookie`. `@routup/decorators` depends on them, but a strict package manager such as pnpm does not let your code import a dependency of a dependency: install the three packages, or register `basic()` from `@routup/basic` instead.
 
 <<< @/../examples/guide/decorators.ts
 
@@ -78,4 +80,3 @@ Each of these registers without an error and fails silently at request time:
 - **`rateLimit()` before `cors()`.** Preflights count against the quota, and the `429` has no `Access-Control-Allow-Origin` header, so the browser hides it from the script.
 - **A handler that answers before `logger()`.** The logger does not see the request, so a `429` from an earlier `rateLimit()` is not logged.
 - **`decorators()` before the parsers.** `@DBody()`, `@DQuery()`, `@DCookies()` and `@DCookie()` resolve to `undefined` or an empty object.
-- **One key passed to `basic()`.** With any of `body`, `cookie` or `query` set, only the keys set to `true` or an options object are registered: `basic({ body: true })` registers no query or cookie parser. See [`@routup/basic`](/basic/).

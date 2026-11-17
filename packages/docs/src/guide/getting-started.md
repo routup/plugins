@@ -33,10 +33,10 @@ The plugins are ESM only and are developed and tested on Node.js 24 or later. Ea
 
 ## Installation
 
-Install `routup` and the plugin you need:
+Install `routup` and the plugins you need, here the two of the sample below:
 
 ```bash
-npm install routup @routup/body
+npm install routup @routup/body @routup/cors
 ```
 
 ## Register Plugins
@@ -46,10 +46,13 @@ npm install routup @routup/body
 The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
 ```bash
-curl -X POST http://localhost:3000/echo \
+curl -i -X POST http://localhost:3000/echo \
     -H 'origin: https://app.example.com' \
     -H 'content-type: application/json' \
     -d '{"title":"Write docs"}'
+# HTTP/1.1 200 OK
+# access-control-allow-origin: https://app.example.com
+#
 # {"title":"Write docs"}
 ```
 

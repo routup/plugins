@@ -2,6 +2,7 @@ import { globSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
+import { PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
 import type { PluginEntry } from '../../src/.vitepress/domains/types';
 import {
     PLUGIN_GROUPS,
@@ -25,8 +26,8 @@ describe('PLUGIN_PAGE_PATTERN', () => {
     it('matches the plugin overviews and no guide page', () => {
         const files = globSync(PLUGIN_PAGE_PATTERN, { cwd: srcRoot });
 
-        expect(files).toContain('rate-limit/index.md');
-        expect(files.every((file) => /^[^/]+\/index\.md$/.test(file))).toBe(true);
+        expect(files.sort()).toEqual(PLUGIN_PAGES.map((item) => `${item.name}/index.md`).sort());
+        expect(files).toHaveLength(13);
         expect(files.filter((file) => file.startsWith('guide/'))).toEqual([]);
         expect(globSync('guide/*.md', { cwd: srcRoot })).toContain('guide/getting-started.md');
     });

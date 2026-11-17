@@ -53,9 +53,9 @@ export default defineRoutupConfig({
         nav: [
             { text: 'Routup', link: 'https://routup.dev' },
             {
-                text: 'Guide', 
-                link: '/guide/getting-started', 
-                activeMatch: '/guide/', 
+                text: 'Guide',
+                link: '/guide/getting-started',
+                activeMatch: '/guide/',
             },
             { text: 'Plugins', link: '/' },
         ],

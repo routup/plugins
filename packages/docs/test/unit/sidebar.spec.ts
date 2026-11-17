@@ -8,6 +8,11 @@ import { buildSidebar, definePluginPages } from '../../src/.vitepress/domains/si
 const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
 
 /**
+ * The folder of the site that holds the guide pages, not a plugin.
+ */
+const GUIDE_FOLDER = 'guide';
+
+/**
  * The `plugin.group` value of a page's frontmatter.
  */
 function readFrontmatterGroup(file: string): string | undefined {
@@ -135,11 +140,6 @@ describe('definePluginPages', () => {
             .toThrow('cors: page "faq" has no entry in PAGE_TITLES');
     });
 });
-
-/**
- * Folders of the site that hold no plugin.
- */
-const GUIDE_FOLDER = 'guide';
 
 describe('PLUGIN_PAGES', () => {
     it('lists every plugin folder of the site', () => {
