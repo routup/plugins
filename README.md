@@ -20,7 +20,7 @@
 <p align="center">
     <a href="#packages"><b>Packages</b></a>
     ·
-    <a href="#quick-start">Quick start</a>
+    <a href="#quick-start">Quick Start</a>
     ·
     <a href="#how-plugins-work">How plugins work</a>
     ·
@@ -44,7 +44,7 @@
 | **Observability** | Time requests and format log lines or metrics yourself | `logger('dev')` prints morgan-style lines; `prometheus()` records request durations and serves `/metrics` |
 | **Serving** | Map paths to files, set caching headers, write an OpenAPI UI | `assets('public')` serves a directory with caching and a fallback file; `swaggerUI(document)` mounts Swagger UI |
 
-## Quick start
+## Quick Start
 
 ```bash
 npm install routup @routup/basic @routup/cors @routup/logger @routup/rate-limit
@@ -53,9 +53,9 @@ npm install routup @routup/basic @routup/cors @routup/logger @routup/rate-limit
 ```typescript
 import { App, defineCoreHandler, serve } from 'routup';
 import { basic } from '@routup/basic';
-import { readRequestBody } from '@routup/body';
-import { useRequestCookie } from '@routup/cookie';
-import { useRequestQuery } from '@routup/query';
+import { readRequestBody } from '@routup/basic/body';
+import { useRequestCookie } from '@routup/basic/cookie';
+import { useRequestQuery } from '@routup/basic/query';
 import { cors } from '@routup/cors';
 import { logger } from '@routup/logger';
 import { rateLimit } from '@routup/rate-limit';
@@ -72,13 +72,17 @@ app.post('/posts', defineCoreHandler(async (event) => {
     const session = useRequestCookie(event, 'session');
     const { draft } = useRequestQuery(event);
 
-    return { post, session, draft };
+    return {
+        post,
+        session,
+        draft,
+    };
 }));
 
 serve(app, { port: 3000 });
 ```
 
-`@routup/basic` installs the body, cookie and query plugins together and depends on all three, so their helpers can be imported directly. Every package is ESM only, needs Node.js 24 or later and has `routup` as a peer dependency; the [Requirements](https://plugins.routup.dev/guide/getting-started#requirements) table lists the range and the further peers of each package.
+`@routup/basic` installs the body, cookie and query plugins together and depends on all three; its subpaths `@routup/basic/body`, `@routup/basic/cookie` and `@routup/basic/query` re-export their helpers, so the sample needs no further install. Every package is ESM only, needs Node.js 24 or later and has `routup` as a peer dependency; the [Requirements](https://plugins.routup.dev/guide/getting-started#requirements) table lists the range and the further peers of each package.
 
 ## How plugins work
 

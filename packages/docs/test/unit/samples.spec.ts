@@ -18,6 +18,14 @@ const FIXTURES = [
     'swagger-ui/openapi.json',
 ];
 
+/**
+ * Samples shown outside the docs pages, each checked by its own spec.
+ */
+const README_SAMPLES = [
+    // the root README quick start, test/unit/examples/readme.spec.ts
+    'readme/quick-start.ts',
+];
+
 const INCLUDE = /^<<<\s+@\/\.\.\/examples\/(\S+?)(?:\{[^}]*\}|#\S+|\s.*)?$/;
 
 /**
@@ -69,13 +77,13 @@ describe('samples', () => {
         const included = new Set(includes.values().toArray().flat());
         const missing = list(examplesRoot)
             .filter((file) => FIXTURES.every((fixture) => (fixture.endsWith('/') ? !file.startsWith(fixture) : file !== fixture)))
-            .filter((file) => !included.has(file));
+            .filter((file) => !included.has(file) && !README_SAMPLES.includes(file));
 
         expect(missing).toEqual([]);
     });
 
     it('has no stale fixture entry', () => {
-        const stale = FIXTURES.filter((fixture) => !existsSync(path.join(examplesRoot, fixture)));
+        const stale = [...FIXTURES, ...README_SAMPLES].filter((fixture) => !existsSync(path.join(examplesRoot, fixture)));
 
         expect(stale).toEqual([]);
     });
