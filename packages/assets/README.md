@@ -39,7 +39,7 @@ Serving a `public/` or `dist/` folder next to an API looks like one `sendFile` c
 | Missing files | You decide between a 404 and calling the next handler | The request falls through to the next handler by default; `fallback` serves an SPA shell, `resolve` produces any response |
 | Dotfiles | You filter `.env`, `.git/` by hand | Paths with a segment starting with `.` are not served, except `.well-known` |
 | Caching | You set `Cache-Control` and compare `If-None-Match` | `Cache-Control: public,max-age=…` is set, a matching weak ETag returns `304`, range requests return `206` |
-| Per-request filesystem work | `stat` on every request | With `scan` (default), the directory is listed once at startup and lookups hit an in-memory map |
+| Per-request filesystem work | `stat` on every request | With `scan` (default), the directory is listed once, when the plugin is registered, and lookups hit an in-memory map |
 
 ## Installation
 

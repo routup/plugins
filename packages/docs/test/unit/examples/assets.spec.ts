@@ -117,6 +117,7 @@ describe('several-folders', () => {
     it('checks the folders in order', async () => {
         expect(await text(severalFolders, '/about')).toContain('<h1>About</h1>');
         expect(await text(severalFolders, '/old-page')).toContain('<h1>Old Page</h1>');
+        expect(await text(severalFolders, '/about')).not.toContain('Old About');
     });
 });
 
@@ -173,6 +174,52 @@ describe('wrap-handler', () => {
 });
 
 describe('behaviour stated on the pages', () => {
+    it('scans when the plugin is registered, not when assets() is called', async () => {
+        const plugin = assets(dir);
+
+        writeFileSync(path.join(dir, 'registered.txt'), 'registered');
+
+        const app = new App();
+
+        app.use(plugin);
+        app.use(defineCoreHandler(() => 'next'));
+
+        expect(await text(app, '/registered.txt')).toBe('registered');
+
+        // the same plugin object registered again scans again
+        writeFileSync(path.join(dir, 'again.txt'), 'again');
+
+        const second = new App();
+
+        second.use(plugin);
+
+        expect(await text(app, '/again.txt')).toBe('next');
+        expect(await text(second, '/again.txt')).toBe('again');
+    });
+
+    it('tries the plain path and its extensions before the index file, with or without a trailing slash', async () => {
+        const sub = path.join(dir, 'order');
+
+        mkdirSync(path.join(sub, 'docs'), { recursive: true });
+        writeFileSync(path.join(sub, 'docs.html'), 'docs.html');
+        writeFileSync(path.join(sub, 'docs', 'index.html'), 'docs/index.html');
+
+        const app = create({}, sub);
+
+        expect(await text(app, '/docs')).toBe('docs.html');
+        expect(await text(app, '/docs/')).toBe('docs.html');
+    });
+
+    it('limits If-Modified-Since to GET and HEAD and ranges to GET', async () => {
+        const first = await quickStart.fetch(request('/robots.txt'));
+        const lastModified = first.headers.get('last-modified')!;
+
+        expect((await quickStart.fetch(request('/robots.txt', { method: 'POST', headers: { 'if-modified-since': lastModified } }))).status).toBe(200);
+        expect((await quickStart.fetch(request('/robots.txt', { method: 'HEAD', headers: { 'if-modified-since': lastModified } }))).status).toBe(304);
+        expect((await quickStart.fetch(request('/robots.txt', { method: 'POST', headers: { range: 'bytes=0-9' } }))).status).toBe(200);
+        expect((await quickStart.fetch(request('/robots.txt', { method: 'POST', headers: { 'if-none-match': first.headers.get('etag')! } }))).status).toBe(304);
+    });
+
     it('serves a root file under any prefix', async () => {
         expect(await text(quickStart, '/x/y/robots.txt')).toContain('User-agent');
     });

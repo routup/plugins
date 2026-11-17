@@ -47,14 +47,14 @@ curl -i http://localhost:3000/about
 | Step | What happens |
 |------|--------------|
 | Path | The request path without the [mount path](/assets/recipes#serve-under-a-path-prefix), URL-decoded |
-| Lookup | `/about` tries `/about`, `/about.html`, `/about.htm`, `/about/index.html` and `/about/index.htm`; `/` and `/docs/` try the `index` files ([`extensions`](/assets/configuration#extensions)) |
+| Lookup | `/about` and `/about/` both try `/about`, `/about.html`, `/about.htm`, `/about/index.html` and `/about/index.htm`, in that order; `/` tries `/index.html` and `/index.htm` ([`extensions`](/assets/configuration#extensions)) |
 | Trailing parts | When nothing matches, the lookup repeats without the first segment: `/a/b/file.txt` tries `/b/file.txt`, then `/file.txt`, so a file at the root is reachable under any prefix |
 | Dotfiles | A path with a segment that starts with `.` is not served, except `/.well-known` ([`dotFiles`](/assets/configuration#dotfiles)) |
 | Missing file | The request goes on to the next handler; when none answers, routup sends `404` ([`fallthrough`](/assets/configuration#fallthrough)) |
-| Methods | Every method is served, not only `GET` and `HEAD` |
+| Methods | Every method is served, not only `GET` and `HEAD`; the `If-Modified-Since` check (GET and HEAD) and ranges (GET) are limited, see [Response Headers](#response-headers) |
 | Directory | Only files inside the directory are served; with the scan, only the files it found |
 
-The directory is listed once, when `assets()` is called, and lookups read that list ([`scan`](/assets/configuration#scan)).
+The directory is listed once, when the plugin is registered with `app.use()`, and lookups read that list ([`scan`](/assets/configuration#scan)).
 
 ### Response Headers
 
@@ -69,8 +69,10 @@ A file is sent with routup's `sendFile()`:
 | `Last-Modified` | The file's modification time |
 | `Accept-Ranges` | `bytes` |
 
-- A request whose `If-None-Match` equals the ETag gets `304` without a body, before the file is opened. An `If-Modified-Since` that is not older than the file also gets `304`.
-- A `Range` header with one byte range gets `206` and that part of the file.
+- A request whose `If-None-Match` equals the ETag gets `304` without a body, before the file is opened, whatever its method. An `If-Modified-Since` that is not older than the file also gets `304` (GET and HEAD).
+- A `Range` header with one byte range gets `206` and that part of the file (GET).
+
+For a single file or content built at request time, use routup's `sendFile()` or `sendStream()` directly ([Response Helpers](https://routup.dev/api/response-helpers)).
 
 ## Next Steps
 

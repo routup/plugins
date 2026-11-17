@@ -19,11 +19,11 @@ declare function assets(
 ): Plugin;
 ```
 
-The scan of the directory starts when `assets()` is called.
+`assets()` itself reads nothing: the scan of the directory starts when the plugin is registered with `app.use()`, and a plugin object registered twice scans twice.
 
 ## `createHandler()`
 
-Returns the handler the plugin registers, for `app.use()` without the plugin wrapper.
+Returns the handler the plugin registers, for `app.use()` without the plugin wrapper. The scan starts when it is called.
 
 ```typescript
 declare function createHandler(
@@ -52,7 +52,7 @@ Mount it with `app.use(path, ...)`. The handler removes `event.mountPath` from t
 | Type | Definition |
 |------|------------|
 | `OptionsInput` | The options of `assets()`, every key optional ([Configuration](/assets/configuration)) |
-| `Options` | The normalised options: every key set, patterns compiled to `RegExp[]`, `directoryPath` absolute, plus `fallbackPath` |
+| `Options` | The normalised options: every key but `resolve` set, patterns compiled to `RegExp[]`, `directoryPath` absolute, plus `fallbackPath` |
 | `ResolveFn` | `(event: IAppEvent) => Promise<unknown>`, the type of [`resolve`](/assets/configuration#resolve) |
 | `FileInfo` | `{ stats: Stats, filePath: string }`, one entry of the scanned list |
 | `ReadDirectoryCallback` | `(relativePath: string, absolutePath: string, stats: Stats) => void` |
@@ -65,5 +65,5 @@ Internal building blocks of the handler, exported by the package entry.
 |--------|-------------|
 | `buildOptions` | `(input: OptionsInput) => Options`: applies the defaults, compiles the patterns, resolves the directory against the working directory |
 | `scanFiles` | `(stack: Record<string, FileInfo>, options: Options) => Promise<void>`: fills `stack` with the files of `options.directoryPath`, keyed by path; does nothing when `scan` is `false` |
-| `readDirectory` | `(dir: string, callback: ReadDirectoryCallback) => Promise<void>`: walks a directory recursively and calls `callback` per file; skips entries that vanish or dangle during the walk |
+| `readDirectory` | `(dir: string, callback: ReadDirectoryCallback, prefix?: string) => Promise<void>`: walks a directory recursively and calls `callback` per file, with `prefix` (default `''`) joined before each relative path; skips entries that vanish or dangle during the walk |
 | `isRegexMatch` | `(input: string, pattern: RegExp \| RegExp[]) => boolean`: `true` when any pattern matches |

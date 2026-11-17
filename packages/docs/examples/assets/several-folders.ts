@@ -8,4 +8,4 @@ export const app = new App();
 app.use(assets(fileURLToPath(new URL('public', import.meta.url))));
 
 // reached when public/ has no matching file
-app.use(assets(fileURLToPath(new URL('public/legacy', import.meta.url))));
+app.use(assets(fileURLToPath(new URL('legacy', import.meta.url))));

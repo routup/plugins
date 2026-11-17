@@ -20,14 +20,14 @@ relatedPlugins: []
 | `fallthrough` | `boolean` | `true` | Pass a request without a file on to the next handler; `false` answers `404` |
 | `extensions` | `string[]` | `['html', 'htm']` | Extensions tried after the path and for `index` files |
 | `dotFiles` | `boolean` | `false` | Serve paths with a segment that starts with `.` |
-| `ignores` | `Array<string \| RegExp>` | `[]` | Paths that are never served |
+| `ignores` | `string \| RegExp \| Array<string \| RegExp>` | `[]` | Paths that are never served |
 | `resolve` | `(event) => Promise<unknown>` | none | Builds the response for a request without a file |
 
 `OptionsInput` also has `directoryPath`; the `directory` argument always replaces it.
 
 ### `scan`
 
-With `scan`, `assets()` lists the directory when it is called and keeps each file's path and stats in memory, so a request does not touch the filesystem until the file is sent. The list is a snapshot: a file added later is not served, and a file removed later is still answered with `200`, whose body then fails while it is read. When the scan fails, for example because the directory does not exist, every request that reaches the plugin answers `500`.
+With `scan`, the plugin lists the directory when it is registered with `app.use()` (or when `createHandler()` or `createCoreHandler()` is called) and keeps each file's path and stats in memory, so a request does not touch the filesystem until the file is sent. The list is a snapshot: a file added later is not served, and a file removed later is still answered with `200`, whose body then fails while it is read. When the scan fails, for example because the directory does not exist, every request that reaches the plugin answers `500`.
 
 Set `scan: false` for a directory that changes while the app runs; each request then checks the candidate paths on disk.
 
@@ -79,10 +79,10 @@ With `false`, a path with a segment that starts with `.`, such as `/.env` or `/.
 
 ### `ignores`
 
-Paths that are never served. Each entry becomes a case-insensitive regular expression, as for [`fallbackIgnores`](#fallbackignores), and is tested against the request path. A single string or `RegExp` passes the type check but is ignored; pass an array.
+Paths that are never served. Each entry becomes a case-insensitive regular expression, as for [`fallbackIgnores`](#fallbackignores), and is tested against the request path. A single string or `RegExp` passes the type check but is ignored; pass an array, for example `[/\.map$/]` to keep source maps private.
 
 The lookup also tries trailing parts of the path ([Default Behaviour](/assets/#default-behaviour)), so an anchored pattern does not cover every path to a file: `[/^\/secret/]` blocks `/secret.txt`, but `/x/secret.txt` still serves it. Use a pattern without the anchor, such as `/\/secret/` or `/secret\.txt$/`.
 
 ### `resolve`
 
-Called with the event when no file matches and the fallback did not apply. Its return value is turned into a response like a handler's: an object becomes JSON, a string text. `undefined` gives no response, and [`fallthrough`](#fallthrough) decides what happens. [Answer Missing Files](/assets/recipes#answer-missing-files) returns a JSON `404`.
+Called with the event when no file matches and the fallback did not apply, and also when sending the found file throws. Its return value is turned into a response like a handler's: an object becomes JSON, a string text. `undefined` gives no response, and [`fallthrough`](#fallthrough) decides what happens. [Answer Missing Files](/assets/recipes#answer-missing-files) returns a JSON `404`.

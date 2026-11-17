@@ -6,7 +6,7 @@ relatedPlugins: []
 
 # Recipes
 
-The samples serve the folder `public/` next to the sample file.
+The samples serve the folder `public/` next to the sample file; Serve Several Folders adds `legacy/`.
 
 ## Serve Several Folders
 
