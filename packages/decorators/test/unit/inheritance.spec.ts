@@ -1014,6 +1014,165 @@ describe('the copy of the metadata', () => {
     });
 });
 
+describe('robustness and isolation of the copy', () => {
+    it('carries over a hand-written parameter list or class middlewares that are no array', () => {
+        @DController('/parent')
+        class Parent {
+            show() {
+                return 'show';
+            }
+        }
+
+        const meta = metaOf(Parent);
+
+        meta.parameters.show = 'odd' as any;
+        meta.middlewares = 'odd' as any;
+
+        class Child extends Parent {
+            @DGet('/own')
+            own() {
+                return 'own';
+            }
+        }
+
+        @DController('/controller')
+        class Controller extends Parent {}
+
+        expect(metaOf(Child).parameters.show).toEqual('odd');
+        expect(metaOf(Child).middlewares).toEqual('odd');
+        expect(metaOf(Controller).middlewares).toEqual([]);
+    });
+
+    it('does not share a response entry without media types with the parent', async () => {
+        @DController('/parent')
+        class Parent {
+            @DGet('/a')
+            @DStatus(202)
+            a() {
+                return 'a';
+            }
+        }
+
+        @DController('/child')
+        class Child extends Parent {
+            @DStatus(299)
+            override a() {
+                return 'child';
+            }
+        }
+
+        const app = new App();
+
+        mountControllers(app, [Parent, Child]);
+
+        expect((await fetch(app, '/parent/a')).status).toEqual(202);
+        expect((await fetch(app, '/child/a')).status).toEqual(299);
+    });
+
+    it('does not alias the class middlewares of the parent after @DController(path)', () => {
+        @DController('/parent', [FirstMiddleware])
+        class Parent {}
+
+        @DController('/child')
+        class Child extends Parent {}
+
+        metaOf(Child).middlewares.push(SecondMiddleware);
+
+        expect(metaOf(Parent).middlewares).toEqual([FirstMiddleware]);
+    });
+
+    it('gives the class middlewares of a decorated grandparent across an undecorated class', () => {
+        @DController('/parent', [FirstMiddleware])
+        class Parent {}
+
+        class Middle extends Parent {}
+
+        @DController('/sub')
+        class Sub extends Middle {}
+
+        expect(metaOf(Sub).middlewares).toEqual([FirstMiddleware]);
+    });
+
+    it('drops the inherited method middlewares on an override with a verb decorator', async () => {
+        class Guard implements HandlerInterface {
+            run(event: IAppEvent) {
+                event.response.headers.set('x-guard', 'yes');
+
+                return event.next();
+            }
+        }
+
+        @DController('/parent')
+        class Parent {
+            @DGet('/a', [Guard])
+            a() {
+                return 'a';
+            }
+        }
+
+        @DController('/child')
+        class Child extends Parent {
+            @DGet('/a2')
+            override a() {
+                return 'child';
+            }
+        }
+
+        const app = new App();
+
+        mountControllers(app, [Parent, Child]);
+
+        expect((await fetch(app, '/parent/a')).headers.get('x-guard')).toEqual('yes');
+
+        const child = await fetch(app, '/child/a2');
+
+        expect(await child.text()).toEqual('child');
+        expect(child.headers.get('x-guard')).toBeNull();
+    });
+
+    it('is taken for a sealed subclass when the sealing decorator is placed above @DController()', () => {
+        function sealed(constructor: ClassType) {
+            Object.seal(constructor);
+            Object.seal(constructor.prototype);
+        }
+
+        class Base {
+            @DGet('/health')
+            health() {
+                return 'ok';
+            }
+        }
+
+        @sealed
+        @DController('/users')
+        class Users extends Base {}
+
+        @sealed
+        @DController('/roles')
+        class Roles extends Base {}
+
+        expect(getControllerRoutes(Users)).toEqual([{ method: 'GET', path: '/users/health' }]);
+        expect(getControllerRoutes(Roles)).toEqual([{ method: 'GET', path: '/roles/health' }]);
+        expect(getControllerRoutes(Base)).toEqual([{ method: 'GET', path: '/health' }]);
+    });
+
+    it('is not taken for an object that only inherits a constructor pointing back to it', () => {
+        @DController('/parent')
+        class Parent {}
+
+        // The prototype of a function whose own prototype object carries no
+        // `constructor` and inherits one that points back to the function.
+        function Legacy() {}
+
+        const prototype = Object.create(Object.create(Parent.prototype, { constructor: { value: Legacy } }));
+
+        Legacy.prototype = prototype;
+
+        expect(useDecoratorMeta(prototype)).toBe(metaOf(Parent));
+        expect(Object.hasOwn(prototype, symbol)).toBe(false);
+    });
+});
+
 describe('@DController middlewares', () => {
     it('resets them on a class without a parent, as each application sets them', () => {
         @DController('/a')

@@ -89,7 +89,9 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     const inputParameters : Record<string, DecoratorMeta['parameters'][string] | undefined> = meta.parameters;
 
     for (const [key, entries] of Object.entries(inputParameters)) {
-        parameters[key] = entries?.map((parameter) => ({ ...parameter }));
+        parameters[key] = Array.isArray(entries) ?
+            entries.map((parameter) => ({ ...parameter })) :
+            entries;
     }
 
     // Fields this copy of the package does not know (written by a custom
@@ -97,7 +99,7 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     return {
         ...meta,
         url: Array.isArray(meta.url) ? [...meta.url] : meta.url,
-        middlewares: [...meta.middlewares],
+        middlewares: Array.isArray(meta.middlewares) ? [...meta.middlewares] : meta.middlewares,
         methods: methods as DecoratorMeta['methods'],
         produces: [...meta.produces],
         responses: responses as DecoratorMeta['responses'],
@@ -154,7 +156,7 @@ export function setDecoratorController(
         parent[symbol] :
         undefined;
 
-    meta.middlewares = [...(inherited?.middlewares ?? [])];
+    meta.middlewares = Array.isArray(inherited?.middlewares) ? [...inherited.middlewares] : [];
 }
 
 export function useDecoratorResponseOptions(
