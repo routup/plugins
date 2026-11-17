@@ -11,10 +11,12 @@ hero:
     highlight: 'routup'
     description: 'Small, focused packages. Each installs alone and follows the same Web-standard conventions.'
     actions:
-        - text: 'Get started'
+        - text: 'Get Started'
           link: '/guide/getting-started'
         - text: 'Browse plugins'
           link: '#plugins'
+        - text: 'View on GitHub'
+          link: 'https://github.com/routup/plugins'
     install: 'npm install @routup/basic'
 grid:
     title: 'All plugins'

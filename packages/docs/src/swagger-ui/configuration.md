@@ -22,21 +22,13 @@ relatedPlugins: [decorators]
 | `securityHeaders` | `boolean` | `false` | Sends `x-content-type-options`, `referrer-policy` and `x-frame-options` with every response |
 | `spec` | `Spec` | set from `document` | Replaced by the `document` argument when it is an object or a file; next to a URL document it is passed on as well |
 | `url` | `string` | set from `document` | Replaced by the `document` argument when it is a URL; next to an object or file document it is passed on as well |
-| `urls` | `Url[]` | none | Several documents (`{ url, name }`) to pick from in the top bar of `StandaloneLayout` |
-| `configUrl` | `string` | none | URL of an external Swagger UI configuration document |
 | `layout` | `string` | `'BaseLayout'` | Top-level layout component of Swagger UI |
 | `dom_id` | `string \| null` | `'#swagger-ui'` | Element the UI renders into; the shell has `<div id="swagger-ui">` |
-| `domNode` | `string \| HTMLElement \| null` | none | Swagger UI option; overrides `dom_id` |
 | `deepLinking` | `boolean` | `true` | Deep links for tags and operations |
 | `presets` | `any[]` | `[SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset]` | Swagger UI presets |
 | `plugins` | `any` | `[SwaggerUIBundle.plugins.DownloadUrl]` | Swagger UI plugins |
-| `docExpansion` | `'list' \| 'full' \| 'none'` | Swagger UI's, `'list'` | How far tags and operations are expanded |
-| `maxDisplayedTags` | `number` | all tags | Shows at most this many tagged operations |
-| `operationsSorter` | `(() => void) \| 'alpha' \| 'method'` | the order of the document | Sorts the operations of each tag |
-| `requestInterceptor` | `(request: SwaggerRequest) => SwaggerRequest \| Promise<SwaggerRequest>` | none | Changes requests of "Try it out", OAuth and the document fetch in the browser |
-| `responseInterceptor` | `(response: SwaggerResponse) => SwaggerResponse \| Promise<SwaggerResponse>` | none | Changes the matching responses in the browser |
 
-`SwaggerConfigs` has an index signature, so any other key of the [Swagger UI configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/), such as `persistAuthorization` or `tryItOutEnabled`, is passed on as well.
+The other keys of `SwaggerConfigs` (`urls`, `configUrl`, `domNode`, `docExpansion`, `maxDisplayedTags`, `operationsSorter`, `requestInterceptor`, `responseInterceptor`) and, through its index signature, any key such as `persistAuthorization` are passed to Swagger UI unchanged; the [Swagger UI configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) describes them.
 
 The options, except `basePath`, `baseURL`, `csp` and `securityHeaders`, are written into the generated `swagger-initializer.js`, which merges them over the defaults in the table and passes the result to `SwaggerUIBundle()`. `oauth` and `authAction` are taken out first and applied to the created UI. The options object you pass is not modified.
 

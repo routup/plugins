@@ -397,10 +397,13 @@ describe('behaviour stated on the pages', () => {
         ]);
     });
 
-    it('reports uptime in whole seconds since the install', async () => {
-        const now = vi.spyOn(performance, 'now').mockReturnValue(10_000);
-        const { registry } = create({ requestDuration: false });
+    it('reports uptime in whole seconds since the install, not since prometheus() was called', async () => {
+        const now = vi.spyOn(performance, 'now').mockReturnValue(5_000);
+        const registry = new Registry();
+        const plugin = prometheus({ requestDuration: false, registry });
 
+        now.mockReturnValue(10_000);
+        new App().use(plugin);
         now.mockReturnValue(12_999);
 
         expect(await registry.metrics()).toMatch(/^http_uptime 2$/m);

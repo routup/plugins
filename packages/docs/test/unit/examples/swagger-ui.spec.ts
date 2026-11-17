@@ -223,6 +223,23 @@ describe('behaviour stated on the pages', () => {
         expect(source).toContain('"url": "https://example.com/other.json"');
     });
 
+    it('passes a spec option on next to a URL document', async () => {
+        const app = new App();
+
+        app.use('/docs', swaggerUI('https://example.com/openapi.json', {
+            spec: {
+                openapi: '3.1.0',
+                info: { title: 'Inline', version: '1' },
+                paths: {},
+            },
+        }));
+
+        const source = await initializer(app, '/docs/swagger-initializer.js');
+
+        expect(source).toContain('"url": "https://example.com/openapi.json"');
+        expect(source).toContain('"title": "Inline"');
+    });
+
     it('adds the Swagger 2 host with its schemes, https and http by default', async () => {
         const policy = async (document: Record<string, unknown>) => {
             const app = new App();

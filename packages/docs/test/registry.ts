@@ -205,6 +205,16 @@ export const PLUGINS: PluginDocs[] = [
         optionsType: 'UIOptions',
         optionsPage: 'configuration.md',
         apiPages: ['helpers.md'],
+        optionExempt: {
+            urls: 'Swagger UI option, documented upstream',
+            configUrl: 'Swagger UI option, documented upstream',
+            domNode: 'Swagger UI option, documented upstream',
+            docExpansion: 'Swagger UI option, documented upstream',
+            maxDisplayedTags: 'Swagger UI option, documented upstream',
+            operationsSorter: 'Swagger UI option, documented upstream',
+            requestInterceptor: 'Swagger UI option, documented upstream',
+            responseInterceptor: 'Swagger UI option, documented upstream',
+        },
         nestedOptions: [
             { type: 'UIOAuthOptions', heading: '`oauth`' },
             { type: 'ContentSecurityPolicyInput', heading: '`csp`' },

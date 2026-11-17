@@ -37,7 +37,7 @@
 | Static bundle | You serve `swagger-ui-dist`'s folder yourself (and hide its `package.json`, README, source maps, …) | Only the files the page references are served from `node_modules` through `@routup/assets`; everything else goes to the next handler |
 | HTML page | You copy and edit `index.html` to load your document | The page is generated with your document embedded (file or object) or with its URL |
 | Content security policy | The stock page needs an inline script and style | The page has no inline script or style; `csp: true` sends a policy built from your document |
-| Mount path | Asset links break when the UI moves from `/` to `/docs` or into a nested router | `<base href>` is derived from the mount path of the request, including parent routers |
+| Mount path | Asset links break when the UI moves from `/` to `/docs` or into a mounted app | `<base href>` is derived from the mount path of the request, including the path of every app it is mounted under |
 | Reverse proxy | You hard-code the public prefix in the HTML | `basePath` or `baseURL` prefixes the `<base href>` |
 | UI configuration and OAuth | You edit the inline script | Swagger UI options, `oauth` and `authAction` are passed as plain options |
 
@@ -47,7 +47,7 @@
 npm install @routup/swagger-ui
 ```
 
-ESM only, Node.js `>=24`, peer dependencies `routup@^6.3.0` and `@types/swagger-ui-dist@^3.30.5` (for the option types). `swagger-ui-dist` and `@routup/assets` are installed as dependencies. `swagger-ui-dist` pulls in [`@scarf/scarf`](https://github.com/scarf-sh/scarf-js), whose postinstall script sends install analytics; set `SCARF_ANALYTICS=false` in the install environment to turn it off.
+ESM only, Node.js >=24. Peer dependencies: `routup@^6.3.0` and `@types/swagger-ui-dist@^3.30.5` (for the option types). `swagger-ui-dist` and `@routup/assets` are installed as dependencies. `swagger-ui-dist` pulls in [`@scarf/scarf`](https://github.com/scarf-sh/scarf-js), whose postinstall script sends install analytics; set `SCARF_ANALYTICS=false` in the install environment to turn it off.
 
 ## Quick Start
 
@@ -56,7 +56,7 @@ import { readFileSync } from 'node:fs';
 import { App } from 'routup';
 import { swaggerUI } from '@routup/swagger-ui';
 
-// pass the parsed object: a Windows path string would count as a URL
+// pass the parsed object: an absolute Windows path (C:\...) would count as a URL
 const document = JSON.parse(readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
 
 export const app = new App();

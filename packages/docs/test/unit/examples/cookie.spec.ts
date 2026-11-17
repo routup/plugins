@@ -262,6 +262,21 @@ describe('behaviour stated on the pages', () => {
         }
     });
 
+    it('compares priority and sameSite case-insensitively and leaves SameSite out for false', async () => {
+        const app = create((event) => {
+            setResponseCookie(event, 'a', '1', { priority: 'HIGH' as 'high', sameSite: 'STRICT' as 'strict' });
+            setResponseCookie(event, 'b', '1', { sameSite: false });
+
+            return null;
+        }, false);
+        const response = await app.fetch(request('/'));
+
+        expect(response.headers.getSetCookie()).toEqual([
+            'a=1; Path=/; Priority=High; SameSite=Strict',
+            'b=1; Path=/',
+        ]);
+    });
+
     it('drops the cookie when the handler returns a Response', async () => {
         const app = create((event) => {
             setResponseCookie(event, 'a', '1');

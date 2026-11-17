@@ -23,6 +23,7 @@ import { app as missingFile } from '../../../examples/assets/missing-file';
 import { app as pathPrefix } from '../../../examples/assets/path-prefix';
 import { app as quickStart } from '../../../examples/assets/quick-start';
 import { app as severalFolders } from '../../../examples/assets/several-folders';
+import { app as singlePageApp } from '../../../examples/assets/single-page-app';
 import { app as wrapHandler } from '../../../examples/assets/wrap-handler';
 
 const publicDir = fileURLToPath(new URL('../../../examples/assets/public', import.meta.url));
@@ -56,6 +57,7 @@ beforeAll(() => {
     writeFileSync(path.join(dir, '.env'), 'env');
     writeFileSync(path.join(dir, '.well-known', 'security.txt'), 'security');
     writeFileSync(path.join(dir, 'api', 'data.json'), '{}');
+    writeFileSync(path.join(dir, 'empty.txt'), '');
 });
 
 afterAll(() => {
@@ -156,6 +158,21 @@ describe('missing-file', () => {
         expect(response.status).toBe(404);
         expect(await response.json()).toEqual({ message: '/files/nope.txt not found' });
         expect(await text(missingFile, '/files/about')).toContain('<h1>About</h1>');
+    });
+});
+
+describe('single-page-app', () => {
+    it('answers the paths of the client-side router with index.html', async () => {
+        const response = await singlePageApp.fetch(request('/todos/42'));
+
+        expect(response.status).toBe(200);
+        expect(await response.text()).toContain('<h1>Home</h1>');
+    });
+
+    it('keeps API paths and missing files with an extension out of the fallback', async () => {
+        expect(await (await singlePageApp.fetch(request('/api/todos'))).json()).toEqual([{ title: 'Write docs' }]);
+        expect((await singlePageApp.fetch(request('/api/missing'))).status).toBe(404);
+        expect((await singlePageApp.fetch(request('/assets/missing.js'))).status).toBe(404);
     });
 });
 
@@ -339,5 +356,42 @@ describe('behaviour stated on the pages', () => {
         app.get('/download/:name', createHandler(dir));
 
         expect(await text(app, '/download/robots.txt')).toBe('shell');
+    });
+
+    it('sends an empty file without ETag, Last-Modified, Content-Length and Accept-Ranges', async () => {
+        const response = await create().fetch(request('/empty.txt'));
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('content-type')).toMatch(/^text\/plain/);
+        expect(response.headers.get('etag')).toBeNull();
+        expect(response.headers.get('last-modified')).toBeNull();
+        expect(response.headers.get('content-length')).toBeNull();
+        expect(response.headers.get('accept-ranges')).toBeNull();
+        expect(await response.text()).toBe('');
+    });
+
+    it('calls resolve also when sending the found file throws', async () => {
+        const calls: string[] = [];
+        const app = new App();
+
+        // a body with status 204 makes the response of sendFile() throw
+        app.use(defineCoreHandler((event) => {
+            event.response.status = 204;
+
+            return event.next();
+        }));
+        app.use(assets(dir, {
+            resolve: async (event) => {
+                calls.push(event.path);
+                event.response.status = 200;
+
+                return 'resolved';
+            },
+        }));
+
+        const response = await app.fetch(request('/robots.txt'));
+
+        expect(calls).toEqual(['/robots.txt']);
+        expect(await response.text()).toBe('resolved');
     });
 });

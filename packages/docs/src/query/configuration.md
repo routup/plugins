@@ -23,7 +23,7 @@ The qs `IParseOptions`. The common ones, with the defaults of qs 6:
 | `depth` | `number \| false` | `5` | Maximum nesting depth of bracket keys; deeper keys stay in the key string |
 | `arrayLimit` | `number` | `20` | Largest array qs builds: an index of `arrayLimit` or more (`a[20]=x`), or more than `arrayLimit` repeated keys, gives an object with numeric keys |
 | `parameterLimit` | `number` | `1000` | Maximum number of parameters parsed; the rest are dropped |
-| `throwOnLimitExceeded` | `boolean` | `false` | Throw instead of dropping parameters over `parameterLimit` or building an object over `arrayLimit`; `depth` is not covered |
+| `throwOnLimitExceeded` | `boolean` | `false` | Throw instead of dropping parameters over `parameterLimit` or building an object for an array index of `arrayLimit` or more; `depth` is not covered |
 | `strictDepth` | `boolean` | `false` | Throw when a key nests deeper than `depth` |
 | `allowDots` | `boolean` | `false` | Read `a.b=c` like `a[b]=c` |
 | `comma` | `boolean` | `false` | Split `a=b,c` into `['b', 'c']` |

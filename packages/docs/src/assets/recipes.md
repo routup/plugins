@@ -61,4 +61,17 @@ curl -i http://localhost:3000/files/nope.txt
 
 ## Single-Page App
 
-A single-page app gets its `index.html` for every path its client-side router handles, while missing assets and API paths do not: [`fallback`](/assets/configuration#fallback) with [`fallbackIgnores`](/assets/configuration#fallbackignores). The [Static Files](https://routup.dev/examples/static-files) example on routup.dev shows the setup next to API routes, with a tested sample.
+A single-page app gets its `index.html` for every path its client-side router handles, while missing assets and API paths do not: [`fallback`](/assets/configuration#fallback) with [`fallbackIgnores`](/assets/configuration#fallbackignores).
+
+<<< @/../examples/assets/single-page-app.ts
+
+```bash
+curl http://localhost:3000/todos/42
+# <!doctype html> ... <h1>Home</h1>
+curl http://localhost:3000/api/todos
+# [{"title":"Write docs"}]
+curl -i http://localhost:3000/assets/missing.js
+# HTTP/1.1 404 Not Found
+```
+
+The [Static Files](https://routup.dev/examples/static-files) example on routup.dev shows a larger setup.

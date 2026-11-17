@@ -197,8 +197,13 @@ describe('behaviour stated on the page', () => {
 
         // the first Accept-Language entry as sent, not negotiated against de
         expect(await read('fr, de;q=0.5')).toEqual({ locale: 'fr', text: 'Hello' });
+        // the most preferred entry, not reduced to a loaded locale
+        expect(await read('fr;q=0.2, it')).toEqual({ locale: 'it', text: 'Hello' });
+        expect(await read('de-CH')).toEqual({ locale: 'de-CH', text: 'Hallo' });
         // * without the header
         expect(await read()).toEqual({ locale: '*', text: 'Hello' });
+        // no locale for a header of q=0 entries: the instance locale applies
+        expect(await read('fr;q=0')).toEqual({ text: 'Hello' });
     });
 
     it('misses every key without a store', async () => {

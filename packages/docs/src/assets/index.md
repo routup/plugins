@@ -71,6 +71,7 @@ A file is sent with routup's `sendFile()`:
 
 - A request whose `If-None-Match` equals the ETag gets `304` without a body, before the file is opened, whatever its method. An `If-Modified-Since` that is not older than the file also gets `304` (GET and HEAD).
 - A `Range` header with one byte range gets `206` and that part of the file (GET).
+- An empty file is sent without `ETag`, `Last-Modified`, `Content-Length` and `Accept-Ranges`.
 
 For a single file or content built at request time, use routup's `sendFile()` or `sendStream()` directly ([Response Helpers](https://routup.dev/api/response-helpers)).
 

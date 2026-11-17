@@ -1,5 +1,5 @@
 ---
-title: Rate-limit Redis
+title: Rate-limit Redis Store
 description: Distributed Redis-backed counter store for @routup/rate-limit.
 relatedPlugins: [rate-limit]
 plugin:

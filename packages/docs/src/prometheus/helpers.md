@@ -32,7 +32,7 @@ declare function createHandler<T extends RegistryContentType = PrometheusContent
 
 ## `registerMetrics()`
 
-Creates the built-in metrics on `options.registry`, calls prom-client's `collectDefaultMetrics()` when `options.collectDefaultMetrics` is set, and adds the timing handler to `app` with `app.use()`. It returns the created metrics and mounts no endpoint, so together with `createHandler()` it times one app and serves the metrics on another:
+Creates the built-in metrics on `options.registry`, calls prom-client's `collectDefaultMetrics()` when `options.collectDefaultMetrics` is set, and adds the timing handler to `app` with `app.use()`. It returns the created metrics and mounts no endpoint, so together with `createHandler()` it times one app and serves the metrics on another.
 
 ```typescript
 declare function registerMetrics<T extends RegistryContentType = PrometheusContentType>(
@@ -41,9 +41,7 @@ declare function registerMetrics<T extends RegistryContentType = PrometheusConte
 ): Metrics;
 ```
 
-<<< @/../examples/prometheus/internal-app.ts
-
-It takes the resolved `Options`; build them with `buildOptions()`.
+It takes the resolved `Options`; build them with `buildOptions()`. [Metrics on an Internal App](/prometheus/recipes#metrics-on-an-internal-app) shows both.
 
 ## `buildOptions()`
 

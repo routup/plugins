@@ -101,7 +101,7 @@ cookie-es throws a `TypeError`, which answers `500` inside a handler, for:
 - a `maxAge` that is not an integer
 - a `domain` or `path` with characters the attribute does not allow
 - an `expires` that is not a valid `Date`
-- a `priority` other than `'low'`, `'medium'` or `'high'`, or a `sameSite` other than `true`, `'lax'`, `'strict'` or `'none'`
+- an unknown `priority` or `sameSite` value: `priority` takes `'low'`, `'medium'` or `'high'`, `sameSite` takes `true`, `'lax'`, `'strict'` or `'none'`, both compared case-insensitively; `false` leaves `SameSite` out
 - `partitioned` or `sameSite: 'none'` without `secure`
 - a `__Secure-` or `__Host-` name without `secure`
 - a `__Host-` name with a `domain` or a `path` other than `/`

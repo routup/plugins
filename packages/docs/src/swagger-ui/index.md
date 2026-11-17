@@ -1,6 +1,6 @@
 ---
 title: Swagger UI
-description: Mount Swagger UI on a routup router from a JSON document or remote URL.
+description: Mount Swagger UI on a routup app from an OpenAPI document, a file or a remote URL.
 relatedPlugins: [decorators]
 plugin:
     package: '@routup/swagger-ui'
@@ -73,7 +73,7 @@ The first argument of `swaggerUI()` is the document:
 - **Some paths count as URLs.** The check uses `new URL()`, so a Windows drive-letter path (`C:\docs\openapi.json`, protocol `c:`) or a `host:port/...` string is passed to the browser as `url`, and the UI cannot load it. A `file:///...` string counts as a file, but is read as a plain path and fails. For a path that works on every platform, read and parse the file yourself and pass the object, as the quick start does, or pass a relative path.
 - **The file is read once per install.** Changes to the file are picked up only when the app installs the plugin again, usually after a restart.
 
-[Recipes](/swagger-ui/recipes) show an object document and a URL. To produce the document from `@routup/decorators` controllers, see [OpenAPI generation](/decorators/#openapi-generation): generate it at build time, write it to a file and pass the file to `swaggerUI()`.
+[Recipes](/swagger-ui/recipes) show an object document and a URL. To produce the document from `@routup/decorators` controllers, see [OpenAPI generation](/decorators/#openapi-generation): generate it at build time and pass the document object to `swaggerUI()`, or write it to a file and pass a relative path.
 
 ## Upgrading to v5
 
