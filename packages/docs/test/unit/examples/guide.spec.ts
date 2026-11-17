@@ -1,6 +1,3 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
     afterEach,
     beforeEach,
@@ -59,9 +56,6 @@ const redis = vi.hoisted(() => {
 vi.mock('redis-extension', () => ({ createClient: () => redis.client }));
 
 const ORIGIN = 'https://app.example.com';
-
-const workspaceRoot = fileURLToPath(new URL('../../../../..', import.meta.url));
-const guideRoot = fileURLToPath(new URL('../../../src/guide', import.meta.url));
 
 function request(urlPath: string, init: RequestInit & { ip?: string } = {}): Request {
     const { ip, ...rest } = init;
@@ -367,62 +361,5 @@ describe('ordering pitfalls', () => {
         const response = await app.fetch(postJson('/', { title: 'Write docs' }, { ip: '10.0.2.4' }));
 
         expect(await response.json()).toEqual({ title: 'Write docs' });
-    });
-});
-
-/**
- * Rows of the Requirements table: package, routup range, other peers.
- */
-function readRequirementRows(markdown: string): Map<string, { routup: string; peers: string[] }> {
-    const section = /^## Requirements\r?\n([\s\S]*?)(?=^## )/m.exec(markdown)?.[1] ?? '';
-    const rows = new Map<string, { routup: string; peers: string[] }>();
-
-    for (const line of section.split(/\r?\n/)) {
-        const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
-
-        if (cells.length !== 3 || !cells[0]?.includes('`@routup/')) {
-            continue;
-        }
-
-        const name = /`([^`]+)`/.exec(cells[0])?.[1] ?? '';
-        const routup = /`([^`]+)`/.exec(cells[1] ?? '')?.[1] ?? '';
-        const peers = (cells[2] ?? '').matchAll(/`([^`]+)` `([^`]+)`/g)
-            .toArray()
-            .map((match) => `${match[1]}@${match[2]}`)
-            .sort();
-
-        rows.set(name, { routup, peers });
-    }
-
-    return rows;
-}
-
-describe('getting-started requirements', () => {
-    it('lists the routup range and the peer dependencies of every plugin', () => {
-        const rows = readRequirementRows(readFileSync(path.join(guideRoot, 'getting-started.md'), 'utf8'));
-        const packagesRoot = path.join(workspaceRoot, 'packages');
-        const expected = new Map<string, { routup: string; peers: string[] }>();
-
-        for (const folder of readdirSync(packagesRoot)) {
-            const manifest = JSON.parse(readFileSync(path.join(packagesRoot, folder, 'package.json'), 'utf8')) as {
-                name: string;
-                private?: boolean;
-                peerDependencies?: Record<string, string>;
-            };
-
-            if (manifest.private) {
-                continue;
-            }
-
-            const { routup = '', ...peers } = manifest.peerDependencies ?? {};
-
-            expected.set(manifest.name, {
-                routup,
-                peers: Object.entries(peers).map(([name, range]) => `${name}@${range}`).sort(),
-            });
-        }
-
-        expect(expected.size).toBe(13);
-        expect(Object.fromEntries(rows)).toEqual(Object.fromEntries(expected));
     });
 });

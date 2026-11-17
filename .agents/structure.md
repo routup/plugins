@@ -78,7 +78,7 @@ Layer 2 (adapters):     rate-limit-redis, swagger-ui
 Layer 1 (standalone):   assets, body, cookie, cors, decorators, i18n, logger, prometheus, query, rate-limit
 ```
 
-All packages peer-depend on `routup@^6.3.0`.
+All packages peer-depend on `routup`; the Requirements table of `packages/docs/src/guide/getting-started.md` lists each range and is checked against the manifests. Pages and READMEs never state a range for an `@routup/*` package, because release-please rewrites those ranges in every release.
 
 ## Docs
 

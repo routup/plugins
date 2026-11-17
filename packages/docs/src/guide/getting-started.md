@@ -13,7 +13,7 @@ The packages on this site add request parsing, CORS, rate limits, logging, metri
 
 ## Requirements
 
-The plugins are ESM only and are developed and tested on Node.js 24 or later. Each package has `routup` as a peer dependency; some need further peers.
+The plugins are ESM only and are developed and tested on Node.js 24 or later. Each package has `routup` as a peer dependency; some need further peers. A peer from this repository is named without a range; the `package.json` of the package that needs it holds the range.
 
 | Package | `routup` | Other peer dependencies |
 |---------|----------|-------------------------|
@@ -28,7 +28,7 @@ The plugins are ESM only and are developed and tested on Node.js 24 or later. Ea
 | [`@routup/prometheus`](/prometheus/) | `^6.4.0` | `prom-client` `>=15.0.0` |
 | [`@routup/query`](/query/) | `^6.3.0` | none |
 | [`@routup/rate-limit`](/rate-limit/) | `^6.3.0` | none |
-| [`@routup/rate-limit-redis`](/rate-limit-redis/) | `^6.3.0` | `@routup/rate-limit` `^4.0.3`, `redis-extension` `^3.0.0` |
+| [`@routup/rate-limit-redis`](/rate-limit-redis/) | `^6.3.0` | `@routup/rate-limit`, `redis-extension` `^3.0.0` |
 | [`@routup/swagger-ui`](/swagger-ui/) | `^6.3.0` | `@types/swagger-ui-dist` `^3.30.5` |
 
 ## Installation

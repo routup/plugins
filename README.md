@@ -78,7 +78,7 @@ app.post('/posts', defineCoreHandler(async (event) => {
 serve(app, { port: 3000 });
 ```
 
-`@routup/basic` installs the body, cookie and query plugins together and depends on all three, so their helpers can be imported directly. Every package is ESM only, needs Node.js 24 or later and has `routup@^6.3.0` as a peer dependency.
+`@routup/basic` installs the body, cookie and query plugins together and depends on all three, so their helpers can be imported directly. Every package is ESM only, needs Node.js 24 or later and has `routup` as a peer dependency; the [Requirements](https://plugins.routup.dev/guide/getting-started#requirements) table lists the range and the further peers of each package.
 
 ## How plugins work
 

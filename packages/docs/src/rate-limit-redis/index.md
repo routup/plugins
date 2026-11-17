@@ -17,7 +17,7 @@ A store for [`@routup/rate-limit`](/rate-limit/) that keeps the hit counters in 
 
 - Node.js 24 or later (also required by `redis-extension`), ESM only
 - `routup` `^6.3.0` (peer dependency)
-- `@routup/rate-limit` `^4.0.3` (peer dependency): the limiter this store plugs into
+- `@routup/rate-limit` (peer dependency): the limiter this store plugs into
 - `redis-extension` `^3.0.0` (peer dependency): `package.json` marks it optional, but the store imports it when the module loads, so install it
 - `ioredis` `^6` (peer dependency of `redis-extension`)
 - A Redis server
