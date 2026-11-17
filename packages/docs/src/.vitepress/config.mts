@@ -23,7 +23,7 @@ export const PLUGIN_PAGES: SidebarPlugin[] = [
     plugin('assets', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('decorators', 'Routing patterns', ['index', 'controllers', 'parameters']),
     plugin('swagger-ui', 'API documentation', ['index']),
-    plugin('cors', 'Operations', ['index', 'helpers']),
+    plugin('cors', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('logger', 'Operations', ['index', 'helpers']),
     plugin('rate-limit', 'Operations', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('rate-limit-redis', 'Operations', ['index']),

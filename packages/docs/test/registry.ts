@@ -97,6 +97,12 @@ export const PLUGINS: PluginDocs[] = [
         ],
     },
     {
+        name: 'cors',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+    },
+    {
         name: 'query',
         optionsType: 'Options',
         optionsPage: 'configuration.md',

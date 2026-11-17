@@ -11,7 +11,12 @@ plugin:
 
 # @routup/cors
 
-CORS plugin for routup — built on Web Standard `Request` / `Response`. Handles preflight (`OPTIONS`) requests and decorates ordinary responses with the right `Access-Control-*` headers.
+Lets a browser script on another origin call your API. The plugin answers CORS preflight requests and adds the `Access-Control-*` and `Vary` headers to the other responses, including the cases where a browser ignores a `'*'` on a request with credentials.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
 
 ## Installation
 
@@ -19,76 +24,51 @@ CORS plugin for routup — built on Web Standard `Request` / `Response`. Handles
 npm install @routup/cors
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, defineCoreHandler, serve } from 'routup';
-import { cors } from '@routup/cors';
+<<< @/../examples/cors/quick-start.ts
 
-const router = new App();
+`cors()` returns a plugin; register it with `app.use()` before the routes it covers ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-router.use(cors({
-    origin: ['https://app.example.com'],
-    credentials: true,
-    allowHeaders: ['content-type', 'authorization'],
-}));
-
-router.get('/', defineCoreHandler(() => 'ok'));
-
-serve(router, { port: 3000 });
+```bash
+curl -i -X OPTIONS http://localhost:3000/ \
+  -H 'origin: https://app.example.com' \
+  -H 'access-control-request-method: POST' \
+  -H 'access-control-request-headers: content-type'
+# HTTP/1.1 204 No Content
+# access-control-allow-headers: content-type,authorization
+# access-control-allow-methods: *
+# access-control-allow-origin: https://app.example.com
+# content-length: 0
+# vary: origin, access-control-request-headers
 ```
 
-The plugin short-circuits preflight requests with a `204` and adds the right `Access-Control-Allow-*` headers to non-preflight responses.
+## Default Behaviour
 
-## When to use it
+Called without options, `cors()` allows every origin.
 
-- Your API is consumed from a browser on a different origin.
-- You need precise control over preflight: status code, allow-listed methods/headers, max-age, credentials.
+| Request | What happens |
+|---------|--------------|
+| Preflight: `OPTIONS` with `Origin` and `Access-Control-Request-Method` | Answered with `204`, `Content-Length: 0` and the preflight headers; the handlers after the plugin do not run, also when no route matches the path |
+| Any other request, also an `OPTIONS` request without both headers | Gets the response headers, then continues to the routes |
 
-## Options at a glance
+| Header | Preflight | Other responses | Default value |
+|--------|-----------|-----------------|---------------|
+| `Access-Control-Allow-Origin` | yes | yes | `*`, also when the request has no `Origin` |
+| `Access-Control-Allow-Credentials` | yes | yes | not sent ([`credentials`](/cors/configuration#credentials)) |
+| `Access-Control-Allow-Methods` | yes | no | `*` |
+| `Access-Control-Allow-Headers` | yes | no | The request's `Access-Control-Request-Headers`; not sent when the request has none |
+| `Access-Control-Max-Age` | yes | no | not sent ([`maxAge`](/cors/configuration#maxage)) |
+| `Access-Control-Expose-Headers` | no | yes | `*` |
+| `Vary` | yes | yes | `access-control-request-headers` when `Access-Control-Allow-Headers` is sent; `origin` is added whenever `Access-Control-Allow-Origin` is sent with a value other than `*` ([`origin`](/cors/configuration#origin)) |
 
-| Option | Default | Notes |
-|---|---|---|
-| `origin` | `'*'` | `true` reflects the request origin (credentials-friendly); `false` skips CORS entirely. Strings (`'*'`, `'null'`, `'https://app.example.com'`), `RegExp`, allow-list arrays, or custom predicates also supported. |
-| `methods` | `'*'` | Allowed methods on preflight. Pass `['GET','POST']` for explicit lists. |
-| `allowHeaders` | `'*'` | Mirrors `Access-Control-Request-Headers` when `'*'` or empty. |
-| `exposeHeaders` | `'*'` | Headers visible to the browser via `getResponseHeader`. |
-| `credentials` | `false` | Enable `Access-Control-Allow-Credentials: true`. With credentials, the browser treats a literal `'*'` as non-wildcard: a `'*'` `origin` or `methods` blocks the request, and `'*'` `exposeHeaders` silently hides custom (non-CORS-safelisted) response headers from JavaScript. Use `origin: true` to reflect the requester, enumerate `methods` (e.g. `['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS']`), and enumerate any non-safelisted response headers you want exposed. `allowHeaders: '*'` is safe — the plugin mirrors `Access-Control-Request-Headers` so `*` never reaches the wire. |
-| `maxAge` | `false` | Cache duration for preflight, in seconds. Accepts `string` or `number`. |
-| `preflight.continue` | `false` | When `true`, sets preflight headers and forwards to your own `OPTIONS` handler instead of returning 204. |
-| `preflight.status` | `204` | Override if a downstream client doesn't tolerate 204. Preflight responses also set `Content-Length: 0` (Safari compat). |
+- **Set, not appended.** The `Access-Control-*` headers overwrite values already on `event.response.headers`; `Vary` values are appended to existing ones.
+- **The preflight response is a new `Response`.** It copies the headers already on `event.response`, so a handler registered before the plugin can still add headers to it.
+- **A route's own `Response` gets no headers.** The plugin sets the headers on `event.response`, so a route that returns a `Response` object sends none of them. Return a value instead, or build the `Response` with `event.response.headers`. The `404` and error responses routup builds, and the answer of an [error handler](https://routup.dev/guide/error-handling), carry them.
+- **Order with other plugins.** Register `cors()` before a rate limiter, so a preflight is not counted and a `429` carries the CORS headers: [Combining Plugins](/guide/combining).
 
-## Common patterns
+## Next Steps
 
-### Allow-list multiple environments
-
-```typescript
-router.use(cors({
-    origin: [
-        'https://app.example.com',
-        /\.staging\.example\.com$/,
-    ],
-    credentials: true,
-}));
-```
-
-### Decorate a single route
-
-When you don't want CORS globally:
-
-```typescript
-import { handleCors } from '@routup/cors';
-
-router.all('/api/public', defineCoreHandler((event) => {
-    const corsResponse = handleCors(event, { origin: '*' });
-    if (corsResponse) {
-        return corsResponse;
-    }
-
-    return loadPayload();
-}));
-```
-
-## See also
-
-- [Helpers](./helpers) — `handleCors`, `appendCorsHeaders`, `isPreflightRequest`, `isCorsOriginAllowed`
+- [Configuration](/cors/configuration): every option, with its type and default, and the credentials rules
+- [Helpers](/cors/helpers): `handleCors()` for one route, the header functions and the types
+- [Recipes](/cors/recipes): one origin, an allow-list, credentials, preflight caching, your own preflight handler
