@@ -34,6 +34,32 @@ export type PluginDocs = {
      * `subset`.
      */
     nestedOptions?: NestedOptionsDocs[];
+    /**
+     * Subpath entries of the package (such as `@routup/decorators/preset`),
+     * each checked like the main entry against its own pages.
+     */
+    entries?: EntryDocs[];
+};
+
+export type EntryDocs = {
+    /**
+     * Package specifier, for example "@routup/decorators/preset"; its
+     * subpath must be in the `exports` of the package.json.
+     */
+    specifier: string;
+    /**
+     * Source file of the entry, relative to packages/<name>/src/.
+     */
+    file: string;
+    /**
+     * Pages whose headings and tables document the exports of this entry;
+     * none of them may be in the plugin's `apiPages`.
+     */
+    apiPages: string[];
+    /**
+     * Runtime export -> reason it is not documented under its own name.
+     */
+    exempt?: Record<string, string>;
 };
 
 export type NestedOptionsDocs = {

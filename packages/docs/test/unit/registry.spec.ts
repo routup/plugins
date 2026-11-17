@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { PLUGIN_PAGES } from '../../src/.vitepress/config.mts';
+import { PACKAGE_ENTRIES } from '../aliases';
 import {
     readDocumentedNames,
     readExports,
@@ -133,25 +134,28 @@ describe.each(PLUGINS)('$name', (plugin) => {
         expect(errors).toEqual([]);
     });
 
-    it('documents every runtime export and only real exports', () => {
+    /**
+     * Errors of one entry file against its pages; `label` names the entry
+     * in each message.
+     */
+    function checkExports(label: string, entryFile: string, apiPages: string[], exempt: Record<string, string>): string[] {
         const {
             values,
             types,
             defaultAlias,
-        } = readExports(entry);
-        const exempt = plugin.exempt ?? {};
+        } = readExports(entryFile);
         const documented = new Set<string>();
         const hidden: string[] = [];
 
-        for (const page of plugin.apiPages) {
+        for (const page of apiPages) {
             const markdown = readPage(plugin.name, page);
 
             readDocumentedNames(markdown).forEach((name) => documented.add(name));
             hidden.push(...readHiddenNames(markdown).map((text) => `${plugin.name}/${page}: heading "${text}" is not a single backticked name`));
         }
 
-        expect(values.size, `${plugin.name}: no runtime exports read`).toBeGreaterThan(0);
-        expect(documented.size, `${plugin.name}: no documented names read`).toBeGreaterThan(0);
+        expect(values.size, `${label}: no runtime exports read`).toBeGreaterThan(0);
+        expect(documented.size, `${label}: no documented names read`).toBeGreaterThan(0);
 
         const errors: string[] = [...hidden];
 
@@ -162,24 +166,65 @@ describe.each(PLUGINS)('$name', (plugin) => {
 
         for (const name of documented) {
             if (!values.has(name) && !types.has(name)) {
-                errors.push(`${plugin.name}: \`${name}\` is documented but not exported`);
+                errors.push(`${label}: \`${name}\` is documented but not exported`);
             }
         }
 
         for (const name of values) {
             if (!documented.has(name) && !(name in exempt)) {
                 errors.push(name === 'default' ?
-                    `${plugin.name}: the default export is not a documented named export` :
-                    `${plugin.name}: runtime export \`${name}\` is not documented`);
+                    `${label}: the default export is not a documented named export` :
+                    `${label}: runtime export \`${name}\` is not documented`);
             }
         }
 
         for (const name of Object.keys(exempt)) {
             if (!values.has(name)) {
-                errors.push(`${plugin.name}: stale exemption \`${name}\` (not a runtime export)`);
+                errors.push(`${label}: stale exemption \`${name}\` (not a runtime export)`);
             } else if (documented.has(name)) {
-                errors.push(`${plugin.name}: stale exemption \`${name}\` (it is documented)`);
+                errors.push(`${label}: stale exemption \`${name}\` (it is documented)`);
             }
+        }
+
+        return errors;
+    }
+
+    it('documents every runtime export and only real exports', () => {
+        expect(checkExports(plugin.name, entry, plugin.apiPages, plugin.exempt ?? {})).toEqual([]);
+    });
+
+    it('documents every runtime export of each subpath entry on its own pages', () => {
+        const manifest = JSON.parse(readFileSync(path.join(packagesRoot, plugin.name, 'package.json'), 'utf8'));
+        const errors: string[] = [];
+
+        for (const subEntry of plugin.entries ?? []) {
+            const label = subEntry.specifier;
+            const file = path.join(packagesRoot, plugin.name, 'src', subEntry.file);
+            const subpath = subEntry.specifier.startsWith(`${manifest.name}/`) ?
+                `.${subEntry.specifier.slice(manifest.name.length)}` :
+                undefined;
+
+            if (!subpath || !(subpath in (manifest.exports ?? {}))) {
+                errors.push(`${label}: not a subpath in the exports of ${manifest.name}`);
+            }
+
+            if (PACKAGE_ENTRIES[subEntry.specifier] !== `packages/${plugin.name}/src/${subEntry.file}`) {
+                errors.push(`${label}: PACKAGE_ENTRIES does not map it to packages/${plugin.name}/src/${subEntry.file}`);
+            }
+
+            for (const page of subEntry.apiPages) {
+                if (plugin.apiPages.includes(page)) {
+                    errors.push(`${label}: page ${page} is also an apiPage of the main entry`);
+                }
+            }
+
+            if (!existsSync(file)) {
+                errors.push(`${label}: ${subEntry.file} does not exist`);
+
+                continue;
+            }
+
+            errors.push(...checkExports(label, file, subEntry.apiPages, subEntry.exempt ?? {}));
         }
 
         expect(errors).toEqual([]);
