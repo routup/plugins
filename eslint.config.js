@@ -20,6 +20,13 @@ export default [
         },
     },
     {
+        // Docs samples print their output; the pages show what they print.
+        files: ['packages/docs/examples/**/*.ts'],
+        rules: {
+            'no-console': 'off',
+        },
+    },
+    {
         rules: {
             '@typescript-eslint/no-unused-vars': 'off',
             // Error.isError and Uint8Array base64 helpers are not available on every supported Node version (engines: >=22).
