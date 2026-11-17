@@ -271,6 +271,42 @@ getControllerRoutes(UserController);
 
 There is one entry per controller path and decorated method, ordered by controller path, then by declaration; only routes bound to a method are listed, so middlewares are not. `method` is upper case and `path` is joined exactly as the mount joins it, relative to the app the controller is mounted on. A target without decorator metadata answers `[]` and gains no metadata entry.
 
+## Inheritance
+
+A controller can extend a decorated class:
+
+```typescript
+import { DController, DGet } from '@routup/decorators';
+
+class BaseController {
+    @DGet('/health')
+    async health() {
+        return 'ok';
+    }
+}
+
+@DController('/users')
+export class UserController extends BaseController {
+    @DGet('')
+    async list() {
+        return [];
+    }
+}
+
+// UserController answers GET /users/health and GET /users
+```
+
+- A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path, middlewares and class-level `@DProduces()`.
+- On first use a subclass gets its own copy of that metadata. Its decorators add to or overwrite the copy as on a class without a parent; the built-in decorators and the `create*` factories never change the parent or another subclass:
+  - an override with a verb decorator (`@DGet()`, ...) replaces the route of that method, including its inherited method middlewares (repeat them on the override), and keeps its inherited parameter decorators; the override's own are added, and at an index the parent used only the override's parameter decorator is applied;
+  - its `@DStatus()` overwrites the inherited status, and its `@DProduces()` media types come before the inherited ones, so they are sent;
+  - an override without decorators keeps the inherited route, which calls the override;
+  - `@DController(path)` without middlewares starts from the class middlewares of the parent (dropping what a decorator below it added), an array (also `[]`) replaces them.
+- Inherited routes are registered first, in the declaration order of the parent: with a parent `@DGet('/:id')`, a subclass's `@DGet('/me')` is answered by the parent's route. Declare such a static route in the parent, or let the parent's method hand it over with `event.next()`.
+- The copy is taken on the first use of a class prototype (its first decorator at class definition, or `useDecoratorMeta(Subclass.prototype)`, also a plain read), so a decorator applied to the parent by hand afterwards does not reach it. An instance only reads through its prototype chain, mounting and listing never copy, and a prototype built with `Object.create(Parent.prototype)` without a `constructor` of its own shares the metadata of the parent. So does a subclass prototype sealed or frozen before its first decorator runs, as by a sealing class decorator placed below `@DController()` on a subclass without member decorators of its own: place it above `@DController()`.
+- Fields a custom decorator stores on the metadata are carried into the copy by reference: a custom decorator that changes such a field in place also changes it for the parent, so it must replace the value instead.
+- The OpenAPI preset lists inherited methods only for a class with its own `@DController()`, does not inherit the class-level decorators of a parent, and documents a method from one declaration (the override when it has a verb decorator, else the parent's), while the runtime combines the inherited parameter decorators and response options with those of the override.
+
 ## See also
 
 - [Parameters](./parameters) — every `@D*` parameter decorator

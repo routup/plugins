@@ -1,22 +1,12 @@
 import type { ClassType } from '../types';
-import { useDecoratorMeta } from '../utils';
+import { setDecoratorController } from '../utils/meta';
 
 export function createClassDecorator(
     url: string | string[],
     middlewares?: ClassType[],
 ) : ClassDecorator {
     return (target: any) : void => {
-        const meta = useDecoratorMeta(target.prototype);
-
-        meta.url = url;
-        meta.middlewares = [];
-
-        if (Array.isArray(middlewares)) {
-            meta.middlewares = [
-                ...meta.middlewares,
-                ...middlewares,
-            ];
-        }
+        setDecoratorController(target.prototype, url, middlewares);
     };
 }
 
