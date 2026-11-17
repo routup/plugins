@@ -99,6 +99,9 @@ cookie-es throws a `TypeError`, which answers `500` inside a handler, for:
 
 - an invalid name, or a value that is invalid after encoding
 - a `maxAge` that is not an integer
+- a `domain` or `path` with characters the attribute does not allow
+- an `expires` that is not a valid `Date`
+- a `priority` other than `'low'`, `'medium'` or `'high'`, or a `sameSite` other than `true`, `'lax'`, `'strict'` or `'none'`
 - `partitioned` or `sameSite: 'none'` without `secure`
 - a `__Secure-` or `__Host-` name without `secure`
 - a `__Host-` name with a `domain` or a `path` other than `/`

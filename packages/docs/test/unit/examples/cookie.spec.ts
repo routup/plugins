@@ -241,6 +241,27 @@ describe('behaviour stated on the pages', () => {
         expect(await response.json()).toEqual({ status: 500, message: 'SameSite=None cookies must have the Secure attribute' });
     });
 
+    it('answers 500 for each invalid attribute value', async () => {
+        const cases = [
+            { domain: 'exa mple.com' },
+            { path: '/a;b' },
+            { expires: new Date('invalid') },
+            { priority: 'urgent' },
+            { sameSite: 'loose' },
+            { maxAge: 1.5 },
+        ];
+
+        for (const options of cases) {
+            const app = create((event) => {
+                setResponseCookie(event, 'a', '1', options as Parameters<typeof setResponseCookie>[3]);
+
+                return null;
+            }, false);
+
+            expect((await app.fetch(request('/'))).status, JSON.stringify(options)).toBe(500);
+        }
+    });
+
     it('drops the cookie when the handler returns a Response', async () => {
         const app = create((event) => {
             setResponseCookie(event, 'a', '1');

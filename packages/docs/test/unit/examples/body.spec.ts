@@ -94,7 +94,7 @@ describe('form', () => {
         expect(await response.json()).toEqual({ email: 'ada@example.com', tags: ['news', 'releases'] });
     });
 
-    it('keeps a single field a string', async () => {
+    it('wraps a single field in an array', async () => {
         const response = await form.fetch(post('/subscribe', 'email=ada%40example.com&tags=news', { 'content-type': 'application/x-www-form-urlencoded' }));
 
         expect(await response.json()).toEqual({ email: 'ada@example.com', tags: ['news'] });
@@ -216,11 +216,17 @@ describe('behaviour stated on the pages', () => {
         expect(await response.json()).toEqual({});
     });
 
-    it('parses a body without content-type as JSON', async () => {
+    it('parses a body without content-type as JSON while json is enabled', async () => {
         const app = create(undefined, (event) => readRequestBody(event));
 
         expect(await (await app.fetch(post('/', encode('{"a":1}')))).json()).toEqual({ a: 1 });
         expect((await app.fetch(post('/', encode('a=1')))).status).toBe(400);
+    });
+
+    it('parses a body without content-type as a form when only urlEncoded is enabled', async () => {
+        const app = create({ urlEncoded: true }, (event) => readRequestBody(event));
+
+        expect(await (await app.fetch(post('/', encode('a=1')))).json()).toEqual({ a: '1' });
     });
 
     it('ignores content-type parameters and does not expand wildcards', async () => {

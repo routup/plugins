@@ -51,7 +51,7 @@ As soon as you set one format, the others stay off unless you set them too: `bod
 
 ### Content Types
 
-- A request without a `content-type` header is treated as JSON: the JSON parser runs and a body that is not JSON answers `400`.
+- A request without a `content-type` header matches every parser. With `json` enabled it is parsed as JSON, and a body that is not JSON answers `400`; with only `urlEncoded` enabled it is parsed as a form.
 - The media type before `;` must equal one of the parser's `type` values; parameters such as `charset` are ignored. Wildcards such as `application/*+json` are not supported; list each type instead.
 - `multipart/form-data` is not parsed. Use `event.request.formData()` for file uploads from forms.
 
