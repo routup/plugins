@@ -1,28 +1,24 @@
 ---
-title: Cookie — Helpers
-description: Reading parsed cookies and writing Set-Cookie headers.
+title: Cookie Helpers
+description: Reading parsed cookies and writing Set-Cookie headers with @routup/cookie.
 relatedPlugins: [basic]
 ---
 
-# Helpers
+# Helpers and API
 
-## Options
+Everything `@routup/cookie` exports. Each helper takes the routup event first; options are on [Configuration](/cookie/configuration).
 
-The plugin's optional `parse` config lets you swap the cookie value decoder:
+## `cookie()`
+
+Creates the plugin. It is also the default export.
 
 ```typescript
-router.use(cookie({
-    parse: { decode: (value) => decodeURIComponent(value) },
-}));
+declare function cookie(options?: Options): Plugin;
 ```
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `parse.decode` | `(value: string) => string` | `decodeURIComponent` | Per-cookie value decoder |
+## `useRequestCookies()`
 
-## `useRequestCookies`
-
-Returns every parsed cookie as a string-to-string map.
+Returns the parsed request cookies, or `{}` when the `cookie()` middleware has not run for the request.
 
 ```typescript
 declare function useRequestCookies(
@@ -30,9 +26,9 @@ declare function useRequestCookies(
 ): Record<string, string>;
 ```
 
-## `useRequestCookie`
+## `useRequestCookie()`
 
-Returns a single cookie by name, or `undefined` if absent.
+Returns one parsed request cookie, or `undefined` when it is absent.
 
 ```typescript
 declare function useRequestCookie(
@@ -41,9 +37,9 @@ declare function useRequestCookie(
 ): string | undefined;
 ```
 
-## `setRequestCookies`
+## `setRequestCookies()`
 
-Override the cached parsed cookies (e.g. inside a middleware that resolves a session token to its cookie set). Either set a single key or replace the whole record.
+Changes the stored request cookies that later handlers read: a key and value merge one cookie in, a record replaces them all. Nothing is sent to the client ([Default a Missing Cookie](/cookie/recipes#default-a-missing-cookie)).
 
 ```typescript
 declare function setRequestCookies(
@@ -58,9 +54,21 @@ declare function setRequestCookies(
 ): void;
 ```
 
-## `setResponseCookie`
+Called before `cookie()` runs, it also stops the middleware from parsing the `Cookie` header.
 
-Append a `Set-Cookie` header to the response. Accepts the standard cookie serialization options (`httpOnly`, `secure`, `sameSite`, `path`, `domain`, `maxAge`, `expires`, `priority`, `partitioned`).
+## `hasRequestCookies()`
+
+Returns `true` once cookies are stored for the request, by the middleware or by `setRequestCookies()`.
+
+```typescript
+declare function hasRequestCookies(
+    event: IAppEvent,
+): boolean;
+```
+
+## `setResponseCookie()`
+
+Appends a `Set-Cookie` header to the response. The value is encoded with `encodeURIComponent` unless you pass `encode`. It works without the `cookie()` plugin.
 
 ```typescript
 declare function setResponseCookie(
@@ -71,18 +79,33 @@ declare function setResponseCookie(
 ): void;
 ```
 
-```typescript
-setResponseCookie(event, 'session', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
-});
-```
+The options are the cookie-es `CookieSerializeOptions`:
 
-## `unsetResponseCookie`
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `path` | `string` | `'/'` | `Path` attribute |
+| `domain` | `string` | none | `Domain` attribute |
+| `maxAge` | `number` | none | `Max-Age` in seconds; an integer, capped at 400 days (`34560000`) |
+| `expires` | `Date` | none | `Expires` attribute |
+| `httpOnly` | `boolean` | `false` | `HttpOnly` attribute: scripts in the browser cannot read the cookie |
+| `secure` | `boolean` | `false` | `Secure` attribute: sent over HTTPS only |
+| `sameSite` | `boolean \| 'lax' \| 'strict' \| 'none'` | none | `SameSite` attribute; `true` means `Strict` |
+| `priority` | `'low' \| 'medium' \| 'high'` | none | `Priority` attribute |
+| `partitioned` | `boolean` | `false` | `Partitioned` attribute |
+| `encode` | `(value: string) => string` | `encodeURIComponent` | Encodes the value |
+| `stringify` | `(value: unknown) => string` | `JSON.stringify` | Not used: `value` is always a string |
 
-Clear a cookie by emitting a `Set-Cookie` header with `Max-Age=0`.
+cookie-es throws a `TypeError`, which answers `500` inside a handler, for:
+
+- an invalid name, or a value that is invalid after encoding
+- a `maxAge` that is not an integer
+- `partitioned` or `sameSite: 'none'` without `secure`
+- a `__Secure-` or `__Host-` name without `secure`
+- a `__Host-` name with a `domain` or a `path` other than `/`
+
+## `unsetResponseCookie()`
+
+Clears a cookie: appends a `Set-Cookie` header with an empty value and `Max-Age=0`. A `maxAge` you pass is overridden.
 
 ```typescript
 declare function unsetResponseCookie(
@@ -92,4 +115,31 @@ declare function unsetResponseCookie(
 ): void;
 ```
 
-Pass the same `path` / `domain` you used when setting the cookie — browsers scope deletion by these.
+Pass the same `path` and `domain` that the cookie was set with; a browser only deletes a cookie whose scope matches.
+
+## `parseRequestCookies()`
+
+Parses the request's `Cookie` header with cookie-es and returns the result without storing it. The middleware uses it.
+
+```typescript
+declare function parseRequestCookies(
+    event: IAppEvent,
+    options?: ParseOptions,
+): Record<string, string | undefined>;
+```
+
+## Types
+
+| Type | Definition |
+|------|------------|
+| `Options` | `{ parse?: ParseOptions; serialize?: SerializeOptions }` ([Configuration](/cookie/configuration)) |
+| `ParseOptions` | cookie-es `CookieParseOptions` ([`parse`](/cookie/configuration#parse)) |
+| `SerializeOptions` | cookie-es `CookieSerializeOptions` ([attributes](#setresponsecookie)) |
+
+## Other Exports
+
+Exported, but not meant for application code.
+
+| Export | Description |
+|--------|-------------|
+| `isObject` | `isObject(value)`: `true` for a non-null object that is not an array |

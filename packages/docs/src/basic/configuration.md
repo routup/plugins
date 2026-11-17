@@ -27,10 +27,10 @@ Forwarded to the body plugin. See [body — configuration](/body/configuration) 
 
 ### `cookie`
 
-- **Type**: [Cookie options](/cookie/helpers#options) | `boolean`
+- **Type**: [Cookie options](/cookie/configuration) | `boolean`
 - **Default**: `true`
 
-Forwarded to the cookie plugin. See [cookie — helpers (Options)](/cookie/helpers) for the available config.
+Forwarded to the cookie plugin. See [Cookie Configuration](/cookie/configuration) for the available options.
 
 ### `query`
 

@@ -64,6 +64,20 @@ export const PLUGINS: PluginDocs[] = [
         ],
     },
     {
+        name: 'cookie',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+        nestedOptions: [
+            { type: 'ParseOptions', heading: '`parse`' },
+            {
+                type: 'SerializeOptions',
+                heading: '`setResponseCookie()`',
+                page: 'helpers.md',
+            },
+        ],
+    },
+    {
         name: 'rate-limit',
         optionsType: 'Options',
         optionsPage: 'configuration.md',

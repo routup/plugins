@@ -125,7 +125,7 @@ app.use(basic({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `body` | [`BodyOptions`](https://plugins.routup.dev/body/configuration) `\| boolean` | `true` | Options for `body()`; `false` skips it |
-| `cookie` | [`CookieOptions`](https://github.com/routup/plugins/tree/master/packages/cookie#options) `\| boolean` | `true` | Options for `cookie()`; `false` skips it |
+| `cookie` | [`CookieOptions`](https://plugins.routup.dev/cookie/configuration) `\| boolean` | `true` | Options for `cookie()`; `false` skips it |
 | `query` | [`QueryOptions`](https://github.com/routup/plugins/tree/master/packages/query#options) `\| boolean` | `true` | Options for `query()`; `false` skips it |
 
 The defaults apply only when you pass none of the three keys; see [Configure or skip a plugin](#configure-or-skip-a-plugin). The [configuration page](https://plugins.routup.dev/basic/configuration) of the docs has more examples.
