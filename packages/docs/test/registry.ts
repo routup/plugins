@@ -52,6 +52,18 @@ export type NestedOptionsDocs = {
 
 export const PLUGINS: PluginDocs[] = [
     {
+        name: 'body',
+        optionsType: 'Options',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+        nestedOptions: [
+            { type: 'JsonOptions', heading: '`json`' },
+            { type: 'UrlEncodedOptions', heading: '`urlEncoded`' },
+            { type: 'RawOptions', heading: '`raw`' },
+            { type: 'TextOptions', heading: '`text`' },
+        ],
+    },
+    {
         name: 'rate-limit',
         optionsType: 'Options',
         optionsPage: 'configuration.md',

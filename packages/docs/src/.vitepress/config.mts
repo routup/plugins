@@ -17,7 +17,7 @@ export const GUIDE_PAGES: SidebarLink[] = [
  */
 export const PLUGIN_PAGES: SidebarPlugin[] = [
     plugin('basic', 'Bundles', ['index', 'configuration']),
-    plugin('body', 'Request & response', ['index', 'configuration', 'helpers']),
+    plugin('body', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('cookie', 'Request & response', ['index', 'helpers']),
     plugin('query', 'Request & response', ['index', 'helpers']),
     plugin('assets', 'Request & response', ['index', 'configuration']),

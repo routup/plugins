@@ -1,16 +1,24 @@
 ---
-title: Body — Helpers
-description: Tree-shakeable helpers for reading parsed and raw request bodies.
+title: Body Helpers
+description: Functions and types exported by @routup/body for reading parsed and raw request bodies.
 relatedPlugins: [basic]
 ---
 
-# Helpers
+# Helpers and API
 
-Each helper takes the routup event as its first argument. All buffered helpers cache their result on `event.store`, so subsequent calls within the same request return the cached value.
+Everything `@routup/body` exports. Each helper takes the routup event first and can be called from any handler; options are on [Configuration](/body/configuration).
 
-## `readRequestBody`
+## `body()`
 
-Returns the parsed body (JSON or URL-encoded). Pass a `key` to extract a single field. A keyed read returns the value only for an own property of an object body (e.g. a parsed JSON object). It resolves to `undefined` for an array (`readRequestBody(event, '0')`), a primitive or `null` (e.g. with `json: { strict: false }`), and for an inherited member such as `constructor`.
+Creates the plugin. It is also the default export.
+
+```typescript
+declare function body(options?: Options): Plugin;
+```
+
+## `readRequestBody()`
+
+Returns the parsed JSON or URL-encoded body; with a key, one property of it. The first call parses, later calls return the cached result.
 
 ```typescript
 declare function readRequestBody(
@@ -23,14 +31,12 @@ declare function readRequestBody(
 ): Promise<any | undefined>;
 ```
 
-```typescript
-const body = await readRequestBody(event);
-const email = await readRequestBody(event, 'email');
-```
+- Without the `body()` plugin no parser is enabled and the result is `{}`.
+- A keyed read resolves only an own property of an object body. It resolves to `undefined` for an array (`readRequestBody(event, '0')`), a primitive or `null` (possible with `json: { strict: false }`), and for an inherited member such as `constructor`.
 
-## `setRequestBody`
+## `setRequestBody()`
 
-Provides the parsed body, e.g. from your own body reader (a bounded read with custom 413/415 rules). `readRequestBody()` and [`@DBody()`](/decorators/parameters) return this value from then on and never read the request stream. Setting it after a first read replaces the parsed body, and a read that is still parsing when it is set resolves to the provided value, even when the request body fails to parse.
+Provides the parsed body, for example from your own reader for a format the plugin does not parse. `readRequestBody()` and `@DBody()` of [`@routup/decorators`](/decorators/) return this value from then on and do not read the request body.
 
 ```typescript
 declare function setRequestBody(
@@ -39,17 +45,13 @@ declare function setRequestBody(
 ): void;
 ```
 
-```typescript
-router.use(defineCoreHandler(async (event) => {
-    setRequestBody(event, await myBodyReader(event));
+<<< @/../examples/body/custom-reader.ts
 
-    return event.next();
-}));
-```
+Set after a first read, the value replaces the parsed body. A read that is still parsing when the value is set resolves to that value, even when the request body fails to parse.
 
-## `readRequestBodyText`
+## `readRequestBodyText()`
 
-Returns the body decoded as a string.
+Returns the body as a string, decoded with `defaultCharset`.
 
 ```typescript
 declare function readRequestBodyText(
@@ -58,9 +60,9 @@ declare function readRequestBodyText(
 ): Promise<string>;
 ```
 
-Requires `body({ text: true })` (or a `text` config block) on the router.
+Without `options`, it uses the plugin's [`text`](/body/configuration#text) options; with them, those options replace the plugin's for this call. It reads the body whatever its `content-type`.
 
-## `readRequestBodyBytes`
+## `readRequestBodyBytes()`
 
 Returns the body as a `Uint8Array`.
 
@@ -71,11 +73,11 @@ declare function readRequestBodyBytes(
 ): Promise<Uint8Array>;
 ```
 
-Requires `body({ raw: true })`.
+Without `options`, it uses the plugin's [`raw`](/body/configuration#raw) options; with them, those options replace the plugin's for this call. It reads the body whatever its `content-type`.
 
-## `readRequestBodyArrayBuffer`
+## `readRequestBodyArrayBuffer()`
 
-Returns the body as an `ArrayBuffer`.
+Returns the body as an `ArrayBuffer`, for APIs such as Web Crypto that take a `BufferSource`. Options as for `readRequestBodyBytes()`.
 
 ```typescript
 declare function readRequestBodyArrayBuffer(
@@ -84,9 +86,9 @@ declare function readRequestBodyArrayBuffer(
 ): Promise<ArrayBuffer>;
 ```
 
-## `readRequestBodyBlob`
+## `readRequestBodyBlob()`
 
-Returns the body as a `Blob` — the `Blob`'s `type` reflects the request `Content-Type`.
+Returns the body as a `Blob` whose `type` is the request's `content-type`, or `application/octet-stream` when there is none. Options as for `readRequestBodyBytes()`.
 
 ```typescript
 declare function readRequestBodyBlob(
@@ -95,9 +97,9 @@ declare function readRequestBodyBlob(
 ): Promise<Blob>;
 ```
 
-## `readRequestBodyStream`
+## `readRequestBodyStream()`
 
-Returns the body as a `ReadableStream`, with transparent decoding when the `Content-Encoding` header indicates `gzip`, `deflate`, or `br`. **Does not buffer or cache** — useful for piping large bodies straight to disk, S3, etc.
+Returns the body as a `ReadableStream`, decoded according to `content-encoding`, without buffering or caching it; `null` when the request has no body.
 
 ```typescript
 declare function readRequestBodyStream(
@@ -106,4 +108,32 @@ declare function readRequestBodyStream(
 ): ReadableStream | null;
 ```
 
-Returns `null` when the request has no body.
+<<< @/../examples/body/stream.ts
+
+- `limit` is only checked against the `content-length` header; the streamed bytes are not counted. Count them yourself when the header may be missing.
+- `cache` has no effect, and the plugin's `raw` options are not used.
+- Once the stream is read, no other helper can read the body.
+
+## `readRequestBodyRaw()`
+
+The reader behind the buffered helpers: collects the decoded stream into a `Uint8Array`, enforces `limit` on the decoded bytes, and reads or writes the byte cache when `cache` is `true`.
+
+```typescript
+declare function readRequestBodyRaw(
+    event: IAppEvent,
+    options?: BaseOptions,
+): Promise<Uint8Array>;
+```
+
+Unlike `readRequestBodyBytes()`, it does not fall back to the plugin's `raw` options.
+
+## Types
+
+| Type | Definition |
+|------|------------|
+| `Options` | `{ json?, urlEncoded?, raw?, text? }`, each an options object or a boolean ([Configuration](/body/configuration)) |
+| `BaseOptions` | `{ limit?: number \| string; cache?: boolean }`, the part every format shares |
+| `JsonOptions` | `BaseOptions` plus `strict`, `reviver` and `type` ([`json`](/body/configuration#json)) |
+| `UrlEncodedOptions` | `BaseOptions` plus `parameterLimit` and `type` ([`urlEncoded`](/body/configuration#urlencoded)) |
+| `RawOptions` | `BaseOptions` plus `type` ([`raw`](/body/configuration#raw)) |
+| `TextOptions` | `BaseOptions` plus `defaultCharset` and `type` ([`text`](/body/configuration#text)) |

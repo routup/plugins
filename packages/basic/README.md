@@ -124,7 +124,7 @@ app.use(basic({
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `body` | [`BodyOptions`](https://github.com/routup/plugins/tree/master/packages/body#options) `\| boolean` | `true` | Options for `body()`; `false` skips it |
+| `body` | [`BodyOptions`](https://plugins.routup.dev/body/configuration) `\| boolean` | `true` | Options for `body()`; `false` skips it |
 | `cookie` | [`CookieOptions`](https://github.com/routup/plugins/tree/master/packages/cookie#options) `\| boolean` | `true` | Options for `cookie()`; `false` skips it |
 | `query` | [`QueryOptions`](https://github.com/routup/plugins/tree/master/packages/query#options) `\| boolean` | `true` | Options for `query()`; `false` skips it |
 

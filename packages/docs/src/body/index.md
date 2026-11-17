@@ -1,6 +1,6 @@
 ---
 title: Body
-description: Read and parse the request payload — JSON, URL-encoded, raw bytes, text, blobs, or streams.
+description: Read and parse the request payload as JSON, URL-encoded form data, raw bytes, text, a Blob or a stream.
 relatedPlugins: [basic, decorators]
 plugin:
     package: '@routup/body'
@@ -11,7 +11,12 @@ plugin:
 
 # @routup/body
 
-Reads and parses request payloads. Out of the box it handles `application/json` and `application/x-www-form-urlencoded`; opt-in helpers cover raw bytes, text, blobs, array buffers, and streams (with transparent gzip / deflate / brotli decompression).
+Reads the request body of a routup app as parsed JSON or form data, text, bytes, a Blob or a stream. The plugin takes care of size limits, decompression and content-type checks, and caches the parsed body for the rest of the request.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
 
 ## Installation
 
@@ -19,40 +24,55 @@ Reads and parses request payloads. Out of the box it handles `application/json` 
 npm install @routup/body
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, defineCoreHandler, serve } from 'routup';
-import { body, readRequestBody } from '@routup/body';
+<<< @/../examples/body/quick-start.ts
 
-const router = new App();
+`body()` is a plugin: register it with `app.use()` before the routes that read the body ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-router.use(body());
-
-router.post('/', defineCoreHandler(async (event) => {
-    const data = await readRequestBody(event);
-    return { received: data };
-}));
-
-serve(router, { port: 3000 });
+```bash
+curl -X POST http://localhost:3000/users -H 'content-type: application/json' -d '{"email":"ada@example.com"}'
+# {"email":"ada@example.com"}
+curl -X POST http://localhost:3000/users -d 'email=ada@example.com'
+# {"email":"ada@example.com"}
 ```
 
-`router.use(body())` registers the parser middleware; `readRequestBody(event)` reads and caches the parsed body for the lifetime of the request.
+## Default Behaviour
 
-## When to use it
+| Step | What happens |
+|------|--------------|
+| Register | `body()` with no format set enables `json` and `urlEncoded`; it only stores the options on the request, nothing is read yet |
+| Read | The first `readRequestBody(event)` tries the JSON parser, then the URL-encoded one, by the request's `content-type` |
+| No match | When neither parser matches, or neither is enabled, the result is `{}` |
+| Cache | The parsed body is kept for the request: a second call returns the same object without reading again |
+| Other formats | `readRequestBodyText()`, `readRequestBodyBytes()` and the other helpers read the body whatever its `content-type` ([Helpers](/body/helpers)) |
 
-- Anywhere you need a parsed request body (the most common case)
-- For REST endpoints, GraphQL bodies, webhooks, or streaming uploads
-- When you want size limits, content-type whitelisting, or transparent decompression without writing your own buffering
+As soon as you set one format, the others stay off unless you set them too: `body({ text: true })` parses no JSON ([Configuration](/body/configuration)).
 
-If you only ever consume `application/json` you don't need the plugin — `await event.request.json()` works directly. The plugin earns its keep when you want **caching**, **size limits**, **multiple content types**, or **the raw / text / stream variants**.
+### Content Types
 
-## Companion plugins
+- A request without a `content-type` header is treated as JSON: the JSON parser runs and a body that is not JSON answers `400`.
+- The media type before `;` must equal one of the parser's `type` values; parameters such as `charset` are ignored. Wildcards such as `application/*+json` are not supported; list each type instead.
+- `multipart/form-data` is not parsed. Use `event.request.formData()` for file uploads from forms.
 
-- [`@routup/basic`](/basic/) bundles `body` + [`cookie`](/cookie/) + [`query`](/query/) under one `router.use(basic())` call.
-- [`@routup/decorators`](/decorators/) wires `readRequestBody` to the `@DBody()` parameter decorator.
+### Compression
 
-## See also
+A body with `content-encoding` `gzip`, `deflate`, `deflate-raw` or `br` is decoded before it is parsed or returned. Any other encoding answers `415`, and so does one the runtime's `DecompressionStream` does not support (`br` is not available on every runtime).
 
-- [Configuration reference](./configuration) — limits, content-type whitelists, JSON reviver hooks
-- [Helpers](./helpers) — `readRequestBody`, `setRequestBody`, `readRequestBodyText`, `readRequestBodyBytes`, `readRequestBodyStream`
+### Error Responses
+
+| Status | When |
+|--------|------|
+| `400` | Malformed JSON, or a JSON value that is not an object or array while `strict` is on |
+| `413` | A body over `limit`, or more URL-encoded fields than `parameterLimit` |
+| `415` | An unsupported `content-encoding` |
+| `500` | Reading a body a second time without `cache` (`ReadableStream is locked`), or a `limit` string without a number |
+
+The errors are thrown from the helper, so an [error handler](https://routup.dev/guide/error-handling) can answer them; otherwise routup's fallback response carries the status, for example `{"status":413,"message":"request entity too large"}`.
+
+## Next Steps
+
+- [Configuration](/body/configuration): the four formats and each parser's options
+- [Helpers](/body/helpers): `readRequestBody()`, `setRequestBody()`, the text, byte, Blob and stream readers, and the types
+- [Recipes](/body/recipes): a JSON size limit, an HTML form, a signed webhook, a text upload, a limit per path
+- [Combining Plugins](/guide/combining#body-cookie-and-query): `@routup/basic` registers `body()`, `cookie()` and `query()` in one call
