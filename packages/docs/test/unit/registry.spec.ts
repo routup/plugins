@@ -9,6 +9,7 @@ import {
     readHeadingNames,
     readHiddenNames,
     readOptionTableNames,
+    readSectionTableNames,
     readTypeKeys,
 } from '../doc-checks';
 import { PLUGINS } from '../registry';
@@ -84,6 +85,48 @@ describe.each(PLUGINS)('$name', (plugin) => {
         for (const key of Object.keys(exempt)) {
             if (!keys.includes(key)) {
                 errors.push(`${plugin.name}: stale optionExempt \`${key}\``);
+            }
+        }
+
+        expect(errors).toEqual([]);
+    });
+
+    it('documents exactly the keys of each nested options type', () => {
+        const errors: string[] = [];
+
+        for (const nested of plugin.nestedOptions ?? []) {
+            const page = nested.page ?? plugin.optionsPage;
+
+            if (!page) {
+                errors.push(`${plugin.name}: nested ${nested.type} has no page and there is no optionsPage`);
+
+                continue;
+            }
+
+            const keys = readTypeKeys(entry, nested.type);
+            const where = `${plugin.name}/${page} under ${nested.heading}`;
+            let table: string[];
+
+            expect(keys.length, `${plugin.name}: no keys read from ${nested.type}`).toBeGreaterThan(0);
+
+            try {
+                table = readSectionTableNames(readPage(plugin.name, page), nested.heading);
+            } catch (e) {
+                errors.push(`${plugin.name}/${page}: ${(e as Error).message}`);
+
+                continue;
+            }
+
+            for (const key of keys) {
+                if (!table.includes(key)) {
+                    errors.push(`${where}: key \`${key}\` of ${nested.type} is missing from the table`);
+                }
+            }
+
+            for (const name of table) {
+                if (!keys.includes(name)) {
+                    errors.push(`${where}: \`${name}\` in the table is not a key of ${nested.type}`);
+                }
             }
         }
 

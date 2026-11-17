@@ -85,18 +85,10 @@ function readCodeSpans(text: string): string[] {
 }
 
 /**
- * Backticked names in the first column of the first table after a level 2
- * heading whose text starts with "Options". The table must come before the
- * next heading.
+ * Backticked names in the first column of the first table after the line
+ * at `start`, before the next heading.
  */
-export function readOptionTableNames(markdown: string): string[] {
-    const lines = readLines(markdown);
-    const start = lines.findIndex((line) => line.heading?.level === 2 && line.heading.text.startsWith('Options'));
-
-    if (start === -1) {
-        throw new Error('no "## Options" heading found');
-    }
-
+function readTableNamesAfter(lines: Line[], start: number, label: string): string[] {
     const names: string[] = [];
     let inTable = false;
 
@@ -127,17 +119,49 @@ export function readOptionTableNames(markdown: string): string[] {
         const [name] = readCodeSpans(readFirstCell(line.text));
 
         if (!name) {
-            throw new Error(`options table row without a backticked name: ${line.text}`);
+            throw new Error(`${label} table row without a backticked name: ${line.text}`);
         }
 
         names.push(name);
     }
 
     if (!inTable) {
-        throw new Error('no table found under the "## Options" heading');
+        throw new Error(`no table found under the "${label}" heading`);
     }
 
     return names;
+}
+
+/**
+ * Backticked names in the first column of the first table after a level 2
+ * heading whose text starts with "Options". The table must come before the
+ * next heading.
+ */
+export function readOptionTableNames(markdown: string): string[] {
+    const lines = readLines(markdown);
+    const start = lines.findIndex((line) => line.heading?.level === 2 && line.heading.text.startsWith('Options'));
+
+    if (start === -1) {
+        throw new Error('no "## Options" heading found');
+    }
+
+    return readTableNamesAfter(lines, start, '## Options');
+}
+
+/**
+ * Backticked names in the first column of the first table after the first
+ * heading (any level) whose text is exactly `heading`, for example
+ * "`json`". The table must come before the next heading.
+ */
+export function readSectionTableNames(markdown: string, heading: string): string[] {
+    const lines = readLines(markdown);
+    const start = lines.findIndex((line) => line.heading?.text === heading);
+
+    if (start === -1) {
+        throw new Error(`no heading "${heading}" found`);
+    }
+
+    return readTableNamesAfter(lines, start, heading);
 }
 
 /**

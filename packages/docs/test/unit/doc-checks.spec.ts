@@ -14,6 +14,7 @@ import {
     readHeadingNames,
     readHiddenNames,
     readOptionTableNames,
+    readSectionTableNames,
     readTypeKeys,
 } from '../doc-checks';
 
@@ -118,6 +119,49 @@ describe('readOptionTableNames', () => {
         ].join('\n');
 
         expect(() => readOptionTableNames(markdown)).toThrow(/table/);
+    });
+});
+
+describe('readSectionTableNames', () => {
+    const markdown = [
+        '## Options',
+        '',
+        '| Option | Type | Default | Description |',
+        '|---|---|---|---|',
+        '| `json` | `JsonOptions` | `true` | JSON |',
+        '',
+        '### `json`',
+        '',
+        '```ts',
+        '| `fake` | x |',
+        '```',
+        '',
+        '| Property | Type | Default | Description |',
+        '|---|---|---|---|',
+        '| `strict` | `boolean` | `true` | Strict |',
+        '| `type` | `string \\| string[]` | `\'application/json\'` | Types |',
+        '',
+        '| `second` | table |',
+        '',
+        '### `raw`',
+        '',
+        'No table here.',
+        '',
+        '### `text`',
+        '',
+        '| `charset` | x |',
+    ].join('\n');
+
+    it('reads the first table under the heading with exactly that text', () => {
+        expect(readSectionTableNames(markdown, '`json`')).toEqual(['strict', 'type']);
+    });
+
+    it('throws when the heading is missing', () => {
+        expect(() => readSectionTableNames(markdown, '`urlEncoded`')).toThrow(/urlEncoded/);
+    });
+
+    it('throws when the section has no table before the next heading', () => {
+        expect(() => readSectionTableNames(markdown, '`raw`')).toThrow(/table/);
     });
 });
 
