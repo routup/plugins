@@ -217,4 +217,13 @@ describe('behaviour stated on the pages', () => {
         expect((await app.fetch(new Request('http://localhost/?a[25]=x'))).status).toBe(500);
         expect((await app.fetch(new Request('http://localhost/?a=1'))).status).toBe(200);
     });
+
+    it('answers 500 when throwOnLimitExceeded meets more than arrayLimit repeated keys', async () => {
+        const app = create(() => 'ok', { parse: { throwOnLimitExceeded: true } });
+        const repeat = (count: number, pair: (index: number) => string) => Array.from({ length: count }, (_, index) => pair(index)).join('&');
+
+        expect((await app.fetch(new Request(`http://localhost/?${repeat(21, (index) => `a=${index}`)}`))).status).toBe(500);
+        expect((await app.fetch(new Request(`http://localhost/?${repeat(21, () => 'a[]=x')}`))).status).toBe(500);
+        expect((await app.fetch(new Request(`http://localhost/?${repeat(20, (index) => `a=${index}`)}`))).status).toBe(200);
+    });
 });

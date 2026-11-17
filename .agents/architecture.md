@@ -2,7 +2,7 @@
 
 ## Plugin Pattern
 
-Every plugin is a factory function that returns a routup `Plugin` object, registered with `app.use()`:
+Each package exports a factory registered with `app.use()`. Most return a routup `Plugin` object; `logger()` and `rateLimit()` return a handler, and `@routup/rate-limit-redis` exports a store for `rateLimit()` (`.agents/references/morgan.md` explains the handler form of the logger):
 
 ```typescript
 // module.ts: standard plugin structure

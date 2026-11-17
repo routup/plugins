@@ -64,13 +64,11 @@ Bump the snapshot whenever you sync. Morgan moves slowly — most changes are de
 
 ## Behavioral differences
 
-### Why a handler, not a plugin
+### A handler, not a plugin
 
-Routup's `Plugin` pattern (used by `@routup/cors`, `@routup/cookie`, etc.) installs the plugin's middleware into a **dedicated sub-router** (`packages/.../node_modules/routup/dist/src-*.mjs` `install()` near line 1878). Each router's `event.next()` only walks its own stack — so a plugin-mounted middleware that calls `await event.next()` gets `undefined` (its sub-router has nothing else after it). Sibling routes on the parent router are invisible.
+`logger()` returns a `CoreHandler`, mounted with `app.use(logger())` before the routes it logs. Logging is post-response: it needs the resolved `Response` (status, headers, content-length) for `:status` / `:res[*]` / `:response-time`, which the handler gets by awaiting `event.next()`.
 
-Logging is fundamentally **post-response**: it needs the resolved `Response` (status, headers, content-length) to render `:status` / `:res[*]` / `:response-time`. We get that only when the middleware sits directly on the same router as the route handler. So `logger()` returns a `CoreHandler` and the user mounts it via `router.use(logger())`.
-
-If routup ever adds a "register on parent router" plugin escape hatch, this can be revisited.
+A plugin would see the same response: routup v6 `App.install()` runs `plugin.install()` on a scratch `App` and `app.use()` flattens its handlers into the parent at the install position, so their `event.next()` walks the routes registered after them. Turning `logger()` into a plugin would change its return type, a breaking change.
 
 ### Compiler
 
