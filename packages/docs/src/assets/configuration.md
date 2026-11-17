@@ -1,100 +1,88 @@
 ---
-title: Assets — Configuration
-description: All options accepted by the assets plugin.
+title: Assets Configuration
+description: Options of the assets plugin, from cache headers to the single-page-app fallback.
 relatedPlugins: []
 ---
 
 # Configuration
 
-The plugin's second argument is an options object:
-
-```typescript
-router.use(assets('public', {
-    cacheMaxAge: 3600,
-    fallback: '/index.html',
-}));
-```
+`assets(directory, options?)` takes the directory and one object, the `OptionsInput` type; every option is optional.
 
 ## Options
 
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `scan` | `boolean` | `true` | List the directory once and look files up in memory |
+| `cacheMaxAge` | `number \| false` | `0` | `max-age` of the `Cache-Control` header, in seconds |
+| `cacheImmutable` | `boolean` | `false` | Add `immutable` to the `Cache-Control` header |
+| `fallback` | `boolean \| string` | `false` | File to serve when no file matches; `true` means the `index` file |
+| `fallbackIgnores` | `string \| RegExp \| Array<string \| RegExp>` | none | Paths that never get the fallback file |
+| `fallthrough` | `boolean` | `true` | Pass a request without a file on to the next handler; `false` answers `404` |
+| `extensions` | `string[]` | `['html', 'htm']` | Extensions tried after the path and for `index` files |
+| `dotFiles` | `boolean` | `false` | Serve paths with a segment that starts with `.` |
+| `ignores` | `Array<string \| RegExp>` | `[]` | Paths that are never served |
+| `resolve` | `(event) => Promise<unknown>` | none | Builds the response for a request without a file |
+
+`OptionsInput` also has `directoryPath`; the `directory` argument always replaces it.
+
 ### `scan`
 
-- **Type**: `boolean`
-- **Default**: `true`
+With `scan`, `assets()` lists the directory when it is called and keeps each file's path and stats in memory, so a request does not touch the filesystem until the file is sent. The list is a snapshot: a file added later is not served, and a file removed later is still answered with `200`, whose body then fails while it is read. When the scan fails, for example because the directory does not exist, every request that reaches the plugin answers `500`.
 
-Pre-load metadata for every file in the directory at startup. With `scan: true`, the filesystem is not traversed on every request — file existence and `stat` info are looked up from an in-memory map.
-
-Disable for very large or rapidly-changing directories.
+Set `scan: false` for a directory that changes while the app runs; each request then checks the candidate paths on disk.
 
 ### `cacheMaxAge`
 
-- **Type**: `number`
-- **Default**: `0`
+The `max-age` value in seconds. Every served file gets a `Cache-Control` header:
 
-Sets the `max-age` directive (in seconds) on the `Cache-Control` response header. `0` disables caching.
+| Options | `Cache-Control` |
+|---------|-----------------|
+| none, `0` or `false` | `public,max-age=0,must-revalidate` |
+| `cacheMaxAge: 3600` | `public,max-age=3600` |
+| `cacheImmutable: true` | `public,max-age=0,immutable` |
+| `cacheMaxAge: 31536000, cacheImmutable: true` | `public,max-age=31536000,immutable` |
+
+`false` does not remove the header; it is treated like `0`. [Cache Hashed Files](/assets/recipes#cache-hashed-files) sets two policies for two folders.
 
 ### `cacheImmutable`
 
-- **Type**: `boolean`
-- **Default**: `false`
-
-Appends the `immutable` directive to the `Cache-Control` header. Pair with content-hashed filenames (e.g. `app.[hash].js`) for long-lived cache entries.
+Appends `immutable` in place of `must-revalidate`. Use it for content-hashed file names, whose content never changes under the same name.
 
 ### `fallback`
 
-- **Type**: `boolean | string`
-- **Default**: `false`
+The file served when no file matches, for a single-page app whose client-side router handles the path. `true` serves the `index` file of the directory (`index.html` with the default `extensions`), a string names a file, such as `'index.html'`.
 
-When a request resolves to no file, serve the file at this path instead. The classic SPA pattern:
+The extension of the string is removed and `extensions` is tried again: `'index.html'` is looked up as `/index`, then `/index.html`. With `extensions: []`, the fallback file is not found. Without [`fallbackIgnores`](#fallbackignores), every path without a file gets the fallback, also `/api/...` and `/missing.js`.
 
-```typescript
-router.use(assets('dist', { fallback: '/index.html' }));
-```
-
-Set to `true` to default the fallback to `/`.
+The [Static Files](https://routup.dev/examples/static-files) example on routup.dev serves a single-page app next to API routes.
 
 ### `fallbackIgnores`
 
-- **Type**: `RegExp[]`
-- **Default**: `[]`
+Paths that do not get the fallback file; such a request goes on as if there were no fallback. Each entry becomes a case-insensitive regular expression: a string is compiled with the flag `i`, and the flags of a `RegExp` are replaced by `i`. The patterns are tested against the request path without the mount path, for example `'^/api(/|$)'`.
 
-Patterns excluded from `fallback`. Typically used to make sure API routes don't get rewritten to the SPA shell:
+Setting `fallbackIgnores`, even to `[]`, also adds two patterns:
 
-```typescript
-router.use(assets('dist', {
-    fallback: '/index.html',
-    fallbackIgnores: [/^\/api\//, /^\/auth\//],
-}));
-```
+- a path that ends in a file name with an extension, such as `/app.js` or `/images/missing.png`, so a missing asset is not answered with the HTML shell
+- `/.well-known`, or every path with a segment that starts with `.` when [`dotFiles`](#dotfiles) is `true`
 
 ### `fallthrough`
 
-- **Type**: `boolean`
-- **Default**: `true`
-
-When `true` and no file matches and no `fallback` applies, control passes to the next handler. Set to `false` to make the plugin respond with `404` itself.
+With `true`, a request without a file, and without a response from `fallback` or `resolve`, goes on to the next handler. With `false`, the plugin answers `404` with an empty body and the handlers after it do not run for that request.
 
 ### `extensions`
 
-- **Type**: `string[]`
-- **Default**: `['html', 'htm']`
-
-Extensions to try when a request doesn't match a file directly. `GET /about` will try `/about.html` then `/about.htm`.
+Tried after the plain path and for the `index` file of a directory: with the default, `/about` tries `/about`, `/about.html`, `/about.htm`, `/about/index.html` and `/about/index.htm`. A leading `.` is optional (`'.html'` or `'html'`).
 
 ### `dotFiles`
 
-- **Type**: `boolean`
-- **Default**: `false`
-
-Whether to serve files or directories that begin with `.`. Defaulting to `false` is a security guard against exposing `.env`, `.git/`, etc.
+With `false`, a path with a segment that starts with `.`, such as `/.env` or `/.git/config`, is not served; `/.well-known/...` still is. With `true`, every such path is served.
 
 ### `ignores`
 
-- **Type**: `RegExp[]`
-- **Default**: `[]`
+Paths that are never served. Each entry becomes a case-insensitive regular expression, as for [`fallbackIgnores`](#fallbackignores), and is tested against the request path. A single string or `RegExp` passes the type check but is ignored; pass an array.
 
-Patterns that should never be served. Useful for dropping source maps in production:
+The lookup also tries trailing parts of the path ([Default Behaviour](/assets/#default-behaviour)), so an anchored pattern does not cover every path to a file: `[/^\/secret/]` blocks `/secret.txt`, but `/x/secret.txt` still serves it. Use a pattern without the anchor, such as `/\/secret/` or `/secret\.txt$/`.
 
-```typescript
-router.use(assets('dist', { ignores: [/\.map$/] }));
-```
+### `resolve`
+
+Called with the event when no file matches and the fallback did not apply. Its return value is turned into a response like a handler's: an object becomes JSON, a string text. `undefined` gives no response, and [`fallthrough`](#fallthrough) decides what happens. [Answer Missing Files](/assets/recipes#answer-missing-files) returns a JSON `404`.

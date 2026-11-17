@@ -1,6 +1,6 @@
 ---
 title: Assets
-description: Serve static files from one or more directories with cache-control, fallback, and dotfile policies.
+description: Serve static files from a directory, with cache headers, a single-page-app fallback and pass-through to the next handler.
 relatedPlugins: []
 plugin:
     package: '@routup/assets'
@@ -11,7 +11,13 @@ plugin:
 
 # @routup/assets
 
-Serve static files from one or more directories. The plugin walks each registered directory in order and falls through to the next handler when no file is found — so it composes naturally with API routes, SPA fallbacks, and other plugins in the stack.
+Serves the files of a directory, such as a `public/` or `dist/` folder next to an API. It resolves `/about` to `about.html` and `/docs/` to `docs/index.html`, hides dotfiles, sets cache headers and passes a request it has no file for on to the next handler.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
+- A runtime with `node:fs`: the plugin reads from the local filesystem
 
 ## Installation
 
@@ -19,48 +25,55 @@ Serve static files from one or more directories. The plugin walks each registere
 npm install @routup/assets
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, serve } from 'routup';
-import { assets } from '@routup/assets';
+<<< @/../examples/assets/quick-start.ts
 
-const router = new App();
+`assets()` is a plugin: register it with `app.use()`, with or without a path, before the routes it may shadow ([Plugins](https://routup.dev/guide/plugins)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-router.use(assets('public'));
+A relative directory is resolved against the working directory of the process, not against the file that calls `assets()`, so the sample builds an absolute path from `import.meta.url`.
 
-serve(router, { port: 3000 });
+```bash
+curl -i http://localhost:3000/about
+# HTTP/1.1 200 OK
+# cache-control: public,max-age=0,must-revalidate
+# content-type: text/html; charset=utf-8
+# etag: W/"52-1763380000000"
+# ...
 ```
 
-A request for `GET /logo.png` resolves to `public/logo.png`. If the file is missing, the request continues to the next handler — no 404 from this plugin unless [`fallthrough`](./configuration#fallthrough) is disabled.
+## Default Behaviour
 
-## When to use it
+| Step | What happens |
+|------|--------------|
+| Path | The request path without the [mount path](/assets/recipes#serve-under-a-path-prefix), URL-decoded |
+| Lookup | `/about` tries `/about`, `/about.html`, `/about.htm`, `/about/index.html` and `/about/index.htm`; `/` and `/docs/` try the `index` files ([`extensions`](/assets/configuration#extensions)) |
+| Trailing parts | When nothing matches, the lookup repeats without the first segment: `/a/b/file.txt` tries `/b/file.txt`, then `/file.txt`, so a file at the root is reachable under any prefix |
+| Dotfiles | A path with a segment that starts with `.` is not served, except `/.well-known` ([`dotFiles`](/assets/configuration#dotfiles)) |
+| Missing file | The request goes on to the next handler; when none answers, routup sends `404` ([`fallthrough`](/assets/configuration#fallthrough)) |
+| Methods | Every method is served, not only `GET` and `HEAD` |
+| Directory | Only files inside the directory are served; with the scan, only the files it found |
 
-- Serving a built SPA's `dist/` alongside API routes
-- Hosting documentation, generated reports, or user-uploaded assets
-- Pre-loading file metadata (the default) to avoid re-`stat`'ing on every request
+The directory is listed once, when `assets()` is called, and lookups read that list ([`scan`](/assets/configuration#scan)).
 
-For dynamic content, single-file downloads, or streamed responses, use the core `sendFile` / `sendStream` helpers directly instead.
+### Response Headers
 
-## Stacking directories
+A file is sent with routup's `sendFile()`:
 
-Mount the plugin once per directory. The first match wins:
+| Header | Value |
+|--------|-------|
+| `Content-Type` | From the file name |
+| `Content-Length` | The file size, or the size of the range |
+| `Cache-Control` | `public,max-age=0,must-revalidate` ([`cacheMaxAge`](/assets/configuration#cachemaxage)) |
+| `ETag` | Weak: `W/"<size>-<mtime in ms>"` |
+| `Last-Modified` | The file's modification time |
+| `Accept-Ranges` | `bytes` |
 
-```typescript
-router.use(assets('public')); // takes precedence
-router.use(assets('files'));  // falls through if not in `public`
-```
+- A request whose `If-None-Match` equals the ETag gets `304` without a body, before the file is opened. An `If-Modified-Since` that is not older than the file also gets `304`.
+- A `Range` header with one byte range gets `206` and that part of the file.
 
-## Mounting under a path
+## Next Steps
 
-Limit a directory to a specific URL prefix:
-
-```typescript
-router.use('/static', assets('public'));
-// GET /static/logo.png → public/logo.png
-// GET /logo.png       → not handled by this plugin
-```
-
-## See also
-
-- [Configuration reference](./configuration) — every option in detail
+- [Configuration](/assets/configuration): cache headers, the single-page-app fallback, extensions, dotfiles and ignored paths
+- [Helpers](/assets/helpers): `assets()`, `createHandler()`, `createCoreHandler()` and the types
+- [Recipes](/assets/recipes): several folders, a path prefix, cache headers for hashed files, a response for missing files, a single-page app

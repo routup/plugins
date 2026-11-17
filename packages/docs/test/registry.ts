@@ -52,6 +52,13 @@ export type NestedOptionsDocs = {
 
 export const PLUGINS: PluginDocs[] = [
     {
+        name: 'assets',
+        optionsType: 'OptionsInput',
+        optionsPage: 'configuration.md',
+        apiPages: ['helpers.md'],
+        optionExempt: { directoryPath: 'replaced by the directory argument of assets(), stated under the Options table' },
+    },
+    {
         name: 'basic',
         optionsType: 'Options',
         optionsPage: 'index.md',

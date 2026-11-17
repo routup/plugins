@@ -20,7 +20,7 @@ export const PLUGIN_PAGES: SidebarPlugin[] = [
     plugin('body', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('cookie', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('query', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
-    plugin('assets', 'Request & response', ['index', 'configuration']),
+    plugin('assets', 'Request & response', ['index', 'configuration', 'helpers', 'recipes']),
     plugin('decorators', 'Routing patterns', ['index', 'controllers', 'parameters']),
     plugin('swagger-ui', 'API documentation', ['index']),
     plugin('cors', 'Operations', ['index', 'helpers']),
