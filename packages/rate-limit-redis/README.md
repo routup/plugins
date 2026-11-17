@@ -76,7 +76,7 @@ ESM only, Node.js >=24 (required by `redis-extension`). Peer dependencies: `rout
 
 ## Usage
 
-All limiter options (`windowMs`, `max`, `keyGenerator`, `skip`, `handler`, ...) belong to `@routup/rate-limit`; see its [options reference](https://github.com/routup/plugins/tree/master/packages/rate-limit#options). This package only provides the `store`.
+All limiter options (`windowMs`, `max`, `keyGenerator`, `skip`, `handler`, ...) belong to `@routup/rate-limit`; see its [options reference](https://plugins.routup.dev/rate-limit/configuration). This package only provides the `store`.
 
 ### Connect with a connection string
 

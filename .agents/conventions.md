@@ -73,8 +73,8 @@ Always include `Request` (or `Response`) in the name to stay consistent with rou
 
 Whenever code changes alter public API, plugin options, behavior, defaults, or usage, update the corresponding user-facing documentation in the **same change**:
 
-- The package's `packages/[name]/README.md`
 - The matching VitePress page under `packages/docs/src/[name]/`
+- The package's `packages/[name]/README.md`; for a plugin in `packages/docs/test/registry.ts` only its quick start and links, since its options and exports are documented on the docs pages only
 - The root `README.md` if the change affects the overall feature list, install/quick-start snippets, or package table
 
 Treat docs as part of the implementation — a code change is not complete until docs reflect it. This includes added/removed/renamed exports, option fields, default values, env vars, and any behavior a consumer can observe.

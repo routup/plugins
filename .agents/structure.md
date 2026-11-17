@@ -83,4 +83,7 @@ All packages peer-depend on `routup@^6.3.0`.
 ## Docs
 
 - `packages/docs` consumes `@routup/docs-theme` from npm (source in `routup/docs-theme`): `src/.vitepress/config.mts` calls `defineRoutupConfig`, `src/.vitepress/theme/index.ts` re-exports the theme. The landing page `src/index.md` is `layout: page`, `pageClass: rt-home`, with all copy in frontmatter; its sections live in `src/.vitepress/components/home/`. The plugin grid comes from the `plugin: { package, summary, group, order? }` frontmatter of each plugin's `index.md`, loaded by `src/.vitepress/data/plugins.data.ts`.
+- The sidebar is built by `buildSidebar()` from `PLUGIN_PAGES` in `config.mts`; a new page under `src/<name>/` goes into that list.
+- Pages include samples from `examples/<plugin>/*.ts` (`<<< @/../examples/...`); each exports `app` and is run by `test/unit/examples/<plugin>.spec.ts`. The docs tests and `build:types` resolve `@routup/*` to the plugin sources through `test/aliases.ts`, repeated as `paths` in `tsconfig.json` (a spec keeps them equal).
+- A plugin listed in `test/registry.ts` has its Options table, its exports and its sidebar pages checked against the code by `test/unit/registry.spec.ts`.
 - The docs workflow builds on changes under `packages/docs/**`.

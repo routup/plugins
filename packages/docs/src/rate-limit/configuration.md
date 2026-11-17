@@ -1,118 +1,79 @@
 ---
-title: Rate-limit — Configuration
-description: All options accepted by the rate-limit plugin.
+title: Rate-limit Configuration
+description: All options accepted by the rate-limit middleware.
 relatedPlugins: [rate-limit-redis]
 ---
 
 # Configuration
 
-```typescript
-router.use(rateLimit({
-    windowMs: 60_000,
-    max: 5,
-    keyGenerator: (event) => getRequestIP(event, { trustProxy: true }),
-    store: new RedisStore(),
-}));
-```
+`rateLimit(options?)` takes one object; every option is optional. The options are the `Options` type, the input is `OptionsInput` (`Partial<Options>`).
 
 ## Options
 
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `windowMs` | `number` | `60000` (1 minute) | Time frame in ms for which hits are remembered; also the `Retry-After` value |
+| `max` | `number \| (event) => number \| Promise<number>` | `5` | Requests allowed per window per key; `0` never rejects |
+| `message` | `any \| (event) => any \| Promise<any>` | `'Too many requests, please try again later.'` | Response body of a rejected request (default `handler` only) |
+| `statusCode` | `number` | `429` | Response status of a rejected request (default `handler` only) |
+| `skipFailedRequest` | `boolean` | `false` | Do not count requests that `requestWasSuccessful` rejects |
+| `skipSuccessfulRequest` | `boolean` | `false` | Do not count requests that `requestWasSuccessful` accepts |
+| `requestWasSuccessful` | `(event, response) => boolean` | `response.status < 400` | Decides what counts as successful |
+| `keyGenerator` | `(event) => string \| Promise<string>` | `getRequestIP(event, { trustProxy: true }) \|\| '127.0.0.1'` | Identifies the client |
+| `handler` | `(event, options) => unknown` | Sets `statusCode`, returns `message` | Builds the response of a rejected request |
+| `skip` | `(event) => boolean \| Promise<boolean>` | `() => false` | Return `true` to bypass the limiter for a request |
+| `store` | `Store` | `new MemoryStore()` | Where hit counts are kept |
+
 ### `windowMs`
 
-- **Type**: `number`
-- **Default**: `60000` (1 minute)
-
-Time frame (ms) for which requests are remembered. Also used as the `Retry-After` value when the limit is reached.
+The window length in milliseconds. The default `MemoryStore` clears all counters together every `windowMs`, counted from when `rateLimit()` was called ([`MemoryStore`](/rate-limit/helpers#memorystore)). In whole seconds, it is also the `Retry-After` value of a rejected request ([Response Headers](/rate-limit/#response-headers)).
 
 ### `max`
 
-- **Type**: `number | ((event) => number | Promise<number>)`
-- **Default**: `5`
+The quota per key and window, as a number or a function of the event (sync or async). A function runs once per counted request, after the counter was incremented, so it does not run for skipped requests. [Tiered Quota](/rate-limit/recipes#tiered-quota) shows a function.
 
-Maximum requests per window per client. `0` disables the limiter entirely. The callback form lets you tier limits per request — for example, premium users get a higher quota:
-
-```typescript
-import { getRequestIP } from 'routup';
-
-router.use(rateLimit({
-    max: async (event) => {
-        const ip = getRequestIP(event, { trustProxy: true }) ?? '127.0.0.1';
-        return (await isPremium(ip)) ? 10 : 5;
-    },
-}));
-```
+With `0`, no request is rejected, but hits are still counted and the headers are still set, with `RateLimit-Limit: 0`.
 
 ### `message`
 
-- **Type**: `any | ((event) => any | Promise<any>)`
-- **Default**: `'Too many requests, please try again later.'`
-
-The response body when a client is rate-limited. Strings, JSON objects, or any value `toResponse()` can serialize.
-
-### `statusCode`
-
-- **Type**: `number`
-- **Default**: `429`
-
-HTTP status returned when limited. Stick with `429` (RFC 6585) unless you have a reason.
+The body the default `handler` returns: a string, a JSON-serialisable value or anything else routup turns into a response. A function is called with the event (sync or async) and its return value is used; it receives the event untyped, so annotate the parameter as `IAppEvent`. A `null` or `undefined` result falls back to the default text.
 
 ### `skipFailedRequest`
 
-- **Type**: `boolean`
-- **Default**: `false`
-
-Don't count requests considered "failed" (default: response status ≥ 400). Useful if you want to limit successful traffic only.
+When `true`, a request that `requestWasSuccessful` judges unsuccessful is not counted: the counter is decremented after the response and `RateLimit-Remaining` on that response is raised again.
 
 ### `skipSuccessfulRequest`
 
-- **Type**: `boolean`
-- **Default**: `false`
-
-The complement: skip requests considered "successful" (default: status < 400). Common pattern for login endpoints — only failed login attempts count toward the limit.
-
-### `keyGenerator`
-
-- **Type**: `(event) => string | Promise<string>`
-- **Default**: client IP via `getRequestIP(event, { trustProxy: true })`
-
-Identifies a client. Override to key by user ID, API token, or `(IP, route)` pairs:
-
-```typescript
-keyGenerator: (event) => {
-    const userId = useRequestCookie(event, 'user-id');
-    return userId ?? getRequestIP(event);
-}
-```
-
-### `handler`
-
-- **Type**: `(event, options) => any`
-- **Default**: writes `statusCode` + `message` to the response
-
-Custom rejection logic. Returns whatever you want `toResponse()` to serialize.
-
-### `skip`
-
-- **Type**: `(event) => boolean | Promise<boolean>`
-- **Default**: `() => false`
-
-Bypass the limiter for matching requests — typical pattern is an internal IP allowlist:
-
-```typescript
-const allowlist = ['10.0.0.0/8'];
-skip: (event) => allowlist.some((cidr) => matchCidr(getRequestIP(event), cidr))
-```
+The reverse of `skipFailedRequest`: successful requests are not counted. This is the usual setting for a login route, where only failed attempts should use up the quota ([Count Only Failed Requests](/rate-limit/recipes#count-only-failed-requests)).
 
 ### `requestWasSuccessful`
 
-- **Type**: `(event, response) => boolean`
-- **Default**: `(_, response) => response.status < 400`
+Called with the event and the downstream `Response` when `skipFailedRequest` or `skipSuccessfulRequest` is set. It must return a boolean synchronously.
 
-Defines what "successful" means for `skipFailedRequest` / `skipSuccessfulRequest`.
+A request whose handler throws is judged by the response of the [error handler](https://routup.dev/guide/error-handling) that answers it. When no error handler answers, the middleware sees no response at all and treats the request as not successful, whatever status the fallback response gets.
+
+### `keyGenerator`
+
+Returns the key a request is counted under (sync or async). Keying by something other than the address, such as an API token, limits per account:
+
+<<< @/../examples/rate-limit/key-by-token.ts
+
+The default key trusts `X-Forwarded-For`: `getRequestIP(event, { trustProxy: true })` takes the client address from that header, which a client can set itself when the app is not behind a proxy that overwrites it. When the app is reachable directly, pass a `keyGenerator` that does not trust the header, such as `(event) => getRequestIP(event) ?? '127.0.0.1'`. Requests without a client address, such as calls to `app.fetch()` in tests, all share the key `'127.0.0.1'`.
+
+### `handler`
+
+Answers a rejected request; its return value becomes the response. It runs after the headers were set, including `Retry-After`. The default sets `statusCode` and returns `message`. A handler that answers with JSON:
+
+<<< @/../examples/rate-limit/json-handler.ts
+
+The second argument is the resolved `Options`. Returning a `Response` object drops the rate-limit headers, since they live on `event.response`.
+
+### `skip`
+
+Returns `true` (sync or async) to pass a request on without counting it and without any rate-limit header, for example for an allowlist:
+
+<<< @/../examples/rate-limit/allowlist.ts
 
 ### `store`
 
-- **Type**: `Store`
-- **Default**: in-memory store
-
-The hit-count backend. See [`@routup/rate-limit-redis`](/rate-limit-redis/) for a Redis-backed implementation, or implement the `Store` interface yourself.
+Where the counters live: a [`Store`](/rate-limit/helpers#store) implementation, by default a new [`MemoryStore`](/rate-limit/helpers#memorystore). Its `init()` is called once with the resolved options when `rateLimit()` runs, so give each limiter its own store instance. For a store shared between instances, see [`@routup/rate-limit-redis`](/rate-limit-redis/); to write one, see [Custom Store](/rate-limit/recipes#custom-store).

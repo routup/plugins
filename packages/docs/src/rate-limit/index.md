@@ -11,7 +11,12 @@ plugin:
 
 # @routup/rate-limit
 
-A rate-limiter middleware. Counts requests per client (default: by IP) within a sliding window and rejects further requests once the limit is reached. Pluggable storage — defaults to in-memory; swap in [`@routup/rate-limit-redis`](/rate-limit-redis/) for distributed deployments.
+Caps how many requests each client can make per time window, for a login form, a password reset or a public API. The middleware counts hits per client, sets the `RateLimit-*` headers and answers `429` once the quota is used up; the counters live in a replaceable store.
+
+## Requirements
+
+- Node.js 24 or later, ESM only
+- `routup` `^6.3.0` (peer dependency)
 
 ## Installation
 
@@ -19,39 +24,49 @@ A rate-limiter middleware. Counts requests per client (default: by IP) within a 
 npm install @routup/rate-limit
 ```
 
-## Quick start
+## Quick Start
 
-```typescript
-import { App, serve } from 'routup';
-import { rateLimit } from '@routup/rate-limit';
+<<< @/../examples/rate-limit/quick-start.ts
 
-const router = new App();
+`rateLimit()` returns a routup handler, not a plugin: mount it with `app.use()`, with or without a path, before the routes it guards ([Mounting](https://routup.dev/guide/handlers#mounting)). The file exports the app; [serve it](https://routup.dev/guide/quickstart) from your entry file.
 
-router.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,                 // per IP, per window
-}));
-
-serve(router, { port: 3000 });
+```bash
+curl -i http://localhost:3000/
+# HTTP/1.1 200 OK
+# ratelimit-limit: 100
+# ratelimit-remaining: 99
+# ratelimit-reset: 900
 ```
 
-When a client exceeds 100 requests in the window, the plugin responds `429 Too Many Requests` with a `Retry-After` header.
+## Default Behaviour
 
-## When to use it
+| Step | What happens |
+|------|--------------|
+| Skip | `skip(event)` returning `true` passes the request on uncounted and without headers |
+| Key | The client key is `getRequestIP(event, { trustProxy: true })`, or `'127.0.0.1'` when there is no address |
+| Count | The store increments the key's counter; every request that is not skipped counts, rejected ones too |
+| Quota | `max` is read after the increment (default `5` per `windowMs` of one minute) |
+| Reject | Once the counter exceeds a `max` other than `0`, `handler` answers (default: status `429`, the `message` text) and the routes behind it do not run |
+| Undo | With `skipFailedRequest` or `skipSuccessfulRequest`, the counter is decremented again after the response when the request should not count |
 
-- Protecting login / signup / password-reset endpoints from brute force
-- Stopping abusive scraping or accidental client loops
-- Tiered quotas (different limits for premium vs free) — see the [`max` callback pattern](./configuration#max)
+The default store, [`MemoryStore`](/rate-limit/helpers#memorystore), keeps the counters in the process and clears them for all clients at once every `windowMs`. To share counters between processes or instances, use a shared store such as [`@routup/rate-limit-redis`](/rate-limit-redis/).
 
-## Stores
+### Response Headers
 
-The default in-memory store is fine for a single Node process. For multiple processes (a load-balanced API, a Kubernetes deployment, a Cloudflare Worker), share state via:
+| Header | Value |
+|--------|-------|
+| `RateLimit-Limit` | The quota (`max`) for this request |
+| `RateLimit-Remaining` | Requests left in the current window, never below `0` |
+| `RateLimit-Reset` | Seconds until the store resets the counter (only when the store returns a `resetTime`) |
+| `Retry-After` | `windowMs` in whole seconds, only on a rejected request |
 
-- [`@routup/rate-limit-redis`](/rate-limit-redis/) — Redis-backed counters
+`Retry-After` is always the full window, not the time left until the reset; `RateLimit-Reset` carries the time left.
 
-To write your own backend, implement the `Store` interface (`incrementClientHit`, `decrementClientHit`, `resetAllClients`, `resetClient`).
+The headers are set on `event.response`, so a route that returns a `Response` object of its own sends none of them.
 
-## See also
+## Next Steps
 
-- [Configuration](./configuration) — every option in detail (`windowMs`, `max`, `keyGenerator`, `skip`, `handler`, …)
-- [`@routup/rate-limit-redis`](/rate-limit-redis/) — production-ready distributed store
+- [Configuration](/rate-limit/configuration): every option, with its type and default
+- [Helpers](/rate-limit/helpers): `useRequestRateLimitInfo()`, `MemoryStore`, the `Store` interface and the types
+- [Recipes](/rate-limit/recipes): limit one path, tiered quotas, count only failed requests, a custom store
+- [`@routup/rate-limit-redis`](/rate-limit-redis/): counters in Redis, shared between instances
