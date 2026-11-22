@@ -112,8 +112,9 @@ export function createOriginHeaders(
     const requestOrigin = getRequestHeader(event, 'origin');
 
     if (originOption === true) {
+        // the answer depends on the request origin, also without a match
         if (!requestOrigin) {
-            return [];
+            return [['vary', 'origin']];
         }
 
         return [
@@ -136,7 +137,7 @@ export function createOriginHeaders(
         ];
     }
 
-    return [];
+    return [['vary', 'origin']];
 }
 
 export function createMethodsHeaders(options: Options = {}): CorsHeaderEntry[] {

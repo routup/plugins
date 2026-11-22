@@ -121,7 +121,7 @@ describe('one-origin', () => {
             'access-control-expose-headers': '*',
             vary: 'origin',
         });
-        expect(corsHeaders(other)).toEqual({ 'access-control-expose-headers': '*' });
+        expect(corsHeaders(other)).toEqual({ 'access-control-expose-headers': '*', vary: 'origin' });
     });
 });
 
@@ -156,6 +156,7 @@ describe('environments', () => {
         expect(staging.headers.get('access-control-allow-origin')).toBe('https://web.staging.example.com');
         expect(staging.headers.get('vary')).toBe('origin');
         expect(prefix.headers.get('access-control-allow-origin')).toBeNull();
+        expect(prefix.headers.get('vary')).toBe('origin');
     });
 });
 

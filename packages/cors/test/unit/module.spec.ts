@@ -88,6 +88,53 @@ describe('src/module', () => {
         const denied = await router.fetch(createTestRequest('/', { headers: { origin: 'http://denied.test' } }));
 
         expect(denied.headers.get('access-control-allow-origin')).toBeNull();
+        expect(denied.headers.get('vary')).toEqual('origin');
+    });
+
+    it.each([
+        ['an array', ['http://allowed.test']],
+        ['a RegExp', /\.allowed\.test$/],
+        ['a function', (origin: string) => origin === 'http://allowed.test'],
+        ['true', true],
+    ])('should send vary: origin with %s origin when the origin does not match or is missing', async (_, origin) => {
+        const router = new App();
+
+        router.use(cors({ origin }));
+        router.get('/', defineCoreHandler(() => 'ok'));
+
+        const denied = await router.fetch(createTestRequest('/', { headers: { origin: 'http://denied.test' } }));
+        const missing = await router.fetch(createTestRequest('/'));
+        const preflight = await router.fetch(createTestRequest('/', {
+            method: 'OPTIONS',
+            headers: {
+                origin: 'http://denied.test',
+                'access-control-request-method': 'GET',
+            },
+        }));
+
+        if (origin !== true) {
+            expect(denied.headers.get('access-control-allow-origin')).toBeNull();
+            expect(denied.headers.get('vary')).toEqual('origin');
+        }
+
+        expect(preflight.headers.get('vary')).toContain('origin');
+        expect(missing.headers.get('access-control-allow-origin')).toBeNull();
+        expect(missing.headers.get('vary')).toEqual('origin');
+    });
+
+    it.each([
+        ['\'*\'', '*'],
+        ['undefined', undefined],
+        ['false', false],
+    ])('should not send vary: origin with %s origin', async (_, origin) => {
+        const router = new App();
+
+        router.use(cors({ origin }));
+        router.get('/', defineCoreHandler(() => 'ok'));
+
+        const response = await router.fetch(createTestRequest('/', { headers: { origin: 'http://any.test' } }));
+
+        expect(response.headers.get('vary')).toBeNull();
     });
 
     it('should allow origin from RegExp entry', async () => {

@@ -27,16 +27,16 @@ For `methods`, `allowHeaders` and `exposeHeaders`, `['*']` is the same as `'*'`.
 | Value | `Access-Control-Allow-Origin` | `Vary: origin` |
 |-------|-------------------------------|----------------|
 | `'*'` (default) | `*`, on every response | no |
-| `true` | The request's `Origin`; none when the request has no `Origin` | when sent |
+| `true` | The request's `Origin`; none when the request has no `Origin` | yes |
 | Any other string, such as `'https://app.example.com'` or `'null'` | That string, on every response, whatever the request's `Origin` | yes |
-| `RegExp` | The request's `Origin` when the pattern matches it | when sent |
-| Array of strings and `RegExp`s | The request's `Origin` when an entry matches it: a string by equality, a `RegExp` with `test()` | when sent |
-| Function `(origin) => boolean` | The request's `Origin` when the function returns `true`; not called without an `Origin` | when sent |
+| `RegExp` | The request's `Origin` when the pattern matches it | yes |
+| Array of strings and `RegExp`s | The request's `Origin` when an entry matches it: a string by equality, a `RegExp` with `test()` | yes |
+| Function `(origin) => boolean` | The request's `Origin` when the function returns `true`; not called without an `Origin` | yes |
 | `false` | None: the plugin passes every request on, preflights too, and sets no header | no |
 
 A fixed string is not a check: other origins get the same value and the browser rejects the response. To send no header to other origins, use an array of one ([Allow One Origin](/cors/recipes#allow-one-origin)).
 
-When no entry matches, the response has no `Access-Control-Allow-Origin`, so the browser blocks it; the plugin still sets the other headers and a preflight is still answered. A `RegExp` with the `g` or `y` flag is copied without those flags before each test, so its `lastIndex` does not make the result alternate between requests.
+When no entry matches, the response has no `Access-Control-Allow-Origin`, so the browser blocks it; the plugin still sets the other headers and a preflight is still answered. `Vary: origin` is sent for every option except `'*'` and `false`, matching or not, so a shared cache does not serve the answer to one origin to another. A `RegExp` with the `g` or `y` flag is copied without those flags before each test, so its `lastIndex` does not make the result alternate between requests.
 
 <<< @/../examples/cors/environments.ts
 

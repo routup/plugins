@@ -19,6 +19,7 @@ curl -i -H 'origin: https://app.example.com' http://localhost:3000/todos
 # vary: origin
 curl -i -H 'origin: https://other.example' http://localhost:3000/todos
 # access-control-expose-headers: *
+# vary: origin
 ```
 
 ## An Allow-List
