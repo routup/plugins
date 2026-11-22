@@ -17,6 +17,11 @@ export type DecoratorResponseOptions = {
      * Media types declared with a method-level `@DProduces()`.
      */
     produces?: string[],
+
+    /**
+     * Request body media types declared with a method-level `@DConsumes()`.
+     */
+    consumes?: string[],
 };
 
 export type DecoratorMeta = {
@@ -34,7 +39,12 @@ export type DecoratorMeta = {
     produces: string[],
 
     /**
-     * Response options (`@DStatus()`, method-level `@DProduces()`) per
+     * Request body media types declared with a class-level `@DConsumes()`.
+     */
+    consumes: string[],
+
+    /**
+     * Response options (`@DStatus()`, method-level `@DProduces()` and `@DConsumes()`) per
      * method. Kept apart from `methods`, since these decorators may be
      * applied before the verb decorator.
      */

@@ -1,12 +1,12 @@
 ---
 title: Decorators Controllers
-description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DStatus, @DReturns and @DProduces."
+description: "@DController, method decorators (@DGet, @DPost, @DPut, @DPatch, @DDelete), @DConsumes, @DStatus, @DReturns and @DProduces."
 relatedPlugins: [swagger-ui]
 ---
 
 # Controllers
 
-A controller is a class whose methods answer requests. `@DController()` gives the class its path and middlewares, a method decorator turns a method into a route, and `@DStatus()` and `@DProduces()` shape a successful response. The [documentation decorators](#documentation-decorators) only feed the OpenAPI document.
+A controller is a class whose methods answer requests. `@DController()` gives the class its path and middlewares, a method decorator turns a method into a route, `@DConsumes()` checks the media type of a request body, and `@DStatus()` and `@DProduces()` shape a successful response. The [documentation decorators](#documentation-decorators) only feed the OpenAPI document.
 
 ## Controller Class
 
@@ -118,6 +118,23 @@ declare function DProduces(...mediaTypes: string[]): (target: any, propertyKey?:
 
   Any other return type, and the return type under a class-level `@DProduces()`, is kept as the schema. A schema declared with `@DReturns<T>()` at the same status takes precedence. `Response`, `Blob` and `File` are matched by name, so do not give a payload type of your own one of these names.
 
+## Request Media Type
+
+### `DConsumes()`
+
+Declares the media types a request body of a method, or of every method of a class, may have.
+
+```typescript
+declare function DConsumes(...mediaTypes: string[]): (target: any, propertyKey?: string | symbol) => void;
+```
+
+<<< @/../examples/decorators/consumes.ts
+
+- **Runtime:** a request with a body is checked with routup's [`assertRequestContentType()`](https://routup.dev/api/request-helpers) before its parameters are read and the method runs: a missing or unlisted `content-type` answers `415`, a malformed one `400`. The check ignores parameters (`charset`) and case, and a media type may be a pattern such as `text/*` or `application/*+json`. A request without a body, such as a `GET`, is not checked.
+- A route accepts the class-level and the method-level media types together, as the OpenAPI document lists them.
+- Middlewares run before the check, so an authentication middleware still answers first.
+- **OpenAPI:** the media types are the request body media types of the operation.
+
 ## Middleware
 
 A middleware is a class with a `run(event)` method, the [`HandlerInterface`](/decorators/helpers#types). Return `event.next()` to continue to the route, or return a value or throw to answer the request yourself. The [middleware recipe](/decorators/recipes#a-controller-with-middleware) shows both kinds.
@@ -137,10 +154,10 @@ A controller can extend a decorated class:
 
 <<< @/../examples/decorators/inheritance.ts
 
-- **What is inherited.** A subclass inherits the routes of its parent with their parameter decorators, `@DStatus()` and `@DProduces()`, and the controller path, middlewares and class-level `@DProduces()`.
+- **What is inherited.** A subclass inherits the routes of its parent with their parameter decorators, `@DConsumes()`, `@DStatus()` and `@DProduces()`, and the controller path, middlewares and class-level `@DConsumes()` and `@DProduces()`.
 - **Its own copy.** On first use a subclass gets its own copy of that metadata. Its decorators add to or overwrite the copy as on a class without a parent; the built-in decorators and the `create*` factories never change the parent or another subclass:
   - an override with a method decorator (`@DGet()`, ...) replaces the route of that method, including its inherited method middlewares (repeat them on the override), and keeps its inherited parameter decorators; the override's own are added, and at an index the parent used only the override's parameter decorator is applied
-  - its `@DStatus()` overwrites the inherited status, and its `@DProduces()` media types come before the inherited ones, so they are sent
+  - its `@DStatus()` overwrites the inherited status, and its `@DProduces()` media types come before the inherited ones, so they are sent; its `@DConsumes()` media types are accepted next to the inherited ones
   - an override without decorators keeps the inherited route, which calls the override
   - `@DController(path)` without middlewares starts from the class middlewares of the parent (dropping what a decorator below it added); an array, also `[]`, replaces them
 - **Order.** Inherited routes are registered first, in the declaration order of the parent: with a parent `@DGet('/:id')`, a subclass's `@DGet('/me')` is answered by the parent's route. Declare such a static route in the parent, or let the parent's method hand it over with `event.next()`.
@@ -158,7 +175,6 @@ These decorators do nothing at runtime; the [OpenAPI preset](/decorators/#openap
 |-----------|----|------------------------|
 | `@DTags(...names)` | class, method | Adds tags |
 | `@DReturns<T>(status, description?, example?)` | class, method | Adds a response with that status; the type argument is its schema |
-| `@DConsumes(...mediaTypes)` | class, method | Sets the request body media types |
 | `@DDescription<T>(status, description?, example?)` | class, method | Deprecated alias of `@DReturns()` |
 | `@DExample(example)` | method | Adds an example to the default response |
 | `@DSecurity(scopes?, name?)` | class, method | Adds a security requirement, named `'default'` without `name` |

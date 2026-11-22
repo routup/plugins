@@ -24,6 +24,7 @@ import {
 } from '@routup/decorators';
 import { describe, expect, it } from 'vitest';
 import { app as cart } from '../../../examples/decorators/cart';
+import { app as consumes } from '../../../examples/decorators/consumes';
 import { app as crud } from '../../../examples/decorators/crud';
 import { app as customDecorator } from '../../../examples/decorators/custom-decorator';
 import { preset } from '../../../examples/decorators/custom-preset';
@@ -350,6 +351,42 @@ describe('return-values', () => {
 
         expect(response.status).toBe(201);
         expect(await response.json()).toEqual({ message: 'created' });
+    });
+});
+
+describe('consumes', () => {
+    function send(method: string, urlPath: string, contentType: string): Promise<Response> {
+        return call(consumes, urlPath, {
+            method,
+            headers: { 'content-type': contentType },
+            body: '{"text":"hi"}',
+        });
+    }
+
+    it('accepts a declared media type, ignoring parameters', async () => {
+        const response = await send('POST', '/notes', 'application/json; charset=utf-8');
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({ text: 'hi' });
+    });
+
+    it('answers 415 for another media type or none, and 400 for a malformed one', async () => {
+        expect((await send('POST', '/notes', 'text/plain')).status).toBe(415);
+        expect((await send('POST', '/notes', 'json')).status).toBe(400);
+
+        const response = await call(consumes, '/notes', { method: 'POST', body: new Uint8Array([1]) });
+
+        expect(response.status).toBe(415);
+    });
+
+    it('does not check a request without a body', async () => {
+        expect((await call(consumes, '/notes')).status).toBe(200);
+    });
+
+    it('accepts the class and the method media types of a route', async () => {
+        expect((await send('PUT', '/notes/1', 'application/json')).status).toBe(200);
+        expect((await send('PUT', '/notes/1', 'text/markdown')).status).toBe(200);
+        expect((await send('PUT', '/notes/1', 'application/xml')).status).toBe(415);
     });
 });
 
