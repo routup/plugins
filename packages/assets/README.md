@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/assets logo: a fan of static files on the routup tile" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/assets</h1>
+<img src="./assets/logo.svg" alt="@routup/assets logo: a fan of static files on the routup tile" width="128" height="128" />
 
-<p align="center">
-    <b>Serve static files from a directory, with cache headers, SPA fallback and pass-through to the next handler.</b><br>
-    You stop writing path resolution, index and extension lookup, dotfile guards and 304 handling for a public folder.
-</p>
+<h1>@routup/assets</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/assets"><img src="https://img.shields.io/npm/v/@routup/assets" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/assets/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/assets/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/assets/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/assets/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/assets)](https://www.npmjs.com/package/@routup/assets)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Serve static files from a directory, with cache headers, SPA fallback and pass-through to the next handler.**
+
+You stop writing path resolution, index and extension lookup, dotfile guards and 304 handling for a public folder.
+
+[Docs](https://plugins.routup.dev/assets/) · [Configuration](https://plugins.routup.dev/assets/configuration) · [Helpers](https://plugins.routup.dev/assets/helpers) · [Recipes](https://plugins.routup.dev/assets/recipes)
 
 ---
 

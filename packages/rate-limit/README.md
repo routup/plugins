@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/rate-limit logo: a round limit sign showing 429 above a row of five dots" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/rate-limit</h1>
+<img src="./assets/logo.svg" alt="@routup/rate-limit logo: a round limit sign showing 429 above a row of five dots" width="128" height="128" />
 
-<p align="center">
-    <b>Limit how many requests each client can make per time window, with RateLimit headers and pluggable stores.</b><br>
-    You set a window and a quota; the middleware counts hits per client, sets the headers and answers <code>429</code> once the quota is used up.
-</p>
+<h1>@routup/rate-limit</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/rate-limit"><img src="https://img.shields.io/npm/v/@routup/rate-limit" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/rate-limit/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/rate-limit)](https://www.npmjs.com/package/@routup/rate-limit)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Limit how many requests each client can make per time window, with RateLimit headers and pluggable stores.**
+
+You set a window and a quota; the middleware counts hits per client, sets the headers and answers `429` once the quota is used up.
+
+[Docs](https://plugins.routup.dev/rate-limit/) · [Configuration](https://plugins.routup.dev/rate-limit/configuration) · [Helpers](https://plugins.routup.dev/rate-limit/helpers) · [Recipes](https://plugins.routup.dev/rate-limit/recipes)
 
 ---
 

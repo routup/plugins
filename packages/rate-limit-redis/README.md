@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/rate-limit-redis logo: a round limit sign showing 429 above a database cylinder" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/rate-limit-redis</h1>
+<img src="./assets/logo.svg" alt="@routup/rate-limit-redis logo: a round limit sign showing 429 above a database cylinder" width="128" height="128" />
 
-<p align="center">
-    <b>Share @routup/rate-limit hit counters across processes and instances by storing them in Redis.</b><br>
-    Pass <code>new RedisStore()</code> as the <code>store</code> option and every instance behind your load balancer counts against the same quota.
-</p>
+<h1>@routup/rate-limit-redis</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/rate-limit-redis"><img src="https://img.shields.io/npm/v/@routup/rate-limit-redis" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/rate-limit-redis/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit-redis/#connecting-to-redis">Connecting to Redis</a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit-redis/#redisstore">RedisStore</a>
-    ·
-    <a href="https://plugins.routup.dev/rate-limit-redis/#recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/rate-limit-redis)](https://www.npmjs.com/package/@routup/rate-limit-redis)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Share @routup/rate-limit hit counters across processes and instances by storing them in Redis.**
+
+Pass `new RedisStore()` as the `store` option and every instance behind your load balancer counts against the same quota.
+
+[Docs](https://plugins.routup.dev/rate-limit-redis/) · [Connecting to Redis](https://plugins.routup.dev/rate-limit-redis/#connecting-to-redis) · [RedisStore](https://plugins.routup.dev/rate-limit-redis/#redisstore) · [Recipes](https://plugins.routup.dev/rate-limit-redis/#recipes)
 
 ---
 

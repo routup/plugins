@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/query logo: a key and value pair next to a question mark" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/query</h1>
+<img src="./assets/logo.svg" alt="@routup/query logo: a key and value pair next to a question mark" width="128" height="128" />
 
-<p align="center">
-    <b>Parse the query string of a routup request into an object, nested keys and arrays included.</b><br>
-    The URL is parsed once per request with <a href="https://github.com/ljharb/qs">qs</a>; handlers read the result instead of walking <code>URLSearchParams</code>.
-</p>
+<h1>@routup/query</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/query"><img src="https://img.shields.io/npm/v/@routup/query" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/query/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/query/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/query/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/query/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/query)](https://www.npmjs.com/package/@routup/query)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Parse the query string of a routup request into an object, nested keys and arrays included.**
+
+The URL is parsed once per request with [qs](https://github.com/ljharb/qs); handlers read the result instead of walking `URLSearchParams`.
+
+[Docs](https://plugins.routup.dev/query/) · [Configuration](https://plugins.routup.dev/query/configuration) · [Helpers](https://plugins.routup.dev/query/helpers) · [Recipes](https://plugins.routup.dev/query/recipes)
 
 ---
 

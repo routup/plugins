@@ -1,33 +1,21 @@
-<p align="center">
-    <img src="./.github/assets/logo.svg" alt="routup plugins logo: the routup R tile with four small plugin tiles docked onto its edges" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">routup plugins</h1>
+<a href="https://routup.dev"><img src=".github/assets/wordmark.svg" width="320" alt="Routup"></a>
 
-<p align="center">
-    <b>Official plugins for routup: body, cookie and query parsing, CORS, rate limiting, logging, metrics, static files and more.</b><br>
-    routup keeps its core small. Install only the plugins you need,<br>
-    register them with <code>app.use()</code>, and read their results with typed helpers.
-</p>
+<h1>Plugins</h1>
 
-<p align="center">
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-    <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white" alt="Conventional Commits" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="#packages"><b>Packages</b></a>
-    ·
-    <a href="#quick-start">Quick Start</a>
-    ·
-    <a href="#how-plugins-work">How plugins work</a>
-    ·
-    <a href="https://plugins.routup.dev">Docs</a>
-    ·
-    <a href="https://routup.dev">routup</a>
-</p>
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+
+**Official plugins for routup: body, cookie and query parsing, CORS, rate limiting, logging, metrics, static files and more.**
+
+routup keeps its core small. Install only the plugins you need, register them with `app.use()`, and read their results with typed helpers.
+
+[Packages](#packages) · [Quick Start](#quick-start) · [How plugins work](#how-plugins-work) · [Docs](https://plugins.routup.dev) · [routup](https://routup.dev)
 
 ---
 

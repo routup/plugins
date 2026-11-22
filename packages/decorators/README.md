@@ -1,34 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/decorators logo: decorators pinned on a class and its methods" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/decorators</h1>
+<img src="./assets/logo.svg" alt="@routup/decorators logo: decorators pinned on a class and its methods" width="128" height="128" />
 
-<p align="center">
-    <b>Write routup routes as TypeScript classes with method and parameter decorators, and generate OpenAPI from them.</b><br>
-    You stop repeating path prefixes and reading params, body, query and cookies by hand in every handler; the same decorators feed your OpenAPI document.
-</p>
+<h1>@routup/decorators</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/decorators"><img src="https://img.shields.io/npm/v/@routup/decorators" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/decorators/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/decorators/controllers">Controllers</a>
-    ·
-    <a href="https://plugins.routup.dev/decorators/parameters">Parameters</a>
-    ·
-    <a href="https://plugins.routup.dev/decorators/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/decorators/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/decorators/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/decorators)](https://www.npmjs.com/package/@routup/decorators)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Write routup routes as TypeScript classes with method and parameter decorators, and generate OpenAPI from them.**
+
+You stop repeating path prefixes and reading params, body, query and cookies by hand in every handler; the same decorators feed your OpenAPI document.
+
+[Docs](https://plugins.routup.dev/decorators/) · [Controllers](https://plugins.routup.dev/decorators/controllers) · [Parameters](https://plugins.routup.dev/decorators/parameters) · [Configuration](https://plugins.routup.dev/decorators/configuration) · [Helpers](https://plugins.routup.dev/decorators/helpers) · [Recipes](https://plugins.routup.dev/decorators/recipes)
 
 ---
 

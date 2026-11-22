@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/body logo: four coloured tiles, one per body format" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/body</h1>
+<img src="./assets/logo.svg" alt="@routup/body logo: four coloured tiles, one per body format" width="128" height="128" />
 
-<p align="center">
-    <b>Read the request body of a routup app as parsed JSON or form data, text, bytes, a Blob or a stream.</b><br>
-    You stop writing buffering, size limits, decompression and content-type checks; the parsed body is cached for the request.
-</p>
+<h1>@routup/body</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/body"><img src="https://img.shields.io/npm/v/@routup/body" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/body/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/body/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/body/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/body/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/body)](https://www.npmjs.com/package/@routup/body)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Read the request body of a routup app as parsed JSON or form data, text, bytes, a Blob or a stream.**
+
+You stop writing buffering, size limits, decompression and content-type checks; the parsed body is cached for the request.
+
+[Docs](https://plugins.routup.dev/body/) · [Configuration](https://plugins.routup.dev/body/configuration) · [Helpers](https://plugins.routup.dev/body/helpers) · [Recipes](https://plugins.routup.dev/body/recipes)
 
 ---
 

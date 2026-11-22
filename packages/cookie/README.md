@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/cookie logo: a cookie with a bite taken out of it" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/cookie</h1>
+<img src="./assets/logo.svg" alt="@routup/cookie logo: a cookie with a bite taken out of it" width="128" height="128" />
 
-<p align="center">
-    <b>Read request cookies and write Set-Cookie headers in a routup app.</b><br>
-    The <code>Cookie</code> header is parsed once per request; you set and clear cookies with typed attributes instead of hand-built header strings.
-</p>
+<h1>@routup/cookie</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/cookie"><img src="https://img.shields.io/npm/v/@routup/cookie" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/cookie/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/cookie/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/cookie/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/cookie/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/cookie)](https://www.npmjs.com/package/@routup/cookie)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Read request cookies and write Set-Cookie headers in a routup app.**
+
+The `Cookie` header is parsed once per request; you set and clear cookies with typed attributes instead of hand-built header strings.
+
+[Docs](https://plugins.routup.dev/cookie/) · [Configuration](https://plugins.routup.dev/cookie/configuration) · [Helpers](https://plugins.routup.dev/cookie/helpers) · [Recipes](https://plugins.routup.dev/cookie/recipes)
 
 ---
 

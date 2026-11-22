@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/i18n logo: one message, two languages" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/i18n</h1>
+<img src="./assets/logo.svg" alt="@routup/i18n logo: one message, two languages" width="128" height="128" />
 
-<p align="center">
-    <b>Pick each request's locale and translate messages with ilingo inside routup handlers.</b><br>
-    You stop parsing <code>Accept-Language</code> and passing the locale to every lookup: <code>useTranslator(event)</code> is already bound to it.
-</p>
+<h1>@routup/i18n</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/i18n"><img src="https://img.shields.io/npm/v/@routup/i18n" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/i18n/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/i18n/#options">Options</a>
-    ·
-    <a href="https://plugins.routup.dev/i18n/#usetranslator">useTranslator()</a>
-    ·
-    <a href="https://plugins.routup.dev/i18n/#recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/i18n)](https://www.npmjs.com/package/@routup/i18n)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Pick each request's locale and translate messages with ilingo inside routup handlers.**
+
+You stop parsing `Accept-Language` and passing the locale to every lookup: `useTranslator(event)` is already bound to it.
+
+[Docs](https://plugins.routup.dev/i18n/) · [Options](https://plugins.routup.dev/i18n/#options) · [useTranslator()](https://plugins.routup.dev/i18n/#usetranslator) · [Recipes](https://plugins.routup.dev/i18n/#recipes)
 
 ---
 

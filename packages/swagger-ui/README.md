@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/swagger-ui logo: a docs window with one operation expanded" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/swagger-ui</h1>
+<img src="./assets/logo.svg" alt="@routup/swagger-ui logo: a docs window with one operation expanded" width="128" height="128" />
 
-<p align="center">
-    <b>Serve Swagger UI for an OpenAPI document (file, object or URL) under any path of a routup app.</b><br>
-    You stop copying <code>swagger-ui-dist</code> into a public folder and patching its <code>index.html</code> with your spec and base path.
-</p>
+<h1>@routup/swagger-ui</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/swagger-ui"><img src="https://img.shields.io/npm/v/@routup/swagger-ui" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/swagger-ui/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/swagger-ui/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/swagger-ui/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/swagger-ui/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/swagger-ui)](https://www.npmjs.com/package/@routup/swagger-ui)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Serve Swagger UI for an OpenAPI document (file, object or URL) under any path of a routup app.**
+
+You stop copying `swagger-ui-dist` into a public folder and patching its `index.html` with your spec and base path.
+
+[Docs](https://plugins.routup.dev/swagger-ui/) · [Configuration](https://plugins.routup.dev/swagger-ui/configuration) · [Helpers](https://plugins.routup.dev/swagger-ui/helpers) · [Recipes](https://plugins.routup.dev/swagger-ui/recipes)
 
 ---
 

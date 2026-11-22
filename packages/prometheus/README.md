@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/prometheus logo: a stepped counter line rising across dashed sample markers" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/prometheus</h1>
+<img src="./assets/logo.svg" alt="@routup/prometheus logo: a stepped counter line rising across dashed sample markers" width="128" height="128" />
 
-<p align="center">
-    <b>Record request durations and uptime with prom-client and serve them on a Prometheus scrape endpoint.</b><br>
-    One <code>app.use()</code> times every request, labels it by method, path and status, and mounts <code>/metrics</code> for you.
-</p>
+<h1>@routup/prometheus</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/prometheus"><img src="https://img.shields.io/npm/v/@routup/prometheus" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/prometheus/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/prometheus/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/prometheus/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/prometheus/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/prometheus)](https://www.npmjs.com/package/@routup/prometheus)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Record request durations and uptime with prom-client and serve them on a Prometheus scrape endpoint.**
+
+One `app.use()` times every request, labels it by method, path and status, and mounts `/metrics` for you.
+
+[Docs](https://plugins.routup.dev/prometheus/) · [Configuration](https://plugins.routup.dev/prometheus/configuration) · [Helpers](https://plugins.routup.dev/prometheus/helpers) · [Recipes](https://plugins.routup.dev/prometheus/recipes)
 
 ---
 

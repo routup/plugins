@@ -1,30 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/logger logo: printed log strip" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/logger</h1>
+<img src="./assets/logo.svg" alt="@routup/logger logo: printed log strip" width="128" height="128" />
 
-<p align="center">
-    <b>Log one line per routup request, using morgan's token syntax and its tiny, short, common, combined and dev formats.</b><br>
-    You stop timing requests and assembling access-log lines by hand; format strings you know from morgan keep working.
-</p>
+<h1>@routup/logger</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/logger"><img src="https://img.shields.io/npm/v/@routup/logger" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/logger/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/logger/configuration">Configuration</a>
-    ·
-    <a href="https://plugins.routup.dev/logger/helpers">Helpers</a>
-    ·
-    <a href="https://plugins.routup.dev/logger/recipes">Recipes</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/logger)](https://www.npmjs.com/package/@routup/logger)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Log one line per routup request, using morgan's token syntax and its tiny, short, common, combined and dev formats.**
+
+You stop timing requests and assembling access-log lines by hand; format strings you know from morgan keep working.
+
+[Docs](https://plugins.routup.dev/logger/) · [Configuration](https://plugins.routup.dev/logger/configuration) · [Helpers](https://plugins.routup.dev/logger/helpers) · [Recipes](https://plugins.routup.dev/logger/recipes)
 
 ---
 

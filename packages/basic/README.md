@@ -1,28 +1,21 @@
-<p align="center">
-    <img src="./assets/logo.svg" alt="@routup/basic logo: three cards fanned out, one per bundled plugin" width="128" height="128" />
-</p>
+<div align="center">
 
-<h1 align="center">@routup/basic</h1>
+<img src="./assets/logo.svg" alt="@routup/basic logo: three cards fanned out, one per bundled plugin" width="128" height="128" />
 
-<p align="center">
-    <b>Install body, cookie and query parsing in a routup app with one plugin and one dependency.</b><br>
-    One <code>app.use(basic())</code> registers @routup/body, @routup/cookie and @routup/query; their helpers are re-exported under subpaths.
-</p>
+<h1>@routup/basic</h1>
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@routup/basic"><img src="https://img.shields.io/npm/v/@routup/basic" alt="npm version" /></a>
-    <a href="https://github.com/routup/plugins/actions/workflows/main.yml"><img src="https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-    <a href="https://codecov.io/gh/routup/plugins"><img src="https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg" alt="Coverage" /></a>
-    <a href="https://snyk.io/test/github/routup/plugins"><img src="https://snyk.io/test/github/routup/plugins/badge.svg" alt="Known Vulnerabilities" /></a>
-</p>
+</div>
 
-<p align="center">
-    <a href="https://plugins.routup.dev/basic/"><b>Docs</b></a>
-    ·
-    <a href="https://plugins.routup.dev/basic/#options">Options</a>
-    ·
-    <a href="https://plugins.routup.dev/basic/#subpath-exports">Subpath Exports</a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@routup/basic)](https://www.npmjs.com/package/@routup/basic)
+[![CI](https://github.com/routup/plugins/actions/workflows/main.yml/badge.svg)](https://github.com/routup/plugins/actions/workflows/main.yml)
+[![Coverage](https://codecov.io/gh/routup/plugins/branch/master/graph/badge.svg)](https://codecov.io/gh/routup/plugins)
+[![Known Vulnerabilities](https://snyk.io/test/github/routup/plugins/badge.svg)](https://snyk.io/test/github/routup/plugins)
+
+**Install body, cookie and query parsing in a routup app with one plugin and one dependency.**
+
+One `app.use(basic())` registers @routup/body, @routup/cookie and @routup/query; their helpers are re-exported under subpaths.
+
+[Docs](https://plugins.routup.dev/basic/) · [Options](https://plugins.routup.dev/basic/#options) · [Subpath Exports](https://plugins.routup.dev/basic/#subpath-exports)
 
 ---
 
