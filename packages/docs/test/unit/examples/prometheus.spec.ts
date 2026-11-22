@@ -129,7 +129,7 @@ describe('labels', () => {
 
         expect(await counts(labelsRegistry)).toEqual({
             'GET /users/:id 200 service=api': 1,
-            'GET <unmatched> 200 service=api': 2,
+            'GET <unmatched> 404 service=api': 2,
         });
     });
 });
@@ -251,8 +251,8 @@ describe('behaviour stated on the pages', () => {
         await get(app, '/b');
 
         expect(await counts(registry)).toEqual({
-            'GET /a 200': 1,
-            'GET /b 200': 1,
+            'GET /a 404': 1,
+            'GET /b 404': 1,
         });
     });
 
@@ -283,10 +283,10 @@ describe('behaviour stated on the pages', () => {
         const response = await get(app, '/admin/users');
 
         expect(response.status).toBe(404);
-        expect(await counts(registry)).toEqual({ 'GET /admin/*rest 200': 1 });
+        expect(await counts(registry)).toEqual({ 'GET /admin/*rest 404': 1 });
     });
 
-    it('records status 200 for an error or a 404 without an error handler, the real status with one', async () => {
+    it('records 404 for an error or a 404 without an error handler, the real status with one', async () => {
         const { app, registry } = create({}, (target) => {
             target.get('/fail', defineCoreHandler(() => {
                 throw new Error('boom');
@@ -310,8 +310,8 @@ describe('behaviour stated on the pages', () => {
         await get(app, '/fail');
 
         expect(await counts(registry)).toEqual({
-            'GET /fail 200': 1,
-            'GET /missing 200': 1,
+            'GET /fail 404': 1,
+            'GET /missing 404': 1,
             'GET /created 201': 1,
             'GET /fail 503': 1,
         });
