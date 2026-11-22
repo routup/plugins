@@ -18,6 +18,7 @@ relatedPlugins: [rate-limit-redis]
 | `statusCode` | `number` | `429` | Response status of a rejected request (default `handler` only) |
 | `skipFailedRequest` | `boolean` | `false` | Do not count requests that `requestWasSuccessful` rejects |
 | `skipSuccessfulRequest` | `boolean` | `false` | Do not count requests that `requestWasSuccessful` accepts |
+| `countAfterResponse` | `boolean` | `false` | Count a request after its response instead of before forwarding it; needs a store with `get()` |
 | `requestWasSuccessful` | `(event, response) => boolean` | `response.status < 400` | Decides what counts as successful |
 | `keyGenerator` | `(event) => string \| Promise<string>` | `getRequestIP(event, { trustProxy: true }) \|\| '127.0.0.1'` | Identifies the client |
 | `handler` | `(event, options) => unknown` | Sets `statusCode`, returns `message` | Builds the response of a rejected request |
@@ -30,7 +31,7 @@ The window length in milliseconds. The default `MemoryStore` clears all counters
 
 ### `max`
 
-The quota per key and window, as a number or a function of the event (sync or async). A function runs once per counted request, after the counter was incremented, so it does not run for skipped requests. [Tiered Quota](/rate-limit/recipes#tiered-quota) shows a function.
+The quota per key and window, as a number or a function of the event (sync or async). A function runs once per request that `skip` lets through, after the counter was incremented (with [`countAfterResponse`](#countafterresponse): after it was read). [Tiered Quota](/rate-limit/recipes#tiered-quota) shows a function.
 
 With `0`, no request is rejected, but hits are still counted and the headers are still set, with `RateLimit-Limit: 0`.
 
@@ -45,6 +46,18 @@ When `true`, a request that `requestWasSuccessful` judges unsuccessful is not co
 ### `skipSuccessfulRequest`
 
 The reverse of `skipFailedRequest`: successful requests are not counted. This is the usual setting for a login route, where only failed attempts should use up the quota ([Count Only Failed Requests](/rate-limit/recipes#count-only-failed-requests)).
+
+### `countAfterResponse`
+
+Decides when a request is counted. By default, every request reserves a slot before it is forwarded, and `skipFailedRequest` or `skipSuccessfulRequest` gives the slot back after the response. With `true`, the middleware reads the current hits with the store's `get()`, rejects the request when they reached `max`, forwards it, and increments the counter only when the response is not skipped. A rejected request is not counted.
+
+| | Default (reserve, then refund) | `countAfterResponse: true` |
+|---|---|---|
+| Pending requests | Hold a slot until their response is known, so many slow requests that will be refunded, such as long-polls or uploads, can get the next request rejected | Hold no slot |
+| Concurrent requests | Never more than `max` pass in a window | All that arrive before the first of them is counted pass, so a burst can exceed `max` |
+| Headers and `useRequestRateLimitInfo()` | Count the request itself while it runs; corrected after a refund | Show the state before the request while it runs; the response carries the state after it was counted |
+
+It is meant for `skipFailedRequest` or `skipSuccessfulRequest`; without either, every response is counted. `rateLimit()` throws when the option is set and the store has no `get()` method; [`MemoryStore`](/rate-limit/helpers#memorystore) and [`RedisStore`](/rate-limit-redis/#redisstore) have one. [Count After the Response](/rate-limit/recipes#count-after-the-response) shows it.
 
 ### `requestWasSuccessful`
 
@@ -76,4 +89,4 @@ Returns `true` (sync or async) to pass a request on without counting it and with
 
 ### `store`
 
-Where the counters live: a [`Store`](/rate-limit/helpers#store) implementation, by default a new [`MemoryStore`](/rate-limit/helpers#memorystore). Its `init()` is called once with the resolved options when `rateLimit()` runs, so give each limiter its own store instance. For a store shared between instances, see [`@routup/rate-limit-redis`](/rate-limit-redis/); to write one, see [Custom Store](/rate-limit/recipes#custom-store).
+Where the counters live: a [`Store`](/rate-limit/helpers#store) implementation, by default a new [`MemoryStore`](/rate-limit/helpers#memorystore). Its `init()` is called once with the resolved options when `rateLimit()` runs, so give each limiter its own store instance. A store without `get()` cannot be used with `countAfterResponse`. For a store shared between instances, see [`@routup/rate-limit-redis`](/rate-limit-redis/); to write one, see [Custom Store](/rate-limit/recipes#custom-store).

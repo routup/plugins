@@ -14,6 +14,7 @@ import {
 } from 'routup';
 import { rateLimit } from '@routup/rate-limit';
 import { app as allowlist } from '../../../examples/rate-limit/allowlist';
+import { app as countAfterResponse } from '../../../examples/rate-limit/count-after-response';
 import { app as customStore, store as perClientStore } from '../../../examples/rate-limit/custom-store';
 import { app as failedOnly } from '../../../examples/rate-limit/failed-only';
 import { app as jsonHandler } from '../../../examples/rate-limit/json-handler';
@@ -131,6 +132,36 @@ describe('tiered-quota', () => {
         expect(free[0]!.headers.get('ratelimit-limit')).toBe('5');
         expect(free[4]!.status).toBe(200);
         expect(free[5]!.status).toBe(429);
+    });
+});
+
+describe('count-after-response', () => {
+    const wrong = { headers: { authorization: 'Bearer wrong' } };
+    const right = { headers: { authorization: 'Bearer valid-token' } };
+
+    it('shows the state before a request that is not counted', async () => {
+        const response = await countAfterResponse.fetch(request('/api/events', right));
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('ratelimit-limit')).toBe('5');
+        expect(response.headers.get('ratelimit-remaining')).toBe('5');
+    });
+
+    it('counts a failed request after its response', async () => {
+        const failed = await fetchTimes(countAfterResponse, 5, '/api/events', wrong);
+
+        expect(failed.map((response) => response.status)).toEqual([401, 401, 401, 401, 401]);
+        expect(failed.map((response) => response.headers.get('ratelimit-remaining'))).toEqual(['4', '3', '2', '1', '0']);
+    });
+
+    it('rejects once max failed requests were counted, also a correct one', async () => {
+        await fetchTimes(countAfterResponse, 5, '/api/events', wrong);
+
+        const rejected = await countAfterResponse.fetch(request('/api/events', right));
+
+        expect(rejected.status).toBe(429);
+        expect(rejected.headers.get('ratelimit-remaining')).toBe('0');
+        expect(rejected.headers.get('retry-after')).toBe('60');
     });
 });
 

@@ -21,6 +21,11 @@ export class MemoryStore implements Store {
     resetTime!: Date;
 
     /**
+     * The current window, incremented by every `resetAll()`.
+     */
+    generation = 0;
+
+    /**
      * Reference to the active timer.
      */
     interval?: NodeJS.Timeout;
@@ -69,6 +74,30 @@ export class MemoryStore implements Store {
         return {
             totalHits,
             resetTime: this.resetTime,
+            window: this.generation,
+        };
+    }
+
+    /**
+     * Method to read a client's hit counter without incrementing it.
+     *
+     * @param key {string} - The identifier for a client.
+     *
+     * @returns {IncrementResponse | undefined} - The number of hits and reset time for that client.
+     *
+     * @public
+     */
+    async get(key: string): Promise<IncrementResponse | undefined> {
+        const totalHits = this.hits[key];
+
+        if (typeof totalHits === 'undefined') {
+            return undefined;
+        }
+
+        return {
+            totalHits,
+            resetTime: this.resetTime,
+            window: this.generation,
         };
     }
 
@@ -76,10 +105,19 @@ export class MemoryStore implements Store {
      * Method to decrement a client's hit counter.
      *
      * @param key {string} - The identifier for a client.
+     * @param window {unknown} - The window token of the hit; a decrement
+     * for an ended window is ignored.
      *
      * @public
      */
-    async decrement(key: string): Promise<void> {
+    async decrement(key: string, window?: unknown): Promise<void> {
+        if (
+            typeof window !== 'undefined' &&
+            window !== this.generation
+        ) {
+            return;
+        }
+
         const current = this.hits[key];
 
         if (current) {
@@ -103,8 +141,8 @@ export class MemoryStore implements Store {
      *
      * @public
      */
-    /* istanbul ignore next */
     async resetAll(): Promise<void> {
+        this.generation += 1;
         this.hits = {};
         this.resetTime = calculateNextResetTime(this.windowMs);
     }

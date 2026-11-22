@@ -47,7 +47,7 @@ curl -i http://localhost:3000/
 | Count | The store increments the key's counter; every request that is not skipped counts, rejected ones too |
 | Quota | `max` is read after the increment (default `5` per `windowMs` of one minute) |
 | Reject | Once the counter exceeds a `max` other than `0`, `handler` answers (default: status `429`, the `message` text) and the routes behind it do not run |
-| Undo | With `skipFailedRequest` or `skipSuccessfulRequest`, the counter is decremented again after the response when the request should not count |
+| Undo | With `skipFailedRequest` or `skipSuccessfulRequest`, the counter is decremented again after the response when the request should not count ([`countAfterResponse`](/rate-limit/configuration#countafterresponse) counts after the response instead) |
 
 The default store, [`MemoryStore`](/rate-limit/helpers#memorystore), keeps the counters in the process and clears them for all clients at once every `windowMs`. To share counters between processes or instances, use a shared store such as [`@routup/rate-limit-redis`](/rate-limit-redis/).
 
