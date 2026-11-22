@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "@types/swagger-ui-dist": "^3.30.5",
-        "routup": "^6.3.0"
+        "routup": "^6.5.0"
     },
     "publishConfig": {
         "access": "public"

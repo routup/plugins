@@ -72,7 +72,7 @@
         "@routup/query": "^4.0.3"
     },
     "devDependencies": {
-        "routup": "^6.3.0"
+        "routup": "^6.5.0"
     },
     "gitHead": "94d729e309c1eec0401afb4d8083f65ce3aa8e0b",
     "publishConfig": {
