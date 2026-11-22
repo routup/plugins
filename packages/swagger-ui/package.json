@@ -1,6 +1,6 @@
 {
     "name": "@routup/swagger-ui",
-    "version": "5.1.1",
+    "version": "5.2.0",
     "type": "module",
     "description": "Serve Swagger UI for an OpenAPI document (file, object or URL) under any path of a routup app.",
     "exports": {
@@ -56,7 +56,7 @@
         "routup": "^6.3.0"
     },
     "dependencies": {
-        "@routup/assets": "^6.0.0",
+        "@routup/assets": "^6.1.0",
         "swagger-ui-dist": "^5.35.0"
     },
     "devDependencies": {

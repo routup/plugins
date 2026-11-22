@@ -1,5 +1,27 @@
 # Change Log
 
+## [6.1.0](https://github.com/routup/plugins/compare/rate-limit-redis-v6.0.0...rate-limit-redis-v6.1.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+* **rate-limit-redis:** read a counter without incrementing it ([84997ed](https://github.com/routup/plugins/commit/84997ed069d578af7e1cea03030a6fbb9404ad03)), closes [#880](https://github.com/routup/plugins/issues/880)
+
+
+### Bug Fixes
+
+* **rate-limit-redis:** treat a key that expires between GET and PTTL as missing ([252f269](https://github.com/routup/plugins/commit/252f269a79cb2d54aa61a42a3cb5e0a2737fc554))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @routup/rate-limit bumped from ^4.0.3 to ^4.1.0
+  * peerDependencies
+    * @routup/rate-limit bumped from ^4.0.3 to ^4.1.0
+
 ## [6.0.0](https://github.com/routup/plugins/compare/rate-limit-redis-v5.0.2...rate-limit-redis-v6.0.0) (2026-11-15)
 
 

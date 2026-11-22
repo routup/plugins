@@ -1,5 +1,18 @@
 # Change Log
 
+## [4.1.0](https://github.com/routup/plugins/compare/rate-limit-v4.0.3...rate-limit-v4.1.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+* **rate-limit:** keep refunds in their window and add countAfterResponse ([65e2538](https://github.com/routup/plugins/commit/65e2538a282c8c11457f39f1464aecbf5f74a789)), closes [#880](https://github.com/routup/plugins/issues/880)
+
+
+### Bug Fixes
+
+* **rate-limit:** report the store's state after an ignored refund ([a0db978](https://github.com/routup/plugins/commit/a0db97864ecef8c8c1b2666e71c091cf77a088f4))
+
 ## [4.0.3](https://github.com/routup/plugins/compare/rate-limit-v4.0.2...rate-limit-v4.0.3) (2026-11-15)
 
 

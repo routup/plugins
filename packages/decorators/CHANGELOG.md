@@ -6,6 +6,27 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.4.0](https://github.com/routup/plugins/compare/decorators-v5.3.1...decorators-v5.4.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+
+
+### Bug Fixes
+
+* **decorators:** reject an invalid DStatus code and keep it from a serialization error ([1b20f21](https://github.com/routup/plugins/commit/1b20f21a72dd6ececfc06f11ec700826373e0990)), closes [#861](https://github.com/routup/plugins/issues/861)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^4.1.0 to ^4.2.0
+    * @routup/cookie bumped from ^4.0.2 to ^4.1.0
+    * @routup/query bumped from ^4.0.3 to ^4.1.0
+
 ## [5.3.1](https://github.com/routup/plugins/compare/decorators-v5.3.0...decorators-v5.3.1) (2026-11-17)
 
 

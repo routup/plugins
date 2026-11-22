@@ -1,5 +1,17 @@
 # Change Log
 
+## [4.2.0](https://github.com/routup/plugins/compare/prometheus-v4.1.0...prometheus-v4.2.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+
+
+### Bug Fixes
+
+* **prometheus:** label a request no handler answered with 404 ([4e61b06](https://github.com/routup/plugins/commit/4e61b061c85896ecfcc52ad78c915b1b220acb68)), closes [#879](https://github.com/routup/plugins/issues/879)
+
 ## [4.1.0](https://github.com/routup/plugins/compare/prometheus-v4.0.2...prometheus-v4.1.0) (2026-11-16)
 
 

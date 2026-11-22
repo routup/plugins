@@ -1,6 +1,6 @@
 {
     "name": "@routup/query",
-    "version": "4.0.3",
+    "version": "4.1.0",
     "type": "module",
     "description": "Parse the query string of a routup request into an object, nested keys and arrays included.",
     "exports": {
