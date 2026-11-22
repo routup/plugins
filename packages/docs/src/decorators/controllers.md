@@ -95,7 +95,8 @@ declare function DStatus(status: number): MethodDecorator;
 
 - **Applied after the method returned a value**, neither `undefined` nor a `Response`, and only when the method left `event.response.status` as it was. A status the method sets itself, or a returned `Response`, wins. The method cannot read the code from `event.response` while it runs, and setting the status it already had (`200`) cannot be told apart from leaving it.
 - **`204` needs `null`.** A method that returns nothing does not answer the request ([Return Values](#return-values)).
-- **Not passed on.** Neither an error thrown by the method nor a handler it hands over to with `event.next()` gets the status (nor the `@DProduces()` media type), also with a custom error handler. A returned value routup fails to serialize, such as an object holding a `BigInt`, fails after both were applied, so a custom error handler that answers with a value gets them.
+- **Not passed on.** Neither an error thrown by the method nor a handler it hands over to with `event.next()` gets the status (nor the `@DProduces()` media type), also with a custom error handler. Neither does a returned value routup fails to serialize, such as an object holding a `BigInt`: the error handlers see the status and `content-type` the method left.
+- **An integer from `200` to `599`**, the range a `Response` accepts. Any other value throws a `RangeError` when the class is defined.
 - The order of `@DStatus()` and the method decorator does not matter.
 - **OpenAPI:** the return type is documented under this status instead of `200`, described by its reason phrase (`202` gives `Accepted`). `204`, `205` and `304` are documented without a body, whatever the return type. The code can be a literal or a numeric constant or enum member (`@DStatus(HttpStatus.Created)`); anything the generator cannot resolve, such as a call, fails generation.
 
@@ -172,7 +173,7 @@ Documents a response: the type argument is the payload schema, and the descripti
 declare function DReturns<T>(status: number | string, description?: string, example?: T): any;
 ```
 
-- A class-level declaration applies to every operation of the controller; a method-level one at the same status wins.
+- A class-level declaration applies to every operation of the controller; a method-level one at the same status wins. A class-level success code is kept next to a different `@DStatus()` code, since a method can answer with either (an upsert that sets `200` or `201` itself, for example).
 - A `@DReturns()` at the `@DStatus()` code describes that success response instead of adding a second one. Without a type argument it keeps the return type as the schema, for example `@DReturns(200, 'The user')`.
 - The status is a literal (`409` or `'409'`), a constant or enum member (`HttpStatus.Conflict`), a range (`'4XX'`) or `'default'`. A status the generator cannot resolve, such as a call, or that is none of these, fails generation with an error naming the decorator and the method, instead of documenting the response at `200`.
 - It only documents: when a method answers with another status, the method sets that status itself, for example with `@DContext()` and `event.response.status = 201`.

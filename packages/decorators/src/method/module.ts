@@ -55,7 +55,8 @@ export function DPatch(url: string, handlers?: ClassType[]) : MethodDecorator {
  * The `@routup/decorators/preset` documents the return type under this
  * status; pass a literal or a numeric constant or enum member.
  *
- * @param status - HTTP status code, e.g. `201` or `202`.
+ * @param status - HTTP status code from `200` to `599`, e.g. `201` or `202`.
+ * @throws RangeError when the status is outside that range or not an integer.
  */
 export function DStatus(status: number) : MethodDecorator {
     return (
@@ -65,6 +66,14 @@ export function DStatus(status: number) : MethodDecorator {
         /* istanbul ignore next */
         if (typeof propertyKey !== 'string') {
             return;
+        }
+
+        // the range `new Response()` accepts; outside of it every request
+        // of the method would fail with a RangeError
+        if (!Number.isSafeInteger(status) || status < 200 || status > 599) {
+            const className = typeof target === 'function' ? target.name : target.constructor.name;
+
+            throw new RangeError(`@DStatus(${status}) of ${className}.${propertyKey}: the status must be an integer from 200 to 599.`);
         }
 
         useDecoratorResponseOptions(target, propertyKey).status = status;

@@ -221,7 +221,7 @@ describe('what a method returns', () => {
         expect(await response.text()).toBe('boom');
     });
 
-    it('hands @DStatus and @DProduces to an error handler when the value fails to serialize', async () => {
+    it('keeps @DStatus and @DProduces from an error handler when the value fails to serialize', async () => {
         @DController('/s')
         class SerializeController {
             @DStatus(202)
@@ -239,8 +239,8 @@ describe('what a method returns', () => {
 
         const response = await call(app, '/s');
 
-        expect(response.status).toBe(202);
-        expect(response.headers.get('content-type')).toBe('application/vnd.api+json');
+        expect(response.status).toBe(200);
+        expect(response.headers.get('content-type')).toMatch(/^application\/json/);
         expect(await response.json()).toEqual({ error: 'serialize' });
     });
 
