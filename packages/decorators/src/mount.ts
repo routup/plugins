@@ -1,5 +1,5 @@
 import type { IApp, MethodName } from 'routup';
-import { App, defineCoreHandler } from 'routup';
+import { App, defineCoreHandler, toResponse } from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, ControllerRoute, DecoratorMeta } from './types';
 import {
@@ -77,18 +77,37 @@ function buildControllerApp(
                     return result;
                 }
 
+                const resultStatus = event.response.status;
+
                 if (
                     response?.status !== undefined &&
-                    event.response.status === previousStatus
+                    resultStatus === previousStatus
                 ) {
                     event.response.status = response.status;
                 }
 
-                if (contentType && !event.response.headers.has('content-type')) {
+                const previousContentType = event.response.headers.get('content-type');
+
+                if (contentType && previousContentType === null) {
                     event.response.headers.set('content-type', contentType);
                 }
 
-                return result;
+                // Built here, with routup's own conversion, so that a value
+                // it fails to serialize reaches the error handlers without
+                // the status and media type of a successful response.
+                try {
+                    return await toResponse(result, event);
+                } catch (e) {
+                    event.response.status = resultStatus;
+
+                    if (previousContentType === null) {
+                        event.response.headers.delete('content-type');
+                    } else {
+                        event.response.headers.set('content-type', previousContentType);
+                    }
+
+                    throw e;
+                }
             },
         });
 
