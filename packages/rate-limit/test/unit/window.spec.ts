@@ -78,6 +78,9 @@ describe('window token', () => {
             throw createError({ status: 401 });
         }));
 
+        // the current window ends in 2 seconds
+        store.resetTime = new Date(Date.now() + 2000);
+
         const slow = app.fetch(createTestRequest('/slow'));
 
         await wait(5);
@@ -91,6 +94,10 @@ describe('window token', () => {
         pending.resolve();
         response = await slow;
         expect(response.status).toEqual(200);
+        // the refund was ignored: the new window's only slot is taken
+        expect(response.headers.get('ratelimit-remaining')).toEqual('0');
+        // and the reset time is the one of the new window
+        expect(Number(response.headers.get('ratelimit-reset'))).toBeGreaterThan(2);
 
         response = await app.fetch(createTestRequest('/fail'));
         expect(response.status).toEqual(429);

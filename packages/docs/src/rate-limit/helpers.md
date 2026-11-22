@@ -74,7 +74,7 @@ declare class MemoryStore implements Store {
 - **Fixed window.** `init()` starts an interval that runs `resetAll()` every `windowMs`, clearing all counters together. The windows count from when `rateLimit()` was called, not from each client's first request, so a client can make up to `2 * max` requests across a window boundary. `resetTime` is shared by all keys.
 - **Per process.** Counters are not shared between processes or instances; use a shared store such as [`@routup/rate-limit-redis`](/rate-limit-redis/) for that.
 - **One store per limiter.** `init()` runs for each `rateLimit()` call; passing the same instance to two limiters clears its counters and starts a second interval. The interval is unref'd, so it does not keep the process alive, and nothing stops it.
-- **Refunds stay in their window.** `generation` counts the windows; `resetAll()` raises it, and `increment()` returns it as `window`. `decrement()` with the `window` of an ended window does nothing, so a request counted before a reset and refunded after it does not lower the new window's counter.
+- **Refunds stay in their window.** `generation` counts the windows; `resetAll()` raises it, and `increment()` returns it as `window`. `decrement()` with the `window` of an ended window does nothing, so a request counted before `resetAll()` and refunded after it does not lower the new window's counter. `reset(key)` does not end the window: a request counted before it and refunded after it still lowers the key's new counter.
 - `decrement()` never takes a counter below `0`; `reset()` removes one key. `get()` returns `undefined` for a key without hits.
 
 ## `Store`

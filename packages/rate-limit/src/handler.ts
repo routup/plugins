@@ -187,8 +187,31 @@ export function createHandler(input?: OptionsInput) {
 
         await options.store.decrement(key, record?.window);
 
-        const headers = applyRateLimitState(event, maxHits, totalHits - 1, record?.resetTime);
+        // a store that tracks windows may have ignored the refund of an
+        // ended window, so report its current state instead
+        let current = totalHits - 1;
+        let { resetTime } = record ?? {};
 
-        return setResponseHeaders(response, { [HeaderName.RATE_LIMIT_REMAINING]: headers[HeaderName.RATE_LIMIT_REMAINING]! });
+        if (
+            typeof record?.window !== 'undefined' &&
+            typeof options.store.get === 'function'
+        ) {
+            const state = await options.store.get(key);
+
+            current = state?.totalHits ?? 0;
+            resetTime = state ? state.resetTime : resetTime;
+        }
+
+        const headers = applyRateLimitState(event, maxHits, current, resetTime);
+        const responseHeaders : Record<string, string> = { [HeaderName.RATE_LIMIT_REMAINING]: headers[HeaderName.RATE_LIMIT_REMAINING]! };
+
+        // the refund crossed into a new window: its reset time too
+        const reset = headers[HeaderName.RATE_LIMIT_RESET];
+
+        if (reset && resetTime?.getTime() !== record?.resetTime?.getTime()) {
+            responseHeaders[HeaderName.RATE_LIMIT_RESET] = reset;
+        }
+
+        return setResponseHeaders(response, responseHeaders);
     });
 }
