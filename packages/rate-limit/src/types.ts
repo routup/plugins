@@ -45,6 +45,14 @@ export type IncrementResponse = {
      * The time when the counter resets.
      */
     resetTime: Date | undefined
+    /**
+     * An opaque token for the window the hit was counted in.
+     *
+     * The middleware passes it back to `Store.decrement()`, so a store
+     * can ignore a decrement for a window that has already ended.
+     * Stores that cannot tell windows apart leave it out.
+     */
+    window?: unknown
 };
 
 export type Options = {
@@ -95,6 +103,19 @@ export type Options = {
      * Defaults to `false`.
      */
     skipSuccessfulRequest: boolean
+
+    /**
+     * If `true`, a request is counted after its response instead of
+     * before it is forwarded: the current hits are read with `Store.get()`,
+     * the request is rejected when they reached `max`, and it is counted
+     * only when `skipFailedRequest` or `skipSuccessfulRequest` does not skip it.
+     *
+     * Pending requests then hold no slot, but concurrent requests can
+     * exceed `max`. Requires a store with a `get()` method.
+     *
+     * Defaults to `false`.
+     */
+    countAfterResponse: boolean
 
     /**
      * Method to generate custom identifiers for clients.

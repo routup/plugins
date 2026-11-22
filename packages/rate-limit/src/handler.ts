@@ -1,10 +1,121 @@
+import type { IAppEvent } from 'routup';
 import { HeaderName, defineCoreHandler } from 'routup';
 import { setRequestRateLimitInfo } from './request';
-import type { OptionsInput } from './types';
+import type { IncrementResponse, Options, OptionsInput } from './types';
 import { normalizeHandlerOptions } from './utils';
+
+/**
+ * Store the rate limit info of the request and set the rate-limit
+ * headers of event.response; returns the headers that were set.
+ */
+function applyRateLimitState(
+    event: IAppEvent,
+    limit: number,
+    current: number,
+    resetTime: Date | undefined,
+) : Record<string, string> {
+    const remaining = Math.max(limit - current, 0);
+
+    setRequestRateLimitInfo(event, {
+        limit,
+        current,
+        remaining,
+        resetTime,
+    });
+
+    const headers : Record<string, string> = {
+        [HeaderName.RATE_LIMIT_LIMIT]: String(limit),
+        [HeaderName.RATE_LIMIT_REMAINING]: String(remaining),
+    };
+
+    if (resetTime) {
+        const deltaSeconds = Math.ceil(
+            (resetTime.getTime() - Date.now()) / 1000,
+        );
+
+        headers[HeaderName.RATE_LIMIT_RESET] = String(Math.max(0, deltaSeconds));
+    }
+
+    const keys = Object.keys(headers);
+
+    for (const key of keys) {
+        event.response.headers.set(key, headers[key]!);
+    }
+
+    return headers;
+}
+
+/**
+ * Set headers on a response the next handler returned.
+ */
+function setResponseHeaders(
+    response: Response | undefined,
+    headers: Record<string, string>,
+) : Response | undefined {
+    if (!response) {
+        return response;
+    }
+
+    const keys = Object.keys(headers);
+
+    try {
+        for (const key of keys) {
+            response.headers.set(key, headers[key]!);
+        }
+
+        return response;
+    } catch {
+        // the headers of a forwarded fetch() response are immutable
+        const copy = new Headers(response.headers);
+
+        for (const key of keys) {
+            copy.set(key, headers[key]!);
+        }
+
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: copy,
+        });
+    }
+}
+
+/**
+ * Decide whether a response counts towards the quota.
+ */
+function isResponseCounted(
+    options: Options,
+    event: IAppEvent,
+    response: Response | undefined,
+) : boolean {
+    if (
+        !options.skipFailedRequest &&
+        !options.skipSuccessfulRequest
+    ) {
+        return true;
+    }
+
+    // a downstream throw no error handler answered reaches this
+    // handler as no response at all, so it cannot be judged
+    const wasSuccessful = response ?
+        options.requestWasSuccessful(event, response) :
+        false;
+
+    return !(
+        (options.skipFailedRequest && !wasSuccessful) ||
+        (options.skipSuccessfulRequest && wasSuccessful)
+    );
+}
 
 export function createHandler(input?: OptionsInput) {
     const options = normalizeHandlerOptions({ ...(input || {}) });
+
+    if (
+        options.countAfterResponse &&
+        typeof options.store.get !== 'function'
+    ) {
+        throw new Error('The countAfterResponse option requires a store with a get() method.');
+    }
 
     if (typeof options.store.init === 'function') {
         options.store.init(options);
@@ -19,7 +130,17 @@ export function createHandler(input?: OptionsInput) {
 
         const key = await options.keyGenerator(event);
 
-        const { totalHits, resetTime } = await options.store.increment(key);
+        // count-after-response reads the hits so far, the default
+        // reserves a slot for this request before forwarding it
+        let record : IncrementResponse | undefined;
+
+        if (options.countAfterResponse) {
+            record = await options.store.get!(key);
+        } else {
+            record = await options.store.increment(key);
+        }
+
+        const totalHits = record?.totalHits ?? 0;
 
         const retrieveQuota = typeof options.max === 'function' ?
             options.max(event) :
@@ -27,31 +148,13 @@ export function createHandler(input?: OptionsInput) {
 
         const maxHits = await retrieveQuota;
 
-        setRequestRateLimitInfo(event, {
-            limit: maxHits,
-            current: totalHits,
-            remaining: Math.max(maxHits - totalHits, 0),
-            resetTime,
-        });
+        applyRateLimitState(event, maxHits, totalHits, record?.resetTime);
 
-        event.response.headers.set(HeaderName.RATE_LIMIT_LIMIT, String(maxHits));
-        event.response.headers.set(
-            HeaderName.RATE_LIMIT_REMAINING,
-            String(Math.max(maxHits - totalHits, 0)),
-        );
+        const exceeded = options.countAfterResponse ?
+            totalHits >= maxHits :
+            totalHits > maxHits;
 
-        if (resetTime) {
-            const deltaSeconds = Math.ceil(
-                (resetTime.getTime() - Date.now()) / 1000,
-            );
-
-            event.response.headers.set(HeaderName.RATE_LIMIT_RESET, String(Math.max(0, deltaSeconds)));
-        }
-
-        if (
-            maxHits &&
-            totalHits > maxHits
-        ) {
+        if (maxHits && exceeded) {
             event.response.headers.set(
                 HeaderName.RETRY_AFTER,
                 String(Math.ceil(options.windowMs / 1000)),
@@ -62,54 +165,30 @@ export function createHandler(input?: OptionsInput) {
 
         const response = await event.next();
 
-        if (
-            options.skipFailedRequest ||
-            options.skipSuccessfulRequest
-        ) {
-            // a downstream throw no error handler answered reaches this
-            // handler as no response at all, so it cannot be judged
-            const wasSuccessful = response ?
-                options.requestWasSuccessful(event, response) :
-                false;
+        const counted = isResponseCounted(options, event, response);
 
-            if (
-                (options.skipFailedRequest && !wasSuccessful) ||
-                (options.skipSuccessfulRequest && wasSuccessful)
-            ) {
-                await options.store.decrement(key);
-
-                const remaining = Math.max(maxHits - totalHits + 1, 0);
-
-                setRequestRateLimitInfo(event, 'current', totalHits - 1);
-                setRequestRateLimitInfo(event, 'remaining', remaining);
-
-                const value = String(remaining);
-
-                event.response.headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
-
-                if (!response) {
-                    return response;
-                }
-
-                try {
-                    response.headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
-
-                    return response;
-                } catch {
-                    // the headers of a forwarded fetch() response are immutable
-                    const headers = new Headers(response.headers);
-
-                    headers.set(HeaderName.RATE_LIMIT_REMAINING, value);
-
-                    return new Response(response.body, {
-                        status: response.status,
-                        statusText: response.statusText,
-                        headers,
-                    });
-                }
+        if (options.countAfterResponse) {
+            if (!counted) {
+                return response;
             }
+
+            const next = await options.store.increment(key);
+
+            const headers = applyRateLimitState(event, maxHits, next.totalHits, next.resetTime);
+
+            delete headers[HeaderName.RATE_LIMIT_LIMIT];
+
+            return setResponseHeaders(response, headers);
         }
 
-        return response;
+        if (counted) {
+            return response;
+        }
+
+        await options.store.decrement(key, record?.window);
+
+        const headers = applyRateLimitState(event, maxHits, totalHits - 1, record?.resetTime);
+
+        return setResponseHeaders(response, { [HeaderName.RATE_LIMIT_REMAINING]: headers[HeaderName.RATE_LIMIT_REMAINING]! });
     });
 }

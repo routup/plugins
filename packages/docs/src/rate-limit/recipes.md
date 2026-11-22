@@ -54,6 +54,25 @@ curl -i -X POST -H 'authorization: Bearer valid-token' http://localhost:3000/aut
 
 After five failed attempts the client is rejected until the window resets, also with the correct token: the request is counted before the route runs.
 
+## Count After the Response
+
+A successful request is still counted while it runs, so slow requests that will be uncounted again, such as long-polls, can use up the quota. With `countAfterResponse`, a request is counted only once its response is known.
+
+<<< @/../examples/rate-limit/count-after-response.ts
+
+A successful request shows the quota before it and is never counted; each failed one is counted after its response:
+
+```bash
+curl -i -H 'authorization: Bearer valid-token' http://localhost:3000/api/events
+# HTTP/1.1 200 OK
+# ratelimit-remaining: 5
+curl -i http://localhost:3000/api/events
+# HTTP/1.1 401 Unauthorized
+# ratelimit-remaining: 4
+```
+
+The trade-off: concurrent failed requests are all let through until the first of them is counted, so a burst can exceed `max` ([`countAfterResponse`](/rate-limit/configuration#countafterresponse)).
+
 ## Read the Limit State
 
 `useRequestRateLimitInfo()` returns what the middleware counted for the current request.

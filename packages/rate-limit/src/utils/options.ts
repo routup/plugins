@@ -12,6 +12,7 @@ export function normalizeHandlerOptions(input: OptionsInput = {}) : Options {
         statusCode: 429,
         skipFailedRequest: false,
         skipSuccessfulRequest: false,
+        countAfterResponse: false,
         requestWasSuccessful: (_event: IAppEvent, response: Response): boolean => response.status < 400,
         skip: (_event: IAppEvent): boolean => false,
         keyGenerator: (event: IAppEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
