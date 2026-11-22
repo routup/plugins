@@ -204,7 +204,7 @@ export function createUIHandler(
         let contentType : string | undefined;
 
         if (SHELL_PATHS.includes(relativePath)) {
-            // Computed per request: the mount path may differ in casing or params.
+            // Computed per request: the mount path may contain params.
             output = shell.replace('<% baseHref %>', () => escapeHTML(buildBaseHref(event.mountPath)));
             contentType = 'text/html; charset=utf-8';
         } else if (relativePath === '/swagger-initializer.js') {
