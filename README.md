@@ -1,8 +1,8 @@
 <div align="center">
 
-<a href="https://routup.dev"><img src=".github/assets/wordmark.svg" width="320" alt="Routup"></a>
+<a href="https://routup.dev"><img src=".github/assets/logo.svg" width="128" height="128" alt="routup plugins logo: the routup R tile with four small plugin tiles docked onto its edges"></a>
 
-<h1>Plugins</h1>
+<h1>routup plugins</h1>
 
 </div>
 
