@@ -38,6 +38,7 @@ export function useResolvedDecoratorMeta(target: Record<string, any>) : Decorato
         meta.middlewares ??= [];
         meta.methods ??= Object.create(null);
         meta.produces ??= [];
+        meta.consumes ??= [];
         meta.responses ??= Object.create(null);
         meta.parameters ??= Object.create(null);
 
@@ -52,6 +53,7 @@ export function useResolvedDecoratorMeta(target: Record<string, any>) : Decorato
         middlewares: [],
         methods: Object.create(null),
         produces: [],
+        consumes: [],
         responses: Object.create(null),
         parameters: Object.create(null),
     } satisfies DecoratorMeta;
@@ -80,9 +82,11 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
     const inputResponses : LooseEntries<DecoratorResponseOptions> = meta.responses;
 
     for (const [key, response] of Object.entries(inputResponses)) {
-        responses[key] = response?.produces ?
-            { ...response, produces: [...response.produces] } :
-            response && { ...response };
+        responses[key] = response && {
+            ...response,
+            ...(response.produces ? { produces: [...response.produces] } : {}),
+            ...(response.consumes ? { consumes: [...response.consumes] } : {}),
+        };
     }
 
     const parameters : Record<string, DecoratorMeta['parameters'][string] | undefined> = Object.create(null);
@@ -102,6 +106,7 @@ function copyDecoratorMeta(meta: DecoratorMeta) : DecoratorMeta {
         middlewares: Array.isArray(meta.middlewares) ? [...meta.middlewares] : meta.middlewares,
         methods: methods as DecoratorMeta['methods'],
         produces: [...meta.produces],
+        consumes: [...meta.consumes],
         responses: responses as DecoratorMeta['responses'],
         parameters: parameters as DecoratorMeta['parameters'],
     };

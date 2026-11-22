@@ -315,15 +315,17 @@ describe('src/ui hardening', () => {
 
     describe('base href', () => {
         it('should compute the base href per request', async () => {
-            const router = createRouter();
+            const router = new App();
 
-            let response = await router.fetch(createTestRequest('/DoCs'));
+            router.use('/:tenant/docs', swaggerUI('test/data/swagger.json'));
+
+            let response = await router.fetch(createTestRequest('/a/docs'));
 
             expect(response.status).toEqual(200);
-            expect(await response.text()).toContain('<base href="/DoCs/" />');
+            expect(await response.text()).toContain('<base href="/a/docs/" />');
 
-            response = await router.fetch(createTestRequest('/docs'));
-            expect(await response.text()).toContain('<base href="/docs/" />');
+            response = await router.fetch(createTestRequest('/b/docs'));
+            expect(await response.text()).toContain('<base href="/b/docs/" />');
         });
     });
 

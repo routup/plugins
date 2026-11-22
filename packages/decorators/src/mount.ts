@@ -1,5 +1,10 @@
 import type { IApp, MethodName } from 'routup';
-import { App, defineCoreHandler, toResponse } from 'routup';
+import {
+    App,
+    assertRequestContentType,
+    defineCoreHandler,
+    toResponse,
+} from 'routup';
 import { buildDecoratorMethodArguments } from './method';
 import type { ClassType, ControllerRoute, DecoratorMeta } from './types';
 import {
@@ -58,6 +63,17 @@ function buildControllerApp(
             method: method.method as MethodName,
             path: method.url,
             fn: async (event) => {
+                // The OpenAPI document lists the class and the method media
+                // types together, so a request may have any of them.
+                const consumes = [
+                    ...meta.consumes,
+                    ...(meta.responses[propertyKey]?.consumes ?? []),
+                ];
+
+                if (consumes.length > 0 && event.request.body !== null) {
+                    assertRequestContentType(event, consumes);
+                }
+
                 const args = await buildDecoratorMethodArguments(
                     { event },
                     meta.parameters[propertyKey] ?? [],

@@ -42,10 +42,37 @@ export function DTags(...names: string[]) {
 }
 
 /**
- * Declare the media types a request body may have (OpenAPI only).
+ * Declare the media types a request body may have (method or class).
+ *
+ * At runtime a request with a body whose `content-type` matches none of the
+ * class-level and method-level media types is answered with `415` (`400` for
+ * a malformed header) before the method runs. A request without a body is
+ * not checked.
+ *
+ * @param mediaTypes - e.g. `'application/json'`, `'application/*+json'` or `'text/*'`.
  */
 export function DConsumes(...mediaTypes: string[]) {
-    return (...args: any) => { };
+    return (
+        target: any,
+        propertyKey?: string | symbol,
+    ) : void => {
+        if (typeof propertyKey === 'undefined') {
+            const meta = useDecoratorMeta(target.prototype);
+
+            meta.consumes = [...mediaTypes, ...meta.consumes];
+
+            return;
+        }
+
+        /* istanbul ignore next */
+        if (typeof propertyKey !== 'string') {
+            return;
+        }
+
+        const options = useDecoratorResponseOptions(target, propertyKey);
+
+        options.consumes = [...mediaTypes, ...(options.consumes ?? [])];
+    };
 }
 
 /**

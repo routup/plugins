@@ -43,7 +43,7 @@ curl -i http://localhost:3000/
 | Step | What happens |
 |------|--------------|
 | Skip | `skip(event)` returning `true` passes the request on uncounted and without headers |
-| Key | The client key is `getRequestIP(event, { trustProxy: true })`, or `'127.0.0.1'` when there is no address |
+| Key | The client key is `getRequestIP(event, { trustProxy })` with [`trustProxy`](/rate-limit/configuration#trustproxy) `true` by default, or `'127.0.0.1'` when there is no address |
 | Count | The store increments the key's counter; every request that is not skipped counts, rejected ones too |
 | Quota | `max` is read after the increment (default `5` per `windowMs` of one minute) |
 | Reject | Once the counter exceeds a `max` other than `0`, `handler` answers (default: status `429`, the `message` text) and the routes behind it do not run |
