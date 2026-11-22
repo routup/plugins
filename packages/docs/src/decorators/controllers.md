@@ -131,7 +131,7 @@ declare function DConsumes(...mediaTypes: string[]): (target: any, propertyKey?:
 <<< @/../examples/decorators/consumes.ts
 
 - **Runtime:** a request with a body is checked with routup's [`assertRequestContentType()`](https://routup.dev/api/request-helpers) before its parameters are read and the method runs: a missing or unlisted `content-type` answers `415`, a malformed one `400`. The check ignores parameters (`charset`) and case, and a media type may be a pattern such as `text/*` or `application/*+json`. A request without a body, such as a `GET`, is not checked.
-- A route accepts the class-level and the method-level media types together, as the OpenAPI document lists them.
+- A route accepts the class-level and the method-level media types together, as the OpenAPI document lists them. A subclass also accepts the class-level media types of its parent, which its document leaves out, since the preset does not inherit class-level decorators ([Inheritance](#inheritance)).
 - Middlewares run before the check, so an authentication middleware still answers first.
 - **OpenAPI:** the media types are the request body media types of the operation.
 
