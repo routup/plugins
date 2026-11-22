@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/routup/plugins/compare/cors-v2.0.2...cors-v2.1.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+
+
+### Bug Fixes
+
+* **cors:** send vary: origin when the origin option depends on the request ([13d9c10](https://github.com/routup/plugins/commit/13d9c1087459bd680282e4024db5818c1a4ab3f2)), closes [#881](https://github.com/routup/plugins/issues/881)
+
 ## [2.0.2](https://github.com/routup/plugins/compare/cors-v2.0.1...cors-v2.0.2) (2026-11-15)
 
 

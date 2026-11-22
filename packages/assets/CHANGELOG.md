@@ -1,5 +1,12 @@
 # Change Log
 
+## [6.1.0](https://github.com/routup/plugins/compare/assets-v6.0.0...assets-v6.1.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+
 ## [6.0.0](https://github.com/routup/plugins/compare/assets-v5.0.1...assets-v6.0.0) (2026-11-15)
 
 

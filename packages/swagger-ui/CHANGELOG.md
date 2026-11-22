@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.2.0](https://github.com/routup/plugins/compare/swagger-ui-v5.1.1...swagger-ui-v5.2.0) (2026-11-22)
+
+
+### Features
+
+* adopt routup 6.5.0 ([#884](https://github.com/routup/plugins/issues/884)) ([1553a5e](https://github.com/routup/plugins/commit/1553a5eebc26a0fbdc9358aa48ffd264f4de2a69))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/assets bumped from ^6.0.0 to ^6.1.0
+
 ## [5.1.1](https://github.com/routup/plugins/compare/swagger-ui-v5.1.0...swagger-ui-v5.1.1) (2026-11-15)
 
 
