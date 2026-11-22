@@ -25,7 +25,7 @@ function createMockClient() {
 
             return 'OK';
         }),
-        pttl: vi.fn(async (key: string) => (store.has(key) ? 30000 : -2)),
+        pttl: vi.fn(async (key: string): Promise<number> => (store.has(key) ? 30000 : -2)),
         del: vi.fn(async (key: string) => {
             store.delete(key);
 
@@ -103,6 +103,22 @@ describe('src/module', () => {
         expect(result!.resetTime!.getTime()).toBeGreaterThanOrEqual(before + 30000);
         expect(mockClient.pttl).toHaveBeenCalledWith('rate-limit:test-key');
         expect(mockClient._store.get('rate-limit:test-key')).toEqual('2');
+    });
+
+    it('should treat a key that expires between GET and PTTL as missing', async () => {
+        await store.increment('test-key');
+
+        mockClient.pttl.mockResolvedValueOnce(-2);
+
+        expect(await store.get('test-key')).toBeUndefined();
+    });
+
+    it('should keep a key without expiry', async () => {
+        await store.increment('test-key');
+
+        mockClient.pttl.mockResolvedValueOnce(-1);
+
+        expect(await store.get('test-key')).toEqual({ totalHits: 1, resetTime: undefined });
     });
 
     it('should count after the response with the redis store', async () => {
