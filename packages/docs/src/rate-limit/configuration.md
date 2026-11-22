@@ -20,7 +20,8 @@ relatedPlugins: [rate-limit-redis]
 | `skipSuccessfulRequest` | `boolean` | `false` | Do not count requests that `requestWasSuccessful` accepts |
 | `countAfterResponse` | `boolean` | `false` | Count a request after its response instead of before forwarding it; needs a store with `get()` |
 | `requestWasSuccessful` | `(event, response) => boolean` | `response.status < 400` | Decides what counts as successful |
-| `keyGenerator` | `(event) => string \| Promise<string>` | `getRequestIP(event, { trustProxy: true }) \|\| '127.0.0.1'` | Identifies the client |
+| `trustProxy` | `boolean \| number \| string \| string[] \| (address, hop) => boolean` | `true` | Proxies the default `keyGenerator` trusts for `X-Forwarded-For` |
+| `keyGenerator` | `(event) => string \| Promise<string>` | `getRequestIP(event, { trustProxy }) \|\| '127.0.0.1'` | Identifies the client |
 | `handler` | `(event, options) => unknown` | Sets `statusCode`, returns `message` | Builds the response of a rejected request |
 | `skip` | `(event) => boolean \| Promise<boolean>` | `() => false` | Return `true` to bypass the limiter for a request |
 | `store` | `Store` | `new MemoryStore()` | Where hit counts are kept |
@@ -65,13 +66,19 @@ Called with the event and the downstream `Response` when `skipFailedRequest` or 
 
 A request whose handler throws is judged by the response of the [error handler](https://routup.dev/guide/error-handling) that answers it. When no error handler answers, the middleware sees no response at all and treats the request as not successful, whatever status the fallback response gets.
 
+### `trustProxy`
+
+Which proxies the default `keyGenerator` trusts when it takes the client address from `X-Forwarded-For`, passed to routup's [`getRequestIP()`](https://routup.dev/api/request-helpers): `true` trusts every proxy, `false` none, so the address of the connection is the key. A hop count, an address or CIDR (also a list of them) or a function `(address, hop) => boolean` trusts only those proxies. `undefined` uses the `trustProxy` option of the app. A custom `keyGenerator` does not read it.
+
+<<< @/../examples/rate-limit/trust-proxy.ts
+
 ### `keyGenerator`
 
 Returns the key a request is counted under (sync or async). Keying by something other than the address, such as an API token, limits per account:
 
 <<< @/../examples/rate-limit/key-by-token.ts
 
-The default key trusts `X-Forwarded-For`: `getRequestIP(event, { trustProxy: true })` takes the client address from that header, which a client can set itself when the app is not behind a proxy that overwrites it. When the app is reachable directly, pass a `keyGenerator` that does not trust the header, such as `(event) => getRequestIP(event) ?? '127.0.0.1'`. Requests without a client address, such as calls to `app.fetch()` in tests, all share the key `'127.0.0.1'`.
+The default key trusts `X-Forwarded-For` ([`trustProxy`](#trustproxy) is `true`): the client address comes from that header, which a client can set itself when the app is not behind a proxy that overwrites it. When the app is reachable directly, set `trustProxy: false`; behind your own proxies, list them. Requests without a client address, such as calls to `app.fetch()` in tests, all share the key `'127.0.0.1'`.
 
 ### `handler`
 

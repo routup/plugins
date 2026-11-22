@@ -1,4 +1,4 @@
-import type { IAppEvent } from 'routup';
+import type { IAppEvent, RequestIpOptions } from 'routup';
 import type { Store } from './store';
 
 /**
@@ -116,6 +116,16 @@ export type Options = {
      * Defaults to `false`.
      */
     countAfterResponse: boolean
+
+    /**
+     * Which proxies the default `keyGenerator` trusts when it reads the
+     * client address from `X-Forwarded-For`, as `getRequestIP()` takes it:
+     * `true` trusts every proxy, `false` none (the connection address is
+     * used), or a hop count, address list or predicate.
+     *
+     * Defaults to `true`.
+     */
+    trustProxy: RequestIpOptions['trustProxy']
 
     /**
      * Method to generate custom identifiers for clients.

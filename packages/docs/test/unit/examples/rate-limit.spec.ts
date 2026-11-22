@@ -23,6 +23,7 @@ import { app as limitPath } from '../../../examples/rate-limit/limit-path';
 import { app as quickStart } from '../../../examples/rate-limit/quick-start';
 import { app as readInfo } from '../../../examples/rate-limit/read-info';
 import { app as tieredQuota } from '../../../examples/rate-limit/tiered-quota';
+import { app as trustProxy } from '../../../examples/rate-limit/trust-proxy';
 
 // Runs before the samples are imported: their MemoryStore reads the clock
 // and starts its reset interval when the module loads.
@@ -231,6 +232,29 @@ describe('key-by-token', () => {
         expect(first[5]!.status).toBe(429);
         expect(other.status).toBe(200);
         expect(other.headers.get('ratelimit-remaining')).toBe('4');
+    });
+});
+
+describe('trust-proxy', () => {
+    it('keys by the connection address, not by X-Forwarded-For', async () => {
+        const spoofed = await fetchTimes(trustProxy, 6, '/', { ip: '10.0.0.1', headers: { 'x-forwarded-for': '203.0.113.7' } });
+        const other = await trustProxy.fetch(request('/', { ip: '10.0.0.1', headers: { 'x-forwarded-for': '203.0.113.8' } }));
+
+        expect(spoofed[5]!.status).toBe(429);
+        expect(other.status).toBe(429);
+    });
+
+    it('trusts X-Forwarded-For by default', async () => {
+        const app = new App();
+
+        app.use(rateLimit({ max: 1 }));
+        app.get('/', defineCoreHandler(() => 'ok'));
+
+        await app.fetch(request('/', { ip: '10.0.0.1', headers: { 'x-forwarded-for': '203.0.113.7' } }));
+
+        const other = await app.fetch(request('/', { ip: '10.0.0.1', headers: { 'x-forwarded-for': '203.0.113.8' } }));
+
+        expect(other.status).toBe(200);
     });
 });
 

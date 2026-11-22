@@ -26,7 +26,7 @@ A login form, a password reset or a public API needs a cap on how often one clie
 | Concern | Without it | With @routup/rate-limit |
 |---------|------------|-------------------------|
 | Counting | A `Map` of hits per IP plus a reset timer | `MemoryStore` counts per key and resets every `windowMs` |
-| Client identity | Read `X-Forwarded-For` or the socket address yourself | `getRequestIP(event, { trustProxy: true })` by default, replaceable with `keyGenerator` |
+| Client identity | Read `X-Forwarded-For` or the socket address yourself | `getRequestIP(event, { trustProxy })` by default, with the trusted proxies set by `trustProxy`, replaceable with `keyGenerator` |
 | Headers | Compute and set limit, remaining and reset values | `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, and `Retry-After` when blocked |
 | Rejection | Return a status and body in every guarded route | `statusCode` (`429`) and `message`, or your own `handler` |
 | Which requests count | Undo the counter after the response | `skipFailedRequest`, `skipSuccessfulRequest`, `requestWasSuccessful` |

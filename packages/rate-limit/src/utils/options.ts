@@ -15,7 +15,8 @@ export function normalizeHandlerOptions(input: OptionsInput = {}) : Options {
         countAfterResponse: false,
         requestWasSuccessful: (_event: IAppEvent, response: Response): boolean => response.status < 400,
         skip: (_event: IAppEvent): boolean => false,
-        keyGenerator: (event: IAppEvent): string => getRequestIP(event, { trustProxy: true }) || '127.0.0.1',
+        trustProxy: true,
+        keyGenerator: (event: IAppEvent): string => getRequestIP(event, { trustProxy: options.trustProxy }) || '127.0.0.1',
         async handler(
             event: IAppEvent,
             _optionsUsed: Options,
