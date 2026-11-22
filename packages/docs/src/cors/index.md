@@ -60,7 +60,7 @@ Called without options, `cors()` allows every origin.
 | `Access-Control-Allow-Headers` | yes | no | The request's `Access-Control-Request-Headers`; not sent when the request has none |
 | `Access-Control-Max-Age` | yes | no | not sent ([`maxAge`](/cors/configuration#maxage)) |
 | `Access-Control-Expose-Headers` | no | yes | `*` |
-| `Vary` | yes | yes | `access-control-request-headers` when `Access-Control-Allow-Headers` is sent; `origin` is added whenever `Access-Control-Allow-Origin` is sent with a value other than `*` ([`origin`](/cors/configuration#origin)) |
+| `Vary` | yes | yes | `access-control-request-headers` when `Access-Control-Allow-Headers` is sent; `origin` is added for every [`origin`](/cors/configuration#origin) option except `'*'` and `false`, also when no `Access-Control-Allow-Origin` is sent |
 
 - **Set, not appended.** The `Access-Control-*` headers overwrite values already on `event.response.headers`; `Vary` values are appended to existing ones.
 - **The preflight response is a new `Response`.** It copies the headers already on `event.response`, so a handler registered before the plugin can still add headers to it.
