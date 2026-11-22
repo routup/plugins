@@ -95,6 +95,11 @@ export class RedisStore implements Store {
 
         const ttl = await this.client.pttl(key);
 
+        // -2: the key expired after GET, so its window has ended
+        if (ttl === -2) {
+            return undefined;
+        }
+
         return {
             totalHits: Number.parseInt(entry, 10),
             resetTime: ttl >= 0 ?
