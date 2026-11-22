@@ -1,5 +1,6 @@
-import type { IApp } from 'routup';
+import type { IApp, IAppEvent } from 'routup';
 import {
+    MethodName,
     defineCoreHandler,
     setResponseHeaderContentType,
 } from 'routup';
@@ -26,6 +27,21 @@ export function createHandler<
 
         return output;
     });
+}
+
+/**
+ * The status of the response routup builds after the pipeline when no
+ * handler answered: the `Allow` response of an `OPTIONS` request, else
+ * a 404. A handler error no error handler answered ends up here too
+ * (routup does not expose it), so it is labelled 404 instead of 500.
+ * Upstream: routup/routup#1008
+ */
+function buildFallbackStatus(event: IAppEvent) : number {
+    if (event.method === MethodName.OPTIONS) {
+        return event.response.status || 200;
+    }
+
+    return 404;
 }
 
 export function registerMetrics<
@@ -72,7 +88,7 @@ export function registerMetrics<
 
                 return response;
             } finally {
-                labels.status_code = response?.status ?? 200;
+                labels.status_code = response?.status ?? buildFallbackStatus(event);
                 labels.method = event.method;
                 // read after the handlers ran: event.route is request-wide
                 labels.path = buildPathLabel(path, event, options);

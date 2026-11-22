@@ -18,10 +18,8 @@ curl http://localhost:3000/nope
 curl http://localhost:3000/health
 curl -s http://localhost:3000/metrics | grep _count
 # http_request_duration_count{status_code="200",method="GET",path="/users/:id",service="api"} 1
-# http_request_duration_count{status_code="200",method="GET",path="<unmatched>",service="api"} 1
+# http_request_duration_count{status_code="404",method="GET",path="<unmatched>",service="api"} 1
 ```
-
-The `404` for `/nope` is recorded with status `200`: see [Labels](/prometheus/#labels).
 
 ## Histogram Buckets
 

@@ -59,9 +59,9 @@ Installing the plugin registers two metrics on prom-client's global `register`, 
 |-------|-------|
 | `method` | The request method |
 | `path` | The pattern of the route that handled the request, composed over every mount (`/api/users/:id` for `GET /api/users/42`); for a request no method-bound route handled, the raw path or [`unmatchedPath`](/prometheus/configuration#unmatchedpath) |
-| `status_code` | The status of the response the handlers after the plugin returned; `200` when they returned none |
+| `status_code` | The status of the response the handlers after the plugin returned; when they returned none, the status of the response routup builds: `404`, or for an `OPTIONS` request the status of its `Allow` response |
 
-- **Errors and 404s are recorded as `200`.** When a route throws and no [error handler](https://routup.dev/guide/error-handling) answers, or no route matches, the plugin gets no response: routup builds the `500` or `404` after the plugin returned. Register an error handler after your routes to record the real status of errors.
+- **Unanswered errors are recorded as `404`.** When a route throws and no [error handler](https://routup.dev/guide/error-handling) answers, routup builds the `500` after the plugin returned and does not tell the plugin about the error, so the request is labelled like a request no route matched. Register an error handler after your routes to record the real status of errors.
 - **Requests without a route keep their URL.** A request no method-bound route handled, such as a `404`, a request answered by middleware or a method-less mount, or a scrape of `/metrics` itself, is labelled with its raw path: one series per distinct URL. Set [`unmatchedPath`](/prometheus/configuration#unmatchedpath) when the app is reachable by arbitrary paths.
 - **Mount order matters.** A request answered by a handler registered before the plugin is not timed.
 
