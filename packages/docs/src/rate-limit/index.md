@@ -62,7 +62,7 @@ The default store, [`MemoryStore`](/rate-limit/helpers#memorystore), keeps the c
 
 `Retry-After` is always the full window, not the time left until the reset; `RateLimit-Reset` carries the time left.
 
-The headers are set on `event.response`, so a route that returns a `Response` object of its own sends none of them, except `RateLimit-Remaining` when `skipFailedRequest` or `skipSuccessfulRequest` uncounts the request.
+The headers are set on `event.response`, so a route that returns a `Response` object of its own sends none of them, except `RateLimit-Remaining` when `skipFailedRequest` or `skipSuccessfulRequest` uncounts the request (and `RateLimit-Reset` when a new window started meanwhile), and `RateLimit-Remaining` and `RateLimit-Reset` when [`countAfterResponse`](/rate-limit/configuration#countafterresponse) counts it.
 
 ## Next Steps
 

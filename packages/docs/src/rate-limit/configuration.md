@@ -54,7 +54,7 @@ Decides when a request is counted. By default, every request reserves a slot bef
 | | Default (reserve, then refund) | `countAfterResponse: true` |
 |---|---|---|
 | Pending requests | Hold a slot until their response is known, so many slow requests that will be refunded, such as long-polls or uploads, can get the next request rejected | Hold no slot |
-| Concurrent requests | Never more than `max` pass in a window | All that arrive before the first of them is counted pass, so a burst can exceed `max` |
+| Concurrent requests | Each request reserves a slot before it is forwarded, so with a store whose increment is atomic, such as `MemoryStore`, no more than `max` are pending at a time; a refund frees its slot for a later request. `RedisStore` reads and writes the counter in two commands, so concurrent requests can exceed `max` | All that arrive before the first of them is counted pass, so a burst can exceed `max` |
 | Headers and `useRequestRateLimitInfo()` | Count the request itself while it runs; corrected after a refund | Show the state before the request while it runs; the response carries the state after it was counted |
 
 It is meant for `skipFailedRequest` or `skipSuccessfulRequest`; without either, every response is counted. `rateLimit()` throws when the option is set and the store has no `get()` method; [`MemoryStore`](/rate-limit/helpers#memorystore) and [`RedisStore`](/rate-limit-redis/#redisstore) have one. [Count After the Response](/rate-limit/recipes#count-after-the-response) shows it.
