@@ -75,7 +75,40 @@ export class RedisStore implements Store {
     }
 
     /**
+     * Method to read a client's hit counter without incrementing it.
+     *
+     * @param key {string} - The identifier for a client.
+     *
+     * @returns {IncrementResponse | undefined} - The number of hits and reset time
+     * for that client, or `undefined` when the key does not exist.
+     *
+     * @public
+     */
+    async get(key: string) : Promise<IncrementResponse | undefined> {
+        key = this.buildKey(key);
+
+        const entry = await this.client.get(key);
+
+        if (!entry) {
+            return undefined;
+        }
+
+        const ttl = await this.client.pttl(key);
+
+        return {
+            totalHits: Number.parseInt(entry, 10),
+            resetTime: ttl >= 0 ?
+                calculateNextResetTime(ttl) :
+                undefined,
+        };
+    }
+
+    /**
      * Method to decrement a client's hit counter.
+     *
+     * The window of a key ends when its TTL expires, which the stored
+     * counter cannot tell apart from a key written again afterwards,
+     * so the window token of the limiter is not checked.
      *
      * @param key {string} - The identifier for a client.
      *

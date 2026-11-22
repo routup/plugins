@@ -60,6 +60,7 @@ To share the client the rest of your app uses, pass it in:
 | Count | `increment()` reads the counter with `GET`, adds 1 and writes it with `SET ... PX windowMs` |
 | Expiry | Every hit writes the key again with a TTL of `windowMs`, so the TTL starts over on each hit |
 | Reset time | The `resetTime` returned to the limiter is now plus `windowMs` on every hit, so `RateLimit-Reset` always shows the full window |
+| Read | `get()`, called by the limiter with [`countAfterResponse`](/rate-limit/configuration#countafterresponse), reads the counter with `GET` and its TTL with `PTTL`, without writing; a missing key returns `undefined` |
 | Undo | `decrement()`, called by the limiter for `skipFailedRequest` or `skipSuccessfulRequest`, subtracts 1 and writes the key with a fresh TTL; a missing key is left alone |
 | Reset | `reset()` deletes the key. The limiter never calls it; call it yourself ([Reset After a Successful Login](#reset-after-a-successful-login)) |
 
@@ -67,6 +68,7 @@ To share the client the rest of your app uses, pass it in:
 
 - **The window slides.** A client that sends at least one request per `windowMs` never sees its counter expire and stays rejected until it pauses for a full window. The default `MemoryStore` instead clears all counters together every `windowMs`.
 - **Increments are not atomic.** `GET` and `SET` are two commands, not `INCR`. Concurrent requests for the same key, from one instance or several, can read the same value and count one hit too few.
+- **A refund can land in a later window.** `increment()` returns no `window` token: a key that expired and was written again holds a plain counter like before, so `decrement()` cannot tell the windows apart and lowers whatever counter the key holds.
 - **`decrement()` does not wait for Redis.** Its `SET` is not awaited, so an error there is not reported to the limiter.
 - **Redis errors fail the request.** When `GET` or `SET` in `increment()` fails, for example because Redis is unreachable and ioredis gives up, the error leaves the limiter and the request is answered with `500`; it is not let through.
 
@@ -86,6 +88,7 @@ declare class RedisStore implements Store {
 | `options` | The limiter options passed to `init()` |
 | `init(options)` | Called by `rateLimit()`; keeps the options |
 | `increment(key)` | Adds 1 to the counter; returns `{ totalHits, resetTime }` |
+| `get(key)` | Reads the counter without changing it; returns `{ totalHits, resetTime }`, with `resetTime` from the key's TTL, or `undefined` |
 | `decrement(key)` | Subtracts 1 from an existing counter |
 | `reset(key)` | Deletes the counter |
 | `buildKey(key)` | Protected; returns `rate-limit:<key>` |

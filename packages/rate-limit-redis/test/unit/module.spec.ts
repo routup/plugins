@@ -5,7 +5,14 @@ import {
     it, 
     vi, 
 } from 'vitest';
+import {
+    App,
+    HeaderName,
+    createError,
+    defineCoreHandler,
+} from 'routup';
 import type { Options } from '@routup/rate-limit';
+import { rateLimit } from '@routup/rate-limit';
 import { RedisStore } from '../../src';
 
 function createMockClient() {
@@ -18,6 +25,7 @@ function createMockClient() {
 
             return 'OK';
         }),
+        pttl: vi.fn(async (key: string) => (store.has(key) ? 30000 : -2)),
         del: vi.fn(async (key: string) => {
             store.delete(key);
 
@@ -79,5 +87,47 @@ describe('src/module', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith('rate-limit:my-ip');
         expect(mockClient.set).toHaveBeenCalledWith('rate-limit:my-ip', 1, 'PX', 60000);
+    });
+
+    it('should read a key without incrementing it', async () => {
+        expect(await store.get('test-key')).toBeUndefined();
+
+        await store.increment('test-key');
+        await store.increment('test-key');
+
+        const before = Date.now();
+        const result = await store.get('test-key');
+
+        expect(result?.totalHits).toEqual(2);
+        expect(result?.resetTime).toBeInstanceOf(Date);
+        expect(result!.resetTime!.getTime()).toBeGreaterThanOrEqual(before + 30000);
+        expect(mockClient.pttl).toHaveBeenCalledWith('rate-limit:test-key');
+        expect(mockClient._store.get('rate-limit:test-key')).toEqual('2');
+    });
+
+    it('should count after the response with the redis store', async () => {
+        const app = new App();
+
+        app.use(rateLimit({
+            max: 1,
+            skipSuccessfulRequest: true,
+            countAfterResponse: true,
+            store,
+        }));
+        app.get('/ok', defineCoreHandler(() => 'ok'));
+        app.get('/fail', defineCoreHandler(() => {
+            throw createError({ status: 401 });
+        }));
+
+        let response = await app.fetch(new Request('http://localhost/ok'));
+
+        expect(response.status).toEqual(200);
+
+        response = await app.fetch(new Request('http://localhost/fail'));
+        expect(response.status).toEqual(401);
+        expect(response.headers.get(HeaderName.RATE_LIMIT_REMAINING)).toEqual('0');
+
+        response = await app.fetch(new Request('http://localhost/ok'));
+        expect(response.status).toEqual(429);
     });
 });
