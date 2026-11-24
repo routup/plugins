@@ -17,7 +17,7 @@ Picks a locale for each request and translates messages in that locale with [ili
 
 - Node.js 24 or later, ESM only
 - `routup` `^6.3.0` (peer dependency)
-- `ilingo` `^6.2.1` (peer dependency): the stores, the catalog helpers and the lookup itself
+- `ilingo` `^6.2.2` (peer dependency): the stores, the catalog helpers and the lookup itself
 
 ## Installation
 
