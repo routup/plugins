@@ -18,7 +18,7 @@ Serves [Swagger UI](https://swagger.io/tools/swagger-ui/) for an OpenAPI documen
 - Node.js 24 or later, ESM only; the plugin reads the document and the Swagger UI files from the file system
 - `routup` `^6.3.0` (peer dependency)
 - `@types/swagger-ui-dist` `^3.30.5` (peer dependency): the Swagger UI option types that `UIOptions` extends
-- `swagger-ui-dist` `^5.35.0` and `@routup/assets` are installed as dependencies; the files are served from the installed `swagger-ui-dist`
+- `swagger-ui-dist` `^5.35.1` and `@routup/assets` are installed as dependencies; the files are served from the installed `swagger-ui-dist`
 
 `swagger-ui-dist` depends on [`@scarf/scarf`](https://github.com/scarf-sh/scarf-js), whose postinstall script sends install analytics. Set `SCARF_ANALYTICS=false` in the install environment, or `"scarfSettings": { "enabled": false }` in your `package.json`, to turn it off.
 

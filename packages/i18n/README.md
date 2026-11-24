@@ -36,7 +36,7 @@ A server that answers in the client's language has to read `Accept-Language`, ma
 npm install @routup/i18n ilingo
 ```
 
-ESM only, Node.js >=24. Peer dependencies: `routup@^6.3.0` and `ilingo@^6.2.1`.
+ESM only, Node.js >=24. Peer dependencies: `routup@^6.3.0` and `ilingo@^6.2.2`.
 
 ## Quick Start
 
