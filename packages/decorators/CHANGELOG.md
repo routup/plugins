@@ -6,6 +6,22 @@
   * devDependencies
     * @routup/query bumped from ^2.3.0 to ^2.3.1
 
+## [5.5.0](https://github.com/routup/plugins/compare/decorators-v5.4.0...decorators-v5.5.0) (2026-11-25)
+
+
+### Features
+
+* fix bodiless DConsumes requests and adopt routup 6.5.0 features ([#889](https://github.com/routup/plugins/issues/889)) ([c836f8d](https://github.com/routup/plugins/commit/c836f8d14eca558d65306bb730dd2a1609540b70))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @routup/body bumped from ^4.2.0 to ^4.3.0
+    * @routup/cookie bumped from ^4.1.0 to ^4.2.0
+    * @routup/query bumped from ^4.1.0 to ^4.2.0
+
 ## [5.4.0](https://github.com/routup/plugins/compare/decorators-v5.3.1...decorators-v5.4.0) (2026-11-22)
 
 

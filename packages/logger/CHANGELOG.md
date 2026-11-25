@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/routup/plugins/compare/logger-v2.1.0...logger-v2.2.0) (2026-11-25)
+
+
+### Features
+
+* fix bodiless DConsumes requests and adopt routup 6.5.0 features ([#889](https://github.com/routup/plugins/issues/889)) ([c836f8d](https://github.com/routup/plugins/commit/c836f8d14eca558d65306bb730dd2a1609540b70))
+
 ## [2.1.0](https://github.com/routup/plugins/compare/logger-v2.0.2...logger-v2.1.0) (2026-11-22)
 
 

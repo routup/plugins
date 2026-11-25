@@ -1,6 +1,6 @@
 {
     "name": "@routup/rate-limit",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "type": "module",
     "description": "Limit how many requests each client can make per time window, with RateLimit headers and pluggable stores.",
     "exports": {
