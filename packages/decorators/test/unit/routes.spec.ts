@@ -257,13 +257,15 @@ describe('getControllerRoutes', () => {
         mountController(app, SlashGroupController);
 
         expect(getControllerRoutes(SlashGroupController)).toEqual([
-            { method: 'GET', path: '/notes/{/:id}' },
+            { method: 'GET', path: '/notes{/:id}' },
         ]);
-        expect(app.routes.map((route) => route.path)).toEqual(['/notes/{/:id}']);
+        expect(app.routes.map((route) => route.path)).toEqual(['/notes{/:id}']);
 
-        const response = await app.fetch(toRequest('GET', '/notes/'));
+        for (const path of ['/notes', '/notes/', '/notes/5']) {
+            const response = await app.fetch(toRequest('GET', path));
 
-        expect(await response.text()).toEqual('show');
+            expect(await response.text()).toEqual('show');
+        }
     });
 
     it('skips an unset method entry when listing and mounting', async () => {

@@ -293,7 +293,7 @@ describe('paths', () => {
         ]);
     });
 
-    it('puts an optional group after the slash it adds', async () => {
+    it('lets an optional group led by a slash replace the slash it adds', async () => {
         @DController('/a')
         class LedBySlash {
             @DGet('{/:id}')
@@ -314,9 +314,11 @@ describe('paths', () => {
 
         app.use(decorators({ controllers: [LedBySlash, WithoutSlash] }));
 
-        expect(getControllerRoutes(LedBySlash)).toEqual([{ method: 'GET', path: '/a/{/:id}' }]);
-        expect((await call(app, '/a/')).status).toBe(200);
-        expect((await call(app, '/a/5')).status).toBe(404);
+        expect(getControllerRoutes(LedBySlash)).toEqual([{ method: 'GET', path: '/a{/:id}' }]);
+        expect(getControllerRoutes(WithoutSlash)).toEqual([{ method: 'GET', path: '/b/{:id}' }]);
+        expect(await (await call(app, '/a')).json()).toEqual({ id: null });
+        expect(await (await call(app, '/a/')).json()).toEqual({ id: null });
+        expect(await (await call(app, '/a/5')).json()).toEqual({ id: '5' });
 
         expect((await call(app, '/b')).status).toBe(404);
         expect(await (await call(app, '/b/')).json()).toEqual({ id: null });

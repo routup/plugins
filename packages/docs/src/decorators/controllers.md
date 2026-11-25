@@ -27,7 +27,7 @@ curl http://localhost:3000/members/3
 
 - **Several paths.** With an array, every route of the class answers under each path: `/users/:id` and `/members/:id` above.
 - **Path joining.** A route's path is the controller path, a slash and the method path. A method path without a leading slash (`':id'`) gives the same route as one with it (`'/:id'`), and `''` answers at the controller path itself (`/users`).
-- **Optional groups.** An optional group that starts with a slash comes after the added slash: `'{/:id}'` under `/users` becomes `/users/{/:id}`, which matches `/users/` but not `/users/5`. `'{:id}'` matches `/users/` and `/users/5`, but not `/users`. For an optional trailing id, declare two methods, `''` and `'/:id'`.
+- **Optional groups.** An optional group that starts with a slash replaces the added slash: `'{/:id}'` under `/users` becomes `/users{/:id}`, which matches `/users`, `/users/` and `/users/5`, an optional trailing id. `'{:id}'` comes after the slash, `/users/{:id}`, and matches `/users/` and `/users/5`, but not `/users`.
 - **Middlewares.** Classes in `middlewares` run for every request whose path is under a controller path, for any HTTP method, also for a path no method of the class answers; see [Middleware](#middleware).
 - **Without `@DController()`** the methods of a class are mounted at the root of the app.
 
