@@ -52,7 +52,7 @@ As soon as you set one format, the others stay off unless you set them too: `bod
 ### Content Types
 
 - A request without a `content-type` header matches every parser. With `json` enabled it is parsed as JSON, and a body that is not JSON answers `400`; with only `urlEncoded` enabled it is parsed as a form.
-- The media type before `;` must match one of the parser's `type` values; parameters such as `charset` and case are ignored. A value may be a pattern such as `application/*+json` (JSON:API and other `+json` types) or `text/*`; an extension such as `json` is compared exactly.
+- The media type before `;` must match one of the parser's `type` values; parameters such as `charset` and case are ignored. A value may be a pattern such as `application/*+json` (JSON:API and other `+json` types) or `text/*`, and an extension such as `json` stands for its media type.
 - `multipart/form-data` is not parsed. Use `event.request.formData()` for file uploads from forms.
 
 ### Compression

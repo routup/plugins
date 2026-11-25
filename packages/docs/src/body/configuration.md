@@ -46,7 +46,7 @@ The JSON parser of `readRequestBody()`. An empty body gives `{}`.
 | `cache` | `boolean` | always on | The parser caches the raw bytes whatever this says |
 | `strict` | `boolean` | `true` | Only accept objects and arrays; any other JSON value answers `400` |
 | `reviver` | `(key: string, value: unknown) => unknown` | none | Passed to `JSON.parse` |
-| `type` | `string \| string[]` | `'application/json'` | Content types to parse: a media type or a pattern such as `application/*+json`, compared without parameters and case, or an extension such as `json`, compared exactly |
+| `type` | `string \| string[]` | `'application/json'` | Content types to parse: a media type, a pattern such as `application/*+json`, or an extension such as `json`; parameters and case are ignored |
 
 With `strict: false`, a primitive or `null` is the result of `readRequestBody()`, and a keyed read of it resolves to `undefined`.
 

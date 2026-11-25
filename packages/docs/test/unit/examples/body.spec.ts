@@ -276,6 +276,10 @@ describe('behaviour stated on the pages', () => {
         expect(await (await wildcard.fetch(post('/', '{"a":1}', { 'content-type': 'application/xml' }))).json()).toEqual({});
         expect(await (await charset.fetch(post('/', '{"a":1}', { 'content-type': 'Application/JSON' }))).json()).toEqual({ a: 1 });
 
+        const extension = create({ json: { type: 'json' } }, (event) => readRequestBody(event));
+
+        expect(await (await extension.fetch(post('/', '{"a":1}', { 'content-type': 'Application/JSON' }))).json()).toEqual({ a: 1 });
+
         const listed = create({ json: { type: ['application/json', 'application/vnd.api+json'] } }, (event) => readRequestBody(event));
 
         expect(await (await listed.fetch(post('/', '{"a":1}', { 'content-type': 'application/vnd.api+json' }))).json()).toEqual({ a: 1 });
