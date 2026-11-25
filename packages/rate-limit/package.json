@@ -50,7 +50,7 @@
         "routup": "^6.3.0"
     },
     "devDependencies": {
-        "routup": "^6.5.0"
+        "routup": "^6.5.1"
     },
     "publishConfig": {
         "access": "public"
