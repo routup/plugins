@@ -1,5 +1,12 @@
 # Change Log
 
+## [6.2.0](https://github.com/routup/plugins/compare/assets-v6.1.0...assets-v6.2.0) (2026-11-25)
+
+
+### Features
+
+* fix bodiless DConsumes requests and adopt routup 6.5.0 features ([#889](https://github.com/routup/plugins/issues/889)) ([c836f8d](https://github.com/routup/plugins/commit/c836f8d14eca558d65306bb730dd2a1609540b70))
+
 ## [6.1.0](https://github.com/routup/plugins/compare/assets-v6.0.0...assets-v6.1.0) (2026-11-22)
 
 
