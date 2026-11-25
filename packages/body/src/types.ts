@@ -78,6 +78,16 @@ export type RawOptions = BaseOptions & {
 };
 
 export type Options = {
+    /**
+     * Check the content-type of a request with a body in `readRequestBody()`
+     * against the `type` lists of the enabled `json` and `urlEncoded`
+     * parsers: a missing or unlisted media type answers 415, a malformed one
+     * 400. A list entry may be a pattern such as `application/*+json`.
+     * Otherwise, a body of another media type is read as `{}`.
+     *
+     * @default false
+     */
+    strictContentType?: boolean;
     json?: JsonOptions | boolean;
     raw?: RawOptions | boolean;
     text?: TextOptions | boolean;
