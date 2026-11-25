@@ -1,3 +1,4 @@
+// Upstream: routup/routup#1022 (local copy until matchRequestContentType matches patterns)
 /**
  * Whether a media type (lowercase, no parameters) matches a type or a
  * pattern such as `text/*` or `application/*+json`, by the rules of routup's
