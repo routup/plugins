@@ -38,7 +38,7 @@ Serving a `public/` or `dist/` folder next to an API looks like one `sendFile` c
 npm install @routup/assets
 ```
 
-ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.5.0`. The plugin reads from the local filesystem (`node:fs`), so it runs on Node.js-compatible runtimes only.
 
 ## Quick Start
 
