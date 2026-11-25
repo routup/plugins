@@ -16,7 +16,7 @@ Reads the request body of a routup app as parsed JSON or form data, text, bytes,
 ## Requirements
 
 - Node.js 24 or later, ESM only
-- `routup` `^6.5.0` (peer dependency)
+- `routup` `^6.5.1` (peer dependency)
 
 ## Installation
 

@@ -2,6 +2,10 @@ import type { IAppEvent } from 'routup';
 import { matchRequestContentType } from 'routup';
 import { matchMediaType } from './match-media-type';
 
+// type "/" subtype, both RFC 9110 tokens, as routup's
+// assertRequestContentType() accepts them.
+const MEDIA_TYPE = /^[!#$%&'*+.^_`|~0-9a-z-]+\/[!#$%&'*+.^_`|~0-9a-z-]+$/;
+
 /**
  * Whether the request content-type is one of the given types. A request
  * without a content-type matches. A type may be a pattern such as `text/*`
@@ -18,6 +22,13 @@ export function matchContentType(
     }
 
     const mediaType = header.split(';')[0]!.trim().toLowerCase();
+
+    // A malformed media type (`application/json/extra`) matches nothing,
+    // also not a pattern.
+    if (!MEDIA_TYPE.test(mediaType)) {
+        return false;
+    }
+
     const typeList = Array.isArray(types) ? types : [types];
 
     return typeList.some((type) => (type.includes('/') ?

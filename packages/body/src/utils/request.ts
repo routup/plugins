@@ -24,9 +24,10 @@ export function hasRequestBody(event: IAppEvent): boolean {
     const contentLength = headers.get('content-length');
 
     if (contentLength !== null) {
-        // An invalid length (`abc`, `3, 3`) counts as a body, so that it is
-        // checked rather than let through.
-        return Number(contentLength) !== 0;
+        // Only a decimal `0` is no body: an invalid length (`abc`, `0x0`,
+        // `3, 3`, empty) counts as one, so that it is checked rather than
+        // let through.
+        return !/^\d+$/.test(contentLength) || Number(contentLength) !== 0;
     }
 
     return headers.has('content-type');

@@ -15,7 +15,7 @@ The plugins are ESM only and are developed and tested on Node.js 24 or later. Ea
 |---------|----------|-------------------------|
 | [`@routup/assets`](/assets/) | `^6.5.0` | none |
 | [`@routup/basic`](/basic/) | `^6.5.0` | none |
-| [`@routup/body`](/body/) | `^6.5.0` | none |
+| [`@routup/body`](/body/) | `^6.5.1` | none |
 | [`@routup/cookie`](/cookie/) | `^6.3.0` | none |
 | [`@routup/cors`](/cors/) | `^6.3.0` | none |
 | [`@routup/decorators`](/decorators/) | `^6.5.0` | `@trapi/core` `^2.3.0`, `@trapi/metadata` `^2.3.0`, `@trapi/swagger` `^2.3.0` (optional, for OpenAPI generation) |

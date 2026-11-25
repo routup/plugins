@@ -36,9 +36,10 @@ function assertBodyContentType(event: IAppEvent, options: Options): void {
     }
 
     // The parsers decide by `matchContentType()`, which also resolves an
-    // extension such as `json`; routup only shapes the 415 or 400.
+    // extension such as `json`; routup only shapes the 415 or 400. A missing
+    // or empty header matches there, so it goes to routup directly.
     if (
-        !event.request.headers.has('content-type') ||
+        !event.request.headers.get('content-type') ||
         !matchContentType(event, types)
     ) {
         assertRequestContentType(event, types);

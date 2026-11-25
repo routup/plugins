@@ -50,10 +50,10 @@
     },
     "homepage": "https://github.com/routup/plugins#readme",
     "peerDependencies": {
-        "routup": "^6.5.0"
+        "routup": "^6.5.1"
     },
     "devDependencies": {
-        "routup": "^6.5.0"
+        "routup": "^6.5.1"
     },
     "publishConfig": {
         "access": "public"

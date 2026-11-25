@@ -18,7 +18,7 @@ function createApp(options: Options) {
 function send(app: App, contentType: string | undefined, payload: string) {
     const headers: Record<string, string> = { 'content-length': `${payload.length}` };
 
-    if (contentType) {
+    if (typeof contentType === 'string') {
         headers['content-type'] = contentType;
     }
 
@@ -67,6 +67,39 @@ describe('strictContentType', () => {
 
         expect((await send(app, 'text/plain', 'a')).status).toEqual(415);
         expect((await send(app, undefined, '{"a":1}')).status).toEqual(415);
+    });
+
+    it('should answer 415 for an empty content-type', async () => {
+        const app = createApp({ strictContentType: true });
+
+        expect((await send(app, '', '{"a":1}')).status).toEqual(415);
+    });
+
+    it('should answer 400 for a malformed media type a pattern would match', async () => {
+        const app = createApp({ strictContentType: true, json: { type: 'application/*' } });
+
+        expect((await send(app, 'application/json/extra', '{"a":1}')).status).toEqual(400);
+    });
+
+    it('should check a body with a content-length that is not a decimal', async () => {
+        const app = createApp({ strictContentType: true });
+
+        for (const length of ['0x0', '']) {
+            const response = await app.fetch(new Request('http://localhost/', {
+                method: 'POST',
+                headers: { 'content-length': length, 'content-type': 'text/plain' },
+                body: 'a',
+            }));
+
+            expect(response.status).toEqual(415);
+        }
+    });
+
+    it('should resolve an extension ignoring case', async () => {
+        const app = createApp({ strictContentType: true, json: { type: 'json' } });
+        const response = await send(app, 'Application/JSON; charset=utf-8', '{"a":1}');
+
+        expect(await response.json()).toEqual({ a: 1 });
     });
 
     it('should only accept the media types of the enabled parsers', async () => {
