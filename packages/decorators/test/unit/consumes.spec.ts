@@ -144,6 +144,18 @@ describe('DConsumes', () => {
         expect(response.status).toEqual(415);
     });
 
+    it('should check a body with a content-length that is not a decimal', async () => {
+        for (const length of ['0x0', '']) {
+            const response = await createApp().fetch(new Request('http://localhost/items', {
+                method: 'POST',
+                headers: { 'content-length': length, 'content-type': 'text/plain' },
+                body: 'a',
+            }));
+
+            expect(response.status).toEqual(415);
+        }
+    });
+
     it('should not check a request with content-length 0', async () => {
         const response = await createApp().fetch(new Request('http://localhost/items', {
             method: 'DELETE',
