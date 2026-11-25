@@ -47,6 +47,21 @@ curl -I http://localhost:3000/about
 # cache-control: public,max-age=0,must-revalidate
 ```
 
+## Set the Media Type
+
+`Content-Type` comes from the file name only when no handler before the plugin has set it; a type set by middleware is kept. Here `/source/...` sends the HTML files as plain text.
+
+<<< @/../examples/assets/media-type.ts
+
+```bash
+curl -I http://localhost:3000/source/about.html
+# content-type: text/plain; charset=utf-8
+curl -I http://localhost:3000/about.html
+# content-type: text/html; charset=utf-8
+```
+
+This also applies to a type that middleware sets for every response, such as a JSON default for an API: the files then go out with that type too. Set such a default only on the routes that need it, or register the plugin before that middleware.
+
 ## Answer Missing Files
 
 `resolve` builds the response for a path without a file, here a JSON `404` instead of passing the request on.

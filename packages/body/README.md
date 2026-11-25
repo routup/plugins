@@ -37,7 +37,7 @@ You stop writing buffering, size limits, decompression and content-type checks; 
 npm install @routup/body
 ```
 
-ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.5.1`.
 
 ## Quick Start
 

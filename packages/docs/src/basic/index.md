@@ -16,7 +16,7 @@ Registers the request body, cookie and query string parsers in a routup app with
 ## Requirements
 
 - Node.js 24 or later, ESM only
-- `routup` `^6.3.0` (peer dependency)
+- `routup` `^6.5.1` (peer dependency)
 - `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies
 
 ## Installation

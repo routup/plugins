@@ -16,8 +16,13 @@ relatedPlugins: [basic]
 | `urlEncoded` | `UrlEncodedOptions \| boolean` | `true` when no format is set | Parse URL-encoded form bodies in `readRequestBody()` |
 | `raw` | `RawOptions \| boolean` | none | Default options of `readRequestBodyBytes()`, `readRequestBodyArrayBuffer()` and `readRequestBodyBlob()` |
 | `text` | `TextOptions \| boolean` | none | Default options of `readRequestBodyText()` |
+| `strictContentType` | `boolean` | `false` | Answer `415` in `readRequestBody()` for a body whose content-type no enabled parser accepts ([Strict Media Types](#strict-media-types)) |
 
 When no entry is set at all, `body()` sets `json` and `urlEncoded` to `true` on the options object you passed. Once one entry is set, the others stay off: `body({ text: true })` enables only `text`, and `readRequestBody()` then returns `{}`. Set `json: true, urlEncoded: true` as well to keep them.
+
+### Strict Media Types
+
+By default, `readRequestBody()` returns `{}` for a body of a media type no parser accepts, and parses a body without a content-type as JSON. With `strictContentType: true` it checks the content-type with routup's [`assertRequestContentType()`](https://routup.dev/api/request-helpers) against the `type` lists of the enabled `json` and `urlEncoded` parsers: a missing or unlisted content-type answers `415`, a malformed one `400`. A request without a body is not checked and reads as `{}`. Whether it has one is decided by its framing: a `transfer-encoding` header or a `content-length` other than `0`, or, with neither header, a `content-type`. With neither `json` nor `urlEncoded` enabled, every body answers `415`. The other helpers do not check the content-type. [Reject Other Media Types](/body/recipes#reject-other-media-types) shows it.
 
 ### Size Limits
 
@@ -41,7 +46,7 @@ The JSON parser of `readRequestBody()`. An empty body gives `{}`.
 | `cache` | `boolean` | always on | The parser caches the raw bytes whatever this says |
 | `strict` | `boolean` | `true` | Only accept objects and arrays; any other JSON value answers `400` |
 | `reviver` | `(key: string, value: unknown) => unknown` | none | Passed to `JSON.parse` |
-| `type` | `string \| string[]` | `'application/json'` | Content types to parse |
+| `type` | `string \| string[]` | `'application/json'` | Content types to parse: a media type, a pattern such as `application/*+json`, or an extension such as `json`; parameters and case are ignored |
 
 With `strict: false`, a primitive or `null` is the result of `readRequestBody()`, and a keyed read of it resolves to `undefined`.
 
@@ -54,7 +59,7 @@ The URL-encoded parser of `readRequestBody()`, for HTML forms. Fields that appea
 | `limit` | `number \| string` | none | Maximum body size ([Size Limits](#size-limits)) |
 | `cache` | `boolean` | always on | The parser caches the raw bytes whatever this says |
 | `parameterLimit` | `number` | `1000` | Maximum number of fields; more answer `413` |
-| `type` | `string \| string[]` | `'application/x-www-form-urlencoded'` | Content types to parse |
+| `type` | `string \| string[]` | `'application/x-www-form-urlencoded'` | Content types to parse, as for `json` |
 
 ### `raw`
 

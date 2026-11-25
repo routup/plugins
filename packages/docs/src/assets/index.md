@@ -16,7 +16,7 @@ Serves the files of a directory, such as a `public/` or `dist/` folder next to a
 ## Requirements
 
 - Node.js 24 or later, ESM only
-- `routup` `^6.3.0` (peer dependency)
+- `routup` `^6.5.0` (peer dependency)
 - A runtime with `node:fs`: the plugin reads from the local filesystem
 
 ## Installation
@@ -62,7 +62,7 @@ A file is sent with routup's `sendFile()`:
 
 | Header | Value |
 |--------|-------|
-| `Content-Type` | From the file name |
+| `Content-Type` | From the file name, unless a handler before the plugin has set it ([Set the Media Type](/assets/recipes#set-the-media-type)) |
 | `Content-Length` | The file size, or the size of the range |
 | `Cache-Control` | `public,max-age=0,must-revalidate` ([`cacheMaxAge`](/assets/configuration#cachemaxage)) |
 | `ETag` | Weak: `W/"<size>-<mtime in ms>"` |
@@ -71,6 +71,7 @@ A file is sent with routup's `sendFile()`:
 
 - A request whose `If-None-Match` equals the ETag gets `304` without a body, before the file is opened, whatever its method. An `If-Modified-Since` that is not older than the file also gets `304` (GET and HEAD).
 - A `Range` header with one byte range gets `206` and that part of the file (GET).
+- A range that starts after the end of the file gets `416` with `Content-Range: bytes */<size>`, without a body, `Content-Type` and `Content-Disposition`.
 - An empty file is sent without `ETag`, `Last-Modified`, `Content-Length` and `Accept-Ranges`.
 
 For a single file or content built at request time, use routup's `sendFile()` or `sendStream()` directly ([Response Helpers](https://routup.dev/api/response-helpers)).
@@ -79,4 +80,4 @@ For a single file or content built at request time, use routup's `sendFile()` or
 
 - [Configuration](/assets/configuration): cache headers, the single-page-app fallback, extensions, dotfiles and ignored paths
 - [Helpers](/assets/helpers): `assets()`, `createHandler()`, `createCoreHandler()` and the types
-- [Recipes](/assets/recipes): several folders, a path prefix, cache headers for hashed files, a response for missing files, a single-page app
+- [Recipes](/assets/recipes): several folders, a path prefix, cache headers for hashed files, the media type, a response for missing files, a single-page app

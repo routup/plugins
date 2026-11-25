@@ -2,10 +2,12 @@
 import { describe, expect, it } from 'vitest';
 import { body } from '@routup/body';
 import { App } from 'routup';
+import { serve } from 'routup/node';
 import {
     DBody,
     DConsumes,
     DController,
+    DDelete,
     DGet,
     DPost,
     DPut,
@@ -30,6 +32,11 @@ class ItemController {
     @DConsumes('application/*+xml')
     replace() {
         return 'replaced';
+    }
+
+    @DDelete('/')
+    drop() {
+        return 'dropped';
     }
 }
 
@@ -79,9 +86,19 @@ describe('DConsumes', () => {
 
     it('should answer 415 for a body without content-type', async () => {
         const app = createApp();
-        const response = await app.fetch(new Request('http://localhost/items', {
+
+        let response = await app.fetch(new Request('http://localhost/items', {
             method: 'POST',
             body: new Uint8Array([1]),
+            headers: { 'content-length': '1' },
+        }));
+
+        expect(response.status).toEqual(415);
+
+        response = await app.fetch(new Request('http://localhost/items', {
+            method: 'POST',
+            body: new Uint8Array([1]),
+            headers: { 'transfer-encoding': 'chunked' },
         }));
 
         expect(response.status).toEqual(415);
@@ -97,6 +114,95 @@ describe('DConsumes', () => {
         const response = await createApp().fetch(new Request('http://localhost/items'));
 
         expect(response.status).toEqual(200);
+    });
+
+    it('should not check a body stream without framing headers or content-type', async () => {
+        // The Node listener gives every request but GET and HEAD a body
+        // stream, also when the message has no body (#888).
+        const response = await createApp().fetch(new Request('http://localhost/items', {
+            method: 'DELETE',
+            body: new ReadableStream({ start: (controller) => controller.close() }),
+            duplex: 'half',
+        } as RequestInit));
+
+        expect(response.status).toEqual(200);
+    });
+
+    it('should not check a GET with framing headers', async () => {
+        const response = await createApp().fetch(new Request('http://localhost/items', { headers: { 'content-length': '3', 'content-type': 'text/plain' } }));
+
+        expect(response.status).toEqual(200);
+    });
+
+    it('should check a body with an invalid content-length', async () => {
+        const response = await createApp().fetch(new Request('http://localhost/items', {
+            method: 'POST',
+            headers: { 'content-length': 'abc' },
+            body: new Uint8Array([1]),
+        }));
+
+        expect(response.status).toEqual(415);
+    });
+
+    it('should check a body with a content-length that is not a decimal', async () => {
+        for (const length of ['0x0', '']) {
+            const response = await createApp().fetch(new Request('http://localhost/items', {
+                method: 'POST',
+                headers: { 'content-length': length, 'content-type': 'text/plain' },
+                body: 'a',
+            }));
+
+            expect(response.status).toEqual(415);
+        }
+    });
+
+    it('should not check a request with content-length 0', async () => {
+        const response = await createApp().fetch(new Request('http://localhost/items', {
+            method: 'DELETE',
+            headers: { 'content-length': '0', 'content-type': 'text/plain' },
+        }));
+
+        expect(response.status).toEqual(200);
+    });
+
+    it('should check a body without framing headers that declares a content-type', async () => {
+        const response = await send(createApp(), 'POST', '/items', 'text/plain');
+
+        expect(response.status).toEqual(415);
+    });
+
+    it('should decide by the message framing behind the Node listener', async () => {
+        const server = serve(createApp(), {
+            port: 0, 
+            silent: true, 
+            gracefulShutdown: false, 
+        });
+
+        try {
+            await server.ready();
+
+            const base = server.url!.replace(/\/$/, '');
+
+            expect((await fetch(`${base}/items`, { method: 'DELETE' })).status).toEqual(200);
+            expect((await fetch(`${base}/items`, { method: 'POST' })).status).toEqual(200);
+
+            let response = await fetch(`${base}/items`, {
+                method: 'POST',
+                body: '{"a":1}',
+                headers: { 'content-type': 'application/json' },
+            });
+
+            expect(response.status).toEqual(200);
+            expect(await response.json()).toEqual({ a: 1 });
+
+            response = await fetch(`${base}/items`, {
+                method: 'POST',
+                body: new Uint8Array([1]),
+            });
+            expect(response.status).toEqual(415);
+        } finally {
+            await server.close(true);
+        }
     });
 
     it('should accept the class and the method media types together', async () => {

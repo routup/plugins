@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { App } from 'routup';
+import { App, defineCoreHandler } from 'routup';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -60,6 +60,56 @@ describe('src/module', () => {
         expect(await response.text()).toEqual('console.log(\'foo\');\n');
         expect(response.headers.get('content-type')).toEqual('text/javascript; charset=utf-8');
         expect(response.headers.get('content-length')).toEqual('20');
+    });
+
+    describe('content type set before the plugin', () => {
+        function createApp(headers: Record<string, string>) {
+            const router = new App();
+
+            router.use(defineCoreHandler((event) => {
+                for (const [key, value] of Object.entries(headers)) {
+                    event.response.headers.set(key, value);
+                }
+
+                return event.next();
+            }));
+            router.use(assets(directoryPath));
+
+            return router;
+        }
+
+        it('should keep a content type set by earlier middleware', async () => {
+            const router = createApp({ 'content-type': 'application/x-custom' });
+
+            const response = await router.fetch(createTestRequest('/file.txt'));
+
+            expect(response.status).toEqual(200);
+            expect(await response.text()).toEqual('foo\n');
+            expect(response.headers.get('content-type')).toEqual('application/x-custom');
+        });
+
+        it('should infer the content type from the file name without one', async () => {
+            const router = createApp({ 'x-foo': 'bar' });
+
+            const response = await router.fetch(createTestRequest('/file.js'));
+
+            expect(response.headers.get('x-foo')).toEqual('bar');
+            expect(response.headers.get('content-type')).toEqual('text/javascript; charset=utf-8');
+        });
+
+        it('should drop content type and disposition of an unsatisfiable range', async () => {
+            const router = createApp({
+                'content-type': 'application/x-custom',
+                'content-disposition': 'attachment; filename="file.txt"',
+            });
+
+            const response = await router.fetch(createTestRequest('/file.txt', { headers: { range: 'bytes=10-' } }));
+
+            expect(response.status).toEqual(416);
+            expect(response.headers.get('content-range')).toEqual('bytes */4');
+            expect(response.headers.get('content-type')).toBeNull();
+            expect(response.headers.get('content-disposition')).toBeNull();
+        });
     });
 
     it('should not serve file', async () => {

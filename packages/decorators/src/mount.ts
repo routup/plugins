@@ -13,6 +13,7 @@ import {
     isObject,
 } from './utils';
 import { useResolvedDecoratorMeta } from './utils/meta';
+import { hasRequestBody } from './utils/request';
 
 type RegisterControllerOptions = {
     /**
@@ -70,7 +71,7 @@ function buildControllerApp(
                     ...(meta.responses[propertyKey]?.consumes ?? []),
                 ];
 
-                if (consumes.length > 0 && event.request.body !== null) {
+                if (consumes.length > 0 && hasRequestBody(event)) {
                     assertRequestContentType(event, consumes);
                 }
 

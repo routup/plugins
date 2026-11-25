@@ -1,9 +1,50 @@
 import type { IAppEvent } from 'routup';
+import { assertRequestContentType } from 'routup';
 import { BodySymbol } from '../constants';
-import { boolToObject, isObject } from '../utils';
+import type { Options } from '../types';
+import {
+    boolToObject,
+    hasRequestBody,
+    isObject,
+    matchContentType,
+} from '../utils';
 import { getBodyOptions } from './options';
 import { parseJsonBody } from './parse-json';
 import { parseUrlEncodedBody } from './parse-url-encoded';
+
+function toList(input: string | string[]): string[] {
+    return Array.isArray(input) ? input : [input];
+}
+
+/**
+ * Answers 415 for a body whose content-type no enabled parser accepts, and
+ * 400 for a malformed one (`strictContentType`).
+ */
+function assertBodyContentType(event: IAppEvent, options: Options): void {
+    if (!hasRequestBody(event)) {
+        return;
+    }
+
+    const types: string[] = [];
+
+    if (options.json) {
+        types.push(...toList(boolToObject(options.json).type ?? 'application/json'));
+    }
+
+    if (options.urlEncoded) {
+        types.push(...toList(boolToObject(options.urlEncoded).type ?? 'application/x-www-form-urlencoded'));
+    }
+
+    // The parsers decide by `matchContentType()`, which also resolves an
+    // extension such as `json`; routup only shapes the 415 or 400. A missing
+    // or empty header matches there, so it goes to routup directly.
+    if (
+        !event.request.headers.get('content-type') ||
+        !matchContentType(event, types)
+    ) {
+        assertRequestContentType(event, types);
+    }
+}
 
 function pick(body: unknown, key?: string) {
     if (typeof key !== 'string') {
@@ -52,6 +93,10 @@ export async function readRequestBody(event: IAppEvent, key?: string) {
     let body: Record<string, any> | undefined;
 
     try {
+        if (options.strictContentType) {
+            assertBodyContentType(event, options);
+        }
+
         if (options.json) {
             body = await parseJsonBody(event, boolToObject(options.json));
         }

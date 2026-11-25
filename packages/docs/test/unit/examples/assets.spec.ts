@@ -19,6 +19,7 @@ import { App, defineCoreHandler } from 'routup';
 import { assets, buildOptions, createHandler } from '@routup/assets';
 import type { OptionsInput } from '@routup/assets';
 import { app as cacheHeaders } from '../../../examples/assets/cache-headers';
+import { app as mediaType } from '../../../examples/assets/media-type';
 import { app as missingFile } from '../../../examples/assets/missing-file';
 import { app as pathPrefix } from '../../../examples/assets/path-prefix';
 import { app as quickStart } from '../../../examples/assets/quick-start';
@@ -148,6 +149,55 @@ describe('cache-headers', () => {
 
         expect(head.status).toBe(200);
         expect(head.headers.get('cache-control')).toBe('public,max-age=31536000,immutable');
+    });
+});
+
+describe('media-type', () => {
+    it('keeps the type set before the plugin', async () => {
+        const response = await mediaType.fetch(request('/source/about.html'));
+
+        expect(response.status).toBe(200);
+        expect(await response.text()).toContain('<h1>About</h1>');
+        expect(response.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+    });
+
+    it('derives the type from the file name otherwise', async () => {
+        const response = await mediaType.fetch(request('/about.html'));
+
+        expect(response.headers.get('content-type')).toBe('text/html; charset=utf-8');
+    });
+
+    it('keeps a type set for every response', async () => {
+        const app = new App();
+
+        app.use(defineCoreHandler((event) => {
+            event.response.headers.set('content-type', 'application/json');
+
+            return event.next();
+        }));
+        app.use(assets(publicDir));
+
+        expect((await app.fetch(request('/robots.txt'))).headers.get('content-type')).toBe('application/json');
+    });
+
+    it('answers a range after the end of the file with 416, without content type and disposition', async () => {
+        const app = new App();
+
+        app.use(defineCoreHandler((event) => {
+            event.response.headers.set('content-disposition', 'attachment');
+
+            return event.next();
+        }));
+        app.use(assets(publicDir));
+
+        const { size } = statSync(path.join(publicDir, 'robots.txt'));
+        const response = await app.fetch(request('/robots.txt', { headers: { range: `bytes=${size}-` } }));
+
+        expect(response.status).toBe(416);
+        expect(response.headers.get('content-range')).toBe(`bytes */${size}`);
+        expect(response.headers.get('content-type')).toBeNull();
+        expect(response.headers.get('content-disposition')).toBeNull();
+        expect(await response.text()).toBe('');
     });
 });
 

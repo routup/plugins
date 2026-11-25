@@ -27,7 +27,7 @@ curl http://localhost:3000/members/3
 
 - **Several paths.** With an array, every route of the class answers under each path: `/users/:id` and `/members/:id` above.
 - **Path joining.** A route's path is the controller path, a slash and the method path. A method path without a leading slash (`':id'`) gives the same route as one with it (`'/:id'`), and `''` answers at the controller path itself (`/users`).
-- **Optional groups.** An optional group that starts with a slash comes after the added slash: `'{/:id}'` under `/users` becomes `/users/{/:id}`, which matches `/users/` but not `/users/5`. `'{:id}'` matches `/users/` and `/users/5`, but not `/users`. For an optional trailing id, declare two methods, `''` and `'/:id'`.
+- **Optional groups.** An optional group that starts with a slash replaces the added slash: `'{/:id}'` under `/users` becomes `/users{/:id}`, which matches `/users`, `/users/` and `/users/5`, an optional trailing id. `'{:id}'` comes after the slash, `/users/{:id}`, and matches `/users/` and `/users/5`, but not `/users`.
 - **Middlewares.** Classes in `middlewares` run for every request whose path is under a controller path, for any HTTP method, also for a path no method of the class answers; see [Middleware](#middleware).
 - **Without `@DController()`** the methods of a class are mounted at the root of the app.
 
@@ -60,12 +60,21 @@ A method returns the response value instead of sending it, as any routup handler
 | Returns an object, array, number or boolean | JSON, `application/json; charset=utf-8` |
 | Returns a string | Text, `text/plain; charset=utf-8` |
 | Returns a `Response` | That response, unchanged; `@DStatus()` and `@DProduces()` are not applied |
+| Returns a generator or async generator | A stream, one chunk per yielded value: a string or bytes as they are, `undefined` skipped, any other value as JSON. **No default `content-type`**; declare it with `@DProduces()`. See [Streaming](#streaming) |
 | Returns `null` | An empty body with the status of `event.response` (`200`, or the `@DStatus()` code) |
 | Returns `undefined` | **No response.** routup waits for `event.next()` to be called, so the request hangs until a [timeout](https://routup.dev/guide/timeouts) answers `408` ([Returning `undefined`](https://routup.dev/guide/handlers#returning-undefined)) |
 | Throws | The error goes to the error handlers; without one, routup answers with the error's status (`500` for a plain `Error`) and `{"status":500,"message":"..."}` when the request accepts JSON or sends no `Accept` header, the message as plain text otherwise. `@DStatus()` and `@DProduces()` are not applied |
 
 - To set a status or header from the method, take the event with [`@DContext()`](/decorators/parameters#dcontext) (`event.response.status = 201` above) or the response accumulator with [`@DResponse()`](/decorators/parameters#dresponse).
 - To hand the request on to the next matching handler, return `event.next()` from a method that takes the event with `@DContext()`.
+
+### Streaming
+
+A generator method, sync or `async` (`export()` above), streams its values.
+
+- **The first value is read before the response starts.** A throw before the first `yield` goes to the error handlers like any other throw, without the `@DStatus()` code or the `@DProduces()` media type. A throw after it errors the stream; the status is already sent.
+- **`@DStatus()` and `@DProduces()` are applied before the generator body runs**, which reads them from `event.response` and may still change them before its first `yield`.
+- **A cancelled response body closes the generator**, as when the client disconnects: its `finally` blocks run.
 
 ## Response Status and Media Type
 
@@ -130,7 +139,7 @@ declare function DConsumes(...mediaTypes: string[]): (target: any, propertyKey?:
 
 <<< @/../examples/decorators/consumes.ts
 
-- **Runtime:** a request with a body is checked with routup's [`assertRequestContentType()`](https://routup.dev/api/request-helpers) before its parameters are read and the method runs: a missing or unlisted `content-type` answers `415`, a malformed one `400`. The check ignores parameters (`charset`) and case, and a media type may be a pattern such as `text/*` or `application/*+json`. A request without a body, such as a `GET`, is not checked.
+- **Runtime:** a request with a body is checked with routup's [`assertRequestContentType()`](https://routup.dev/api/request-helpers) before its parameters are read and the method runs: a missing or unlisted `content-type` answers `415`, a malformed one `400`. The check ignores parameters (`charset`) and case, and a media type may be a pattern such as `text/*` or `application/*+json`. A request without a body, such as a `GET` or a bodiless `DELETE`, is not checked. Whether a request has a body is decided by its framing: a `transfer-encoding` header or a `content-length` other than `0`, or, with neither header, a `content-type`.
 - A route accepts the class-level and the method-level media types together, as the OpenAPI document lists them. A subclass also accepts the class-level media types of its parent, which its document leaves out, since the preset does not inherit class-level decorators ([Inheritance](#inheritance)).
 - Middlewares run before the check, so an authentication middleware still answers first.
 - **OpenAPI:** the media types are the request body media types of the operation.

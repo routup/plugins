@@ -13,12 +13,12 @@ The plugins are ESM only and are developed and tested on Node.js 24 or later. Ea
 
 | Package | `routup` | Other peer dependencies |
 |---------|----------|-------------------------|
-| [`@routup/assets`](/assets/) | `^6.3.0` | none |
-| [`@routup/basic`](/basic/) | `^6.3.0` | none |
-| [`@routup/body`](/body/) | `^6.3.0` | none |
+| [`@routup/assets`](/assets/) | `^6.5.0` | none |
+| [`@routup/basic`](/basic/) | `^6.5.1` | none |
+| [`@routup/body`](/body/) | `^6.5.1` | none |
 | [`@routup/cookie`](/cookie/) | `^6.3.0` | none |
 | [`@routup/cors`](/cors/) | `^6.3.0` | none |
-| [`@routup/decorators`](/decorators/) | `^6.5.0` | `@trapi/core` `^2.3.0`, `@trapi/metadata` `^2.3.0`, `@trapi/swagger` `^2.3.0` (optional, for OpenAPI generation) |
+| [`@routup/decorators`](/decorators/) | `^6.5.1` | `@trapi/core` `^2.3.0`, `@trapi/metadata` `^2.3.0`, `@trapi/swagger` `^2.3.0` (optional, for OpenAPI generation) |
 | [`@routup/i18n`](/i18n/) | `^6.3.0` | `ilingo` `^6.2.1` |
 | [`@routup/logger`](/logger/) | `^6.3.0` | none |
 | [`@routup/prometheus`](/prometheus/) | `^6.4.0` | `prom-client` `>=15.0.0` |

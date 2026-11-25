@@ -21,6 +21,7 @@ import { app as jsonLimit } from '../../../examples/body/json-limit';
 import { app as limitPerPath } from '../../../examples/body/limit-per-path';
 import { app as quickStart } from '../../../examples/body/quick-start';
 import { app as stream } from '../../../examples/body/stream';
+import { app as strictContentType } from '../../../examples/body/strict-content-type';
 import { app as text } from '../../../examples/body/text';
 import { app as webhook } from '../../../examples/body/webhook';
 
@@ -106,6 +107,41 @@ describe('form', () => {
 
         expect(response.status).toBe(413);
         expect(await response.json()).toEqual({ status: 413, message: 'too many parameters' });
+    });
+});
+
+describe('strict-content-type', () => {
+    it('parses a listed or suffix-matched JSON type', async () => {
+        for (const type of ['application/json; charset=utf-8', 'application/vnd.api+json']) {
+            const response = await strictContentType.fetch(post('/notes', '{"text":"hi"}', { 'content-type': type }));
+
+            expect(await response.json()).toEqual({ note: { text: 'hi' } });
+        }
+    });
+
+    it('answers 415 for another or a missing type, and 400 for a malformed one', async () => {
+        let response = await strictContentType.fetch(post('/notes', 'hi', { 'content-type': 'text/plain' }));
+
+        expect(response.status).toBe(415);
+
+        response = await strictContentType.fetch(post('/notes', 'text=hi', { 'content-type': 'application/x-www-form-urlencoded' }));
+        expect(response.status).toBe(415);
+
+        response = await strictContentType.fetch(post('/notes', new Uint8Array([123, 125]), { 'content-length': '2' }));
+        expect(response.status).toBe(415);
+
+        response = await strictContentType.fetch(post('/notes', '{}', { 'content-type': 'json' }));
+        expect(response.status).toBe(400);
+    });
+
+    it('reads a request without a body as {}', async () => {
+        const response = await strictContentType.fetch(new Request('http://localhost/notes', {
+            method: 'POST',
+            body: new ReadableStream({ start: (controller) => controller.close() }),
+            duplex: 'half',
+        } as RequestInit));
+
+        expect(await response.json()).toEqual({ note: {} });
     });
 });
 
@@ -229,14 +265,20 @@ describe('behaviour stated on the pages', () => {
         expect(await (await app.fetch(post('/', encode('a=1')))).json()).toEqual({ a: '1' });
     });
 
-    it('ignores content-type parameters and does not expand wildcards', async () => {
+    it('ignores content-type parameters and case, and matches patterns', async () => {
         const charset = create(undefined, (event) => readRequestBody(event));
 
         expect(await (await charset.fetch(post('/', '{"a":1}', { 'content-type': 'application/json; charset=utf-8' }))).json()).toEqual({ a: 1 });
 
         const wildcard = create({ json: { type: 'application/*+json' } }, (event) => readRequestBody(event));
 
-        expect(await (await wildcard.fetch(post('/', '{"a":1}', { 'content-type': 'application/vnd.api+json' }))).json()).toEqual({});
+        expect(await (await wildcard.fetch(post('/', '{"a":1}', { 'content-type': 'application/vnd.api+json' }))).json()).toEqual({ a: 1 });
+        expect(await (await wildcard.fetch(post('/', '{"a":1}', { 'content-type': 'application/xml' }))).json()).toEqual({});
+        expect(await (await charset.fetch(post('/', '{"a":1}', { 'content-type': 'Application/JSON' }))).json()).toEqual({ a: 1 });
+
+        const extension = create({ json: { type: 'json' } }, (event) => readRequestBody(event));
+
+        expect(await (await extension.fetch(post('/', '{"a":1}', { 'content-type': 'Application/JSON' }))).json()).toEqual({ a: 1 });
 
         const listed = create({ json: { type: ['application/json', 'application/vnd.api+json'] } }, (event) => readRequestBody(event));
 

@@ -25,6 +25,24 @@ curl -i -X POST http://localhost:3000/notes \
 
 Since only `json` is set, a form body is not parsed and `readRequestBody()` returns `{}`.
 
+## Reject Other Media Types
+
+`strictContentType` answers `415` for a body that no enabled parser accepts, instead of reading it as `{}` ([Strict Media Types](/body/configuration#strict-media-types)).
+
+<<< @/../examples/body/strict-content-type.ts
+
+```bash
+curl -i -X POST http://localhost:3000/notes \
+    -H 'content-type: application/vnd.api+json' \
+    -d '{"text":"hi"}'
+# {"note":{"text":"hi"}}
+
+curl -i -X POST http://localhost:3000/notes \
+    -H 'content-type: text/plain' \
+    -d 'hi'
+# HTTP/1.1 415 Unsupported Media Type
+```
+
 ## HTML Form
 
 A form posts `application/x-www-form-urlencoded`. A field sent more than once, such as a group of checkboxes, arrives as an array.

@@ -16,7 +16,7 @@ Write routup routes as TypeScript classes: `@DController()` sets the path of a c
 ## Requirements
 
 - Node.js 24 or later, ESM only
-- `routup` `^6.5.0` (peer dependency)
+- `routup` `^6.5.1` (peer dependency)
 - `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies. `@DBody()`, `@DQuery()`, `@DCookie()` and `@DCookies()` need their plugins registered before `decorators()`: see [Decorators and the Parsers](/guide/combining#decorators-and-the-parsers)
 - For [OpenAPI generation](#openapi-generation) only: `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` `^2.3.0` (optional peer dependencies). Only `@routup/decorators/preset` imports them, so install them where you generate the document. An older `@trapi/metadata` ignores `@DProduces` without an error. `@trapi/metadata` has `typescript` `>=5.0.0` as a peer dependency
 

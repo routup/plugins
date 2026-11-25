@@ -293,7 +293,7 @@ describe('paths', () => {
         ]);
     });
 
-    it('puts an optional group after the slash it adds', async () => {
+    it('lets an optional group led by a slash replace the slash it adds', async () => {
         @DController('/a')
         class LedBySlash {
             @DGet('{/:id}')
@@ -314,9 +314,11 @@ describe('paths', () => {
 
         app.use(decorators({ controllers: [LedBySlash, WithoutSlash] }));
 
-        expect(getControllerRoutes(LedBySlash)).toEqual([{ method: 'GET', path: '/a/{/:id}' }]);
-        expect((await call(app, '/a/')).status).toBe(200);
-        expect((await call(app, '/a/5')).status).toBe(404);
+        expect(getControllerRoutes(LedBySlash)).toEqual([{ method: 'GET', path: '/a{/:id}' }]);
+        expect(getControllerRoutes(WithoutSlash)).toEqual([{ method: 'GET', path: '/b/{:id}' }]);
+        expect(await (await call(app, '/a')).json()).toEqual({ id: null });
+        expect(await (await call(app, '/a/')).json()).toEqual({ id: null });
+        expect(await (await call(app, '/a/5')).json()).toEqual({ id: '5' });
 
         expect((await call(app, '/b')).status).toBe(404);
         expect(await (await call(app, '/b/')).json()).toEqual({ id: null });
@@ -344,6 +346,14 @@ describe('return-values', () => {
 
         expect(response.headers.get('content-type')).toBe('image/png');
         expect(new Uint8Array(await response.arrayBuffer())).toEqual(new Uint8Array([137, 80, 78, 71]));
+    });
+
+    it('streams a generator with the @DProduces media type', async () => {
+        const response = await call(returnValues, '/orders/export');
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('content-type')).toBe('text/csv');
+        expect(await response.text()).toBe('id\n1\n2\n');
     });
 
     it('answers with the status the method set on the event', async () => {
@@ -374,13 +384,30 @@ describe('consumes', () => {
         expect((await send('POST', '/notes', 'text/plain')).status).toBe(415);
         expect((await send('POST', '/notes', 'json')).status).toBe(400);
 
-        const response = await call(consumes, '/notes', { method: 'POST', body: new Uint8Array([1]) });
+        const response = await call(consumes, '/notes', {
+            method: 'POST',
+            headers: { 'content-length': '1' },
+            body: new Uint8Array([1]),
+        });
 
         expect(response.status).toBe(415);
     });
 
     it('does not check a request without a body', async () => {
         expect((await call(consumes, '/notes')).status).toBe(200);
+
+        // the Node listener hands a bodiless POST a body stream without
+        // framing headers
+        expect((await call(consumes, '/notes', {
+            method: 'POST',
+            body: new ReadableStream({ start: (controller) => controller.close() }),
+            duplex: 'half',
+        } as RequestInit)).status).toBe(200);
+
+        expect((await call(consumes, '/notes', {
+            method: 'POST',
+            headers: { 'content-length': '0', 'content-type': 'text/plain' },
+        })).status).toBe(200);
     });
 
     it('accepts the class and the method media types of a route', async () => {

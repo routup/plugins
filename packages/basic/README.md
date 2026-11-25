@@ -37,7 +37,7 @@ Most APIs need the request body, cookies and the query string. Installing and re
 npm install @routup/basic
 ```
 
-ESM only, Node.js >=24. Peer dependency: `routup@^6.3.0`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies.
+ESM only, Node.js >=24. Peer dependency: `routup@^6.5.1`. `@routup/body`, `@routup/cookie` and `@routup/query` are installed as dependencies.
 
 ## Quick Start
 
