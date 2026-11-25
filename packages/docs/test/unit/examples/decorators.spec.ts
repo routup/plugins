@@ -374,13 +374,30 @@ describe('consumes', () => {
         expect((await send('POST', '/notes', 'text/plain')).status).toBe(415);
         expect((await send('POST', '/notes', 'json')).status).toBe(400);
 
-        const response = await call(consumes, '/notes', { method: 'POST', body: new Uint8Array([1]) });
+        const response = await call(consumes, '/notes', {
+            method: 'POST',
+            headers: { 'content-length': '1' },
+            body: new Uint8Array([1]),
+        });
 
         expect(response.status).toBe(415);
     });
 
     it('does not check a request without a body', async () => {
         expect((await call(consumes, '/notes')).status).toBe(200);
+
+        // the Node listener hands a bodiless POST a body stream without
+        // framing headers
+        expect((await call(consumes, '/notes', {
+            method: 'POST',
+            body: new ReadableStream({ start: (controller) => controller.close() }),
+            duplex: 'half',
+        } as RequestInit)).status).toBe(200);
+
+        expect((await call(consumes, '/notes', {
+            method: 'POST',
+            headers: { 'content-length': '0', 'content-type': 'text/plain' },
+        })).status).toBe(200);
     });
 
     it('accepts the class and the method media types of a route', async () => {
