@@ -1,3 +1,4 @@
+// Upstream: routup/routup#1021 (local copy until routup ships hasRequestBody)
 import type { IAppEvent } from 'routup';
 
 /**
