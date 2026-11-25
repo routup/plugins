@@ -346,6 +346,14 @@ describe('return-values', () => {
         expect(new Uint8Array(await response.arrayBuffer())).toEqual(new Uint8Array([137, 80, 78, 71]));
     });
 
+    it('streams a generator with the @DProduces media type', async () => {
+        const response = await call(returnValues, '/orders/export');
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('content-type')).toBe('text/csv');
+        expect(await response.text()).toBe('id\n1\n2\n');
+    });
+
     it('answers with the status the method set on the event', async () => {
         const response = await call(returnValues, '/orders', { method: 'POST' });
 

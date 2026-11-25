@@ -5,6 +5,7 @@ import {
     DController,
     DGet,
     DPost,
+    DProduces,
     decorators,
 } from '@routup/decorators';
 
@@ -23,6 +24,16 @@ class OrderController {
     @DGet('/logo')
     logo() {
         return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { 'content-type': 'image/png' } });
+    }
+
+    @DGet('/export')
+    @DProduces('text/csv')
+    async* export() {
+        yield 'id\n';
+
+        for (const id of [1, 2]) {
+            yield `${id}\n`;
+        }
     }
 
     @DPost('')

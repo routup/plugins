@@ -60,12 +60,21 @@ A method returns the response value instead of sending it, as any routup handler
 | Returns an object, array, number or boolean | JSON, `application/json; charset=utf-8` |
 | Returns a string | Text, `text/plain; charset=utf-8` |
 | Returns a `Response` | That response, unchanged; `@DStatus()` and `@DProduces()` are not applied |
+| Returns a generator or async generator | A stream, one chunk per yielded value: a string or bytes as they are, `undefined` skipped, any other value as JSON. **No default `content-type`**; declare it with `@DProduces()`. See [Streaming](#streaming) |
 | Returns `null` | An empty body with the status of `event.response` (`200`, or the `@DStatus()` code) |
 | Returns `undefined` | **No response.** routup waits for `event.next()` to be called, so the request hangs until a [timeout](https://routup.dev/guide/timeouts) answers `408` ([Returning `undefined`](https://routup.dev/guide/handlers#returning-undefined)) |
 | Throws | The error goes to the error handlers; without one, routup answers with the error's status (`500` for a plain `Error`) and `{"status":500,"message":"..."}` when the request accepts JSON or sends no `Accept` header, the message as plain text otherwise. `@DStatus()` and `@DProduces()` are not applied |
 
 - To set a status or header from the method, take the event with [`@DContext()`](/decorators/parameters#dcontext) (`event.response.status = 201` above) or the response accumulator with [`@DResponse()`](/decorators/parameters#dresponse).
 - To hand the request on to the next matching handler, return `event.next()` from a method that takes the event with `@DContext()`.
+
+### Streaming
+
+A generator method, sync or `async` (`export()` above), streams its values.
+
+- **The first value is read before the response starts.** A throw before the first `yield` goes to the error handlers like any other throw, without the `@DStatus()` code or the `@DProduces()` media type. A throw after it errors the stream; the status is already sent.
+- **`@DStatus()` and `@DProduces()` are applied before the generator body runs**, which reads them from `event.response` and may still change them before its first `yield`.
+- **A cancelled response body closes the generator**, as when the client disconnects: its `finally` blocks run.
 
 ## Response Status and Media Type
 
